@@ -354,16 +354,27 @@ export namespace Components {
         "value": string;
     }
     /**
-     * Labelled single choice, form-associated. Options come from the `options` property or from child
-     * `<option>` elements (kept in sync, so `@for` / `*ngFor` over options works).
+     * Labelled single choice with its own dropdown list, form-associated. Options come from the `options`
+     * property or from child `<option>` elements (kept in sync, so `@for` / `*ngFor` over options works).
+     * Elements in the `footer` slot appear below the list, e.g. a button "Standorte bearbeiten"; clicking
+     * one closes the list.
+     * Keyboard: Enter, Space or Arrow keys open; Arrow keys, Home, End and typing a letter move; Enter
+     * or Space picks; Escape closes; Tab moves on to the footer.
      */
     interface KernSelect {
+        /**
+          * Accessible name when there is no visible label.
+         */
         "ariaLabelText"?: string;
         /**
           * @default false
          */
         "disabled": boolean;
         "error"?: string;
+        /**
+          * Closes the dropdown.
+         */
+        "hide": () => Promise<void>;
         "hint"?: string;
         "label"?: string;
         "name"?: string;
@@ -372,10 +383,18 @@ export namespace Components {
          */
         "options"?: KernOption1[];
         /**
+          * Shown when no option is selected.
+         */
+        "placeholder"?: string;
+        /**
           * @default false
          */
         "required": boolean;
         "setFocus": () => Promise<void>;
+        /**
+          * Opens the dropdown.
+         */
+        "show": () => Promise<void>;
         /**
           * @default 'md'
          */
@@ -875,8 +894,12 @@ declare global {
         "kernChange": { value: string };
     }
     /**
-     * Labelled single choice, form-associated. Options come from the `options` property or from child
-     * `<option>` elements (kept in sync, so `@for` / `*ngFor` over options works).
+     * Labelled single choice with its own dropdown list, form-associated. Options come from the `options`
+     * property or from child `<option>` elements (kept in sync, so `@for` / `*ngFor` over options works).
+     * Elements in the `footer` slot appear below the list, e.g. a button "Standorte bearbeiten"; clicking
+     * one closes the list.
+     * Keyboard: Enter, Space or Arrow keys open; Arrow keys, Home, End and typing a letter move; Enter
+     * or Space picks; Escape closes; Tab moves on to the footer.
      */
     interface HTMLKernSelectElement extends Components.KernSelect, HTMLStencilElement {
         addEventListener<K extends keyof HTMLKernSelectElementEventMap>(type: K, listener: (this: HTMLKernSelectElement, ev: KernSelectCustomEvent<HTMLKernSelectElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
@@ -1457,10 +1480,17 @@ declare namespace LocalJSX {
         "value"?: string;
     }
     /**
-     * Labelled single choice, form-associated. Options come from the `options` property or from child
-     * `<option>` elements (kept in sync, so `@for` / `*ngFor` over options works).
+     * Labelled single choice with its own dropdown list, form-associated. Options come from the `options`
+     * property or from child `<option>` elements (kept in sync, so `@for` / `*ngFor` over options works).
+     * Elements in the `footer` slot appear below the list, e.g. a button "Standorte bearbeiten"; clicking
+     * one closes the list.
+     * Keyboard: Enter, Space or Arrow keys open; Arrow keys, Home, End and typing a letter move; Enter
+     * or Space picks; Escape closes; Tab moves on to the footer.
      */
     interface KernSelect {
+        /**
+          * Accessible name when there is no visible label.
+         */
         "ariaLabelText"?: string;
         /**
           * @default false
@@ -1482,6 +1512,10 @@ declare namespace LocalJSX {
           * Takes precedence over child `<option>` elements.
          */
         "options"?: KernOption1[];
+        /**
+          * Shown when no option is selected.
+         */
+        "placeholder"?: string;
         /**
           * @default false
          */
@@ -1855,6 +1889,7 @@ declare namespace LocalJSX {
         "error": string;
         "value": string;
         "name": string;
+        "placeholder": string;
         "size": 'md' | 'sm';
         "disabled": boolean;
         "required": boolean;
@@ -2045,8 +2080,12 @@ declare module "@stencil/core" {
              */
             "kern-segmented": LocalJSX.IntrinsicElements["kern-segmented"] & JSXBase.HTMLAttributes<HTMLKernSegmentedElement>;
             /**
-             * Labelled single choice, form-associated. Options come from the `options` property or from child
-             * `<option>` elements (kept in sync, so `@for` / `*ngFor` over options works).
+             * Labelled single choice with its own dropdown list, form-associated. Options come from the `options`
+             * property or from child `<option>` elements (kept in sync, so `@for` / `*ngFor` over options works).
+             * Elements in the `footer` slot appear below the list, e.g. a button "Standorte bearbeiten"; clicking
+             * one closes the list.
+             * Keyboard: Enter, Space or Arrow keys open; Arrow keys, Home, End and typing a letter move; Enter
+             * or Space picks; Escape closes; Tab moves on to the footer.
              */
             "kern-select": LocalJSX.IntrinsicElements["kern-select"] & JSXBase.HTMLAttributes<HTMLKernSelectElement>;
             /**

@@ -65,6 +65,10 @@ zusätzlich Standalone-Wrapper mit `ControlValueAccessor` für `ngModel` und Rea
   und **blockiert das Absenden**, bis der Fehler entfernt ist.
 - **Optionen** für `kern-select` und `kern-segmented` kommen aus der Property `options` oder aus Kind-`<option>`;
   Änderungen an den Kindern werden übernommen (`@for` funktioniert).
+- **Auswahlliste:** `kern-select` öffnet eine eigene Liste (Popover über allem, nicht abgeschnitten von Karten oder
+  Tabellen) mit Tastaturbedienung (Pfeile, Home/End, Buchstaben, Enter, Escape). Elemente mit `slot="footer"`
+  erscheinen unter der Liste, z.B. `<kern-button slot="footer" variant="ghost" size="sm">Standorte bearbeiten …</kern-button>`;
+  ein Klick darauf schliesst die Liste. `placeholder` zeigt einen Text, solange nichts gewählt ist.
 - **Tabellen:** `kern-table` umschliesst eine native `<table>` ohne Shadow DOM, damit Zellen beliebiges Markup und
   Framework-Bindings enthalten können. Zellklassen `mono`, `num`, `empty`; Zeilen `clickable`, `dim`,
   `aria-selected="true"`; sortierbar mit `<th aria-sort><button>`.

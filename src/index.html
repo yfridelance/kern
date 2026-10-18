@@ -23,7 +23,10 @@
     <a slot="nav" href="#" aria-current="page">Inventar</a>
     <a slot="nav" href="#">Templates</a>
     <a slot="nav" href="#">Protokoll</a>
-    <kern-select slot="end" size="sm" aria-label-text="Standort wählen"><option value="1">Haus Seeblick</option><option value="2">Ferienwohnung</option></kern-select>
+    <kern-select slot="end" size="sm" aria-label-text="Standort wählen" style="width:180px">
+      <option value="1">Haus Seeblick</option><option value="2">Ferienwohnung</option><option value="3">Büro Bern</option>
+      <kern-button slot="footer" size="sm" variant="ghost" id="manage-sites">Standorte bearbeiten …</kern-button>
+    </kern-select>
     <kern-status slot="end" tone="ok">Server verbunden</kern-status>
     <kern-theme-toggle slot="end" small></kern-theme-toggle>
   </kern-topbar>
@@ -95,6 +98,7 @@
       <form id="form" class="grid">
         <kern-input name="range" label="IP-Bereich" mono value="192.168.1.0/24" hint="CIDR oder Start–End, max. 1024 Adressen" required></kern-input>
         <kern-select name="site" label="Standort"><option value="1">Haus Seeblick</option><option value="2">Ferienwohnung</option></kern-select>
+        <kern-select name="model" label="Modell" placeholder="Modell wählen"><option value="1pm">Plus 1PM</option><option value="2pm">Plus 2PM</option><option value="i4">Plus i4</option><option value="uni">Plus Uni</option><option value="ht" disabled>H&amp;T (nicht unterstützt)</option><option value="dimmer">Dimmer 2</option><option value="em">Pro 3EM</option><option value="mini">Mini 1PM Gen3</option><option value="s1">1PM Gen4</option><option value="rgbw">RGBW2</option></kern-select>
         <kern-input name="password" label="Gerätepasswort" type="password"></kern-input>
         <kern-textarea name="notes" label="Notizen" placeholder="Wo hängt das Gerät?"></kern-textarea>
         <div style="display:grid;gap:12px;align-content:start">
@@ -155,6 +159,7 @@
       const ok = await confirm({ heading: 'Werksreset «Küche Licht»', message: 'Das Gerät startet danach im AP-Modus.', confirmLabel: 'Zurücksetzen', danger: true, typeToConfirm: 'A4CF12F45B21' });
       document.getElementById('out').textContent = 'confirm → ' + ok;
     });
+    document.getElementById('manage-sites').addEventListener('click', () => (document.getElementById('out').textContent = 'Standorte bearbeiten geklickt'));
     document.getElementById('form').addEventListener('submit', (e) => {
       e.preventDefault();
       document.getElementById('out').textContent = JSON.stringify(Object.fromEntries(new FormData(e.target)), null, 2);

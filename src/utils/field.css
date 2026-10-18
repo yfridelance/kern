@@ -1,0 +1,23 @@
+/* Shared by kern-input, kern-textarea, kern-select: label, control, hint/error. */
+:host { display: grid; gap: var(--space-1); align-content: start; min-width: 0; }
+:host([hidden]) { display: none; }
+* { box-sizing: border-box; }
+
+.label { font-size: 12px; line-height: 16px; font-weight: 500; color: var(--text-muted); }
+.label .req { color: var(--danger); margin-left: 2px; }
+.hint { font-size: 12px; line-height: 16px; color: var(--text-muted); }
+.error { font-size: 12px; line-height: 16px; color: var(--danger); }
+
+.control {
+  width: 100%; height: var(--control-md); margin: 0; padding: 0 var(--space-3);
+  background: var(--surface-sunken); color: var(--text);
+  border: 1px solid var(--line-strong); border-radius: var(--radius-md);
+  font: 400 14px/20px var(--font-sans);
+}
+.control::placeholder { color: var(--text-faint); }
+.control:focus { outline: 2px solid var(--focus); outline-offset: -1px; border-color: var(--focus); }
+.control:disabled { opacity: .5; cursor: not-allowed; }
+:host([mono]) .control { font-family: var(--font-mono); font-size: 13px; }
+:host([size="sm"]) .control { height: var(--control-sm); padding: 0 var(--space-2); font-size: 13px; }
+:host([invalid]) .control { border-color: var(--danger); }
+:host([invalid]) .control:focus { outline-color: var(--danger); }

@@ -1,0 +1,16 @@
+:host { display: block; padding: var(--space-3); background: var(--surface-sunken); border: 1px solid var(--line); border-radius: var(--radius-md); font: 400 12.5px/20px var(--font-mono); color: var(--text); overflow: auto; }
+:host([hidden]) { display: none; }
+summary { list-style: none; cursor: pointer; border-radius: 2px; }
+summary::-webkit-details-marker { display: none; }
+summary::before { content: "▸"; display: inline-block; width: 14px; color: var(--text-faint); transition: transform .1s; }
+details[open] > summary::before { transform: rotate(90deg); }
+summary:hover { background: var(--hover); }
+summary:focus-visible { outline: 2px solid var(--focus); }
+.children { padding-left: 14px; margin-left: 5px; border-left: 1px solid var(--line); }
+.leaf { padding-left: 14px; white-space: pre-wrap; word-break: break-all; }
+.key { color: var(--json-key); }
+.string { color: var(--json-string); }
+.number { color: var(--json-number); }
+.literal { color: var(--json-literal); }
+.meta { color: var(--text-faint); }
+details[open] > summary .meta { display: none; }

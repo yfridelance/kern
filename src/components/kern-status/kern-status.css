@@ -1,0 +1,12 @@
+:host {
+  display: inline-flex; align-items: center; gap: var(--space-2); vertical-align: middle;
+  font-size: 13px; font-weight: 500; color: var(--text); white-space: nowrap;
+}
+:host([hidden]) { display: none; }
+.dot { width: 8px; height: 8px; flex: none; box-sizing: border-box; border-radius: 50%; border: 1.5px solid var(--text-faint); }
+:host([tone="ok"]) .dot { border: 0; background: var(--ok); box-shadow: 0 0 0 3px var(--ok-soft); }
+:host([tone="warn"]) .dot { border: 0; background: var(--warn); border-radius: 1px; transform: rotate(45deg) scale(.9); box-shadow: 0 0 0 3px var(--warn-soft); }
+:host([tone="danger"]) .dot { border: 0; background: var(--danger); border-radius: 1px; box-shadow: 0 0 0 3px var(--danger-soft); }
+:host([tone="busy"]) .dot { border: 0; background: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); animation: pulse 1.2s ease-in-out infinite; }
+@keyframes pulse { 50% { opacity: .35; } }
+@media (prefers-reduced-motion: reduce) { :host([tone="busy"]) .dot { animation: none; } }

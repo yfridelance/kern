@@ -1,0 +1,20 @@
+/* Kern global stylesheet: fonts, tokens, theme, base. Load once per page (dist/kern/kern.css). */
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap');
+@import './tokens.css';
+
+:root, [data-theme="dark"] { color-scheme: dark; }
+[data-theme="light"] { color-scheme: light; }
+
+body {
+  margin: 0;
+  background: var(--canvas);
+  color: var(--text);
+  font: 400 14px/20px var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+a { color: var(--accent-text); }
+:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+
+/* Avoid a flash of unstyled custom elements before they upgrade. */
+kern-button:not(:defined), kern-input:not(:defined), kern-select:not(:defined) { visibility: hidden; }

@@ -1,0 +1,21 @@
+:host {
+  display: flex; gap: var(--space-3); align-items: flex-start; box-sizing: border-box;
+  padding: var(--space-3) var(--space-4); border: 1px solid var(--line); border-radius: var(--radius-md);
+  background: var(--surface); color: var(--text); font-size: 14px; line-height: 20px;
+}
+:host([hidden]) { display: none; }
+.icon {
+  display: grid; place-items: center; flex: none; width: 18px; height: 18px; margin-top: 1px;
+  border-radius: 50%; font: 600 12px/1 var(--font-mono); background: var(--text-muted); color: var(--surface);
+}
+.content { min-width: 0; }
+.heading { font-weight: 600; }
+::slotted(p) { margin: 0; }
+:host([tone="info"]) { background: var(--accent-soft); border-color: transparent; }
+:host([tone="info"]) .icon { background: var(--accent-text); color: var(--accent-soft); }
+:host([tone="ok"]) { background: var(--ok-soft); border-color: transparent; }
+:host([tone="ok"]) .icon { background: var(--ok); color: var(--ok-soft); }
+:host([tone="warn"]) { background: var(--warn-soft); border-color: transparent; }
+:host([tone="warn"]) .icon { background: var(--warn); color: var(--warn-soft); border-radius: 3px; }
+:host([tone="danger"]) { background: var(--danger-soft); border-color: transparent; }
+:host([tone="danger"]) .icon { background: var(--danger); color: var(--danger-soft); border-radius: 3px; font-size: 14px; }

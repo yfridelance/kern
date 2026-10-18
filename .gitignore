@@ -1,0 +1,8 @@
+node_modules/
+dist/
+www/
+loader/
+.stencil/
+angular/src/directives/
+*.log
+.DS_Store

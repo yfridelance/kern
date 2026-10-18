@@ -1,0 +1,9 @@
+:host { display: inline-flex; align-items: center; gap: 2px; max-width: 100%; vertical-align: middle; font: 400 13px/18px var(--font-mono); color: inherit; }
+:host([hidden]) { display: none; }
+.text { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+button { all: unset; display: inline-grid; place-items: center; flex: none; width: 22px; height: 22px; border-radius: var(--radius-sm); color: var(--text-muted); cursor: pointer; opacity: .7; }
+:host(:hover) button, button:focus-visible { opacity: 1; }
+button:hover { background: var(--hover); color: var(--text); }
+button:focus-visible { outline: 2px solid var(--focus); }
+button svg { width: 13px; height: 13px; }
+:host([data-copied]) button { color: var(--ok); opacity: 1; }

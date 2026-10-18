@@ -1,0 +1,14 @@
+:host {
+  display: grid; gap: var(--space-1); align-content: start; min-width: 0; box-sizing: border-box;
+  padding: var(--space-4); background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-lg); color: var(--text);
+}
+:host([hidden]) { display: none; }
+.label { font-size: 11px; line-height: 16px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--text-muted); }
+.value { font: 500 28px/32px var(--font-mono); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.unit { margin-left: 4px; font: 400 14px/20px var(--font-sans); color: var(--text-muted); }
+.meta { display: flex; align-items: center; gap: var(--space-2); font-size: 12px; line-height: 16px; color: var(--text-muted); }
+.delta { font-weight: 600; font-variant-numeric: tabular-nums; }
+.delta span { font-size: 9px; }
+.good { color: var(--ok); }
+.bad { color: var(--danger); }
+::slotted(kern-sparkline) { margin-top: var(--space-2); }

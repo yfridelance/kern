@@ -1,0 +1,13 @@
+:host {
+  display: inline-flex; align-items: center; gap: var(--space-1); height: 20px; padding: 0 6px;
+  box-sizing: border-box; vertical-align: middle;
+  border: 1px solid var(--line); border-radius: var(--radius-sm);
+  background: var(--surface-sunken); color: var(--text-muted);
+  font: 500 12px/18px var(--font-sans); white-space: nowrap;
+}
+:host([hidden]) { display: none; }
+:host([mono]) { font-family: var(--font-mono); }
+:host([tone="accent"]) { background: var(--accent-soft); border-color: transparent; color: var(--accent-text); }
+:host([tone="ok"]) { background: var(--ok-soft); border-color: transparent; color: var(--ok); }
+:host([tone="warn"]) { background: var(--warn-soft); border-color: transparent; color: var(--warn); }
+:host([tone="danger"]) { background: var(--danger-soft); border-color: transparent; color: var(--danger); }

@@ -1,0 +1,9 @@
+:host { display: block; width: 100%; height: 32px; color: var(--chart-1); }
+:host([hidden]) { display: none; }
+svg { display: block; width: 100%; height: 100%; overflow: visible; }
+:host([tone="chart-2"]) { color: var(--chart-2); }
+:host([tone="chart-3"]) { color: var(--chart-3); }
+:host([tone="chart-4"]) { color: var(--chart-4); }
+:host([tone="ok"]) { color: var(--ok); }
+:host([tone="warn"]) { color: var(--warn); }
+:host([tone="danger"]) { color: var(--danger); }

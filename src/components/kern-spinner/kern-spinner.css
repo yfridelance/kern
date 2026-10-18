@@ -1,0 +1,9 @@
+:host { display: inline-flex; vertical-align: middle; }
+:host([hidden]) { display: none; }
+.ring {
+  display: block; box-sizing: border-box;
+  border: 2px solid currentColor; border-right-color: transparent; border-radius: 50%;
+  animation: spin .7s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .ring { animation-duration: 2s; } }

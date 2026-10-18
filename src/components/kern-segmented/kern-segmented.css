@@ -1,0 +1,18 @@
+:host { display: inline-flex; vertical-align: middle; }
+:host([hidden]) { display: none; }
+* { box-sizing: border-box; }
+::slotted(*) { display: none; }
+
+.group {
+  display: inline-flex; gap: 2px; padding: 2px;
+  background: var(--surface-sunken); border: 1px solid var(--line); border-radius: var(--radius-md);
+}
+.segment {
+  all: unset; display: block; padding: 0 var(--space-3); height: 26px; line-height: 26px;
+  border-radius: var(--radius-sm); color: var(--text-muted);
+  font: 500 13px/26px var(--font-sans); white-space: nowrap; cursor: pointer;
+}
+.segment:hover { color: var(--text); }
+.segment[aria-checked="true"] { background: var(--surface-raised); color: var(--text); box-shadow: 0 0 0 1px var(--line-strong); }
+.segment:focus-visible { outline: 2px solid var(--focus); outline-offset: 1px; }
+.segment:disabled { opacity: .45; cursor: not-allowed; }

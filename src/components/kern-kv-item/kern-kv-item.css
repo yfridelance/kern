@@ -1,0 +1,5 @@
+:host { display: grid; grid-column: 1 / -1; grid-template-columns: subgrid; align-items: baseline; }
+:host([hidden]) { display: none; }
+.label { color: var(--text-muted); }
+.value { color: var(--text); min-width: 0; overflow-wrap: anywhere; }
+:host([mono]) .value { font-family: var(--font-mono); font-size: 13px; }

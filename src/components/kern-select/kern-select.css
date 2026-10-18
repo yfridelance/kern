@@ -1,0 +1,5 @@
+@import '../../utils/field.css';
+.wrap { position: relative; display: block; }
+.control { appearance: none; -webkit-appearance: none; padding-right: 32px; cursor: pointer; }
+.chevron { position: absolute; right: 10px; top: 50%; width: 14px; height: 14px; transform: translateY(-50%); color: var(--text-muted); pointer-events: none; }
+::slotted(*) { display: none; }

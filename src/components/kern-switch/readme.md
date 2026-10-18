@@ -12,12 +12,13 @@ The label names the thing ("Cloud"), not the action.
 
 ## Properties
 
-| Property   | Attribute  | Description              | Type                  | Default     |
-| ---------- | ---------- | ------------------------ | --------------------- | ----------- |
-| `checked`  | `checked`  |                          | `boolean`             | `false`     |
-| `disabled` | `disabled` |                          | `boolean`             | `false`     |
-| `name`     | `name`     |                          | `string \| undefined` | `undefined` |
-| `value`    | `value`    | Form value when checked. | `string`              | `'on'`      |
+| Property   | Attribute  | Description                                    | Type                  | Default     |
+| ---------- | ---------- | ---------------------------------------------- | --------------------- | ----------- |
+| `checked`  | `checked`  |                                                | `boolean`             | `false`     |
+| `disabled` | `disabled` |                                                | `boolean`             | `false`     |
+| `label`    | `label`    | Accessible name when there is no visible text. | `string \| undefined` | `undefined` |
+| `name`     | `name`     |                                                | `string \| undefined` | `undefined` |
+| `value`    | `value`    | Form value when checked.                       | `string`              | `'on'`      |
 
 
 ## Events

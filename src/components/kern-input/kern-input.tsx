@@ -28,6 +28,11 @@ export class KernInput {
   @Prop() placeholder?: string;
   @Prop() autocomplete?: string;
   @Prop() pattern?: string;
+  @Prop() maxlength?: number;
+  /** For `type="number"`. */
+  @Prop() min?: number | string;
+  @Prop() max?: number | string;
+  @Prop() step?: number | string;
   @Prop({ reflect: true }) mono = false;
   @Prop({ reflect: true }) size: 'md' | 'sm' = 'md';
   @Prop({ reflect: true }) disabled = false;
@@ -110,6 +115,10 @@ export class KernInput {
           placeholder={this.placeholder}
           autocomplete={this.autocomplete ?? (this.type === 'password' ? 'off' : undefined)}
           pattern={this.pattern}
+          maxLength={this.maxlength}
+          min={this.min}
+          max={this.max}
+          step={this.step}
           disabled={this.disabled}
           readOnly={this.readonly}
           required={this.required}

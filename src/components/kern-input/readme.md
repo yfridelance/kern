@@ -20,6 +20,9 @@ Use `mono` for IP, MAC, CIDR and IDs.
 | `error`         | `error`           | Error text; also marks the field invalid.       | `string \| undefined`                                                       | `undefined` |
 | `hint`          | `hint`            |                                                 | `string \| undefined`                                                       | `undefined` |
 | `label`         | `label`           |                                                 | `string \| undefined`                                                       | `undefined` |
+| `max`           | `max`             |                                                 | `number \| string \| undefined`                                             | `undefined` |
+| `maxlength`     | `maxlength`       |                                                 | `number \| undefined`                                                       | `undefined` |
+| `min`           | `min`             | For `type="number"`.                            | `number \| string \| undefined`                                             | `undefined` |
 | `mono`          | `mono`            |                                                 | `boolean`                                                                   | `false`     |
 | `name`          | `name`            |                                                 | `string \| undefined`                                                       | `undefined` |
 | `pattern`       | `pattern`         |                                                 | `string \| undefined`                                                       | `undefined` |
@@ -27,6 +30,7 @@ Use `mono` for IP, MAC, CIDR and IDs.
 | `readonly`      | `readonly`        |                                                 | `boolean`                                                                   | `false`     |
 | `required`      | `required`        |                                                 | `boolean`                                                                   | `false`     |
 | `size`          | `size`            |                                                 | `"md" \| "sm"`                                                              | `'md'`      |
+| `step`          | `step`            |                                                 | `number \| string \| undefined`                                             | `undefined` |
 | `type`          | `type`            |                                                 | `"email" \| "number" \| "password" \| "search" \| "tel" \| "text" \| "url"` | `'text'`    |
 | `value`         | `value`           |                                                 | `string`                                                                    | `''`        |
 

@@ -21,6 +21,8 @@ export class KernSwitch {
   @Prop() name?: string;
   /** Form value when checked. */
   @Prop() value = 'on';
+  /** Accessible name when there is no visible text. */
+  @Prop() label?: string;
 
   @Event() kernChange!: EventEmitter<{ checked: boolean }>;
 
@@ -56,7 +58,7 @@ export class KernSwitch {
     return (
       <Host>
         <label class="root">
-          <input type="checkbox" role="switch" checked={this.checked} disabled={this.disabled} onChange={this.onChange} />
+          <input type="checkbox" role="switch" checked={this.checked} disabled={this.disabled} aria-label={this.label} onChange={this.onChange} />
           <span class="track" part="track" aria-hidden="true">
             <span class="thumb" />
           </span>

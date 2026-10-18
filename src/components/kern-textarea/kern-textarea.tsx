@@ -23,6 +23,7 @@ export class KernTextarea {
   @Prop() name?: string;
   @Prop() placeholder?: string;
   @Prop() rows = 4;
+  @Prop() maxlength?: number;
   @Prop({ reflect: true }) mono = false;
   @Prop({ reflect: true }) disabled = false;
   @Prop() readonly = false;
@@ -89,6 +90,7 @@ export class KernTextarea {
           class="control"
           part="control"
           rows={this.rows}
+          maxLength={this.maxlength}
           name={this.name}
           placeholder={this.placeholder}
           disabled={this.disabled}

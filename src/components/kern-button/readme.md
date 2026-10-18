@@ -16,6 +16,7 @@ Works as a form submit/reset button through ElementInternals.
 | ---------- | ----------- | -------------------------------------------------------------------------------------- | ----------------------------------------------- | ----------- |
 | `busy`     | `busy`      | Shows a spinner and sets aria-busy; clicks are ignored.                                | `boolean`                                       | `false`     |
 | `disabled` | `disabled`  |                                                                                        | `boolean`                                       | `false`     |
+| `download` | `download`  | With `href`: download instead of navigate (optionally with this file name).            | `boolean \| string \| undefined`                | `undefined` |
 | `href`     | `href`      | Renders a link instead of a button.                                                    | `string \| undefined`                           | `undefined` |
 | `iconOnly` | `icon-only` | Square button that shows only the `start` slot or default slot icon. Requires `label`. | `boolean`                                       | `false`     |
 | `label`    | `label`     | Accessible name (required for icon-only buttons).                                      | `string \| undefined`                           | `undefined` |

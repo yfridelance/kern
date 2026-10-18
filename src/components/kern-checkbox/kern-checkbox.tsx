@@ -21,6 +21,8 @@ export class KernCheckbox {
   @Prop({ reflect: true }) disabled = false;
   @Prop() name?: string;
   @Prop() value = 'on';
+  /** Accessible name when there is no visible text (e.g. row selection in a table). */
+  @Prop() label?: string;
 
   @Event() kernChange!: EventEmitter<{ checked: boolean }>;
 
@@ -63,6 +65,7 @@ export class KernCheckbox {
             indeterminate={this.indeterminate}
             disabled={this.disabled}
             aria-checked={this.indeterminate ? 'mixed' : undefined}
+            aria-label={this.label}
             onChange={this.onChange}
           />
           <span class="box" part="box" aria-hidden="true" />

@@ -26,3 +26,14 @@ describe('kern-input', () => {
     expect(seen).toEqual(['10.0.0.0/24']);
   });
 });
+
+describe('kern-input limits', () => {
+  it('passes maxlength, min, max and step to the native input', async () => {
+    const page = await newSpecPage({ components: [KernInput], html: `<kern-input type="number" min="1" max="10" step="0.5" maxlength="4"></kern-input>` });
+    const input = page.root!.shadowRoot!.querySelector('input')!;
+    expect(input.getAttribute('min')).toBe('1');
+    expect(input.getAttribute('max')).toBe('10');
+    expect(input.getAttribute('step')).toBe('0.5');
+    expect(input.getAttribute('maxlength')).toBe('4');
+  });
+});

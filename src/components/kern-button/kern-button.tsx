@@ -32,6 +32,8 @@ export class KernButton {
   /** Renders a link instead of a button. */
   @Prop() href?: string;
   @Prop() target?: string;
+  /** With `href`: download instead of navigate (optionally with this file name). */
+  @Prop() download?: string | boolean;
 
   private onClick = (ev: MouseEvent) => {
     if (this.disabled || this.busy) {
@@ -62,7 +64,13 @@ export class KernButton {
     return (
       <Host>
         {this.href && !this.disabled ? (
-          <a {...common} href={this.href} target={this.target} rel={this.target === '_blank' ? 'noopener' : undefined}>
+          <a
+            {...common}
+            href={this.href}
+            target={this.target}
+            rel={this.target === '_blank' ? 'noopener' : undefined}
+            download={this.download === true || this.download === '' ? '' : this.download || undefined}
+          >
             {inner}
           </a>
         ) : (

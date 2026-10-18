@@ -18,6 +18,7 @@ Labelled multi-line text field, form-associated. For notes and scripts.
 | `error`         | `error`           |             | `string \| undefined` | `undefined` |
 | `hint`          | `hint`            |             | `string \| undefined` | `undefined` |
 | `label`         | `label`           |             | `string \| undefined` | `undefined` |
+| `maxlength`     | `maxlength`       |             | `number \| undefined` | `undefined` |
 | `mono`          | `mono`            |             | `boolean`             | `false`     |
 | `name`          | `name`            |             | `string \| undefined` | `undefined` |
 | `placeholder`   | `placeholder`     |             | `string \| undefined` | `undefined` |

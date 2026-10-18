@@ -54,6 +54,10 @@ export namespace Components {
          */
         "disabled": boolean;
         /**
+          * With `href`: download instead of navigate (optionally with this file name).
+         */
+        "download"?: string | boolean;
+        /**
           * Renders a link instead of a button.
          */
         "href"?: string;
@@ -115,6 +119,10 @@ export namespace Components {
           * @default false
          */
         "indeterminate": boolean;
+        /**
+          * Accessible name when there is no visible text (e.g. row selection in a table).
+         */
+        "label"?: string;
         "name"?: string;
         /**
           * @default 'on'
@@ -191,6 +199,12 @@ export namespace Components {
         "error"?: string;
         "hint"?: string;
         "label"?: string;
+        "max"?: number | string;
+        "maxlength"?: number;
+        /**
+          * For `type="number"`.
+         */
+        "min"?: number | string;
         /**
           * @default false
          */
@@ -218,6 +232,7 @@ export namespace Components {
           * @default 'md'
          */
         "size": 'md' | 'sm';
+        "step"?: number | string;
         /**
           * @default 'text'
          */
@@ -476,6 +491,10 @@ export namespace Components {
           * @default false
          */
         "disabled": boolean;
+        /**
+          * Accessible name when there is no visible text.
+         */
+        "label"?: string;
         "name"?: string;
         /**
           * Form value when checked.
@@ -537,6 +556,7 @@ export namespace Components {
         "error"?: string;
         "hint"?: string;
         "label"?: string;
+        "maxlength"?: number;
         /**
           * @default false
          */
@@ -1115,6 +1135,10 @@ declare namespace LocalJSX {
          */
         "disabled"?: boolean;
         /**
+          * With `href`: download instead of navigate (optionally with this file name).
+         */
+        "download"?: string | boolean;
+        /**
           * The `id` of a `<form>` element to associate this element with.
          */
         "form"?: string;
@@ -1188,6 +1212,10 @@ declare namespace LocalJSX {
           * @default false
          */
         "indeterminate"?: boolean;
+        /**
+          * Accessible name when there is no visible text (e.g. row selection in a table).
+         */
+        "label"?: string;
         "name"?: string;
         "onKernChange"?: (event: KernCheckboxCustomEvent<{ checked: boolean }>) => void;
         /**
@@ -1269,6 +1297,12 @@ declare namespace LocalJSX {
         "form"?: string;
         "hint"?: string;
         "label"?: string;
+        "max"?: number | string;
+        "maxlength"?: number;
+        /**
+          * For `type="number"`.
+         */
+        "min"?: number | string;
         /**
           * @default false
          */
@@ -1296,6 +1330,7 @@ declare namespace LocalJSX {
           * @default 'md'
          */
         "size"?: 'md' | 'sm';
+        "step"?: number | string;
         /**
           * @default 'text'
          */
@@ -1570,6 +1605,10 @@ declare namespace LocalJSX {
           * The `id` of a `<form>` element to associate this element with.
          */
         "form"?: string;
+        /**
+          * Accessible name when there is no visible text.
+         */
+        "label"?: string;
         "name"?: string;
         "onKernChange"?: (event: KernSwitchCustomEvent<{ checked: boolean }>) => void;
         /**
@@ -1637,6 +1676,7 @@ declare namespace LocalJSX {
         "form"?: string;
         "hint"?: string;
         "label"?: string;
+        "maxlength"?: number;
         /**
           * @default false
          */
@@ -1730,6 +1770,7 @@ declare namespace LocalJSX {
         "type": 'button' | 'submit' | 'reset';
         "href": string;
         "target": string;
+        "download": string;
     }
     interface KernCardAttributes {
         "heading": string;
@@ -1742,6 +1783,7 @@ declare namespace LocalJSX {
         "disabled": boolean;
         "name": string;
         "value": string;
+        "label": string;
     }
     interface KernCopyAttributes {
         "value": string;
@@ -1764,6 +1806,10 @@ declare namespace LocalJSX {
         "placeholder": string;
         "autocomplete": string;
         "pattern": string;
+        "maxlength": number;
+        "min": string;
+        "max": string;
+        "step": string;
         "mono": boolean;
         "size": 'md' | 'sm';
         "disabled": boolean;
@@ -1848,6 +1894,7 @@ declare namespace LocalJSX {
         "disabled": boolean;
         "name": string;
         "value": string;
+        "label": string;
     }
     interface KernTabPanelAttributes {
         "label": string;
@@ -1870,6 +1917,7 @@ declare namespace LocalJSX {
         "name": string;
         "placeholder": string;
         "rows": number;
+        "maxlength": number;
         "mono": boolean;
         "disabled": boolean;
         "readonly": boolean;

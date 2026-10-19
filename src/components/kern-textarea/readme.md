@@ -9,6 +9,38 @@
 
 Labelled multi-line text field, form-associated. For notes and scripts.
 
+## Usage
+
+### 01-basic
+
+# Notes and scripts
+
+A multi-line field with `rows`, `maxlength` and `hint`. `mono` suits scripts and configuration snippets.
+
+```html
+<div style="display:grid;gap:16px;max-width:480px">
+  <kern-textarea label="Notes" placeholder="Where is the device mounted?" maxlength="500" hint="Up to 500 characters"></kern-textarea>
+  <kern-textarea label="Script" rows="6" mono value="Shelly.call('Switch.Set', { id: 0, on: true });"></kern-textarea>
+</div>
+```
+
+
+### 02-states
+
+# Error, read-only and disabled
+
+`error` marks the field invalid; `required` blocks an empty form submission.
+
+```html
+<div style="display:grid;gap:16px;max-width:480px">
+  <kern-textarea label="Reason for factory reset" required rows="3" error="Please give a reason"></kern-textarea>
+  <kern-textarea label="Last log line" rows="2" mono readonly value="[12:04:31] wifi: connected to Home (-61 dBm)"></kern-textarea>
+  <kern-textarea label="Comment" rows="2" disabled value="Locked while the update runs"></kern-textarea>
+</div>
+```
+
+
+
 ## Properties
 
 | Property        | Attribute         | Description | Type                  | Default     |

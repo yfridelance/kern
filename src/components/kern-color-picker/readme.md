@@ -12,6 +12,45 @@ saturation/brightness area, a hue bar and `swatches`. `mode="temperature"`: `val
 Kelvin (`min-kelvin`–`max-kelvin`) on a warm-to-cold bar. The hex or Kelvin text can be typed (Enter or leaving
 applies it). Area and bars work with pointer and keys (Arrows, Shift = larger steps, Home/End on bars).
 
+## Usage
+
+### 01-color
+
+# Light colour
+
+`mode="color"` (default): `value` is `#rrggbb`. The popover has a saturation/brightness area, a hue bar and `swatches`. The hex text can be typed (Enter or leaving applies it). Area and bar work with the arrow keys; Shift takes larger steps.
+
+```html
+<div style="display:grid;gap:16px;max-width:280px">
+  <kern-color-picker name="color" label="Light colour" value="#3cc8cc" swatches="#ff8a3c,#ffd23c,#3cc8cc,#7fa8ff,#e58bbf,#ffffff" label-invalid="Not a valid colour"></kern-color-picker>
+  <kern-color-picker label="Status LED" value="#ff8a3c" size="sm" disabled></kern-color-picker>
+  <output style="font:12px var(--font-mono);color:var(--text-muted)">kernChange → …</output>
+</div>
+```
+
+```js
+const picker = root.querySelector('kern-color-picker');
+const out = root.querySelector('output');
+picker.addEventListener('kernInput', (e) => (out.textContent = 'kernInput → ' + e.detail.value));
+picker.addEventListener('kernChange', (e) => (out.textContent = 'kernChange → ' + e.detail.value));
+```
+
+
+### 02-temperature
+
+# Colour temperature
+
+`mode="temperature"`: `value` is a colour temperature in Kelvin between `min-kelvin` and `max-kelvin` on a warm-to-cold bar, in steps of `kelvin-step`. Swatches are Kelvin values.
+
+```html
+<div style="display:grid;gap:16px;max-width:280px">
+  <kern-color-picker name="white" label="White tone" mode="temperature" value="3000" swatches="2700,3000,4000,5000,6500"></kern-color-picker>
+  <kern-color-picker label="Desk lamp" mode="temperature" value="4000" min-kelvin="3000" max-kelvin="5000" kelvin-step="250" readonly></kern-color-picker>
+</div>
+```
+
+
+
 ## Properties
 
 | Property           | Attribute           | Description                                                                                                   | Type                       | Default                      |

@@ -14,6 +14,54 @@ when leaving the field; invalid or out-of-range dates mark the field invalid.
 Keyboard: Arrow Down or Alt+Arrow Down opens the calendar (keyboard as in kern-calendar), Enter or Space picks,
 Escape closes. Elements in the `footer` slot appear below the calendar; clicking one closes it.
 
+## Usage
+
+### 01-basic
+
+# Date field
+
+The value is an ISO date (`2026-10-19`); the field shows and accepts the locale's format. Typed text is applied on Enter or when leaving the field. Arrow Down or Alt+Arrow Down opens the calendar, Enter or Space picks, Escape closes.
+
+```html
+<div style="display:grid;gap:16px;max-width:280px">
+  <kern-date-picker name="installed" label="Installed on" value="2026-03-14" locale="en-GB" clearable></kern-date-picker>
+  <kern-date-picker label="Warranty until" value="2028-03-14" locale="de-CH" readonly></kern-date-picker>
+  <output style="font:12px var(--font-mono);color:var(--text-muted)">kernChange → …</output>
+</div>
+```
+
+```js
+root.querySelector('kern-date-picker').addEventListener('kernChange', (e) => {
+  root.querySelector('output').textContent = 'kernChange → ' + e.detail.value;
+});
+```
+
+
+### 02-limits
+
+# Limits, disabled days and footer
+
+`min` and `max` limit the range; the `isDateDisabled` property adds a rule, here no weekends. Dates outside show `label-out-of-range`. Buttons in the `footer` slot appear below the calendar; clicking one closes it.
+
+```html
+<div style="max-width:280px">
+  <kern-date-picker name="due" label="Maintenance on" required hint="Weekdays only" min="2026-10-01" max="2026-12-31" show-week-numbers locale="en-GB" label-out-of-range="Date not allowed">
+    <kern-button slot="footer" size="sm" variant="ghost">Today</kern-button>
+  </kern-date-picker>
+</div>
+```
+
+```js
+const picker = root.querySelector('kern-date-picker');
+picker.isDateDisabled = (iso) => [0, 6].includes(new Date(iso + 'T00:00').getDay());
+root.querySelector('kern-button').addEventListener('click', () => {
+  const d = new Date();
+  picker.value = new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 10);
+});
+```
+
+
+
 ## Properties
 
 | Property          | Attribute            | Description                                                          | Type                                      | Default                 |

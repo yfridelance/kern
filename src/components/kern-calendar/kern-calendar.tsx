@@ -4,6 +4,7 @@ import {
   addDays,
   addMonths,
   clampIso,
+  daysBetween,
   firstDayOfWeek,
   fromIsoDate,
   isoDate,
@@ -44,6 +45,8 @@ export class KernCalendar {
   @Prop() max?: string;
   /** Additional rule for unselectable days, e.g. weekends. */
   @Prop() isDateDisabled?: (iso: string) => boolean;
+  /** Range mode: longest range in days (inclusive); farther days are locked once `start` is picked. */
+  @Prop() maxDays?: number;
   /** 0 = Sunday … 6 = Saturday; defaults to the locale (Monday for de). */
   @Prop() firstDayOfWeek?: number;
   /** ISO week numbers in front of each row. */
@@ -138,6 +141,7 @@ export class KernCalendar {
   }
 
   private disabled(iso: string): boolean {
+    if (this.range && this.pending && this.maxDays && this.start && Math.abs(daysBetween(this.start, iso)) >= this.maxDays) return true;
     return (!!this.min && iso < this.min) || (!!this.max && iso > this.max) || !!this.isDateDisabled?.(iso);
   }
 

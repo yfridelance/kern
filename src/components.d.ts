@@ -138,6 +138,10 @@ export namespace Components {
          */
         "max"?: string;
         /**
+          * Range mode: longest range in days (inclusive); farther days are locked once `start` is picked.
+         */
+        "maxDays"?: number;
+        /**
           * Earliest selectable date.
          */
         "min"?: string;
@@ -355,6 +359,132 @@ export namespace Components {
         "size": 'md' | 'sm';
         /**
           * ISO date `YYYY-MM-DD`, empty when none.
+          * @default ''
+         */
+        "value": string;
+    }
+    /**
+     * Date range field: two dates („Von“ – „Bis“) with a calendar popover (two months, one on narrow screens),
+     * form-associated. `start` and `end` are ISO dates; `value` and the form value are the ISO 8601 interval
+     * `start/end` (empty until both are set). Typed dates are applied on Enter or when leaving a field; an end before
+     * the start is swapped.
+     * Presets: elements in the `presets` slot with `data-range` (ISO 8601 duration ending today, e.g. `P7D` = the last
+     * 7 days incl. today) or `data-start`/`data-end` set the range on click.
+     */
+    interface KernDateRangePicker {
+        /**
+          * Accessible name when there is no visible label.
+         */
+        "ariaLabelText"?: string;
+        /**
+          * Show a button that empties both dates.
+          * @default false
+         */
+        "clearable": boolean;
+        /**
+          * @default false
+         */
+        "disabled": boolean;
+        /**
+          * Last day (inclusive), ISO `YYYY-MM-DD`.
+          * @default ''
+         */
+        "end": string;
+        "error"?: string;
+        /**
+          * 0 = Sunday … 6 = Saturday; defaults to the locale.
+         */
+        "firstDayOfWeek"?: number;
+        /**
+          * Closes the calendar.
+         */
+        "hide": () => Promise<void>;
+        "hint"?: string;
+        /**
+          * Additional rule for unselectable days.
+         */
+        "isDateDisabled"?: (iso: string) => boolean;
+        "label"?: string;
+        /**
+          * @default 'Leeren'
+         */
+        "labelClear": string;
+        /**
+          * @default 'Bis'
+         */
+        "labelEnd": string;
+        /**
+          * Shown when only one date is set.
+          * @default 'Start und Ende angeben'
+         */
+        "labelIncomplete": string;
+        /**
+          * @default 'Kein gültiges Datum'
+         */
+        "labelInvalid": string;
+        /**
+          * @default 'Kalender öffnen'
+         */
+        "labelOpen": string;
+        /**
+          * @default 'Datum nicht erlaubt'
+         */
+        "labelOutOfRange": string;
+        /**
+          * @default 'Von'
+         */
+        "labelStart": string;
+        /**
+          * Shown when the range is longer than `maxDays`; `{n}` is replaced by it.
+          * @default 'Höchstens {n} Tage'
+         */
+        "labelTooLong": string;
+        /**
+          * BCP 47 locale; defaults to `<html lang>`, then the browser language.
+         */
+        "locale"?: string;
+        /**
+          * Latest allowed date.
+         */
+        "max"?: string;
+        /**
+          * Longest allowed range in days (inclusive).
+         */
+        "maxDays"?: number;
+        /**
+          * Earliest allowed date.
+         */
+        "min"?: string;
+        "name"?: string;
+        /**
+          * @default false
+         */
+        "readonly": boolean;
+        /**
+          * @default false
+         */
+        "required": boolean;
+        "setFocus": () => Promise<void>;
+        /**
+          * Opens the calendar.
+         */
+        "show": () => Promise<void>;
+        /**
+          * ISO week numbers in the calendar.
+          * @default false
+         */
+        "showWeekNumbers": boolean;
+        /**
+          * @default 'md'
+         */
+        "size": 'md' | 'sm';
+        /**
+          * First day, ISO `YYYY-MM-DD`.
+          * @default ''
+         */
+        "start": string;
+        /**
+          * ISO 8601 interval `start/end`, empty until both are set; kept in sync with `start`/`end`.
           * @default ''
          */
         "value": string;
@@ -1020,6 +1150,10 @@ export interface KernDatePickerCustomEvent<T> extends CustomEvent<T> {
     detail: T;
     target: HTMLKernDatePickerElement;
 }
+export interface KernDateRangePickerCustomEvent<T> extends CustomEvent<T> {
+    detail: T;
+    target: HTMLKernDateRangePickerElement;
+}
 export interface KernDialogCustomEvent<T> extends CustomEvent<T> {
     detail: T;
     target: HTMLKernDialogElement;
@@ -1190,6 +1324,31 @@ declare global {
     var HTMLKernDatePickerElement: {
         prototype: HTMLKernDatePickerElement;
         new (): HTMLKernDatePickerElement;
+    };
+    interface HTMLKernDateRangePickerElementEventMap {
+        "kernChange": { start: string; end: string; value: string };
+    }
+    /**
+     * Date range field: two dates („Von“ – „Bis“) with a calendar popover (two months, one on narrow screens),
+     * form-associated. `start` and `end` are ISO dates; `value` and the form value are the ISO 8601 interval
+     * `start/end` (empty until both are set). Typed dates are applied on Enter or when leaving a field; an end before
+     * the start is swapped.
+     * Presets: elements in the `presets` slot with `data-range` (ISO 8601 duration ending today, e.g. `P7D` = the last
+     * 7 days incl. today) or `data-start`/`data-end` set the range on click.
+     */
+    interface HTMLKernDateRangePickerElement extends Components.KernDateRangePicker, HTMLStencilElement {
+        addEventListener<K extends keyof HTMLKernDateRangePickerElementEventMap>(type: K, listener: (this: HTMLKernDateRangePickerElement, ev: KernDateRangePickerCustomEvent<HTMLKernDateRangePickerElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLKernDateRangePickerElementEventMap>(type: K, listener: (this: HTMLKernDateRangePickerElement, ev: KernDateRangePickerCustomEvent<HTMLKernDateRangePickerElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
+    }
+    var HTMLKernDateRangePickerElement: {
+        prototype: HTMLKernDateRangePickerElement;
+        new (): HTMLKernDateRangePickerElement;
     };
     interface HTMLKernDialogElementEventMap {
         "kernClose": { returnValue: string };
@@ -1547,6 +1706,7 @@ declare global {
         "kern-copy": HTMLKernCopyElement;
         "kern-date": HTMLKernDateElement;
         "kern-date-picker": HTMLKernDatePickerElement;
+        "kern-date-range-picker": HTMLKernDateRangePickerElement;
         "kern-dialog": HTMLKernDialogElement;
         "kern-input": HTMLKernInputElement;
         "kern-json": HTMLKernJsonElement;
@@ -1706,6 +1866,10 @@ declare namespace LocalJSX {
           * Latest selectable date.
          */
         "max"?: string;
+        /**
+          * Range mode: longest range in days (inclusive); farther days are locked once `start` is picked.
+         */
+        "maxDays"?: number;
         /**
           * Earliest selectable date.
          */
@@ -1936,6 +2100,131 @@ declare namespace LocalJSX {
         "size"?: 'md' | 'sm';
         /**
           * ISO date `YYYY-MM-DD`, empty when none.
+          * @default ''
+         */
+        "value"?: string;
+    }
+    /**
+     * Date range field: two dates („Von“ – „Bis“) with a calendar popover (two months, one on narrow screens),
+     * form-associated. `start` and `end` are ISO dates; `value` and the form value are the ISO 8601 interval
+     * `start/end` (empty until both are set). Typed dates are applied on Enter or when leaving a field; an end before
+     * the start is swapped.
+     * Presets: elements in the `presets` slot with `data-range` (ISO 8601 duration ending today, e.g. `P7D` = the last
+     * 7 days incl. today) or `data-start`/`data-end` set the range on click.
+     */
+    interface KernDateRangePicker {
+        /**
+          * Accessible name when there is no visible label.
+         */
+        "ariaLabelText"?: string;
+        /**
+          * Show a button that empties both dates.
+          * @default false
+         */
+        "clearable"?: boolean;
+        /**
+          * @default false
+         */
+        "disabled"?: boolean;
+        /**
+          * Last day (inclusive), ISO `YYYY-MM-DD`.
+          * @default ''
+         */
+        "end"?: string;
+        "error"?: string;
+        /**
+          * 0 = Sunday … 6 = Saturday; defaults to the locale.
+         */
+        "firstDayOfWeek"?: number;
+        /**
+          * The `id` of a `<form>` element to associate this element with.
+         */
+        "form"?: string;
+        "hint"?: string;
+        /**
+          * Additional rule for unselectable days.
+         */
+        "isDateDisabled"?: (iso: string) => boolean;
+        "label"?: string;
+        /**
+          * @default 'Leeren'
+         */
+        "labelClear"?: string;
+        /**
+          * @default 'Bis'
+         */
+        "labelEnd"?: string;
+        /**
+          * Shown when only one date is set.
+          * @default 'Start und Ende angeben'
+         */
+        "labelIncomplete"?: string;
+        /**
+          * @default 'Kein gültiges Datum'
+         */
+        "labelInvalid"?: string;
+        /**
+          * @default 'Kalender öffnen'
+         */
+        "labelOpen"?: string;
+        /**
+          * @default 'Datum nicht erlaubt'
+         */
+        "labelOutOfRange"?: string;
+        /**
+          * @default 'Von'
+         */
+        "labelStart"?: string;
+        /**
+          * Shown when the range is longer than `maxDays`; `{n}` is replaced by it.
+          * @default 'Höchstens {n} Tage'
+         */
+        "labelTooLong"?: string;
+        /**
+          * BCP 47 locale; defaults to `<html lang>`, then the browser language.
+         */
+        "locale"?: string;
+        /**
+          * Latest allowed date.
+         */
+        "max"?: string;
+        /**
+          * Longest allowed range in days (inclusive).
+         */
+        "maxDays"?: number;
+        /**
+          * Earliest allowed date.
+         */
+        "min"?: string;
+        "name"?: string;
+        /**
+          * When the range is complete or cleared.
+         */
+        "onKernChange"?: (event: KernDateRangePickerCustomEvent<{ start: string; end: string; value: string }>) => void;
+        /**
+          * @default false
+         */
+        "readonly"?: boolean;
+        /**
+          * @default false
+         */
+        "required"?: boolean;
+        /**
+          * ISO week numbers in the calendar.
+          * @default false
+         */
+        "showWeekNumbers"?: boolean;
+        /**
+          * @default 'md'
+         */
+        "size"?: 'md' | 'sm';
+        /**
+          * First day, ISO `YYYY-MM-DD`.
+          * @default ''
+         */
+        "start"?: string;
+        /**
+          * ISO 8601 interval `start/end`, empty until both are set; kept in sync with `start`/`end`.
           * @default ''
          */
         "value"?: string;
@@ -2626,6 +2915,7 @@ declare namespace LocalJSX {
         "end": string;
         "min": string;
         "max": string;
+        "maxDays": number;
         "firstDayOfWeek": number;
         "showWeekNumbers": boolean;
         "months": 1 | 2;
@@ -2682,6 +2972,35 @@ declare namespace LocalJSX {
         "labelClear": string;
         "labelInvalid": string;
         "labelOutOfRange": string;
+    }
+    interface KernDateRangePickerAttributes {
+        "label": string;
+        "hint": string;
+        "error": string;
+        "start": string;
+        "end": string;
+        "value": string;
+        "name": string;
+        "min": string;
+        "max": string;
+        "maxDays": number;
+        "clearable": boolean;
+        "firstDayOfWeek": number;
+        "showWeekNumbers": boolean;
+        "locale": string;
+        "size": 'md' | 'sm';
+        "disabled": boolean;
+        "readonly": boolean;
+        "required": boolean;
+        "ariaLabelText": string;
+        "labelStart": string;
+        "labelEnd": string;
+        "labelOpen": string;
+        "labelClear": string;
+        "labelInvalid": string;
+        "labelOutOfRange": string;
+        "labelIncomplete": string;
+        "labelTooLong": string;
     }
     interface KernDialogAttributes {
         "open": boolean;
@@ -2875,6 +3194,7 @@ declare namespace LocalJSX {
         "kern-copy": Omit<KernCopy, keyof KernCopyAttributes> & { [K in keyof KernCopy & keyof KernCopyAttributes]?: KernCopy[K] } & { [K in keyof KernCopy & keyof KernCopyAttributes as `attr:${K}`]?: KernCopyAttributes[K] } & { [K in keyof KernCopy & keyof KernCopyAttributes as `prop:${K}`]?: KernCopy[K] };
         "kern-date": Omit<KernDate, keyof KernDateAttributes> & { [K in keyof KernDate & keyof KernDateAttributes]?: KernDate[K] } & { [K in keyof KernDate & keyof KernDateAttributes as `attr:${K}`]?: KernDateAttributes[K] } & { [K in keyof KernDate & keyof KernDateAttributes as `prop:${K}`]?: KernDate[K] };
         "kern-date-picker": Omit<KernDatePicker, keyof KernDatePickerAttributes> & { [K in keyof KernDatePicker & keyof KernDatePickerAttributes]?: KernDatePicker[K] } & { [K in keyof KernDatePicker & keyof KernDatePickerAttributes as `attr:${K}`]?: KernDatePickerAttributes[K] } & { [K in keyof KernDatePicker & keyof KernDatePickerAttributes as `prop:${K}`]?: KernDatePicker[K] };
+        "kern-date-range-picker": Omit<KernDateRangePicker, keyof KernDateRangePickerAttributes> & { [K in keyof KernDateRangePicker & keyof KernDateRangePickerAttributes]?: KernDateRangePicker[K] } & { [K in keyof KernDateRangePicker & keyof KernDateRangePickerAttributes as `attr:${K}`]?: KernDateRangePickerAttributes[K] } & { [K in keyof KernDateRangePicker & keyof KernDateRangePickerAttributes as `prop:${K}`]?: KernDateRangePicker[K] };
         "kern-dialog": Omit<KernDialog, keyof KernDialogAttributes> & { [K in keyof KernDialog & keyof KernDialogAttributes]?: KernDialog[K] } & { [K in keyof KernDialog & keyof KernDialogAttributes as `attr:${K}`]?: KernDialogAttributes[K] } & { [K in keyof KernDialog & keyof KernDialogAttributes as `prop:${K}`]?: KernDialog[K] };
         "kern-input": Omit<KernInput, keyof KernInputAttributes> & { [K in keyof KernInput & keyof KernInputAttributes]?: KernInput[K] } & { [K in keyof KernInput & keyof KernInputAttributes as `attr:${K}`]?: KernInputAttributes[K] } & { [K in keyof KernInput & keyof KernInputAttributes as `prop:${K}`]?: KernInput[K] };
         "kern-json": Omit<KernJson, keyof KernJsonAttributes> & { [K in keyof KernJson & keyof KernJsonAttributes]?: KernJson[K] } & { [K in keyof KernJson & keyof KernJsonAttributes as `attr:${K}`]?: KernJsonAttributes[K] } & { [K in keyof KernJson & keyof KernJsonAttributes as `prop:${K}`]?: KernJson[K] };
@@ -2954,6 +3274,15 @@ declare module "@stencil/core" {
              * Escape closes. Elements in the `footer` slot appear below the calendar; clicking one closes it.
              */
             "kern-date-picker": LocalJSX.IntrinsicElements["kern-date-picker"] & JSXBase.HTMLAttributes<HTMLKernDatePickerElement>;
+            /**
+             * Date range field: two dates („Von“ – „Bis“) with a calendar popover (two months, one on narrow screens),
+             * form-associated. `start` and `end` are ISO dates; `value` and the form value are the ISO 8601 interval
+             * `start/end` (empty until both are set). Typed dates are applied on Enter or when leaving a field; an end before
+             * the start is swapped.
+             * Presets: elements in the `presets` slot with `data-range` (ISO 8601 duration ending today, e.g. `P7D` = the last
+             * 7 days incl. today) or `data-start`/`data-end` set the range on click.
+             */
+            "kern-date-range-picker": LocalJSX.IntrinsicElements["kern-date-range-picker"] & JSXBase.HTMLAttributes<HTMLKernDateRangePickerElement>;
             /**
              * Modal dialog for confirmations and short forms, on the native `<dialog>`.
              * Destructive: the heading names action and device, a `kern-alert tone="warn"` states the consequence,

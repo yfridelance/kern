@@ -122,6 +122,12 @@
         <kern-date-picker name="due" label="Wartung am" clearable required hint="Nur Werktage" id="due">
           <kern-button slot="footer" id="due-today" size="sm" variant="ghost">Heute</kern-button>
         </kern-date-picker>
+        <kern-date-range-picker name="period" label="Auswertung" clearable max-days="90" id="period" hint="Höchstens 90 Tage">
+          <kern-button slot="presets" variant="ghost" size="sm" data-range="P1D">Heute</kern-button>
+          <kern-button slot="presets" variant="ghost" size="sm" data-range="P7D">Letzte 7 Tage</kern-button>
+          <kern-button slot="presets" variant="ghost" size="sm" data-range="P30D">Letzte 30 Tage</kern-button>
+          <kern-button slot="presets" variant="ghost" size="sm" data-range="P3M">Letzte 3 Monate</kern-button>
+        </kern-date-range-picker>
         <kern-time-picker name="start" label="Zeitplan" value="06:30" step="900" list min="05:00" max="23:00"></kern-time-picker>
         <div style="display:grid;gap:12px;align-content:start">
           <kern-switch name="cloud" checked>Cloud</kern-switch>
@@ -176,6 +182,7 @@
     for (const el of document.querySelectorAll('kern-date[data-ago]')) el.value = Date.now() - el.dataset.ago * 1000;
     const iso = (d) => new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 10);
     const due = document.getElementById('due');
+    document.getElementById('period').max = iso(new Date());
     due.isDateDisabled = (d) => [0, 6].includes(new Date(d + 'T00:00').getDay());
     document.getElementById('due-today').addEventListener('click', () => (due.value = iso(new Date())));
     const cal = document.getElementById('cal');

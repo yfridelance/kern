@@ -13,7 +13,7 @@ dort und hier sind dieselben (`tokens/tokens.json`).
 | --- | --- |
 | Layout | `kern-topbar`, `kern-page-header`, `kern-card`, `kern-toolbar` |
 | Navigation | `kern-tabs` + `kern-tab-panel`, `kern-link`, `kern-theme-toggle` |
-| Aktionen | `kern-button` |
+| Aktionen | `kern-button`, `kern-menu` + `kern-menu-item` |
 | Formulare | `kern-input`, `kern-ip-input`, `kern-textarea`, `kern-select`, `kern-switch`, `kern-checkbox`, `kern-radio-group` + `kern-radio`, `kern-segmented`, `kern-date-picker`, `kern-date-range-picker`, `kern-time-picker`, `kern-step-input`, `kern-rating` |
 | Status | `kern-badge`, `kern-status`, `kern-icon` |
 | Rückmeldung | `kern-alert`, `kern-tooltip`, `kern-progress`, `kern-spinner`, `kern-dialog` (+ `confirm()`) |
@@ -30,7 +30,7 @@ verschieden sind. Der Name sagt die Rolle:
 | Rolle | Name | Beispiele |
 | --- | --- | --- |
 | Anzeige | Nomen | `kern-date`, `kern-time`, `kern-status`, `kern-meter`, `kern-list`, `kern-link`, `kern-icon`, `kern-tooltip` |
-| Bedienelement ohne Feldbox | Nomen | `kern-switch`, `kern-checkbox`, `kern-segmented`, `kern-radio-group`, `kern-calendar`, `kern-rating`, `kern-tabs` |
+| Bedienelement ohne Feldbox | Nomen | `kern-switch`, `kern-checkbox`, `kern-segmented`, `kern-radio-group`, `kern-calendar`, `kern-rating`, `kern-tabs`, `kern-menu` |
 | Tippfeld mit eigenem Wertmodell | `-input` | `kern-ip-input`, `kern-step-input` |
 | Feld, das ein Auswahl-Popover anbietet | `-picker` | `kern-date-picker`, `kern-date-range-picker`, `kern-time-picker` |
 
@@ -133,6 +133,10 @@ zusätzlich Standalone-Wrapper mit `ControlValueAccessor` für `ngModel` und Rea
   `chevron-up`, `chevron-left`, `chevron-right`, `calendar`, `clock`, `minus`, `plus`, `star`, `more`, `menu`,
   `search`, `filter`, `settings`, `edit`, `trash`, `refresh`, `power`, `download`, `upload`, `link`, `lock`, `eye`,
   `eye-off`, `info`, `warn`, `wifi`, `home`, `bulb`, `thermometer`, `external`.
+- **Menüs:** `kern-menu` mit Auslöser in `slot="trigger"` (z.B. `kern-button icon-only` mit `kern-icon name="more"`),
+  `kern-menu-item` (`value`, `icon`, `tone="danger"`, `disabled`) und `<hr>` als Trenner. Tastatur: Enter/Leertaste/Pfeil
+  öffnen, Pfeile/Home/End/Buchstaben bewegen, Escape/Tab schliessen; `kernSelect` liefert `{ value }`. `align="end"`
+  für Menüs am Zeilenende.
 - **Tooltips:** `kern-tooltip text="…"` um den Auslöser oder mit `for="id"`; erscheint nach `delay` (400 ms) bei
   Hover und sofort bei Tastaturfokus, Escape schliesst. Nur Ergänzungen (Touch sieht sie nie); bei Icon-Buttons
   bleibt `label` der Name.

@@ -812,6 +812,51 @@ export namespace Components {
         "target"?: string;
     }
     /**
+     * Action menu behind a trigger (e.g. a „⋯“ kern-button): kern-menu-item children, `<hr>` as separator. Opens on click,
+     * Enter, Space or Arrow Down (Arrow Up starts at the end); Arrow keys, Home/End and letters move, Enter picks, Escape
+     * or Tab closes. Picking emits `kernSelect` and returns the focus to the trigger.
+     */
+    interface KernMenu {
+        /**
+          * Which edges line up with the trigger.
+          * @default 'start'
+         */
+        "align": 'start' | 'end';
+        /**
+          * Closes the menu.
+         */
+        "hide": () => Promise<void>;
+        /**
+          * Accessible name of the menu (defaults to the trigger's text).
+         */
+        "label"?: string;
+        /**
+          * Opens the menu and focuses the first item.
+         */
+        "show": () => Promise<void>;
+    }
+    /**
+     * One action in kern-menu, with optional icon; `tone="danger"` for destructive actions (Werksreset, Löschen).
+     */
+    interface KernMenuItem {
+        /**
+          * @default false
+         */
+        "disabled": boolean;
+        /**
+          * Glyph name (see kern-icon).
+         */
+        "icon"?: IconName;
+        /**
+          * @default 'default'
+         */
+        "tone": 'default' | 'danger';
+        /**
+          * Passed in `kernSelect`; defaults to the text.
+         */
+        "value"?: string;
+    }
+    /**
      * Fill level with thresholds (RAM, flash, temperature, load). Colour goes ok → warn → danger;
      * `neutral` uses the accent for amounts without good/bad.
      */
@@ -1577,6 +1622,14 @@ export interface KernListItemCustomEvent<T> extends CustomEvent<T> {
     detail: T;
     target: HTMLKernListItemElement;
 }
+export interface KernMenuCustomEvent<T> extends CustomEvent<T> {
+    detail: T;
+    target: HTMLKernMenuElement;
+}
+export interface KernMenuItemCustomEvent<T> extends CustomEvent<T> {
+    detail: T;
+    target: HTMLKernMenuItemElement;
+}
 export interface KernRadioCustomEvent<T> extends CustomEvent<T> {
     detail: T;
     target: HTMLKernRadioElement;
@@ -1928,6 +1981,48 @@ declare global {
     var HTMLKernListItemElement: {
         prototype: HTMLKernListItemElement;
         new (): HTMLKernListItemElement;
+    };
+    interface HTMLKernMenuElementEventMap {
+        "kernSelect": { value: string };
+    }
+    /**
+     * Action menu behind a trigger (e.g. a „⋯“ kern-button): kern-menu-item children, `<hr>` as separator. Opens on click,
+     * Enter, Space or Arrow Down (Arrow Up starts at the end); Arrow keys, Home/End and letters move, Enter picks, Escape
+     * or Tab closes. Picking emits `kernSelect` and returns the focus to the trigger.
+     */
+    interface HTMLKernMenuElement extends Components.KernMenu, HTMLStencilElement {
+        addEventListener<K extends keyof HTMLKernMenuElementEventMap>(type: K, listener: (this: HTMLKernMenuElement, ev: KernMenuCustomEvent<HTMLKernMenuElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLKernMenuElementEventMap>(type: K, listener: (this: HTMLKernMenuElement, ev: KernMenuCustomEvent<HTMLKernMenuElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
+    }
+    var HTMLKernMenuElement: {
+        prototype: HTMLKernMenuElement;
+        new (): HTMLKernMenuElement;
+    };
+    interface HTMLKernMenuItemElementEventMap {
+        "kernMenuItemSelect": { value: string };
+    }
+    /**
+     * One action in kern-menu, with optional icon; `tone="danger"` for destructive actions (Werksreset, Löschen).
+     */
+    interface HTMLKernMenuItemElement extends Components.KernMenuItem, HTMLStencilElement {
+        addEventListener<K extends keyof HTMLKernMenuItemElementEventMap>(type: K, listener: (this: HTMLKernMenuItemElement, ev: KernMenuItemCustomEvent<HTMLKernMenuItemElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLKernMenuItemElementEventMap>(type: K, listener: (this: HTMLKernMenuItemElement, ev: KernMenuItemCustomEvent<HTMLKernMenuItemElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
+    }
+    var HTMLKernMenuItemElement: {
+        prototype: HTMLKernMenuItemElement;
+        new (): HTMLKernMenuItemElement;
     };
     /**
      * Fill level with thresholds (RAM, flash, temperature, load). Colour goes ok → warn → danger;
@@ -2323,6 +2418,8 @@ declare global {
         "kern-link": HTMLKernLinkElement;
         "kern-list": HTMLKernListElement;
         "kern-list-item": HTMLKernListItemElement;
+        "kern-menu": HTMLKernMenuElement;
+        "kern-menu-item": HTMLKernMenuItemElement;
         "kern-meter": HTMLKernMeterElement;
         "kern-page-header": HTMLKernPageHeaderElement;
         "kern-progress": HTMLKernProgressElement;
@@ -3174,6 +3271,51 @@ declare namespace LocalJSX {
          */
         "selected"?: boolean;
         "target"?: string;
+    }
+    /**
+     * Action menu behind a trigger (e.g. a „⋯“ kern-button): kern-menu-item children, `<hr>` as separator. Opens on click,
+     * Enter, Space or Arrow Down (Arrow Up starts at the end); Arrow keys, Home/End and letters move, Enter picks, Escape
+     * or Tab closes. Picking emits `kernSelect` and returns the focus to the trigger.
+     */
+    interface KernMenu {
+        /**
+          * Which edges line up with the trigger.
+          * @default 'start'
+         */
+        "align"?: 'start' | 'end';
+        /**
+          * Accessible name of the menu (defaults to the trigger's text).
+         */
+        "label"?: string;
+        /**
+          * An item was picked.
+         */
+        "onKernSelect"?: (event: KernMenuCustomEvent<{ value: string }>) => void;
+    }
+    /**
+     * One action in kern-menu, with optional icon; `tone="danger"` for destructive actions (Werksreset, Löschen).
+     */
+    interface KernMenuItem {
+        /**
+          * @default false
+         */
+        "disabled"?: boolean;
+        /**
+          * Glyph name (see kern-icon).
+         */
+        "icon"?: IconName;
+        /**
+          * Asks the menu to pick this item (internal).
+         */
+        "onKernMenuItemSelect"?: (event: KernMenuItemCustomEvent<{ value: string }>) => void;
+        /**
+          * @default 'default'
+         */
+        "tone"?: 'default' | 'danger';
+        /**
+          * Passed in `kernSelect`; defaults to the text.
+         */
+        "value"?: string;
     }
     /**
      * Fill level with thresholds (RAM, flash, temperature, load). Colour goes ok → warn → danger;
@@ -4135,6 +4277,16 @@ declare namespace LocalJSX {
         "selected": boolean;
         "disabled": boolean;
     }
+    interface KernMenuAttributes {
+        "align": 'start' | 'end';
+        "label": string;
+    }
+    interface KernMenuItemAttributes {
+        "value": string;
+        "icon": IconName;
+        "tone": 'default' | 'danger';
+        "disabled": boolean;
+    }
     interface KernMeterAttributes {
         "value": number;
         "max": number;
@@ -4364,6 +4516,8 @@ declare namespace LocalJSX {
         "kern-link": Omit<KernLink, keyof KernLinkAttributes> & { [K in keyof KernLink & keyof KernLinkAttributes]?: KernLink[K] } & { [K in keyof KernLink & keyof KernLinkAttributes as `attr:${K}`]?: KernLinkAttributes[K] } & { [K in keyof KernLink & keyof KernLinkAttributes as `prop:${K}`]?: KernLink[K] };
         "kern-list": Omit<KernList, keyof KernListAttributes> & { [K in keyof KernList & keyof KernListAttributes]?: KernList[K] } & { [K in keyof KernList & keyof KernListAttributes as `attr:${K}`]?: KernListAttributes[K] } & { [K in keyof KernList & keyof KernListAttributes as `prop:${K}`]?: KernList[K] };
         "kern-list-item": Omit<KernListItem, keyof KernListItemAttributes> & { [K in keyof KernListItem & keyof KernListItemAttributes]?: KernListItem[K] } & { [K in keyof KernListItem & keyof KernListItemAttributes as `attr:${K}`]?: KernListItemAttributes[K] } & { [K in keyof KernListItem & keyof KernListItemAttributes as `prop:${K}`]?: KernListItem[K] };
+        "kern-menu": Omit<KernMenu, keyof KernMenuAttributes> & { [K in keyof KernMenu & keyof KernMenuAttributes]?: KernMenu[K] } & { [K in keyof KernMenu & keyof KernMenuAttributes as `attr:${K}`]?: KernMenuAttributes[K] } & { [K in keyof KernMenu & keyof KernMenuAttributes as `prop:${K}`]?: KernMenu[K] };
+        "kern-menu-item": Omit<KernMenuItem, keyof KernMenuItemAttributes> & { [K in keyof KernMenuItem & keyof KernMenuItemAttributes]?: KernMenuItem[K] } & { [K in keyof KernMenuItem & keyof KernMenuItemAttributes as `attr:${K}`]?: KernMenuItemAttributes[K] } & { [K in keyof KernMenuItem & keyof KernMenuItemAttributes as `prop:${K}`]?: KernMenuItem[K] };
         "kern-meter": Omit<KernMeter, keyof KernMeterAttributes> & { [K in keyof KernMeter & keyof KernMeterAttributes]?: KernMeter[K] } & { [K in keyof KernMeter & keyof KernMeterAttributes as `attr:${K}`]?: KernMeterAttributes[K] } & { [K in keyof KernMeter & keyof KernMeterAttributes as `prop:${K}`]?: KernMeter[K] };
         "kern-page-header": Omit<KernPageHeader, keyof KernPageHeaderAttributes> & { [K in keyof KernPageHeader & keyof KernPageHeaderAttributes]?: KernPageHeader[K] } & { [K in keyof KernPageHeader & keyof KernPageHeaderAttributes as `attr:${K}`]?: KernPageHeaderAttributes[K] } & { [K in keyof KernPageHeader & keyof KernPageHeaderAttributes as `prop:${K}`]?: KernPageHeader[K] } & OneOf<"heading", KernPageHeader["heading"], KernPageHeaderAttributes["heading"]>;
         "kern-progress": Omit<KernProgress, keyof KernProgressAttributes> & { [K in keyof KernProgress & keyof KernProgressAttributes]?: KernProgress[K] } & { [K in keyof KernProgress & keyof KernProgressAttributes as `attr:${K}`]?: KernProgressAttributes[K] } & { [K in keyof KernProgress & keyof KernProgressAttributes as `prop:${K}`]?: KernProgress[K] };
@@ -4504,6 +4658,16 @@ declare module "@stencil/core" {
              * `end` slot sit beside it, so clicking them never triggers the row.
              */
             "kern-list-item": LocalJSX.IntrinsicElements["kern-list-item"] & JSXBase.HTMLAttributes<HTMLKernListItemElement>;
+            /**
+             * Action menu behind a trigger (e.g. a „⋯“ kern-button): kern-menu-item children, `<hr>` as separator. Opens on click,
+             * Enter, Space or Arrow Down (Arrow Up starts at the end); Arrow keys, Home/End and letters move, Enter picks, Escape
+             * or Tab closes. Picking emits `kernSelect` and returns the focus to the trigger.
+             */
+            "kern-menu": LocalJSX.IntrinsicElements["kern-menu"] & JSXBase.HTMLAttributes<HTMLKernMenuElement>;
+            /**
+             * One action in kern-menu, with optional icon; `tone="danger"` for destructive actions (Werksreset, Löschen).
+             */
+            "kern-menu-item": LocalJSX.IntrinsicElements["kern-menu-item"] & JSXBase.HTMLAttributes<HTMLKernMenuItemElement>;
             /**
              * Fill level with thresholds (RAM, flash, temperature, load). Colour goes ok → warn → danger;
              * `neutral` uses the accent for amounts without good/bad.

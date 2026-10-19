@@ -39,6 +39,7 @@ body:
         - kern-menu-item
         - kern-meter
         - kern-page-header
+        - kern-pagination
         - kern-progress
         - kern-radio
         - kern-radio-group

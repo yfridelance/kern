@@ -51,6 +51,7 @@ body:
         - kern-segmented
         - kern-select
         - kern-signal
+        - kern-skeleton
         - kern-sparkline
         - kern-spinner
         - kern-stat

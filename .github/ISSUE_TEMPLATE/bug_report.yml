@@ -17,6 +17,7 @@ body:
         - kern-alert
         - kern-badge
         - kern-button
+        - kern-calendar
         - kern-card
         - kern-checkbox
         - kern-copy

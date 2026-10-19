@@ -34,6 +34,8 @@ body:
         - kern-link
         - kern-list
         - kern-list-item
+        - kern-menu
+        - kern-menu-item
         - kern-meter
         - kern-page-header
         - kern-progress

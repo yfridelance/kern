@@ -108,6 +108,15 @@
           <kern-status slot="start" tone="warn"></kern-status>
           <kern-date slot="meta" relative data-ago="93000"></kern-date>
           <kern-button slot="end" size="sm" variant="ghost">Erneut suchen</kern-button>
+          <kern-menu slot="end" align="end" label="Aktionen für Rollladen Süd" id="row-menu">
+            <kern-button slot="trigger" size="sm" variant="ghost" icon-only label="Weitere Aktionen"><kern-icon name="more"></kern-icon></kern-button>
+            <kern-menu-item value="reboot" icon="power">Neustart</kern-menu-item>
+            <kern-menu-item value="refresh" icon="refresh">Status abfragen</kern-menu-item>
+            <kern-menu-item value="edit" icon="edit">Umbenennen</kern-menu-item>
+            <hr>
+            <kern-menu-item value="reset" icon="warn" tone="danger">Werksreset</kern-menu-item>
+            <kern-menu-item value="delete" icon="trash" disabled>Löschen</kern-menu-item>
+          </kern-menu>
         </kern-list-item>
         <kern-list-item heading="Plus i4" description="4 Eingänge · 12 Geräte im Einsatz">
           <kern-rating slot="meta" value="5" readonly size="sm" aria-label-text="Bewertung"></kern-rating>
@@ -221,6 +230,7 @@
     };
     for (const el of document.querySelectorAll('kern-date[data-ago]')) el.value = Date.now() - el.dataset.ago * 1000;
     const iso = (d) => new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 10);
+    document.getElementById('row-menu').addEventListener('kernSelect', (e) => (document.getElementById('cal-out').textContent = 'kernSelect → ' + e.detail.value));
     const due = document.getElementById('due');
     document.getElementById('period').max = iso(new Date());
     due.isDateDisabled = (d) => [0, 6].includes(new Date(d + 'T00:00').getDay());

@@ -33,6 +33,8 @@
   border: 1px solid var(--line); border-radius: var(--radius-md);
   box-shadow: var(--shadow-overlay);
   font: 400 14px/20px var(--font-sans);
+  /* An overlay must not inherit the text styling of the place it sits in (e.g. text-align: end in a row). */
+  text-align: start; text-transform: none; letter-spacing: normal; white-space: normal;
 }
 .popup:popover-open { display: flex; }
 

@@ -1,0 +1,14 @@
+:host { display: inline-flex; vertical-align: middle; }
+:host([hidden]) { display: none; }
+
+.menu {
+  position: fixed; inset: auto; margin: 0; box-sizing: border-box; min-width: 180px; max-width: calc(100vw - 16px);
+  display: none; flex-direction: column; padding: var(--space-1); overflow-y: auto;
+  background: var(--surface-raised); color: var(--text);
+  border: 1px solid var(--line); border-radius: var(--radius-md); box-shadow: var(--shadow-overlay);
+  font: 400 14px/20px var(--font-sans);
+  /* An overlay must not inherit the text styling of the place it sits in (e.g. text-align: end in a row). */
+  text-align: start; text-transform: none; letter-spacing: normal; white-space: normal;
+}
+.menu:popover-open { display: flex; }
+::slotted(hr) { width: 100%; margin: var(--space-1) 0; border: 0; border-top: 1px solid var(--line); }

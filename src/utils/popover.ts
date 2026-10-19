@@ -1,8 +1,9 @@
 /**
  * Places a fixed popover below its anchor, or above when there is not enough room, inside the viewport.
- * `matchWidth` makes it at least as wide as the anchor (lists); `maxHeight` caps it (scrolling lists).
+ * `matchWidth` makes it at least as wide as the anchor (lists); `maxHeight` caps it (scrolling lists);
+ * `align: 'end'` lines up the right edges (menus at the end of a row).
  */
-export function positionPopup(anchor: HTMLElement, popup: HTMLElement, opts: { matchWidth?: boolean; maxHeight?: number } = {}) {
+export function positionPopup(anchor: HTMLElement, popup: HTMLElement, opts: { matchWidth?: boolean; maxHeight?: number; align?: 'start' | 'end' } = {}) {
   const r = anchor.getBoundingClientRect();
   const gap = 4;
   const below = window.innerHeight - r.bottom - gap - 8;
@@ -16,7 +17,9 @@ export function positionPopup(anchor: HTMLElement, popup: HTMLElement, opts: { m
     popup.style.maxWidth = `${Math.max(r.width, window.innerWidth - 16)}px`;
   }
   if (opts.maxHeight) popup.style.maxHeight = `${Math.max(120, Math.min(opts.maxHeight, up ? above : below))}px`;
-  popup.style.left = `${Math.max(8, Math.min(r.left, window.innerWidth - Math.max(width, popup.offsetWidth) - 8))}px`;
+  const w = Math.max(width, popup.offsetWidth);
+  const left = opts.align === 'end' ? r.right - w : r.left;
+  popup.style.left = `${Math.max(8, Math.min(left, window.innerWidth - w - 8))}px`;
   if (up) {
     popup.style.top = 'auto';
     popup.style.bottom = `${window.innerHeight - r.top + gap}px`;

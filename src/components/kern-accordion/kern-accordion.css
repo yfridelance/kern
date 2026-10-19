@@ -1,0 +1,7 @@
+:host {
+  display: block; min-width: 0; box-sizing: border-box;
+  background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-lg); overflow: hidden;
+}
+:host([hidden]) { display: none; }
+:host([flush]) { background: none; border: 0; border-radius: 0; }
+::slotted(:not(:first-child)) { border-top: 1px solid var(--line); }

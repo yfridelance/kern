@@ -126,9 +126,21 @@
           <kern-button slot="end" size="sm">Aktualisieren</kern-button>
         </kern-list-item>
       </kern-list>
-      <kern-card heading="Benachrichtigungen" flush>
-        <kern-list flush size="sm" empty="Keine Benachrichtigungen"></kern-list>
-      </kern-card>
+      <div style="display:grid;gap:16px;align-content:start">
+        <kern-card heading="Benachrichtigungen" flush>
+          <kern-list flush size="sm" empty="Keine Benachrichtigungen"></kern-list>
+        </kern-card>
+        <kern-accordion>
+          <kern-accordion-item heading="WLAN" open>
+            <kern-kv><kern-kv-item label="SSID">Haus</kern-kv-item><kern-kv-item label="Modus">Statisch</kern-kv-item></kern-kv>
+          </kern-accordion-item>
+          <kern-accordion-item>
+            <span slot="heading">MQTT <kern-badge tone="ok">verbunden</kern-badge></span>
+            <kern-kv><kern-kv-item label="Server" mono>192.168.1.5:1883</kern-kv-item></kern-kv>
+          </kern-accordion-item>
+          <kern-accordion-item heading="Cloud (nur Gen2+)" disabled>Nicht verfügbar.</kern-accordion-item>
+        </kern-accordion>
+      </div>
     </section>
 
     <section>

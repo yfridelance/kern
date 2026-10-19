@@ -19,6 +19,38 @@ export { KernOption as KernOption1 } from "./components/kern-select/kern-select"
 export { KernToastReason } from "./components/kern-toast/kern-toast";
 export namespace Components {
     /**
+     * Collapsible sections (advanced settings, FAQ, log groups): kern-accordion-item children in a bordered box.
+     * Without `multiple` opening one closes the others.
+     */
+    interface KernAccordion {
+        /**
+          * Without border and background, e.g. inside kern-card.
+          * @default false
+         */
+        "flush": boolean;
+        /**
+          * Several sections may be open at once.
+          * @default false
+         */
+        "multiple": boolean;
+    }
+    /**
+     * One collapsible section of kern-accordion, on the native `<details>`/`<summary>` (Enter/Space toggle, announced as
+     * expanded/collapsed).
+     */
+    interface KernAccordionItem {
+        /**
+          * Cannot be toggled.
+          * @default false
+         */
+        "disabled": boolean;
+        "heading"?: string;
+        /**
+          * @default false
+         */
+        "open": boolean;
+    }
+    /**
      * Message in the page flow: information, success, warning or error. One or two sentences;
      * `danger` is announced as an alert, the others as status.
      */
@@ -1753,6 +1785,10 @@ export namespace Components {
         "suite"?: string;
     }
 }
+export interface KernAccordionItemCustomEvent<T> extends CustomEvent<T> {
+    detail: T;
+    target: HTMLKernAccordionItemElement;
+}
 export interface KernCalendarCustomEvent<T> extends CustomEvent<T> {
     detail: T;
     target: HTMLKernCalendarElement;
@@ -1850,6 +1886,37 @@ export interface KernToastCustomEvent<T> extends CustomEvent<T> {
     target: HTMLKernToastElement;
 }
 declare global {
+    /**
+     * Collapsible sections (advanced settings, FAQ, log groups): kern-accordion-item children in a bordered box.
+     * Without `multiple` opening one closes the others.
+     */
+    interface HTMLKernAccordionElement extends Components.KernAccordion, HTMLStencilElement {
+    }
+    var HTMLKernAccordionElement: {
+        prototype: HTMLKernAccordionElement;
+        new (): HTMLKernAccordionElement;
+    };
+    interface HTMLKernAccordionItemElementEventMap {
+        "kernToggle": { open: boolean };
+    }
+    /**
+     * One collapsible section of kern-accordion, on the native `<details>`/`<summary>` (Enter/Space toggle, announced as
+     * expanded/collapsed).
+     */
+    interface HTMLKernAccordionItemElement extends Components.KernAccordionItem, HTMLStencilElement {
+        addEventListener<K extends keyof HTMLKernAccordionItemElementEventMap>(type: K, listener: (this: HTMLKernAccordionItemElement, ev: KernAccordionItemCustomEvent<HTMLKernAccordionItemElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLKernAccordionItemElementEventMap>(type: K, listener: (this: HTMLKernAccordionItemElement, ev: KernAccordionItemCustomEvent<HTMLKernAccordionItemElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
+    }
+    var HTMLKernAccordionItemElement: {
+        prototype: HTMLKernAccordionItemElement;
+        new (): HTMLKernAccordionItemElement;
+    };
     /**
      * Message in the page flow: information, success, warning or error. One or two sentences;
      * `danger` is announced as an alert, the others as status.
@@ -2647,6 +2714,8 @@ declare global {
         new (): HTMLKernTopbarElement;
     };
     interface HTMLElementTagNameMap {
+        "kern-accordion": HTMLKernAccordionElement;
+        "kern-accordion-item": HTMLKernAccordionItemElement;
         "kern-alert": HTMLKernAlertElement;
         "kern-badge": HTMLKernBadgeElement;
         "kern-button": HTMLKernButtonElement;
@@ -2702,6 +2771,42 @@ declare global {
 declare namespace LocalJSX {
     type OneOf<K extends string, PropT, AttrT = PropT> = { [P in K]: PropT } & { [P in `attr:${K}`]?: never } | { [P in `attr:${K}`]: AttrT } & { [P in K]?: never };
 
+    /**
+     * Collapsible sections (advanced settings, FAQ, log groups): kern-accordion-item children in a bordered box.
+     * Without `multiple` opening one closes the others.
+     */
+    interface KernAccordion {
+        /**
+          * Without border and background, e.g. inside kern-card.
+          * @default false
+         */
+        "flush"?: boolean;
+        /**
+          * Several sections may be open at once.
+          * @default false
+         */
+        "multiple"?: boolean;
+    }
+    /**
+     * One collapsible section of kern-accordion, on the native `<details>`/`<summary>` (Enter/Space toggle, announced as
+     * expanded/collapsed).
+     */
+    interface KernAccordionItem {
+        /**
+          * Cannot be toggled.
+          * @default false
+         */
+        "disabled"?: boolean;
+        "heading"?: string;
+        /**
+          * After opening or closing by the user.
+         */
+        "onKernToggle"?: (event: KernAccordionItemCustomEvent<{ open: boolean }>) => void;
+        /**
+          * @default false
+         */
+        "open"?: boolean;
+    }
     /**
      * Message in the page flow: information, success, warning or error. One or two sentences;
      * `danger` is announced as an alert, the others as status.
@@ -4498,6 +4603,15 @@ declare namespace LocalJSX {
         "suite"?: string;
     }
 
+    interface KernAccordionAttributes {
+        "multiple": boolean;
+        "flush": boolean;
+    }
+    interface KernAccordionItemAttributes {
+        "heading": string;
+        "open": boolean;
+        "disabled": boolean;
+    }
     interface KernAlertAttributes {
         "tone": 'neutral' | 'info' | 'ok' | 'warn' | 'danger';
         "heading": string;
@@ -4953,6 +5067,8 @@ declare namespace LocalJSX {
     }
 
     interface IntrinsicElements {
+        "kern-accordion": Omit<KernAccordion, keyof KernAccordionAttributes> & { [K in keyof KernAccordion & keyof KernAccordionAttributes]?: KernAccordion[K] } & { [K in keyof KernAccordion & keyof KernAccordionAttributes as `attr:${K}`]?: KernAccordionAttributes[K] } & { [K in keyof KernAccordion & keyof KernAccordionAttributes as `prop:${K}`]?: KernAccordion[K] };
+        "kern-accordion-item": Omit<KernAccordionItem, keyof KernAccordionItemAttributes> & { [K in keyof KernAccordionItem & keyof KernAccordionItemAttributes]?: KernAccordionItem[K] } & { [K in keyof KernAccordionItem & keyof KernAccordionItemAttributes as `attr:${K}`]?: KernAccordionItemAttributes[K] } & { [K in keyof KernAccordionItem & keyof KernAccordionItemAttributes as `prop:${K}`]?: KernAccordionItem[K] };
         "kern-alert": Omit<KernAlert, keyof KernAlertAttributes> & { [K in keyof KernAlert & keyof KernAlertAttributes]?: KernAlert[K] } & { [K in keyof KernAlert & keyof KernAlertAttributes as `attr:${K}`]?: KernAlertAttributes[K] } & { [K in keyof KernAlert & keyof KernAlertAttributes as `prop:${K}`]?: KernAlert[K] };
         "kern-badge": Omit<KernBadge, keyof KernBadgeAttributes> & { [K in keyof KernBadge & keyof KernBadgeAttributes]?: KernBadge[K] } & { [K in keyof KernBadge & keyof KernBadgeAttributes as `attr:${K}`]?: KernBadgeAttributes[K] } & { [K in keyof KernBadge & keyof KernBadgeAttributes as `prop:${K}`]?: KernBadge[K] };
         "kern-button": Omit<KernButton, keyof KernButtonAttributes> & { [K in keyof KernButton & keyof KernButtonAttributes]?: KernButton[K] } & { [K in keyof KernButton & keyof KernButtonAttributes as `attr:${K}`]?: KernButtonAttributes[K] } & { [K in keyof KernButton & keyof KernButtonAttributes as `prop:${K}`]?: KernButton[K] };
@@ -5009,6 +5125,16 @@ export { LocalJSX as JSX };
 declare module "@stencil/core" {
     export namespace JSX {
         interface IntrinsicElements {
+            /**
+             * Collapsible sections (advanced settings, FAQ, log groups): kern-accordion-item children in a bordered box.
+             * Without `multiple` opening one closes the others.
+             */
+            "kern-accordion": LocalJSX.IntrinsicElements["kern-accordion"] & JSXBase.HTMLAttributes<HTMLKernAccordionElement>;
+            /**
+             * One collapsible section of kern-accordion, on the native `<details>`/`<summary>` (Enter/Space toggle, announced as
+             * expanded/collapsed).
+             */
+            "kern-accordion-item": LocalJSX.IntrinsicElements["kern-accordion-item"] & JSXBase.HTMLAttributes<HTMLKernAccordionItemElement>;
             /**
              * Message in the page flow: information, success, warning or error. One or two sentences;
              * `danger` is announced as an alert, the others as status.

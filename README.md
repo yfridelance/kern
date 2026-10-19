@@ -14,7 +14,7 @@ dort und hier sind dieselben (`tokens/tokens.json`).
 | Layout | `kern-topbar`, `kern-page-header`, `kern-card`, `kern-toolbar` |
 | Navigation | `kern-tabs` + `kern-tab-panel`, `kern-theme-toggle` |
 | Aktionen | `kern-button` |
-| Formulare | `kern-input`, `kern-textarea`, `kern-select`, `kern-switch`, `kern-checkbox`, `kern-segmented` |
+| Formulare | `kern-input`, `kern-textarea`, `kern-select`, `kern-switch`, `kern-checkbox`, `kern-segmented`, `kern-date-picker`, `kern-time-picker` |
 | Status | `kern-badge`, `kern-status` |
 | Rückmeldung | `kern-alert`, `kern-progress`, `kern-spinner`, `kern-dialog` (+ `confirm()`) |
 | Daten | `kern-table`, `kern-kv` + `kern-kv-item`, `kern-stat`, `kern-sparkline`, `kern-meter`, `kern-signal`, `kern-copy`, `kern-json` |
@@ -60,8 +60,8 @@ zusätzlich Standalone-Wrapper mit `ControlValueAccessor` für `ngModel` und Rea
 
 ## Wichtige Verhaltensregeln
 
-- **Formulare:** `kern-input`, `kern-textarea`, `kern-select`, `kern-switch`, `kern-checkbox` und `kern-segmented`
-  sind formularfähig (ElementInternals): `name`, `FormData`, `form.reset()` und `required` funktionieren wie bei
+- **Formulare:** `kern-input`, `kern-textarea`, `kern-select`, `kern-switch`, `kern-checkbox`, `kern-segmented`,
+  `kern-date-picker` und `kern-time-picker` sind formularfähig (ElementInternals): `name`, `FormData`, `form.reset()` und `required` funktionieren wie bei
   nativen Feldern. `kern-button type="submit"` sendet das umgebende Formular. Ein Feld mit `error` gilt als ungültig
   und **blockiert das Absenden**, bis der Fehler entfernt ist.
 - **Optionen** für `kern-select` und `kern-segmented` kommen aus der Property `options` oder aus Kind-`<option>`;
@@ -83,6 +83,11 @@ zusätzlich Standalone-Wrapper mit `ControlValueAccessor` für `ngModel` und Rea
   schliesst ab, Escape verwirft); `months="2"` zeigt zwei Monate. Grenzen per `min`/`max` und
   `isDateDisabled = (iso) => boolean` (Property). Wochenstart aus der Locale, Tastatur wie im WAI-ARIA-Datepicker
   (Pfeile, Home/End, Bild↑/↓, mit Shift jahrweise).
+- **Datum/Zeit eingeben:** `kern-date-picker` hat den Wert ISO (`2026-10-19`), zeigt und akzeptiert aber das Format
+  der Locale («19.10.2026», auch «19.10.» oder ISO). Übernommen wird mit Enter oder beim Verlassen; ungültige oder
+  nicht erlaubte Daten (`min`/`max`/`isDateDisabled`) machen das Feld ungültig. Pfeil↓ öffnet den Kalender, Slot
+  `footer` für Aktionen wie «Heute». `kern-time-picker` hat Segmente (Std/Min/[Sek]/[AM/PM]): Pfeile ändern
+  (Minuten in `step` Sekunden), Ziffern tippen, Backspace leert; `list` zeigt eine Auswahlliste, `min`/`max` begrenzen.
 - **Theming von aussen:** nur über Tokens (CSS-Variablen) und die dokumentierten `::part()`; keine Farben in Apps
   erfinden.
 - **Texte:** Standardtexte (Aria-Labels, «Abbrechen») sind deutsch und über Props übersetzbar.

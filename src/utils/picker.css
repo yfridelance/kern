@@ -1,0 +1,39 @@
+/* Shared by kern-date-picker and kern-time-picker: field box with text/segments and icon buttons, popover panel. */
+@import './field.css';
+
+.box { display: flex; align-items: center; gap: 2px; padding-right: 3px; cursor: text; }
+.box:focus-within { outline: 2px solid var(--focus); outline-offset: -1px; border-color: var(--focus); }
+:host([invalid]) .box:focus-within { outline-color: var(--danger); }
+.box.disabled { opacity: .5; cursor: not-allowed; }
+:host([size="sm"]) .box { padding-right: 2px; }
+
+.text {
+  all: unset; flex: 1; min-width: 0; height: 100%; font: inherit; color: inherit; font-variant-numeric: tabular-nums;
+}
+.text::placeholder { color: var(--text-faint); }
+.text:disabled { cursor: not-allowed; }
+
+.icon {
+  all: unset; flex: none; display: inline-grid; place-items: center; box-sizing: border-box; width: 26px; height: 26px;
+  border-radius: var(--radius-sm); color: var(--text-muted); cursor: pointer;
+}
+:host([size="sm"]) .icon { width: 22px; height: 22px; }
+.icon:hover:not(:disabled) { background: var(--hover); color: var(--text); }
+.icon:focus-visible { outline: 2px solid var(--focus); }
+.icon:disabled { cursor: not-allowed; }
+.icon svg { width: 14px; height: 14px; }
+.icon[aria-expanded="true"] { color: var(--accent-text); }
+
+.popup {
+  position: fixed; inset: auto; margin: 0; box-sizing: border-box;
+  display: none; flex-direction: column; gap: var(--space-2);
+  padding: var(--space-3);
+  background: var(--surface-raised); color: var(--text);
+  border: 1px solid var(--line); border-radius: var(--radius-md);
+  box-shadow: var(--shadow-overlay);
+  font: 400 14px/20px var(--font-sans);
+}
+.popup:popover-open { display: flex; }
+
+.footer { display: flex; flex-wrap: wrap; gap: var(--space-1); padding-top: var(--space-2); border-top: 1px solid var(--line); }
+.footer[hidden] { display: none; }

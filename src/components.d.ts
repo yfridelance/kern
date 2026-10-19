@@ -261,6 +261,105 @@ export namespace Components {
         "value"?: string | number | Date;
     }
     /**
+     * Date field with a calendar popover, form-associated. The value is an ISO date (`2026-10-19`); the field shows
+     * and accepts the locale's numeric format („19.10.2026“, also „19.10.“ or ISO). Typed text is applied on Enter or
+     * when leaving the field; invalid or out-of-range dates mark the field invalid.
+     * Keyboard: Arrow Down or Alt+Arrow Down opens the calendar (keyboard as in kern-calendar), Enter or Space picks,
+     * Escape closes. Elements in the `footer` slot appear below the calendar; clicking one closes it.
+     */
+    interface KernDatePicker {
+        /**
+          * Accessible name when there is no visible label.
+         */
+        "ariaLabelText"?: string;
+        /**
+          * Show a button that empties the field.
+          * @default false
+         */
+        "clearable": boolean;
+        /**
+          * @default false
+         */
+        "disabled": boolean;
+        "error"?: string;
+        /**
+          * 0 = Sunday … 6 = Saturday; defaults to the locale.
+         */
+        "firstDayOfWeek"?: number;
+        /**
+          * Closes the calendar.
+         */
+        "hide": () => Promise<void>;
+        "hint"?: string;
+        /**
+          * Additional rule for unselectable days, e.g. weekends.
+         */
+        "isDateDisabled"?: (iso: string) => boolean;
+        "label"?: string;
+        /**
+          * @default 'Leeren'
+         */
+        "labelClear": string;
+        /**
+          * Shown for text that is not a date.
+          * @default 'Kein gültiges Datum'
+         */
+        "labelInvalid": string;
+        /**
+          * @default 'Kalender öffnen'
+         */
+        "labelOpen": string;
+        /**
+          * Shown for a date outside min/max or disabled.
+          * @default 'Datum nicht erlaubt'
+         */
+        "labelOutOfRange": string;
+        /**
+          * BCP 47 locale; defaults to `<html lang>`, then the browser language.
+         */
+        "locale"?: string;
+        /**
+          * Latest allowed date.
+         */
+        "max"?: string;
+        /**
+          * Earliest allowed date.
+         */
+        "min"?: string;
+        "name"?: string;
+        /**
+          * Defaults to the locale's format, e.g. „TT.MM.JJJJ“.
+         */
+        "placeholder"?: string;
+        /**
+          * @default false
+         */
+        "readonly": boolean;
+        /**
+          * @default false
+         */
+        "required": boolean;
+        "setFocus": () => Promise<void>;
+        /**
+          * Opens the calendar.
+         */
+        "show": () => Promise<void>;
+        /**
+          * ISO week numbers in the calendar.
+          * @default false
+         */
+        "showWeekNumbers": boolean;
+        /**
+          * @default 'md'
+         */
+        "size": 'md' | 'sm';
+        /**
+          * ISO date `YYYY-MM-DD`, empty when none.
+          * @default ''
+         */
+        "value": string;
+    }
+    /**
      * Modal dialog for confirmations and short forms, on the native `<dialog>`.
      * Destructive: the heading names action and device, a `kern-alert tone="warn"` states the consequence,
      * the confirm button is `variant="danger"` with a verb.
@@ -775,6 +874,109 @@ export namespace Components {
         "value"?: string | number | Date;
     }
     /**
+     * Time field with segments (hours, minutes, optional seconds and AM/PM), form-associated. The value is
+     * `HH:mm` (or `HH:mm:ss` with `seconds`), empty while a segment is missing.
+     * Keyboard per segment: Arrow Up/Down change it (minutes in `step`), digits type it and move on, Arrow Left/Right
+     * switch segments, Backspace clears, A/P set AM/PM. With `list`, a button opens a list of times
+     * (every `step`, at least 5 minutes; every 30 minutes when `step` is smaller).
+     */
+    interface KernTimePicker {
+        /**
+          * Accessible name when there is no visible label.
+         */
+        "ariaLabelText"?: string;
+        /**
+          * @default false
+         */
+        "disabled": boolean;
+        "error"?: string;
+        /**
+          * Closes the list.
+         */
+        "hide": () => Promise<void>;
+        "hint"?: string;
+        /**
+          * 12-hour clock with AM/PM; defaults to the locale.
+         */
+        "hour12"?: boolean;
+        "label"?: string;
+        /**
+          * @default 'Stunden'
+         */
+        "labelHour": string;
+        /**
+          * @default 'Zeit wählen'
+         */
+        "labelList": string;
+        /**
+          * @default 'Minuten'
+         */
+        "labelMinute": string;
+        /**
+          * Shown for a time outside min/max.
+          * @default 'Zeit nicht erlaubt'
+         */
+        "labelOutOfRange": string;
+        /**
+          * @default 'Vormittag/Nachmittag'
+         */
+        "labelPeriod": string;
+        /**
+          * @default 'Sekunden'
+         */
+        "labelSecond": string;
+        /**
+          * Button with a list of times.
+          * @default false
+         */
+        "list": boolean;
+        /**
+          * BCP 47 locale; defaults to `<html lang>`, then the browser language.
+         */
+        "locale"?: string;
+        /**
+          * Latest allowed time `HH:mm`.
+         */
+        "max"?: string;
+        /**
+          * Earliest allowed time `HH:mm`.
+         */
+        "min"?: string;
+        "name"?: string;
+        /**
+          * @default false
+         */
+        "readonly": boolean;
+        /**
+          * @default false
+         */
+        "required": boolean;
+        /**
+          * Seconds segment.
+          * @default false
+         */
+        "seconds": boolean;
+        "setFocus": () => Promise<void>;
+        /**
+          * Opens the list (with `list`).
+         */
+        "show": () => Promise<void>;
+        /**
+          * @default 'md'
+         */
+        "size": 'md' | 'sm';
+        /**
+          * Step in seconds for Arrow Up/Down and the list, like `<input type="time">` (900 = 15 min).
+          * @default 60
+         */
+        "step": number;
+        /**
+          * `HH:mm` or `HH:mm:ss`, empty when none.
+          * @default ''
+         */
+        "value": string;
+    }
+    /**
      * Row above a table: search, filters, then (right-aligned) result count and actions.
      */
     interface KernToolbar {
@@ -814,6 +1016,10 @@ export interface KernCopyCustomEvent<T> extends CustomEvent<T> {
     detail: T;
     target: HTMLKernCopyElement;
 }
+export interface KernDatePickerCustomEvent<T> extends CustomEvent<T> {
+    detail: T;
+    target: HTMLKernDatePickerElement;
+}
 export interface KernDialogCustomEvent<T> extends CustomEvent<T> {
     detail: T;
     target: HTMLKernDialogElement;
@@ -841,6 +1047,10 @@ export interface KernTabsCustomEvent<T> extends CustomEvent<T> {
 export interface KernTextareaCustomEvent<T> extends CustomEvent<T> {
     detail: T;
     target: HTMLKernTextareaElement;
+}
+export interface KernTimePickerCustomEvent<T> extends CustomEvent<T> {
+    detail: T;
+    target: HTMLKernTimePickerElement;
 }
 declare global {
     /**
@@ -956,6 +1166,30 @@ declare global {
     var HTMLKernDateElement: {
         prototype: HTMLKernDateElement;
         new (): HTMLKernDateElement;
+    };
+    interface HTMLKernDatePickerElementEventMap {
+        "kernChange": { value: string };
+    }
+    /**
+     * Date field with a calendar popover, form-associated. The value is an ISO date (`2026-10-19`); the field shows
+     * and accepts the locale's numeric format („19.10.2026“, also „19.10.“ or ISO). Typed text is applied on Enter or
+     * when leaving the field; invalid or out-of-range dates mark the field invalid.
+     * Keyboard: Arrow Down or Alt+Arrow Down opens the calendar (keyboard as in kern-calendar), Enter or Space picks,
+     * Escape closes. Elements in the `footer` slot appear below the calendar; clicking one closes it.
+     */
+    interface HTMLKernDatePickerElement extends Components.KernDatePicker, HTMLStencilElement {
+        addEventListener<K extends keyof HTMLKernDatePickerElementEventMap>(type: K, listener: (this: HTMLKernDatePickerElement, ev: KernDatePickerCustomEvent<HTMLKernDatePickerElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLKernDatePickerElementEventMap>(type: K, listener: (this: HTMLKernDatePickerElement, ev: KernDatePickerCustomEvent<HTMLKernDatePickerElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
+    }
+    var HTMLKernDatePickerElement: {
+        prototype: HTMLKernDatePickerElement;
+        new (): HTMLKernDatePickerElement;
     };
     interface HTMLKernDialogElementEventMap {
         "kernClose": { returnValue: string };
@@ -1259,6 +1493,30 @@ declare global {
         prototype: HTMLKernTimeElement;
         new (): HTMLKernTimeElement;
     };
+    interface HTMLKernTimePickerElementEventMap {
+        "kernChange": { value: string };
+    }
+    /**
+     * Time field with segments (hours, minutes, optional seconds and AM/PM), form-associated. The value is
+     * `HH:mm` (or `HH:mm:ss` with `seconds`), empty while a segment is missing.
+     * Keyboard per segment: Arrow Up/Down change it (minutes in `step`), digits type it and move on, Arrow Left/Right
+     * switch segments, Backspace clears, A/P set AM/PM. With `list`, a button opens a list of times
+     * (every `step`, at least 5 minutes; every 30 minutes when `step` is smaller).
+     */
+    interface HTMLKernTimePickerElement extends Components.KernTimePicker, HTMLStencilElement {
+        addEventListener<K extends keyof HTMLKernTimePickerElementEventMap>(type: K, listener: (this: HTMLKernTimePickerElement, ev: KernTimePickerCustomEvent<HTMLKernTimePickerElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLKernTimePickerElementEventMap>(type: K, listener: (this: HTMLKernTimePickerElement, ev: KernTimePickerCustomEvent<HTMLKernTimePickerElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
+    }
+    var HTMLKernTimePickerElement: {
+        prototype: HTMLKernTimePickerElement;
+        new (): HTMLKernTimePickerElement;
+    };
     /**
      * Row above a table: search, filters, then (right-aligned) result count and actions.
      */
@@ -1288,6 +1546,7 @@ declare global {
         "kern-checkbox": HTMLKernCheckboxElement;
         "kern-copy": HTMLKernCopyElement;
         "kern-date": HTMLKernDateElement;
+        "kern-date-picker": HTMLKernDatePickerElement;
         "kern-dialog": HTMLKernDialogElement;
         "kern-input": HTMLKernInputElement;
         "kern-json": HTMLKernJsonElement;
@@ -1310,6 +1569,7 @@ declare global {
         "kern-textarea": HTMLKernTextareaElement;
         "kern-theme-toggle": HTMLKernThemeToggleElement;
         "kern-time": HTMLKernTimeElement;
+        "kern-time-picker": HTMLKernTimePickerElement;
         "kern-toolbar": HTMLKernToolbarElement;
         "kern-topbar": HTMLKernTopbarElement;
     }
@@ -1581,6 +1841,104 @@ declare namespace LocalJSX {
           * ISO date (`2026-10-19`), ISO 8601 point in time, epoch milliseconds or a Date.
          */
         "value"?: string | number | Date;
+    }
+    /**
+     * Date field with a calendar popover, form-associated. The value is an ISO date (`2026-10-19`); the field shows
+     * and accepts the locale's numeric format („19.10.2026“, also „19.10.“ or ISO). Typed text is applied on Enter or
+     * when leaving the field; invalid or out-of-range dates mark the field invalid.
+     * Keyboard: Arrow Down or Alt+Arrow Down opens the calendar (keyboard as in kern-calendar), Enter or Space picks,
+     * Escape closes. Elements in the `footer` slot appear below the calendar; clicking one closes it.
+     */
+    interface KernDatePicker {
+        /**
+          * Accessible name when there is no visible label.
+         */
+        "ariaLabelText"?: string;
+        /**
+          * Show a button that empties the field.
+          * @default false
+         */
+        "clearable"?: boolean;
+        /**
+          * @default false
+         */
+        "disabled"?: boolean;
+        "error"?: string;
+        /**
+          * 0 = Sunday … 6 = Saturday; defaults to the locale.
+         */
+        "firstDayOfWeek"?: number;
+        /**
+          * The `id` of a `<form>` element to associate this element with.
+         */
+        "form"?: string;
+        "hint"?: string;
+        /**
+          * Additional rule for unselectable days, e.g. weekends.
+         */
+        "isDateDisabled"?: (iso: string) => boolean;
+        "label"?: string;
+        /**
+          * @default 'Leeren'
+         */
+        "labelClear"?: string;
+        /**
+          * Shown for text that is not a date.
+          * @default 'Kein gültiges Datum'
+         */
+        "labelInvalid"?: string;
+        /**
+          * @default 'Kalender öffnen'
+         */
+        "labelOpen"?: string;
+        /**
+          * Shown for a date outside min/max or disabled.
+          * @default 'Datum nicht erlaubt'
+         */
+        "labelOutOfRange"?: string;
+        /**
+          * BCP 47 locale; defaults to `<html lang>`, then the browser language.
+         */
+        "locale"?: string;
+        /**
+          * Latest allowed date.
+         */
+        "max"?: string;
+        /**
+          * Earliest allowed date.
+         */
+        "min"?: string;
+        "name"?: string;
+        /**
+          * When the date changes (picked, typed and applied, or cleared).
+         */
+        "onKernChange"?: (event: KernDatePickerCustomEvent<{ value: string }>) => void;
+        /**
+          * Defaults to the locale's format, e.g. „TT.MM.JJJJ“.
+         */
+        "placeholder"?: string;
+        /**
+          * @default false
+         */
+        "readonly"?: boolean;
+        /**
+          * @default false
+         */
+        "required"?: boolean;
+        /**
+          * ISO week numbers in the calendar.
+          * @default false
+         */
+        "showWeekNumbers"?: boolean;
+        /**
+          * @default 'md'
+         */
+        "size"?: 'md' | 'sm';
+        /**
+          * ISO date `YYYY-MM-DD`, empty when none.
+          * @default ''
+         */
+        "value"?: string;
     }
     /**
      * Modal dialog for confirmations and short forms, on the native `<dialog>`.
@@ -2112,6 +2470,108 @@ declare namespace LocalJSX {
         "value"?: string | number | Date;
     }
     /**
+     * Time field with segments (hours, minutes, optional seconds and AM/PM), form-associated. The value is
+     * `HH:mm` (or `HH:mm:ss` with `seconds`), empty while a segment is missing.
+     * Keyboard per segment: Arrow Up/Down change it (minutes in `step`), digits type it and move on, Arrow Left/Right
+     * switch segments, Backspace clears, A/P set AM/PM. With `list`, a button opens a list of times
+     * (every `step`, at least 5 minutes; every 30 minutes when `step` is smaller).
+     */
+    interface KernTimePicker {
+        /**
+          * Accessible name when there is no visible label.
+         */
+        "ariaLabelText"?: string;
+        /**
+          * @default false
+         */
+        "disabled"?: boolean;
+        "error"?: string;
+        /**
+          * The `id` of a `<form>` element to associate this element with.
+         */
+        "form"?: string;
+        "hint"?: string;
+        /**
+          * 12-hour clock with AM/PM; defaults to the locale.
+         */
+        "hour12"?: boolean;
+        "label"?: string;
+        /**
+          * @default 'Stunden'
+         */
+        "labelHour"?: string;
+        /**
+          * @default 'Zeit wählen'
+         */
+        "labelList"?: string;
+        /**
+          * @default 'Minuten'
+         */
+        "labelMinute"?: string;
+        /**
+          * Shown for a time outside min/max.
+          * @default 'Zeit nicht erlaubt'
+         */
+        "labelOutOfRange"?: string;
+        /**
+          * @default 'Vormittag/Nachmittag'
+         */
+        "labelPeriod"?: string;
+        /**
+          * @default 'Sekunden'
+         */
+        "labelSecond"?: string;
+        /**
+          * Button with a list of times.
+          * @default false
+         */
+        "list"?: boolean;
+        /**
+          * BCP 47 locale; defaults to `<html lang>`, then the browser language.
+         */
+        "locale"?: string;
+        /**
+          * Latest allowed time `HH:mm`.
+         */
+        "max"?: string;
+        /**
+          * Earliest allowed time `HH:mm`.
+         */
+        "min"?: string;
+        "name"?: string;
+        /**
+          * When the time changes (complete, or cleared).
+         */
+        "onKernChange"?: (event: KernTimePickerCustomEvent<{ value: string }>) => void;
+        /**
+          * @default false
+         */
+        "readonly"?: boolean;
+        /**
+          * @default false
+         */
+        "required"?: boolean;
+        /**
+          * Seconds segment.
+          * @default false
+         */
+        "seconds"?: boolean;
+        /**
+          * @default 'md'
+         */
+        "size"?: 'md' | 'sm';
+        /**
+          * Step in seconds for Arrow Up/Down and the list, like `<input type="time">` (900 = 15 min).
+          * @default 60
+         */
+        "step"?: number;
+        /**
+          * `HH:mm` or `HH:mm:ss`, empty when none.
+          * @default ''
+         */
+        "value"?: string;
+    }
+    /**
      * Row above a table: search, filters, then (right-aligned) result count and actions.
      */
     interface KernToolbar {
@@ -2199,6 +2659,29 @@ declare namespace LocalJSX {
         "relative": boolean;
         "locale": string;
         "timeZone": string;
+    }
+    interface KernDatePickerAttributes {
+        "label": string;
+        "hint": string;
+        "error": string;
+        "value": string;
+        "name": string;
+        "min": string;
+        "max": string;
+        "placeholder": string;
+        "clearable": boolean;
+        "firstDayOfWeek": number;
+        "showWeekNumbers": boolean;
+        "locale": string;
+        "size": 'md' | 'sm';
+        "disabled": boolean;
+        "readonly": boolean;
+        "required": boolean;
+        "ariaLabelText": string;
+        "labelOpen": string;
+        "labelClear": string;
+        "labelInvalid": string;
+        "labelOutOfRange": string;
     }
     interface KernDialogAttributes {
         "open": boolean;
@@ -2350,6 +2833,31 @@ declare namespace LocalJSX {
         "timeZone": string;
         "mono": boolean;
     }
+    interface KernTimePickerAttributes {
+        "label": string;
+        "hint": string;
+        "error": string;
+        "value": string;
+        "name": string;
+        "step": number;
+        "seconds": boolean;
+        "hour12": boolean;
+        "min": string;
+        "max": string;
+        "list": boolean;
+        "locale": string;
+        "size": 'md' | 'sm';
+        "disabled": boolean;
+        "readonly": boolean;
+        "required": boolean;
+        "ariaLabelText": string;
+        "labelHour": string;
+        "labelMinute": string;
+        "labelSecond": string;
+        "labelPeriod": string;
+        "labelList": string;
+        "labelOutOfRange": string;
+    }
     interface KernTopbarAttributes {
         "appName": string;
         "suite": string;
@@ -2366,6 +2874,7 @@ declare namespace LocalJSX {
         "kern-checkbox": Omit<KernCheckbox, keyof KernCheckboxAttributes> & { [K in keyof KernCheckbox & keyof KernCheckboxAttributes]?: KernCheckbox[K] } & { [K in keyof KernCheckbox & keyof KernCheckboxAttributes as `attr:${K}`]?: KernCheckboxAttributes[K] } & { [K in keyof KernCheckbox & keyof KernCheckboxAttributes as `prop:${K}`]?: KernCheckbox[K] };
         "kern-copy": Omit<KernCopy, keyof KernCopyAttributes> & { [K in keyof KernCopy & keyof KernCopyAttributes]?: KernCopy[K] } & { [K in keyof KernCopy & keyof KernCopyAttributes as `attr:${K}`]?: KernCopyAttributes[K] } & { [K in keyof KernCopy & keyof KernCopyAttributes as `prop:${K}`]?: KernCopy[K] };
         "kern-date": Omit<KernDate, keyof KernDateAttributes> & { [K in keyof KernDate & keyof KernDateAttributes]?: KernDate[K] } & { [K in keyof KernDate & keyof KernDateAttributes as `attr:${K}`]?: KernDateAttributes[K] } & { [K in keyof KernDate & keyof KernDateAttributes as `prop:${K}`]?: KernDate[K] };
+        "kern-date-picker": Omit<KernDatePicker, keyof KernDatePickerAttributes> & { [K in keyof KernDatePicker & keyof KernDatePickerAttributes]?: KernDatePicker[K] } & { [K in keyof KernDatePicker & keyof KernDatePickerAttributes as `attr:${K}`]?: KernDatePickerAttributes[K] } & { [K in keyof KernDatePicker & keyof KernDatePickerAttributes as `prop:${K}`]?: KernDatePicker[K] };
         "kern-dialog": Omit<KernDialog, keyof KernDialogAttributes> & { [K in keyof KernDialog & keyof KernDialogAttributes]?: KernDialog[K] } & { [K in keyof KernDialog & keyof KernDialogAttributes as `attr:${K}`]?: KernDialogAttributes[K] } & { [K in keyof KernDialog & keyof KernDialogAttributes as `prop:${K}`]?: KernDialog[K] };
         "kern-input": Omit<KernInput, keyof KernInputAttributes> & { [K in keyof KernInput & keyof KernInputAttributes]?: KernInput[K] } & { [K in keyof KernInput & keyof KernInputAttributes as `attr:${K}`]?: KernInputAttributes[K] } & { [K in keyof KernInput & keyof KernInputAttributes as `prop:${K}`]?: KernInput[K] };
         "kern-json": Omit<KernJson, keyof KernJsonAttributes> & { [K in keyof KernJson & keyof KernJsonAttributes]?: KernJson[K] } & { [K in keyof KernJson & keyof KernJsonAttributes as `attr:${K}`]?: KernJsonAttributes[K] } & { [K in keyof KernJson & keyof KernJsonAttributes as `prop:${K}`]?: KernJson[K] };
@@ -2388,6 +2897,7 @@ declare namespace LocalJSX {
         "kern-textarea": Omit<KernTextarea, keyof KernTextareaAttributes> & { [K in keyof KernTextarea & keyof KernTextareaAttributes]?: KernTextarea[K] } & { [K in keyof KernTextarea & keyof KernTextareaAttributes as `attr:${K}`]?: KernTextareaAttributes[K] } & { [K in keyof KernTextarea & keyof KernTextareaAttributes as `prop:${K}`]?: KernTextarea[K] };
         "kern-theme-toggle": Omit<KernThemeToggle, keyof KernThemeToggleAttributes> & { [K in keyof KernThemeToggle & keyof KernThemeToggleAttributes]?: KernThemeToggle[K] } & { [K in keyof KernThemeToggle & keyof KernThemeToggleAttributes as `attr:${K}`]?: KernThemeToggleAttributes[K] } & { [K in keyof KernThemeToggle & keyof KernThemeToggleAttributes as `prop:${K}`]?: KernThemeToggle[K] };
         "kern-time": Omit<KernTime, keyof KernTimeAttributes> & { [K in keyof KernTime & keyof KernTimeAttributes]?: KernTime[K] } & { [K in keyof KernTime & keyof KernTimeAttributes as `attr:${K}`]?: KernTimeAttributes[K] } & { [K in keyof KernTime & keyof KernTimeAttributes as `prop:${K}`]?: KernTime[K] };
+        "kern-time-picker": Omit<KernTimePicker, keyof KernTimePickerAttributes> & { [K in keyof KernTimePicker & keyof KernTimePickerAttributes]?: KernTimePicker[K] } & { [K in keyof KernTimePicker & keyof KernTimePickerAttributes as `attr:${K}`]?: KernTimePickerAttributes[K] } & { [K in keyof KernTimePicker & keyof KernTimePickerAttributes as `prop:${K}`]?: KernTimePicker[K] };
         "kern-toolbar": KernToolbar;
         "kern-topbar": Omit<KernTopbar, keyof KernTopbarAttributes> & { [K in keyof KernTopbar & keyof KernTopbarAttributes]?: KernTopbar[K] } & { [K in keyof KernTopbar & keyof KernTopbarAttributes as `attr:${K}`]?: KernTopbarAttributes[K] } & { [K in keyof KernTopbar & keyof KernTopbarAttributes as `prop:${K}`]?: KernTopbar[K] };
     }
@@ -2436,6 +2946,14 @@ declare module "@stencil/core" {
              * Relative texts update themselves; the absolute value with time is shown as tooltip. Invalid values are shown as given.
              */
             "kern-date": LocalJSX.IntrinsicElements["kern-date"] & JSXBase.HTMLAttributes<HTMLKernDateElement>;
+            /**
+             * Date field with a calendar popover, form-associated. The value is an ISO date (`2026-10-19`); the field shows
+             * and accepts the locale's numeric format („19.10.2026“, also „19.10.“ or ISO). Typed text is applied on Enter or
+             * when leaving the field; invalid or out-of-range dates mark the field invalid.
+             * Keyboard: Arrow Down or Alt+Arrow Down opens the calendar (keyboard as in kern-calendar), Enter or Space picks,
+             * Escape closes. Elements in the `footer` slot appear below the calendar; clicking one closes it.
+             */
+            "kern-date-picker": LocalJSX.IntrinsicElements["kern-date-picker"] & JSXBase.HTMLAttributes<HTMLKernDatePickerElement>;
             /**
              * Modal dialog for confirmations and short forms, on the native `<dialog>`.
              * Destructive: the heading names action and device, a `kern-alert tone="warn"` states the consequence,
@@ -2549,6 +3067,14 @@ declare module "@stencil/core" {
              * Invalid values are shown as given.
              */
             "kern-time": LocalJSX.IntrinsicElements["kern-time"] & JSXBase.HTMLAttributes<HTMLKernTimeElement>;
+            /**
+             * Time field with segments (hours, minutes, optional seconds and AM/PM), form-associated. The value is
+             * `HH:mm` (or `HH:mm:ss` with `seconds`), empty while a segment is missing.
+             * Keyboard per segment: Arrow Up/Down change it (minutes in `step`), digits type it and move on, Arrow Left/Right
+             * switch segments, Backspace clears, A/P set AM/PM. With `list`, a button opens a list of times
+             * (every `step`, at least 5 minutes; every 30 minutes when `step` is smaller).
+             */
+            "kern-time-picker": LocalJSX.IntrinsicElements["kern-time-picker"] & JSXBase.HTMLAttributes<HTMLKernTimePickerElement>;
             /**
              * Row above a table: search, filters, then (right-aligned) result count and actions.
              */

@@ -84,6 +84,19 @@ Type: `Promise<void>`
 | `"day"` | Each day button |
 
 
+## Dependencies
+
+### Used by
+
+ - [kern-date-picker](../kern-date-picker)
+
+### Graph
+```mermaid
+graph TD;
+  kern-date-picker --> kern-calendar
+  style kern-calendar fill:#f9f,stroke:#333,stroke-width:4px
+```
+
 ----------------------------------------------
 
 

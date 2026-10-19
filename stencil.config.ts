@@ -26,6 +26,12 @@ export const config: Config = {
           type: 'text',
         },
         {
+          elementSelectors: ['kern-rating'],
+          event: 'kernChange',
+          targetAttr: 'value',
+          type: 'number',
+        },
+        {
           elementSelectors: ['kern-switch', 'kern-checkbox'],
           event: 'kernChange',
           targetAttr: 'checked',

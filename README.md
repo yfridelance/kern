@@ -18,6 +18,7 @@ dort und hier sind dieselben (`tokens/tokens.json`).
 | Status | `kern-badge`, `kern-status` |
 | Rückmeldung | `kern-alert`, `kern-progress`, `kern-spinner`, `kern-dialog` (+ `confirm()`) |
 | Daten | `kern-table`, `kern-kv` + `kern-kv-item`, `kern-stat`, `kern-sparkline`, `kern-meter`, `kern-signal`, `kern-copy`, `kern-json` |
+| Datum & Zeit | `kern-date`, `kern-time` |
 
 Props, Events, Slots und Parts jeder Komponente: `src/components/<tag>/readme.md` (aus dem Code erzeugt).
 Eine Demo aller Komponenten zeigt `npm start` unter http://localhost:3333.
@@ -74,6 +75,10 @@ zusätzlich Standalone-Wrapper mit `ControlValueAccessor` für `ngModel` und Rea
   `aria-selected="true"`; sortierbar mit `<th aria-sort><button>`.
 - **Bestätigen:** `await confirm({ heading, message, confirmLabel, danger, typeToConfirm })` öffnet einen
   `kern-dialog`. Mit `typeToConfirm` (z.B. die MAC) bleibt die Bestätigung gesperrt, bis der Wert eingetippt ist.
+- **Datum & Zeit:** Werte sind ISO-Strings (`2026-10-19`, `2026-10-19T08:15:00Z`, `06:30`, `PT1H23M`), Epoch-ms oder
+  `Date`; Dauern auch in Sekunden (`duration="5025"`). Formatiert wird mit `Intl` nach `locale`, sonst `<html lang>`,
+  sonst Browser. `<kern-date relative>` aktualisiert sich selbst («vor 3 Min.», «gestern»), der absolute Wert steht
+  im Tooltip. Ungültige Werte erscheinen unverändert.
 - **Theming von aussen:** nur über Tokens (CSS-Variablen) und die dokumentierten `::part()`; keine Farben in Apps
   erfinden.
 - **Texte:** Standardtexte (Aria-Labels, «Abbrechen») sind deutsch und über Props übersetzbar.

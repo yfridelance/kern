@@ -1,0 +1,2 @@
+:host { display: inline; font-variant-numeric: tabular-nums; white-space: nowrap; }
+:host([hidden]) { display: none; }

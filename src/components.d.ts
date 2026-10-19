@@ -5,8 +5,10 @@
  * It contains typing information for all components that exist in this project.
  */
 import { HTMLStencilElement, JSXBase } from "@stencil/core/internal";
+import { KernDateFormat } from "./utils/datetime";
 import { KernOption } from "./components/kern-select/kern-select";
 import { KernOption as KernOption1 } from "./components/kern-select/kern-select";
+export { KernDateFormat } from "./utils/datetime";
 export { KernOption } from "./components/kern-select/kern-select";
 export { KernOption as KernOption1 } from "./components/kern-select/kern-select";
 export namespace Components {
@@ -143,6 +145,39 @@ export namespace Components {
           * Copied text; defaults to the text content.
          */
         "value"?: string;
+    }
+    /**
+     * Formatted date or point in time („19.10.2026, 10:15“) or relative („vor 3 Min.“, „gestern“) as `<time>`.
+     * Relative texts update themselves; the absolute value with time is shown as tooltip. Invalid values are shown as given.
+     */
+    interface KernDate {
+        /**
+          * Length of the date (`Intl.DateTimeFormat` dateStyle).
+          * @default 'medium'
+         */
+        "format": KernDateFormat;
+        /**
+          * BCP 47 locale; defaults to `<html lang>`, then the browser language.
+         */
+        "locale"?: string;
+        /**
+          * Relative to now, e.g. „vor 3 Min.“.
+          * @default false
+         */
+        "relative": boolean;
+        /**
+          * Also show the time (not for calendar dates).
+          * @default false
+         */
+        "time": boolean;
+        /**
+          * IANA time zone, e.g. `Europe/Zurich`; defaults to the browser's.
+         */
+        "timeZone"?: string;
+        /**
+          * ISO date (`2026-10-19`), ISO 8601 point in time, epoch milliseconds or a Date.
+         */
+        "value"?: string | number | Date;
     }
     /**
      * Modal dialog for confirmations and short forms, on the native `<dialog>`.
@@ -623,6 +658,42 @@ export namespace Components {
         "small": boolean;
     }
     /**
+     * Time of day („06:30“) or duration („1 Std., 23 Min.“) as `<time>`. Set either `value` or `duration`.
+     * Invalid values are shown as given.
+     */
+    interface KernTime {
+        /**
+          * ISO 8601 duration (`PT1H23M`) or seconds (`5025`, e.g. uptime). Takes precedence over `value`.
+         */
+        "duration"?: string | number;
+        /**
+          * 12-hour clock; defaults to the locale.
+         */
+        "hour12"?: boolean;
+        /**
+          * BCP 47 locale; defaults to `<html lang>`, then the browser language.
+         */
+        "locale"?: string;
+        /**
+          * Monospace digits, e.g. in tables next to IDs.
+          * @default false
+         */
+        "mono": boolean;
+        /**
+          * Show seconds of a time of day.
+          * @default false
+         */
+        "seconds": boolean;
+        /**
+          * IANA time zone for points in time; defaults to the browser's.
+         */
+        "timeZone"?: string;
+        /**
+          * Time of day `HH:mm[:ss]`, or an ISO 8601 point in time / epoch milliseconds / Date whose time is shown.
+         */
+        "value"?: string | number | Date;
+    }
+    /**
      * Row above a table: search, filters, then (right-aligned) result count and actions.
      */
     interface KernToolbar {
@@ -766,6 +837,16 @@ declare global {
     var HTMLKernCopyElement: {
         prototype: HTMLKernCopyElement;
         new (): HTMLKernCopyElement;
+    };
+    /**
+     * Formatted date or point in time („19.10.2026, 10:15“) or relative („vor 3 Min.“, „gestern“) as `<time>`.
+     * Relative texts update themselves; the absolute value with time is shown as tooltip. Invalid values are shown as given.
+     */
+    interface HTMLKernDateElement extends Components.KernDate, HTMLStencilElement {
+    }
+    var HTMLKernDateElement: {
+        prototype: HTMLKernDateElement;
+        new (): HTMLKernDateElement;
     };
     interface HTMLKernDialogElementEventMap {
         "kernClose": { returnValue: string };
@@ -1060,6 +1141,16 @@ declare global {
         new (): HTMLKernThemeToggleElement;
     };
     /**
+     * Time of day („06:30“) or duration („1 Std., 23 Min.“) as `<time>`. Set either `value` or `duration`.
+     * Invalid values are shown as given.
+     */
+    interface HTMLKernTimeElement extends Components.KernTime, HTMLStencilElement {
+    }
+    var HTMLKernTimeElement: {
+        prototype: HTMLKernTimeElement;
+        new (): HTMLKernTimeElement;
+    };
+    /**
      * Row above a table: search, filters, then (right-aligned) result count and actions.
      */
     interface HTMLKernToolbarElement extends Components.KernToolbar, HTMLStencilElement {
@@ -1086,6 +1177,7 @@ declare global {
         "kern-card": HTMLKernCardElement;
         "kern-checkbox": HTMLKernCheckboxElement;
         "kern-copy": HTMLKernCopyElement;
+        "kern-date": HTMLKernDateElement;
         "kern-dialog": HTMLKernDialogElement;
         "kern-input": HTMLKernInputElement;
         "kern-json": HTMLKernJsonElement;
@@ -1107,6 +1199,7 @@ declare global {
         "kern-tabs": HTMLKernTabsElement;
         "kern-textarea": HTMLKernTextareaElement;
         "kern-theme-toggle": HTMLKernThemeToggleElement;
+        "kern-time": HTMLKernTimeElement;
         "kern-toolbar": HTMLKernToolbarElement;
         "kern-topbar": HTMLKernTopbarElement;
     }
@@ -1264,6 +1357,39 @@ declare namespace LocalJSX {
           * Copied text; defaults to the text content.
          */
         "value"?: string;
+    }
+    /**
+     * Formatted date or point in time („19.10.2026, 10:15“) or relative („vor 3 Min.“, „gestern“) as `<time>`.
+     * Relative texts update themselves; the absolute value with time is shown as tooltip. Invalid values are shown as given.
+     */
+    interface KernDate {
+        /**
+          * Length of the date (`Intl.DateTimeFormat` dateStyle).
+          * @default 'medium'
+         */
+        "format"?: KernDateFormat;
+        /**
+          * BCP 47 locale; defaults to `<html lang>`, then the browser language.
+         */
+        "locale"?: string;
+        /**
+          * Relative to now, e.g. „vor 3 Min.“.
+          * @default false
+         */
+        "relative"?: boolean;
+        /**
+          * Also show the time (not for calendar dates).
+          * @default false
+         */
+        "time"?: boolean;
+        /**
+          * IANA time zone, e.g. `Europe/Zurich`; defaults to the browser's.
+         */
+        "timeZone"?: string;
+        /**
+          * ISO date (`2026-10-19`), ISO 8601 point in time, epoch milliseconds or a Date.
+         */
+        "value"?: string | number | Date;
     }
     /**
      * Modal dialog for confirmations and short forms, on the native `<dialog>`.
@@ -1759,6 +1885,42 @@ declare namespace LocalJSX {
         "small"?: boolean;
     }
     /**
+     * Time of day („06:30“) or duration („1 Std., 23 Min.“) as `<time>`. Set either `value` or `duration`.
+     * Invalid values are shown as given.
+     */
+    interface KernTime {
+        /**
+          * ISO 8601 duration (`PT1H23M`) or seconds (`5025`, e.g. uptime). Takes precedence over `value`.
+         */
+        "duration"?: string | number;
+        /**
+          * 12-hour clock; defaults to the locale.
+         */
+        "hour12"?: boolean;
+        /**
+          * BCP 47 locale; defaults to `<html lang>`, then the browser language.
+         */
+        "locale"?: string;
+        /**
+          * Monospace digits, e.g. in tables next to IDs.
+          * @default false
+         */
+        "mono"?: boolean;
+        /**
+          * Show seconds of a time of day.
+          * @default false
+         */
+        "seconds"?: boolean;
+        /**
+          * IANA time zone for points in time; defaults to the browser's.
+         */
+        "timeZone"?: string;
+        /**
+          * Time of day `HH:mm[:ss]`, or an ISO 8601 point in time / epoch milliseconds / Date whose time is shown.
+         */
+        "value"?: string | number | Date;
+    }
+    /**
      * Row above a table: search, filters, then (right-aligned) result count and actions.
      */
     interface KernToolbar {
@@ -1822,6 +1984,14 @@ declare namespace LocalJSX {
     interface KernCopyAttributes {
         "value": string;
         "label": string;
+    }
+    interface KernDateAttributes {
+        "value": string;
+        "format": KernDateFormat;
+        "time": boolean;
+        "relative": boolean;
+        "locale": string;
+        "timeZone": string;
     }
     interface KernDialogAttributes {
         "open": boolean;
@@ -1964,6 +2134,15 @@ declare namespace LocalJSX {
         "labelLight": string;
         "labelDark": string;
     }
+    interface KernTimeAttributes {
+        "value": string;
+        "duration": string;
+        "seconds": boolean;
+        "hour12": boolean;
+        "locale": string;
+        "timeZone": string;
+        "mono": boolean;
+    }
     interface KernTopbarAttributes {
         "appName": string;
         "suite": string;
@@ -1978,6 +2157,7 @@ declare namespace LocalJSX {
         "kern-card": Omit<KernCard, keyof KernCardAttributes> & { [K in keyof KernCard & keyof KernCardAttributes]?: KernCard[K] } & { [K in keyof KernCard & keyof KernCardAttributes as `attr:${K}`]?: KernCardAttributes[K] } & { [K in keyof KernCard & keyof KernCardAttributes as `prop:${K}`]?: KernCard[K] };
         "kern-checkbox": Omit<KernCheckbox, keyof KernCheckboxAttributes> & { [K in keyof KernCheckbox & keyof KernCheckboxAttributes]?: KernCheckbox[K] } & { [K in keyof KernCheckbox & keyof KernCheckboxAttributes as `attr:${K}`]?: KernCheckboxAttributes[K] } & { [K in keyof KernCheckbox & keyof KernCheckboxAttributes as `prop:${K}`]?: KernCheckbox[K] };
         "kern-copy": Omit<KernCopy, keyof KernCopyAttributes> & { [K in keyof KernCopy & keyof KernCopyAttributes]?: KernCopy[K] } & { [K in keyof KernCopy & keyof KernCopyAttributes as `attr:${K}`]?: KernCopyAttributes[K] } & { [K in keyof KernCopy & keyof KernCopyAttributes as `prop:${K}`]?: KernCopy[K] };
+        "kern-date": Omit<KernDate, keyof KernDateAttributes> & { [K in keyof KernDate & keyof KernDateAttributes]?: KernDate[K] } & { [K in keyof KernDate & keyof KernDateAttributes as `attr:${K}`]?: KernDateAttributes[K] } & { [K in keyof KernDate & keyof KernDateAttributes as `prop:${K}`]?: KernDate[K] };
         "kern-dialog": Omit<KernDialog, keyof KernDialogAttributes> & { [K in keyof KernDialog & keyof KernDialogAttributes]?: KernDialog[K] } & { [K in keyof KernDialog & keyof KernDialogAttributes as `attr:${K}`]?: KernDialogAttributes[K] } & { [K in keyof KernDialog & keyof KernDialogAttributes as `prop:${K}`]?: KernDialog[K] };
         "kern-input": Omit<KernInput, keyof KernInputAttributes> & { [K in keyof KernInput & keyof KernInputAttributes]?: KernInput[K] } & { [K in keyof KernInput & keyof KernInputAttributes as `attr:${K}`]?: KernInputAttributes[K] } & { [K in keyof KernInput & keyof KernInputAttributes as `prop:${K}`]?: KernInput[K] };
         "kern-json": Omit<KernJson, keyof KernJsonAttributes> & { [K in keyof KernJson & keyof KernJsonAttributes]?: KernJson[K] } & { [K in keyof KernJson & keyof KernJsonAttributes as `attr:${K}`]?: KernJsonAttributes[K] } & { [K in keyof KernJson & keyof KernJsonAttributes as `prop:${K}`]?: KernJson[K] };
@@ -1999,6 +2179,7 @@ declare namespace LocalJSX {
         "kern-tabs": Omit<KernTabs, keyof KernTabsAttributes> & { [K in keyof KernTabs & keyof KernTabsAttributes]?: KernTabs[K] } & { [K in keyof KernTabs & keyof KernTabsAttributes as `attr:${K}`]?: KernTabsAttributes[K] } & { [K in keyof KernTabs & keyof KernTabsAttributes as `prop:${K}`]?: KernTabs[K] };
         "kern-textarea": Omit<KernTextarea, keyof KernTextareaAttributes> & { [K in keyof KernTextarea & keyof KernTextareaAttributes]?: KernTextarea[K] } & { [K in keyof KernTextarea & keyof KernTextareaAttributes as `attr:${K}`]?: KernTextareaAttributes[K] } & { [K in keyof KernTextarea & keyof KernTextareaAttributes as `prop:${K}`]?: KernTextarea[K] };
         "kern-theme-toggle": Omit<KernThemeToggle, keyof KernThemeToggleAttributes> & { [K in keyof KernThemeToggle & keyof KernThemeToggleAttributes]?: KernThemeToggle[K] } & { [K in keyof KernThemeToggle & keyof KernThemeToggleAttributes as `attr:${K}`]?: KernThemeToggleAttributes[K] } & { [K in keyof KernThemeToggle & keyof KernThemeToggleAttributes as `prop:${K}`]?: KernThemeToggle[K] };
+        "kern-time": Omit<KernTime, keyof KernTimeAttributes> & { [K in keyof KernTime & keyof KernTimeAttributes]?: KernTime[K] } & { [K in keyof KernTime & keyof KernTimeAttributes as `attr:${K}`]?: KernTimeAttributes[K] } & { [K in keyof KernTime & keyof KernTimeAttributes as `prop:${K}`]?: KernTime[K] };
         "kern-toolbar": KernToolbar;
         "kern-topbar": Omit<KernTopbar, keyof KernTopbarAttributes> & { [K in keyof KernTopbar & keyof KernTopbarAttributes]?: KernTopbar[K] } & { [K in keyof KernTopbar & keyof KernTopbarAttributes as `attr:${K}`]?: KernTopbarAttributes[K] } & { [K in keyof KernTopbar & keyof KernTopbarAttributes as `prop:${K}`]?: KernTopbar[K] };
     }
@@ -2035,6 +2216,11 @@ declare module "@stencil/core" {
              * The button stops click propagation so a clickable table row does not open.
              */
             "kern-copy": LocalJSX.IntrinsicElements["kern-copy"] & JSXBase.HTMLAttributes<HTMLKernCopyElement>;
+            /**
+             * Formatted date or point in time („19.10.2026, 10:15“) or relative („vor 3 Min.“, „gestern“) as `<time>`.
+             * Relative texts update themselves; the absolute value with time is shown as tooltip. Invalid values are shown as given.
+             */
+            "kern-date": LocalJSX.IntrinsicElements["kern-date"] & JSXBase.HTMLAttributes<HTMLKernDateElement>;
             /**
              * Modal dialog for confirmations and short forms, on the native `<dialog>`.
              * Destructive: the heading names action and device, a `kern-alert tone="warn"` states the consequence,
@@ -2143,6 +2329,11 @@ declare module "@stencil/core" {
              * or the inline snippet from the README.
              */
             "kern-theme-toggle": LocalJSX.IntrinsicElements["kern-theme-toggle"] & JSXBase.HTMLAttributes<HTMLKernThemeToggleElement>;
+            /**
+             * Time of day („06:30“) or duration („1 Std., 23 Min.“) as `<time>`. Set either `value` or `duration`.
+             * Invalid values are shown as given.
+             */
+            "kern-time": LocalJSX.IntrinsicElements["kern-time"] & JSXBase.HTMLAttributes<HTMLKernTimeElement>;
             /**
              * Row above a table: search, filters, then (right-aligned) result count and actions.
              */

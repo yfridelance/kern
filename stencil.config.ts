@@ -20,7 +20,7 @@ export const config: Config = {
       directivesArrayFile: 'angular/src/directives/index.ts',
       valueAccessorConfigs: [
         {
-          elementSelectors: ['kern-input', 'kern-textarea', 'kern-select', 'kern-segmented'],
+          elementSelectors: ['kern-input', 'kern-textarea', 'kern-select', 'kern-segmented', 'kern-date-picker', 'kern-time-picker'],
           event: 'kernChange',
           targetAttr: 'value',
           type: 'text',

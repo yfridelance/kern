@@ -283,3 +283,84 @@ export function isoWeek(iso: string): number {
   const jan1 = new Date(thursday.getFullYear(), 0, 1);
   return 1 + Math.floor(Math.round((thursday.getTime() - jan1.getTime()) / 86_400_000) / 7);
 }
+
+/* Typed input in pickers: numeric dates in the locale's order, times as seconds since midnight. */
+
+type DatePart = 'day' | 'month' | 'year';
+
+/** Order of day, month and year in the locale's numeric date, e.g. de → day, month, year. */
+export function dateOrder(locale?: string): DatePart[] {
+  return new Intl.DateTimeFormat(resolveLocale(locale), { day: '2-digit', month: '2-digit', year: 'numeric' })
+    .formatToParts(new Date(2026, 9, 5))
+    .map((p) => p.type)
+    .filter((t): t is DatePart => t === 'day' || t === 'month' || t === 'year');
+}
+
+/** Numeric date as typed in a field: „05.10.2026“ (de), „10/05/2026“ (en-US). */
+export function formatInputDate(iso: string, locale?: string): string {
+  const d = fromIsoDate(iso);
+  return d ? new Intl.DateTimeFormat(resolveLocale(locale), { day: '2-digit', month: '2-digit', year: 'numeric' }).format(d) : '';
+}
+
+/** Placeholder like „TT.MM.JJJJ“ (de) or „MM/DD/YYYY“ (en-US). */
+export function datePlaceholder(locale?: string): string {
+  const loc = resolveLocale(locale) ?? 'de';
+  const lang = loc.slice(0, 2);
+  const letters: Record<DatePart, string> =
+    lang === 'de' ? { day: 'TT', month: 'MM', year: 'JJJJ' } : lang === 'fr' ? { day: 'JJ', month: 'MM', year: 'AAAA' } : { day: 'DD', month: 'MM', year: 'YYYY' };
+  return new Intl.DateTimeFormat(loc, { day: '2-digit', month: '2-digit', year: 'numeric' })
+    .formatToParts(new Date(2026, 9, 5))
+    .map((p) => (p.type === 'literal' ? p.value : letters[p.type as DatePart] ?? ''))
+    .join('');
+}
+
+/**
+ * Typed date → ISO, or null. Accepts ISO (`2026-10-05`) and numbers in the locale's order with any separators
+ * („5.10.2026“, „05/10/26“, „5.10.“ = this year). Two-digit years are 20xx.
+ */
+export function parseInputDate(text: string, locale?: string, now = Date.now()): string | null {
+  const s = text.trim();
+  if (!s) return null;
+  if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return fromIsoDate(s) ? s : null;
+  const nums = s.split(/\D+/).filter(Boolean).map(Number);
+  const order = dateOrder(locale);
+  const parts: Partial<Record<DatePart, number>> = {};
+  if (nums.length === 3) order.forEach((p, i) => (parts[p] = nums[i]));
+  else if (nums.length === 2) order.filter((p) => p !== 'year').forEach((p, i) => (parts[p] = nums[i]));
+  else return null;
+  let year = parts.year ?? new Date(now).getFullYear();
+  if (year < 100) year += 2000;
+  const { day, month } = parts;
+  if (!day || !month || month > 12 || year > 9999) return null;
+  const date = new Date(year, month - 1, day);
+  if (date.getMonth() !== month - 1) return null;
+  return isoDate(date);
+}
+
+/** Whether the locale uses a 12-hour clock. */
+export function uses12h(locale?: string): boolean {
+  const cycle = new Intl.DateTimeFormat(resolveLocale(locale), { hour: 'numeric' }).resolvedOptions().hourCycle;
+  return cycle === 'h11' || cycle === 'h12';
+}
+
+/** Localised AM/PM labels. */
+export function dayPeriods(locale?: string): [string, string] {
+  const f = new Intl.DateTimeFormat(resolveLocale(locale), { hour: 'numeric', hour12: true });
+  const period = (h: number) => f.formatToParts(new Date(2026, 0, 1, h)).find((p) => p.type === 'dayPeriod')?.value ?? (h < 12 ? 'AM' : 'PM');
+  return [period(9), period(15)];
+}
+
+/** Seconds since midnight → `HH:mm` or `HH:mm:ss`. */
+export function isoTime(secs: number, seconds = false): string {
+  const p = (n: number) => String(n).padStart(2, '0');
+  const t = `${p(Math.floor(secs / 3600))}:${p(Math.floor(secs / 60) % 60)}`;
+  return seconds ? `${t}:${p(secs % 60)}` : t;
+}
+
+/** Times from `min` to `max` (seconds since midnight) in `step` seconds, for a pick list. */
+export function timeSteps(step: number, min = 0, max = 86_399): number[] {
+  const out: number[] = [];
+  const s = Math.max(60, step);
+  for (let t = Math.ceil(min / s) * s; t <= max; t += s) out.push(t);
+  return out;
+}

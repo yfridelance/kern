@@ -2,21 +2,28 @@ import {
   addDays,
   addMonths,
   clampIso,
+  datePlaceholder,
+  dayPeriods,
   durationToIso,
   firstDayOfWeek,
-  isoWeek,
-  monthGrid,
   formatDate,
   formatDuration,
+  formatInputDate,
   formatRelative,
   formatTime,
+  isoTime,
+  isoWeek,
+  monthGrid,
   onTick,
   parseDateTime,
   parseDuration,
+  parseInputDate,
   parseTime,
   relativeParts,
   relativeRefresh,
+  timeSteps,
   toIso,
+  uses12h,
 } from './datetime';
 
 const NOW = new Date('2026-10-19T08:15:00Z').getTime();
@@ -154,5 +161,28 @@ describe('calendar', () => {
   });
   it('counts ISO weeks', () => {
     expect([isoWeek('2026-01-01'), isoWeek('2026-10-19'), isoWeek('2026-12-31'), isoWeek('2027-01-03'), isoWeek('2027-01-04')]).toEqual([1, 43, 53, 53, 1]);
+  });
+});
+
+describe('picker input', () => {
+  it('formats and parses dates in the locale order', () => {
+    expect(formatInputDate('2026-10-05', 'de-CH')).toBe('05.10.2026');
+    expect(formatInputDate('2026-10-05', 'en-US')).toBe('10/05/2026');
+    expect(parseInputDate('5.10.2026', 'de-CH')).toBe('2026-10-05');
+    expect(parseInputDate('05/10/26', 'en-US')).toBe('2026-05-10');
+    expect(parseInputDate('2026-10-05', 'en-US')).toBe('2026-10-05');
+    expect(parseInputDate('5.10.', 'de-CH', NOW)).toBe('2026-10-05');
+    expect(['31.02.2026', '1.13.2026', 'heute', '', '1'].map((t) => parseInputDate(t, 'de-CH'))).toEqual([null, null, null, null, null]);
+  });
+  it('builds localised placeholders', () => {
+    expect([datePlaceholder('de-CH'), datePlaceholder('en-US'), datePlaceholder('fr-CH')]).toEqual(['TT.MM.JJJJ', 'MM/DD/YYYY', 'JJ.MM.AAAA']);
+  });
+  it('knows 12-hour locales and day periods', () => {
+    expect([uses12h('de-CH'), uses12h('en-US')]).toEqual([false, true]);
+    expect(dayPeriods('en-US')).toEqual(['AM', 'PM']);
+  });
+  it('writes ISO times and step lists', () => {
+    expect([isoTime(23400), isoTime(23405, true)]).toEqual(['06:30', '06:30:05']);
+    expect(timeSteps(1800, parseTime('08:00')!, parseTime('09:15')!).map((t) => isoTime(t))).toEqual(['08:00', '08:30', '09:00']);
   });
 });

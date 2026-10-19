@@ -1,6 +1,7 @@
 import { AttachInternals, Component, Element, Event, EventEmitter, Host, Method, Prop, State, Watch, h } from '@stencil/core';
 import { Icon } from '../../utils/icons';
 import { optionOf } from '../../utils/options';
+import { positionPopup } from '../../utils/popover';
 
 let nextId = 0;
 
@@ -184,27 +185,8 @@ export class KernSelect {
     window.removeEventListener('resize', this.reposition);
   }
 
-  /** Below the trigger, or above when there is not enough room; kept inside the viewport. */
   private position() {
-    const t = this.trigger,
-      p = this.popup;
-    if (!t || !p) return;
-    const r = t.getBoundingClientRect();
-    const gap = 4;
-    const below = window.innerHeight - r.bottom - gap - 8;
-    const above = r.top - gap - 8;
-    const up = below < 200 && above > below;
-    p.style.minWidth = `${r.width}px`;
-    p.style.maxWidth = `${Math.max(r.width, window.innerWidth - 16)}px`;
-    p.style.maxHeight = `${Math.max(120, Math.min(360, up ? above : below))}px`;
-    p.style.left = `${Math.max(8, Math.min(r.left, window.innerWidth - Math.max(r.width, p.offsetWidth) - 8))}px`;
-    if (up) {
-      p.style.top = 'auto';
-      p.style.bottom = `${window.innerHeight - r.top + gap}px`;
-    } else {
-      p.style.bottom = 'auto';
-      p.style.top = `${r.bottom + gap}px`;
-    }
+    if (this.trigger && this.popup) positionPopup(this.trigger, this.popup, { matchWidth: true, maxHeight: 360 });
   }
 
   // ---------- selection ----------

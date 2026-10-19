@@ -1,0 +1,24 @@
+@import '../../utils/picker.css';
+
+.box { padding-left: var(--space-2); }
+:host([size="sm"]) .box { padding-left: 6px; }
+.segments { flex: 1; display: flex; align-items: center; min-width: 0; font-variant-numeric: tabular-nums; }
+.seg { padding: 1px 2px; border-radius: var(--radius-sm); outline: none; caret-color: transparent; cursor: text; }
+.seg:focus { background: var(--accent); color: var(--on-accent); }
+.seg.empty { color: var(--text-faint); }
+.seg.empty:focus { color: var(--on-accent); }
+.sep { color: var(--text-muted); }
+.gap { width: 4px; }
+.box.disabled .seg { cursor: not-allowed; }
+
+/* List popover */
+.popup.list { padding: 0; overflow: hidden; }
+.listbox { flex: 1 1 auto; min-height: 0; overflow-y: auto; padding: var(--space-1); outline: none; }
+.option {
+  display: flex; align-items: center; min-height: 30px; padding: 5px var(--space-2); border-radius: var(--radius-sm);
+  cursor: pointer; white-space: nowrap; user-select: none; font-variant-numeric: tabular-nums;
+}
+.option.active { background: var(--hover); }
+.listbox:focus-visible .option.active { box-shadow: inset 0 0 0 1px var(--focus); }
+.option.selected { font-weight: 600; color: var(--accent-text); }
+:host([size="sm"]) .option { min-height: 26px; padding-block: 3px; font-size: 13px; }

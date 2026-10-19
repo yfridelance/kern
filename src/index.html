@@ -119,6 +119,10 @@
         <kern-select name="model" label="Modell" placeholder="Modell wählen"><option value="1pm">Plus 1PM</option><option value="2pm">Plus 2PM</option><option value="i4">Plus i4</option><option value="uni">Plus Uni</option><option value="ht" disabled>H&amp;T (nicht unterstützt)</option><option value="dimmer">Dimmer 2</option><option value="em">Pro 3EM</option><option value="mini">Mini 1PM Gen3</option><option value="s1">1PM Gen4</option><option value="rgbw">RGBW2</option></kern-select>
         <kern-input name="password" label="Gerätepasswort" type="password"></kern-input>
         <kern-textarea name="notes" label="Notizen" placeholder="Wo hängt das Gerät?"></kern-textarea>
+        <kern-date-picker name="due" label="Wartung am" clearable required hint="Nur Werktage" id="due">
+          <kern-button slot="footer" id="due-today" size="sm" variant="ghost">Heute</kern-button>
+        </kern-date-picker>
+        <kern-time-picker name="start" label="Zeitplan" value="06:30" step="900" list min="05:00" max="23:00"></kern-time-picker>
         <div style="display:grid;gap:12px;align-content:start">
           <kern-switch name="cloud" checked>Cloud</kern-switch>
           <kern-switch name="ble">Bluetooth</kern-switch>
@@ -170,9 +174,12 @@
       mqtt: { enable: true, server: '192.168.1.5:1883', user: null },
     };
     for (const el of document.querySelectorAll('kern-date[data-ago]')) el.value = Date.now() - el.dataset.ago * 1000;
+    const iso = (d) => new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 10);
+    const due = document.getElementById('due');
+    due.isDateDisabled = (d) => [0, 6].includes(new Date(d + 'T00:00').getDay());
+    document.getElementById('due-today').addEventListener('click', () => (due.value = iso(new Date())));
     const cal = document.getElementById('cal');
     const calRange = document.getElementById('cal-range');
-    const iso = (d) => new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 10);
     const today = new Date();
     calRange.min = iso(new Date(today.getFullYear(), today.getMonth() - 3, 1));
     calRange.max = iso(today);

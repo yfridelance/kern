@@ -147,6 +147,11 @@
         <kern-ip-input name="gateway" label="Gateway" allow="single" value="192.168.1.1"></kern-ip-input>
         <kern-step-input name="target" label="Zieltemperatur" value="21.5" min="5" max="30" step="0.5" unit="°C"></kern-step-input>
         <kern-step-input name="timeout" label="Timeout" value="30" min="1" max="600" unit="s" size="sm" hint="1–600 Sekunden"></kern-step-input>
+        <kern-radio-group name="ipmode" label="IP-Adresse" value="dhcp">
+          <kern-radio value="dhcp" label="DHCP" description="Adresse vom Router"></kern-radio>
+          <kern-radio value="static" label="Statisch" description="Feste Adresse und Gateway"></kern-radio>
+          <kern-radio value="ap" label="Access Point" description="Nur nach Werksreset" disabled></kern-radio>
+        </kern-radio-group>
         <kern-rating name="score" label="Zuverlässigkeit" value="4" clearable hint="Wie stabil läuft das Gerät?"></kern-rating>
         <kern-select name="site" label="Standort"><option value="1">Haus Seeblick</option><option value="2">Ferienwohnung</option></kern-select>
         <kern-select name="model" label="Modell" placeholder="Modell wählen"><option value="1pm">Plus 1PM</option><option value="2pm">Plus 2PM</option><option value="i4">Plus i4</option><option value="uni">Plus Uni</option><option value="ht" disabled>H&amp;T (nicht unterstützt)</option><option value="dimmer">Dimmer 2</option><option value="em">Pro 3EM</option><option value="mini">Mini 1PM Gen3</option><option value="s1">1PM Gen4</option><option value="rgbw">RGBW2</option></kern-select>

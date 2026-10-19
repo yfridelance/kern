@@ -1,0 +1,19 @@
+:host { display: flex; align-items: flex-start; gap: var(--space-2); min-width: 0; cursor: pointer; color: var(--text); font: 400 14px/20px var(--font-sans); outline: none; border-radius: var(--radius-sm); }
+:host([hidden]) { display: none; }
+:host(:focus-visible) .control { outline: 2px solid var(--focus); outline-offset: 2px; }
+:host([disabled]) { opacity: .45; cursor: not-allowed; }
+
+.control {
+  position: relative; flex: none; width: 16px; height: 16px; margin-top: 2px; box-sizing: border-box;
+  border: 1px solid var(--kern-radio-border, var(--line-strong)); border-radius: 50%; background: var(--surface-sunken);
+  transition: border-color .15s;
+}
+:host([checked]) .control { border: 5px solid var(--accent); background: var(--on-accent); }
+:host(:not([disabled]):hover) .control { border-color: var(--text-faint); }
+:host([checked]:not([disabled]):hover) .control { border-color: var(--accent-hover); }
+
+.text { display: grid; min-width: 0; }
+.description { font-size: 13px; line-height: 18px; color: var(--text-muted); }
+.description:empty { display: none; }
+
+@media (prefers-reduced-motion: reduce) { .control { transition: none; } }

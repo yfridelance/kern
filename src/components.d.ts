@@ -1382,6 +1382,35 @@ export namespace Components {
         "rssi"?: number;
     }
     /**
+     * Placeholder in the shape of content that is still loading, so the layout does not jump. `text` draws lines (the last
+     * one shorter), `block` a rectangle (cards, stats, charts), `circle` an avatar or status dot. Hidden from assistive
+     * technology; mark the loading container with `aria-busy="true"` instead.
+     */
+    interface KernSkeleton {
+        /**
+          * Height of a block, e.g. `80px`.
+         */
+        "height"?: string;
+        /**
+          * Number of lines (text).
+          * @default 1
+         */
+        "lines": number;
+        /**
+          * Diameter of a circle, e.g. `32px`.
+          * @default '32px'
+         */
+        "size": string;
+        /**
+          * @default 'text'
+         */
+        "variant": 'text' | 'block' | 'circle';
+        /**
+          * Width, e.g. `120px` or `60%` (text and block; default 100%).
+         */
+        "width"?: string;
+    }
+    /**
      * Mini trend line without axes for tiles and table cells. Fills the container width; 32px high.
      */
     interface KernSparkline {
@@ -2597,6 +2626,17 @@ declare global {
         new (): HTMLKernSignalElement;
     };
     /**
+     * Placeholder in the shape of content that is still loading, so the layout does not jump. `text` draws lines (the last
+     * one shorter), `block` a rectangle (cards, stats, charts), `circle` an avatar or status dot. Hidden from assistive
+     * technology; mark the loading container with `aria-busy="true"` instead.
+     */
+    interface HTMLKernSkeletonElement extends Components.KernSkeleton, HTMLStencilElement {
+    }
+    var HTMLKernSkeletonElement: {
+        prototype: HTMLKernSkeletonElement;
+        new (): HTMLKernSkeletonElement;
+    };
+    /**
      * Mini trend line without axes for tiles and table cells. Fills the container width; 32px high.
      */
     interface HTMLKernSparklineElement extends Components.KernSparkline, HTMLStencilElement {
@@ -2881,6 +2921,7 @@ declare global {
         "kern-segmented": HTMLKernSegmentedElement;
         "kern-select": HTMLKernSelectElement;
         "kern-signal": HTMLKernSignalElement;
+        "kern-skeleton": HTMLKernSkeletonElement;
         "kern-sparkline": HTMLKernSparklineElement;
         "kern-spinner": HTMLKernSpinnerElement;
         "kern-stat": HTMLKernStatElement;
@@ -4322,6 +4363,35 @@ declare namespace LocalJSX {
         "rssi"?: number;
     }
     /**
+     * Placeholder in the shape of content that is still loading, so the layout does not jump. `text` draws lines (the last
+     * one shorter), `block` a rectangle (cards, stats, charts), `circle` an avatar or status dot. Hidden from assistive
+     * technology; mark the loading container with `aria-busy="true"` instead.
+     */
+    interface KernSkeleton {
+        /**
+          * Height of a block, e.g. `80px`.
+         */
+        "height"?: string;
+        /**
+          * Number of lines (text).
+          * @default 1
+         */
+        "lines"?: number;
+        /**
+          * Diameter of a circle, e.g. `32px`.
+          * @default '32px'
+         */
+        "size"?: string;
+        /**
+          * @default 'text'
+         */
+        "variant"?: 'text' | 'block' | 'circle';
+        /**
+          * Width, e.g. `120px` or `60%` (text and block; default 100%).
+         */
+        "width"?: string;
+    }
+    /**
      * Mini trend line without axes for tiles and table cells. Fills the container width; 32px high.
      */
     interface KernSparkline {
@@ -5182,6 +5252,13 @@ declare namespace LocalJSX {
         "hideValue": boolean;
         "label": string;
     }
+    interface KernSkeletonAttributes {
+        "variant": 'text' | 'block' | 'circle';
+        "lines": number;
+        "width": string;
+        "height": string;
+        "size": string;
+    }
     interface KernSparklineAttributes {
         "values": number[] | string;
         "min": number;
@@ -5360,6 +5437,7 @@ declare namespace LocalJSX {
         "kern-segmented": Omit<KernSegmented, keyof KernSegmentedAttributes> & { [K in keyof KernSegmented & keyof KernSegmentedAttributes]?: KernSegmented[K] } & { [K in keyof KernSegmented & keyof KernSegmentedAttributes as `attr:${K}`]?: KernSegmentedAttributes[K] } & { [K in keyof KernSegmented & keyof KernSegmentedAttributes as `prop:${K}`]?: KernSegmented[K] };
         "kern-select": Omit<KernSelect, keyof KernSelectAttributes> & { [K in keyof KernSelect & keyof KernSelectAttributes]?: KernSelect[K] } & { [K in keyof KernSelect & keyof KernSelectAttributes as `attr:${K}`]?: KernSelectAttributes[K] } & { [K in keyof KernSelect & keyof KernSelectAttributes as `prop:${K}`]?: KernSelect[K] };
         "kern-signal": Omit<KernSignal, keyof KernSignalAttributes> & { [K in keyof KernSignal & keyof KernSignalAttributes]?: KernSignal[K] } & { [K in keyof KernSignal & keyof KernSignalAttributes as `attr:${K}`]?: KernSignalAttributes[K] } & { [K in keyof KernSignal & keyof KernSignalAttributes as `prop:${K}`]?: KernSignal[K] };
+        "kern-skeleton": Omit<KernSkeleton, keyof KernSkeletonAttributes> & { [K in keyof KernSkeleton & keyof KernSkeletonAttributes]?: KernSkeleton[K] } & { [K in keyof KernSkeleton & keyof KernSkeletonAttributes as `attr:${K}`]?: KernSkeletonAttributes[K] } & { [K in keyof KernSkeleton & keyof KernSkeletonAttributes as `prop:${K}`]?: KernSkeleton[K] };
         "kern-sparkline": Omit<KernSparkline, keyof KernSparklineAttributes> & { [K in keyof KernSparkline & keyof KernSparklineAttributes]?: KernSparkline[K] } & { [K in keyof KernSparkline & keyof KernSparklineAttributes as `attr:${K}`]?: KernSparklineAttributes[K] } & { [K in keyof KernSparkline & keyof KernSparklineAttributes as `prop:${K}`]?: KernSparkline[K] };
         "kern-spinner": Omit<KernSpinner, keyof KernSpinnerAttributes> & { [K in keyof KernSpinner & keyof KernSpinnerAttributes]?: KernSpinner[K] } & { [K in keyof KernSpinner & keyof KernSpinnerAttributes as `attr:${K}`]?: KernSpinnerAttributes[K] } & { [K in keyof KernSpinner & keyof KernSpinnerAttributes as `prop:${K}`]?: KernSpinner[K] };
         "kern-stat": Omit<KernStat, keyof KernStatAttributes> & { [K in keyof KernStat & keyof KernStatAttributes]?: KernStat[K] } & { [K in keyof KernStat & keyof KernStatAttributes as `attr:${K}`]?: KernStatAttributes[K] } & { [K in keyof KernStat & keyof KernStatAttributes as `prop:${K}`]?: KernStat[K] } & OneOf<"label", KernStat["label"], KernStatAttributes["label"]> & OneOf<"value", KernStat["value"], KernStatAttributes["value"]>;
@@ -5588,6 +5666,12 @@ declare module "@stencil/core" {
              * WLAN signal strength: four bars plus dBm. ≥ −55: 4 · ≥ −67: 3 · ≥ −75: 2 · ≥ −85: 1 (warn) · below: 0 (danger).
              */
             "kern-signal": LocalJSX.IntrinsicElements["kern-signal"] & JSXBase.HTMLAttributes<HTMLKernSignalElement>;
+            /**
+             * Placeholder in the shape of content that is still loading, so the layout does not jump. `text` draws lines (the last
+             * one shorter), `block` a rectangle (cards, stats, charts), `circle` an avatar or status dot. Hidden from assistive
+             * technology; mark the loading container with `aria-busy="true"` instead.
+             */
+            "kern-skeleton": LocalJSX.IntrinsicElements["kern-skeleton"] & JSXBase.HTMLAttributes<HTMLKernSkeletonElement>;
             /**
              * Mini trend line without axes for tiles and table cells. Fills the container width; 32px high.
              */

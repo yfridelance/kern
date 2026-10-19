@@ -50,6 +50,10 @@
         <kern-stat label="Geräte online" value="36" unit="/ 38" delta="2" trend="down" meta="vermisst"></kern-stat>
         <kern-stat label="Leistung" value="1’284" unit="W"><kern-sparkline values="820,900,880,1010,1200,1150,1284" fill></kern-sparkline></kern-stat>
         <kern-stat label="Updates" value="3" meta="verfügbar · Stable"></kern-stat>
+        <kern-card heading="Lädt …" aria-busy="true">
+          <div style="display:flex;gap:12px;align-items:center"><kern-skeleton variant="circle" size="28px"></kern-skeleton><kern-skeleton lines="2"></kern-skeleton></div>
+          <kern-skeleton variant="block" height="40px" style="margin-top:12px"></kern-skeleton>
+        </kern-card>
         <kern-card heading="Gerät"><div style="display:grid;gap:12px"><kern-meter label="RAM" value="42"></kern-meter><kern-meter label="Flash" value="81"></kern-meter></div></kern-card>
       </div>
     </section>

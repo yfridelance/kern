@@ -1,0 +1,17 @@
+:host { display: grid; gap: 8px; width: 100%; box-sizing: border-box; }
+:host([hidden]) { display: none; }
+:host([variant="circle"]) { display: inline-grid; flex: none; }
+:host([variant="block"]), :host([variant="circle"]) { gap: 0; }
+
+.bone {
+  display: block; border-radius: var(--radius-sm);
+  background: linear-gradient(90deg, var(--hover) 0%, var(--line) 50%, var(--hover) 100%) 0 0 / 300% 100%;
+  animation: kern-skeleton-shimmer 1.4s ease-in-out infinite;
+}
+.line { height: 12px; margin: 4px 0; }
+.line.last { width: 60%; }
+:host([variant="block"]) .bone { height: 100%; border-radius: var(--radius-md); }
+:host([variant="circle"]) .bone { height: 100%; border-radius: 50%; }
+
+@keyframes kern-skeleton-shimmer { from { background-position: 100% 0; } to { background-position: 0 0; } }
+@media (prefers-reduced-motion: reduce) { .bone { animation: none; background: var(--hover); } }

@@ -220,3 +220,66 @@ export function onTick(fn: Tick): () => void {
     }
   };
 }
+
+/* Calendar arithmetic on ISO dates (`YYYY-MM-DD`, local days). ISO dates compare correctly as strings. */
+
+/** `YYYY-MM-DD` of a local Date. */
+export function isoDate(date: Date): string {
+  return toIso({ date, dateOnly: true });
+}
+
+/** Local Date of an ISO date, or null. */
+export function fromIsoDate(iso: string | undefined | null): Date | null {
+  const v = iso ? parseDateTime(iso) : null;
+  return v?.dateOnly ? v.date : null;
+}
+
+export function todayIso(now = Date.now()): string {
+  return isoDate(new Date(now));
+}
+
+export function addDays(iso: string, n: number): string {
+  const d = fromIsoDate(iso)!;
+  return isoDate(new Date(d.getFullYear(), d.getMonth(), d.getDate() + n));
+}
+
+/** Same day n months later, clamped to the month's end (31.01. + 1 → 28./29.02.). */
+export function addMonths(iso: string, n: number): string {
+  const d = fromIsoDate(iso)!;
+  const last = new Date(d.getFullYear(), d.getMonth() + n + 1, 0).getDate();
+  return isoDate(new Date(d.getFullYear(), d.getMonth() + n, Math.min(d.getDate(), last)));
+}
+
+/** Clamp an ISO date to optional bounds. */
+export function clampIso(iso: string, min?: string, max?: string): string {
+  if (min && iso < min) return min;
+  if (max && iso > max) return max;
+  return iso;
+}
+
+/** First day of the week, 0 = Sunday … 6 = Saturday; from `Intl.Locale` week info, else Monday. */
+export function firstDayOfWeek(locale?: string): number {
+  try {
+    const l = new Intl.Locale(resolveLocale(locale) ?? 'de') as Intl.Locale & { getWeekInfo?: () => { firstDay: number }; weekInfo?: { firstDay: number } };
+    const day = (l.getWeekInfo?.() ?? l.weekInfo)?.firstDay;
+    if (day) return day % 7;
+  } catch {
+    // invalid locale → default
+  }
+  return 1;
+}
+
+/** 6 weeks of ISO dates covering a month (month 0–11), starting on `firstDay`. */
+export function monthGrid(year: number, month: number, firstDay: number): string[] {
+  const first = new Date(year, month, 1);
+  const offset = (first.getDay() - firstDay + 7) % 7;
+  return Array.from({ length: 42 }, (_, i) => isoDate(new Date(year, month, 1 - offset + i)));
+}
+
+/** ISO 8601 week number. */
+export function isoWeek(iso: string): number {
+  const d = fromIsoDate(iso)!;
+  const thursday = new Date(d.getFullYear(), d.getMonth(), d.getDate() + 3 - ((d.getDay() + 6) % 7));
+  const jan1 = new Date(thursday.getFullYear(), 0, 1);
+  return 1 + Math.floor(Math.round((thursday.getTime() - jan1.getTime()) / 86_400_000) / 7);
+}

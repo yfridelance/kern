@@ -1,5 +1,11 @@
 import {
+  addDays,
+  addMonths,
+  clampIso,
   durationToIso,
+  firstDayOfWeek,
+  isoWeek,
+  monthGrid,
   formatDate,
   formatDuration,
   formatRelative,
@@ -119,5 +125,34 @@ describe('onTick', () => {
     offB();
     expect(jest.getTimerCount()).toBe(0);
     jest.useRealTimers();
+  });
+});
+
+describe('calendar', () => {
+  it('adds days and months, clamping to the month end', () => {
+    expect(addDays('2026-12-31', 1)).toBe('2027-01-01');
+    expect(addDays('2026-03-01', -1)).toBe('2026-02-28');
+    expect(addMonths('2026-01-31', 1)).toBe('2026-02-28');
+    expect(addMonths('2028-01-31', 1)).toBe('2028-02-29');
+    expect(addMonths('2026-10-19', -12)).toBe('2025-10-19');
+  });
+  it('clamps to bounds', () => {
+    expect([clampIso('2026-01-01', '2026-02-01'), clampIso('2026-12-01', undefined, '2026-11-30'), clampIso('2026-06-01', '2026-01-01', '2026-12-31')]).toEqual([
+      '2026-02-01',
+      '2026-11-30',
+      '2026-06-01',
+    ]);
+  });
+  it('builds 6 weeks starting on the first day of the week', () => {
+    const mon = monthGrid(2026, 9, 1); // October 2026 starts on a Thursday
+    expect([mon[0], mon[3], mon[41], mon.length]).toEqual(['2026-09-28', '2026-10-01', '2026-11-08', 42]);
+    expect(monthGrid(2026, 9, 0)[0]).toBe('2026-09-27');
+    expect(monthGrid(2026, 1, 0)[0]).toBe('2026-02-01'); // February 2026 starts on a Sunday
+  });
+  it('reads the first day of the week from the locale', () => {
+    expect([firstDayOfWeek('de-CH'), firstDayOfWeek('en-US')]).toEqual([1, 0]);
+  });
+  it('counts ISO weeks', () => {
+    expect([isoWeek('2026-01-01'), isoWeek('2026-10-19'), isoWeek('2026-12-31'), isoWeek('2027-01-03'), isoWeek('2027-01-04')]).toEqual([1, 43, 53, 53, 1]);
   });
 });

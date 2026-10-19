@@ -89,6 +89,87 @@ export namespace Components {
         "variant": 'default' | 'primary' | 'ghost' | 'danger';
     }
     /**
+     * Month view for picking a date or a range, inline or inside a picker. Values are ISO dates (`2026-10-19`).
+     * Keyboard (one tab stop): arrows move by day/week, Home/End to the start/end of the week, Page Up/Down by month,
+     * with Shift by year, Enter or Space picks. In range mode the first pick sets `start`, the second `end`
+     * (swapped if earlier); the range is previewed on hover and focus until then, Escape discards it.
+     */
+    interface KernCalendar {
+        /**
+          * Range end (range mode).
+         */
+        "end"?: string;
+        /**
+          * 0 = Sunday … 6 = Saturday; defaults to the locale (Monday for de).
+         */
+        "firstDayOfWeek"?: number;
+        /**
+          * Show the month of an ISO date and move the tab stop there (does not select).
+         */
+        "goTo": (iso: string) => Promise<void>;
+        /**
+          * Additional rule for unselectable days, e.g. weekends.
+         */
+        "isDateDisabled"?: (iso: string) => boolean;
+        /**
+          * Accessible name of the calendar.
+          * @default 'Kalender'
+         */
+        "label": string;
+        /**
+          * @default 'Nächster Monat'
+         */
+        "labelNext": string;
+        /**
+          * @default 'Vorheriger Monat'
+         */
+        "labelPrev": string;
+        /**
+          * Column header of the week numbers.
+          * @default 'KW'
+         */
+        "labelWeek": string;
+        /**
+          * BCP 47 locale; defaults to `<html lang>`, then the browser language.
+         */
+        "locale"?: string;
+        /**
+          * Latest selectable date.
+         */
+        "max"?: string;
+        /**
+          * Earliest selectable date.
+         */
+        "min"?: string;
+        /**
+          * Months shown side by side.
+          * @default 1
+         */
+        "months": 1 | 2;
+        /**
+          * Pick a range (`start`/`end`) instead of a single `value`.
+          * @default false
+         */
+        "range": boolean;
+        /**
+          * Focus the active day.
+         */
+        "setFocus": () => Promise<void>;
+        /**
+          * ISO week numbers in front of each row.
+          * @default false
+         */
+        "showWeekNumbers": boolean;
+        /**
+          * Range start (range mode).
+         */
+        "start"?: string;
+        /**
+          * Selected date (single mode).
+         */
+        "value"?: string;
+    }
+    /**
      * Surface for one block of related content. Border, no shadow; no cards inside cards.
      */
     interface KernCard {
@@ -721,6 +802,10 @@ export namespace Components {
         "suite"?: string;
     }
 }
+export interface KernCalendarCustomEvent<T> extends CustomEvent<T> {
+    detail: T;
+    target: HTMLKernCalendarElement;
+}
 export interface KernCheckboxCustomEvent<T> extends CustomEvent<T> {
     detail: T;
     target: HTMLKernCheckboxElement;
@@ -787,6 +872,30 @@ declare global {
     var HTMLKernButtonElement: {
         prototype: HTMLKernButtonElement;
         new (): HTMLKernButtonElement;
+    };
+    interface HTMLKernCalendarElementEventMap {
+        "kernChange": { value: string } | { start: string; end: string };
+        "kernMonthChange": { year: number; month: number };
+    }
+    /**
+     * Month view for picking a date or a range, inline or inside a picker. Values are ISO dates (`2026-10-19`).
+     * Keyboard (one tab stop): arrows move by day/week, Home/End to the start/end of the week, Page Up/Down by month,
+     * with Shift by year, Enter or Space picks. In range mode the first pick sets `start`, the second `end`
+     * (swapped if earlier); the range is previewed on hover and focus until then, Escape discards it.
+     */
+    interface HTMLKernCalendarElement extends Components.KernCalendar, HTMLStencilElement {
+        addEventListener<K extends keyof HTMLKernCalendarElementEventMap>(type: K, listener: (this: HTMLKernCalendarElement, ev: KernCalendarCustomEvent<HTMLKernCalendarElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLKernCalendarElementEventMap>(type: K, listener: (this: HTMLKernCalendarElement, ev: KernCalendarCustomEvent<HTMLKernCalendarElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
+    }
+    var HTMLKernCalendarElement: {
+        prototype: HTMLKernCalendarElement;
+        new (): HTMLKernCalendarElement;
     };
     /**
      * Surface for one block of related content. Border, no shadow; no cards inside cards.
@@ -1174,6 +1283,7 @@ declare global {
         "kern-alert": HTMLKernAlertElement;
         "kern-badge": HTMLKernBadgeElement;
         "kern-button": HTMLKernButtonElement;
+        "kern-calendar": HTMLKernCalendarElement;
         "kern-card": HTMLKernCardElement;
         "kern-checkbox": HTMLKernCheckboxElement;
         "kern-copy": HTMLKernCopyElement;
@@ -1290,6 +1400,87 @@ declare namespace LocalJSX {
           * @default 'default'
          */
         "variant"?: 'default' | 'primary' | 'ghost' | 'danger';
+    }
+    /**
+     * Month view for picking a date or a range, inline or inside a picker. Values are ISO dates (`2026-10-19`).
+     * Keyboard (one tab stop): arrows move by day/week, Home/End to the start/end of the week, Page Up/Down by month,
+     * with Shift by year, Enter or Space picks. In range mode the first pick sets `start`, the second `end`
+     * (swapped if earlier); the range is previewed on hover and focus until then, Escape discards it.
+     */
+    interface KernCalendar {
+        /**
+          * Range end (range mode).
+         */
+        "end"?: string;
+        /**
+          * 0 = Sunday … 6 = Saturday; defaults to the locale (Monday for de).
+         */
+        "firstDayOfWeek"?: number;
+        /**
+          * Additional rule for unselectable days, e.g. weekends.
+         */
+        "isDateDisabled"?: (iso: string) => boolean;
+        /**
+          * Accessible name of the calendar.
+          * @default 'Kalender'
+         */
+        "label"?: string;
+        /**
+          * @default 'Nächster Monat'
+         */
+        "labelNext"?: string;
+        /**
+          * @default 'Vorheriger Monat'
+         */
+        "labelPrev"?: string;
+        /**
+          * Column header of the week numbers.
+          * @default 'KW'
+         */
+        "labelWeek"?: string;
+        /**
+          * BCP 47 locale; defaults to `<html lang>`, then the browser language.
+         */
+        "locale"?: string;
+        /**
+          * Latest selectable date.
+         */
+        "max"?: string;
+        /**
+          * Earliest selectable date.
+         */
+        "min"?: string;
+        /**
+          * Months shown side by side.
+          * @default 1
+         */
+        "months"?: 1 | 2;
+        /**
+          * A date was picked (`{ value }`), or a range completed (`{ start, end }`).
+         */
+        "onKernChange"?: (event: KernCalendarCustomEvent<{ value: string } | { start: string; end: string }>) => void;
+        /**
+          * The shown month changed (`month` 1–12).
+         */
+        "onKernMonthChange"?: (event: KernCalendarCustomEvent<{ year: number; month: number }>) => void;
+        /**
+          * Pick a range (`start`/`end`) instead of a single `value`.
+          * @default false
+         */
+        "range"?: boolean;
+        /**
+          * ISO week numbers in front of each row.
+          * @default false
+         */
+        "showWeekNumbers"?: boolean;
+        /**
+          * Range start (range mode).
+         */
+        "start"?: string;
+        /**
+          * Selected date (single mode).
+         */
+        "value"?: string;
     }
     /**
      * Surface for one block of related content. Border, no shadow; no cards inside cards.
@@ -1968,6 +2159,22 @@ declare namespace LocalJSX {
         "target": string;
         "download": string;
     }
+    interface KernCalendarAttributes {
+        "value": string;
+        "range": boolean;
+        "start": string;
+        "end": string;
+        "min": string;
+        "max": string;
+        "firstDayOfWeek": number;
+        "showWeekNumbers": boolean;
+        "months": 1 | 2;
+        "locale": string;
+        "label": string;
+        "labelPrev": string;
+        "labelNext": string;
+        "labelWeek": string;
+    }
     interface KernCardAttributes {
         "heading": string;
         "headingLevel": 2 | 3 | 4;
@@ -2154,6 +2361,7 @@ declare namespace LocalJSX {
         "kern-alert": Omit<KernAlert, keyof KernAlertAttributes> & { [K in keyof KernAlert & keyof KernAlertAttributes]?: KernAlert[K] } & { [K in keyof KernAlert & keyof KernAlertAttributes as `attr:${K}`]?: KernAlertAttributes[K] } & { [K in keyof KernAlert & keyof KernAlertAttributes as `prop:${K}`]?: KernAlert[K] };
         "kern-badge": Omit<KernBadge, keyof KernBadgeAttributes> & { [K in keyof KernBadge & keyof KernBadgeAttributes]?: KernBadge[K] } & { [K in keyof KernBadge & keyof KernBadgeAttributes as `attr:${K}`]?: KernBadgeAttributes[K] } & { [K in keyof KernBadge & keyof KernBadgeAttributes as `prop:${K}`]?: KernBadge[K] };
         "kern-button": Omit<KernButton, keyof KernButtonAttributes> & { [K in keyof KernButton & keyof KernButtonAttributes]?: KernButton[K] } & { [K in keyof KernButton & keyof KernButtonAttributes as `attr:${K}`]?: KernButtonAttributes[K] } & { [K in keyof KernButton & keyof KernButtonAttributes as `prop:${K}`]?: KernButton[K] };
+        "kern-calendar": Omit<KernCalendar, keyof KernCalendarAttributes> & { [K in keyof KernCalendar & keyof KernCalendarAttributes]?: KernCalendar[K] } & { [K in keyof KernCalendar & keyof KernCalendarAttributes as `attr:${K}`]?: KernCalendarAttributes[K] } & { [K in keyof KernCalendar & keyof KernCalendarAttributes as `prop:${K}`]?: KernCalendar[K] };
         "kern-card": Omit<KernCard, keyof KernCardAttributes> & { [K in keyof KernCard & keyof KernCardAttributes]?: KernCard[K] } & { [K in keyof KernCard & keyof KernCardAttributes as `attr:${K}`]?: KernCardAttributes[K] } & { [K in keyof KernCard & keyof KernCardAttributes as `prop:${K}`]?: KernCard[K] };
         "kern-checkbox": Omit<KernCheckbox, keyof KernCheckboxAttributes> & { [K in keyof KernCheckbox & keyof KernCheckboxAttributes]?: KernCheckbox[K] } & { [K in keyof KernCheckbox & keyof KernCheckboxAttributes as `attr:${K}`]?: KernCheckboxAttributes[K] } & { [K in keyof KernCheckbox & keyof KernCheckboxAttributes as `prop:${K}`]?: KernCheckbox[K] };
         "kern-copy": Omit<KernCopy, keyof KernCopyAttributes> & { [K in keyof KernCopy & keyof KernCopyAttributes]?: KernCopy[K] } & { [K in keyof KernCopy & keyof KernCopyAttributes as `attr:${K}`]?: KernCopyAttributes[K] } & { [K in keyof KernCopy & keyof KernCopyAttributes as `prop:${K}`]?: KernCopy[K] };
@@ -2203,6 +2411,13 @@ declare module "@stencil/core" {
              * Works as a form submit/reset button through ElementInternals.
              */
             "kern-button": LocalJSX.IntrinsicElements["kern-button"] & JSXBase.HTMLAttributes<HTMLKernButtonElement>;
+            /**
+             * Month view for picking a date or a range, inline or inside a picker. Values are ISO dates (`2026-10-19`).
+             * Keyboard (one tab stop): arrows move by day/week, Home/End to the start/end of the week, Page Up/Down by month,
+             * with Shift by year, Enter or Space picks. In range mode the first pick sets `start`, the second `end`
+             * (swapped if earlier); the range is previewed on hover and focus until then, Escape discards it.
+             */
+            "kern-calendar": LocalJSX.IntrinsicElements["kern-calendar"] & JSXBase.HTMLAttributes<HTMLKernCalendarElement>;
             /**
              * Surface for one block of related content. Border, no shadow; no cards inside cards.
              */

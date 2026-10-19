@@ -7,6 +7,15 @@ vollwertiges zweites Theme und lässt sich umschalten.
 **Dokumentation:** https://yfridelance.github.io/kern/ – eine Seite pro Komponente mit Beispielen, Properties,
 Events und Methoden, dazu «Getting started» und «Fundamentals» (englisch).
 
+## Installation
+
+```bash
+npm install @yfridelance/kern
+```
+
+Ohne Build direkt vom CDN: `https://unpkg.com/@yfridelance/kern/dist/kern/kern.css` und
+`https://unpkg.com/@yfridelance/kern/dist/kern/kern.esm.js` (Details unter «Getting started» in der Dokumentation).
+
 Die Gestaltungsregeln (Farben, Typografie, Ton, wann welche Komponente) stehen im Kern-Design-System; die Tokens
 dort und hier sind dieselben (`tokens/tokens.json`).
 

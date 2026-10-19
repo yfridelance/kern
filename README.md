@@ -16,7 +16,7 @@ dort und hier sind dieselben (`tokens/tokens.json`).
 | Aktionen | `kern-button`, `kern-menu` + `kern-menu-item` |
 | Formulare | `kern-input`, `kern-ip-input`, `kern-textarea`, `kern-select`, `kern-switch`, `kern-checkbox`, `kern-radio-group` + `kern-radio`, `kern-segmented`, `kern-date-picker`, `kern-date-range-picker`, `kern-time-picker`, `kern-step-input`, `kern-rating` |
 | Status | `kern-badge`, `kern-status`, `kern-icon` |
-| Rückmeldung | `kern-alert`, `kern-tooltip`, `kern-progress`, `kern-spinner`, `kern-dialog` (+ `confirm()`) |
+| Rückmeldung | `kern-alert`, `kern-toast` (+ `toast()`), `kern-tooltip`, `kern-progress`, `kern-spinner`, `kern-dialog` (+ `confirm()`) |
 | Daten | `kern-table`, `kern-list` + `kern-list-item`, `kern-kv` + `kern-kv-item`, `kern-stat`, `kern-sparkline`, `kern-meter`, `kern-signal`, `kern-copy`, `kern-json` |
 | Datum & Zeit | `kern-date`, `kern-time`, `kern-calendar` |
 
@@ -29,7 +29,7 @@ verschieden sind. Der Name sagt die Rolle:
 
 | Rolle | Name | Beispiele |
 | --- | --- | --- |
-| Anzeige | Nomen | `kern-date`, `kern-time`, `kern-status`, `kern-meter`, `kern-list`, `kern-link`, `kern-icon`, `kern-tooltip` |
+| Anzeige | Nomen | `kern-date`, `kern-time`, `kern-status`, `kern-meter`, `kern-list`, `kern-link`, `kern-icon`, `kern-tooltip`, `kern-toast` |
 | Bedienelement ohne Feldbox | Nomen | `kern-switch`, `kern-checkbox`, `kern-segmented`, `kern-radio-group`, `kern-calendar`, `kern-rating`, `kern-tabs`, `kern-menu` |
 | Tippfeld mit eigenem Wertmodell | `-input` | `kern-ip-input`, `kern-step-input` |
 | Feld, das ein Auswahl-Popover anbietet | `-picker` | `kern-date-picker`, `kern-date-range-picker`, `kern-time-picker` |
@@ -97,6 +97,11 @@ zusätzlich Standalone-Wrapper mit `ControlValueAccessor` für `ngModel` und Rea
 - **Tabellen:** `kern-table` umschliesst eine native `<table>` ohne Shadow DOM, damit Zellen beliebiges Markup und
   Framework-Bindings enthalten können. Zellklassen `mono`, `num`, `empty`; Zeilen `clickable`, `dim`,
   `aria-selected="true"`; sortierbar mit `<th aria-sort><button>`.
+- **Toasts:** `await toast({ message, tone, heading, actionLabel, duration })` zeigt eine kurze Rückmeldung unten
+  rechts (höchstens 4, über offenen Dialogen) und liefert `'timeout' | 'close' | 'action'`. Schliesst nach 5 s
+  (pausiert bei Hover/Fokus), `duration: 0` bleibt. Für Meldungen, die stehen bleiben müssen: `kern-alert`.
+  Während ein modaler Dialog offen ist, ist alles ausserhalb inert: Toasts sind dann sichtbar, aber weder bedienbar
+  noch angesagt. Darum erst den Dialog schliessen, dann den Toast zeigen.
 - **Bestätigen:** `await confirm({ heading, message, confirmLabel, danger, typeToConfirm })` öffnet einen
   `kern-dialog`. Mit `typeToConfirm` (z.B. die MAC) bleibt die Bestätigung gesperrt, bis der Wert eingetippt ist.
 - **Datum & Zeit:** Werte sind ISO-Strings (`2026-10-19`, `2026-10-19T08:15:00Z`, `06:30`, `PT1H23M`), Epoch-ms oder

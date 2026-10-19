@@ -10,12 +10,12 @@ let nextId = 0;
  * normalised; `value` and the form value are the normalised form. Ranges and blocks show their size in the field.
  */
 @Component({
-  tag: 'kern-ip',
-  styleUrl: 'kern-ip.css',
+  tag: 'kern-ip-input',
+  styleUrl: 'kern-ip-input.css',
   shadow: { delegatesFocus: true },
   formAssociated: true,
 })
-export class KernIp {
+export class KernIpInput {
   @Element() el!: HTMLElement;
   @AttachInternals() internals!: ElementInternals;
 
@@ -60,7 +60,7 @@ export class KernIp {
   @State() problem?: string;
 
   private input?: HTMLInputElement;
-  private id = `kern-ip-${++nextId}`;
+  private id = `kern-ip-input-${++nextId}`;
   private initial = '';
 
   componentWillLoad() {

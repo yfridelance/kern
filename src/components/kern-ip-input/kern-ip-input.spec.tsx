@@ -1,8 +1,8 @@
 import { newSpecPage } from '@stencil/core/testing';
-import { KernIp } from './kern-ip';
+import { KernIpInput } from './kern-ip-input';
 
 const setup = async (attrs: string) => {
-  const page = await newSpecPage({ components: [KernIp], html: `<kern-ip locale="de-CH" label="IP-Bereich" ${attrs}></kern-ip>` });
+  const page = await newSpecPage({ components: [KernIpInput], html: `<kern-ip-input locale="de-CH" label="IP-Bereich" ${attrs}></kern-ip-input>` });
   const root = page.root!.shadowRoot!;
   const input = root.querySelector('input')!;
   const changes: unknown[] = [];
@@ -22,13 +22,13 @@ const setup = async (attrs: string) => {
     changes,
     inputs,
     type,
-    ip: page.root as unknown as KernIp,
+    ip: page.root as unknown as KernIpInput,
     error: () => root.querySelector('.error')?.textContent,
     count: () => root.querySelector('.count'),
   };
 };
 
-describe('kern-ip', () => {
+describe('kern-ip-input', () => {
   it('shows the value with the size of a block', async () => {
     const { input, count } = await setup(`value="192.168.1.0/24"`);
     expect(input.value).toBe('192.168.1.0/24');

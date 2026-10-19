@@ -12,6 +12,71 @@ Keyboard (one tab stop): arrows move by day/week, Home/End to the start/end of t
 with Shift by year, Enter or Space picks. In range mode the first pick sets `start`, the second `end`
 (swapped if earlier); the range is previewed on hover and focus until then, Escape discards it.
 
+## Usage
+
+### 01-single
+
+# Pick a date
+
+An inline month view; `value` is an ISO date and `kernChange` reports `{ value }`. `show-week-numbers` adds ISO weeks (column header `label-week`), and the `footer` slot takes actions such as a “Today” button that uses `goTo()`.
+
+```html
+<kern-calendar label="Maintenance day" show-week-numbers label-week="Wk" label-prev="Previous month" label-next="Next month">
+  <kern-button slot="footer" size="sm" variant="ghost">Today</kern-button>
+</kern-calendar>
+<pre class="out" style="font:12px var(--font-mono);color:var(--text-muted)"></pre>
+```
+
+```js
+const cal = root.querySelector('kern-calendar');
+const out = root.querySelector('.out');
+const iso = (d) => new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 10);
+root.querySelector('kern-button').addEventListener('click', () => {
+  cal.value = iso(new Date());
+  cal.goTo(cal.value);
+});
+cal.addEventListener('kernChange', (e) => (out.textContent = 'kernChange → ' + JSON.stringify(e.detail)));
+```
+
+
+### 02-range
+
+# Pick a range
+
+With `range` the first pick sets `start`, the second `end`, and `kernChange` reports `{ start, end }`. `months="2"` shows two months side by side; `max-days` locks days farther than that from `start`.
+
+```html
+<kern-calendar range months="2" max-days="14" label="Evaluation period" label-prev="Previous month" label-next="Next month"></kern-calendar>
+<pre class="out" style="font:12px var(--font-mono);color:var(--text-muted)"></pre>
+```
+
+```js
+const out = root.querySelector('.out');
+root.querySelector('kern-calendar').addEventListener('kernChange', (e) => (out.textContent = 'kernChange → ' + JSON.stringify(e.detail)));
+```
+
+
+### 03-limits
+
+# Limits and disabled days
+
+`min` and `max` bound the selectable dates; `isDateDisabled` is a property taking a function from ISO date to boolean, e.g. to block weekends. Here only workdays in the last three months can be picked.
+
+```html
+<kern-calendar label="Report day" label-prev="Previous month" label-next="Next month"></kern-calendar>
+```
+
+```js
+const cal = root.querySelector('kern-calendar');
+const iso = (d) => new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 10);
+const today = new Date();
+cal.min = iso(new Date(today.getFullYear(), today.getMonth() - 3, today.getDate()));
+cal.max = iso(today);
+cal.isDateDisabled = (d) => [0, 6].includes(new Date(d + 'T00:00').getDay());
+```
+
+
+
 ## Properties
 
 | Property          | Attribute           | Description                                                                                    | Type                                      | Default              |

@@ -1,0 +1,3 @@
+:host { display: inline; font-variant-numeric: tabular-nums; white-space: nowrap; }
+:host([hidden]) { display: none; }
+:host([mono]) { font-family: var(--font-mono); }

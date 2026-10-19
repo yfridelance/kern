@@ -20,6 +20,7 @@ body:
         - kern-card
         - kern-checkbox
         - kern-copy
+        - kern-date
         - kern-dialog
         - kern-input
         - kern-json
@@ -41,6 +42,7 @@ body:
         - kern-tabs
         - kern-textarea
         - kern-theme-toggle
+        - kern-time
         - kern-toolbar
         - kern-topbar
         - Tokens / Theme

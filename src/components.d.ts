@@ -1489,6 +1489,36 @@ export namespace Components {
     interface KernToolbar {
     }
     /**
+     * Short hint for a control or an abbreviated value, shown on hover (after `delay`) and immediately on keyboard focus;
+     * Escape hides it. Wrap the trigger (`<kern-tooltip text="Neustart"><kern-button …></kern-tooltip>`) or point at it
+     * with `for="id"`. The trigger gets `aria-describedby` to a hidden copy of the text. Not for essential information:
+     * touch devices never see it.
+     */
+    interface KernTooltip {
+        /**
+          * Hover delay in milliseconds.
+          * @default 400
+         */
+        "delay": number;
+        /**
+          * @default false
+         */
+        "disabled": boolean;
+        /**
+          * Id of the trigger in the same document, instead of wrapping it.
+         */
+        "for"?: string;
+        /**
+          * Preferred side; flips when there is no room.
+          * @default 'top'
+         */
+        "placement": 'top' | 'bottom';
+        /**
+          * @default ''
+         */
+        "text": string;
+    }
+    /**
      * App header: brand on the left, main navigation, tools on the right (site switch, server status,
      * kern-theme-toggle). Put each nav link directly into the `nav` slot; the active one gets
      * `aria-current="page"` or class `active` (e.g. Angular `routerLinkActive="active"`).
@@ -2250,6 +2280,18 @@ declare global {
         new (): HTMLKernToolbarElement;
     };
     /**
+     * Short hint for a control or an abbreviated value, shown on hover (after `delay`) and immediately on keyboard focus;
+     * Escape hides it. Wrap the trigger (`<kern-tooltip text="Neustart"><kern-button …></kern-tooltip>`) or point at it
+     * with `for="id"`. The trigger gets `aria-describedby` to a hidden copy of the text. Not for essential information:
+     * touch devices never see it.
+     */
+    interface HTMLKernTooltipElement extends Components.KernTooltip, HTMLStencilElement {
+    }
+    var HTMLKernTooltipElement: {
+        prototype: HTMLKernTooltipElement;
+        new (): HTMLKernTooltipElement;
+    };
+    /**
      * App header: brand on the left, main navigation, tools on the right (site switch, server status,
      * kern-theme-toggle). Put each nav link directly into the `nav` slot; the active one gets
      * `aria-current="page"` or class `active` (e.g. Angular `routerLinkActive="active"`).
@@ -2304,6 +2346,7 @@ declare global {
         "kern-time": HTMLKernTimeElement;
         "kern-time-picker": HTMLKernTimePickerElement;
         "kern-toolbar": HTMLKernToolbarElement;
+        "kern-tooltip": HTMLKernTooltipElement;
         "kern-topbar": HTMLKernTopbarElement;
     }
 }
@@ -3840,6 +3883,36 @@ declare namespace LocalJSX {
     interface KernToolbar {
     }
     /**
+     * Short hint for a control or an abbreviated value, shown on hover (after `delay`) and immediately on keyboard focus;
+     * Escape hides it. Wrap the trigger (`<kern-tooltip text="Neustart"><kern-button …></kern-tooltip>`) or point at it
+     * with `for="id"`. The trigger gets `aria-describedby` to a hidden copy of the text. Not for essential information:
+     * touch devices never see it.
+     */
+    interface KernTooltip {
+        /**
+          * Hover delay in milliseconds.
+          * @default 400
+         */
+        "delay"?: number;
+        /**
+          * @default false
+         */
+        "disabled"?: boolean;
+        /**
+          * Id of the trigger in the same document, instead of wrapping it.
+         */
+        "for"?: string;
+        /**
+          * Preferred side; flips when there is no room.
+          * @default 'top'
+         */
+        "placement"?: 'top' | 'bottom';
+        /**
+          * @default ''
+         */
+        "text"?: string;
+    }
+    /**
      * App header: brand on the left, main navigation, tools on the right (site switch, server status,
      * kern-theme-toggle). Put each nav link directly into the `nav` slot; the active one gets
      * `aria-current="page"` or class `active` (e.g. Angular `routerLinkActive="active"`).
@@ -4256,6 +4329,13 @@ declare namespace LocalJSX {
         "labelList": string;
         "labelOutOfRange": string;
     }
+    interface KernTooltipAttributes {
+        "text": string;
+        "for": string;
+        "placement": 'top' | 'bottom';
+        "delay": number;
+        "disabled": boolean;
+    }
     interface KernTopbarAttributes {
         "appName": string;
         "suite": string;
@@ -4307,6 +4387,7 @@ declare namespace LocalJSX {
         "kern-time": Omit<KernTime, keyof KernTimeAttributes> & { [K in keyof KernTime & keyof KernTimeAttributes]?: KernTime[K] } & { [K in keyof KernTime & keyof KernTimeAttributes as `attr:${K}`]?: KernTimeAttributes[K] } & { [K in keyof KernTime & keyof KernTimeAttributes as `prop:${K}`]?: KernTime[K] };
         "kern-time-picker": Omit<KernTimePicker, keyof KernTimePickerAttributes> & { [K in keyof KernTimePicker & keyof KernTimePickerAttributes]?: KernTimePicker[K] } & { [K in keyof KernTimePicker & keyof KernTimePickerAttributes as `attr:${K}`]?: KernTimePickerAttributes[K] } & { [K in keyof KernTimePicker & keyof KernTimePickerAttributes as `prop:${K}`]?: KernTimePicker[K] };
         "kern-toolbar": KernToolbar;
+        "kern-tooltip": Omit<KernTooltip, keyof KernTooltipAttributes> & { [K in keyof KernTooltip & keyof KernTooltipAttributes]?: KernTooltip[K] } & { [K in keyof KernTooltip & keyof KernTooltipAttributes as `attr:${K}`]?: KernTooltipAttributes[K] } & { [K in keyof KernTooltip & keyof KernTooltipAttributes as `prop:${K}`]?: KernTooltip[K] };
         "kern-topbar": Omit<KernTopbar, keyof KernTopbarAttributes> & { [K in keyof KernTopbar & keyof KernTopbarAttributes]?: KernTopbar[K] } & { [K in keyof KernTopbar & keyof KernTopbarAttributes as `attr:${K}`]?: KernTopbarAttributes[K] } & { [K in keyof KernTopbar & keyof KernTopbarAttributes as `prop:${K}`]?: KernTopbar[K] };
     }
 }
@@ -4547,6 +4628,13 @@ declare module "@stencil/core" {
              * Row above a table: search, filters, then (right-aligned) result count and actions.
              */
             "kern-toolbar": LocalJSX.IntrinsicElements["kern-toolbar"] & JSXBase.HTMLAttributes<HTMLKernToolbarElement>;
+            /**
+             * Short hint for a control or an abbreviated value, shown on hover (after `delay`) and immediately on keyboard focus;
+             * Escape hides it. Wrap the trigger (`<kern-tooltip text="Neustart"><kern-button …></kern-tooltip>`) or point at it
+             * with `for="id"`. The trigger gets `aria-describedby` to a hidden copy of the text. Not for essential information:
+             * touch devices never see it.
+             */
+            "kern-tooltip": LocalJSX.IntrinsicElements["kern-tooltip"] & JSXBase.HTMLAttributes<HTMLKernTooltipElement>;
             /**
              * App header: brand on the left, main navigation, tools on the right (site switch, server status,
              * kern-theme-toggle). Put each nav link directly into the `nav` slot; the active one gets

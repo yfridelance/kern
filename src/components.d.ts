@@ -10,11 +10,13 @@ import { IconName } from "./utils/icons";
 import { KernIpKind } from "./utils/ip";
 import { KernOption } from "./components/kern-select/kern-select";
 import { KernOption as KernOption1 } from "./components/kern-select/kern-select";
+import { KernToastReason } from "./components/kern-toast/kern-toast";
 export { KernDateFormat } from "./utils/datetime";
 export { IconName } from "./utils/icons";
 export { KernIpKind } from "./utils/ip";
 export { KernOption } from "./components/kern-select/kern-select";
 export { KernOption as KernOption1 } from "./components/kern-select/kern-select";
+export { KernToastReason } from "./components/kern-toast/kern-toast";
 export namespace Components {
     /**
      * Message in the page flow: information, success, warning or error. One or two sentences;
@@ -1529,6 +1531,35 @@ export namespace Components {
         "value": string;
     }
     /**
+     * Short, non-blocking feedback after an action („Snapshot gespeichert“). Usually created with `toast()`, which stacks
+     * them at the bottom right. Closes itself after `duration` (paused while hovered or focused), with the × or the
+     * optional action. `toast()` announces it through a polite live region; `danger` interrupts as an alert.
+     */
+    interface KernToast {
+        /**
+          * Text of an optional action, e.g. „Rückgängig“.
+         */
+        "actionLabel"?: string;
+        /**
+          * Closes the toast.
+         */
+        "close": (reason?: KernToastReason) => Promise<void>;
+        /**
+          * @default 'Schliessen'
+         */
+        "closeLabel": string;
+        /**
+          * Milliseconds until it closes itself; 0 keeps it until closed.
+          * @default 5000
+         */
+        "duration": number;
+        "heading"?: string;
+        /**
+          * @default 'neutral'
+         */
+        "tone": 'neutral' | 'info' | 'ok' | 'warn' | 'danger';
+    }
+    /**
      * Row above a table: search, filters, then (right-aligned) result count and actions.
      */
     interface KernToolbar {
@@ -1669,6 +1700,10 @@ export interface KernTextareaCustomEvent<T> extends CustomEvent<T> {
 export interface KernTimePickerCustomEvent<T> extends CustomEvent<T> {
     detail: T;
     target: HTMLKernTimePickerElement;
+}
+export interface KernToastCustomEvent<T> extends CustomEvent<T> {
+    detail: T;
+    target: HTMLKernToastElement;
 }
 declare global {
     /**
@@ -2365,6 +2400,29 @@ declare global {
         prototype: HTMLKernTimePickerElement;
         new (): HTMLKernTimePickerElement;
     };
+    interface HTMLKernToastElementEventMap {
+        "kernAction": void;
+        "kernClose": { reason: KernToastReason };
+    }
+    /**
+     * Short, non-blocking feedback after an action („Snapshot gespeichert“). Usually created with `toast()`, which stacks
+     * them at the bottom right. Closes itself after `duration` (paused while hovered or focused), with the × or the
+     * optional action. `toast()` announces it through a polite live region; `danger` interrupts as an alert.
+     */
+    interface HTMLKernToastElement extends Components.KernToast, HTMLStencilElement {
+        addEventListener<K extends keyof HTMLKernToastElementEventMap>(type: K, listener: (this: HTMLKernToastElement, ev: KernToastCustomEvent<HTMLKernToastElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLKernToastElementEventMap>(type: K, listener: (this: HTMLKernToastElement, ev: KernToastCustomEvent<HTMLKernToastElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
+    }
+    var HTMLKernToastElement: {
+        prototype: HTMLKernToastElement;
+        new (): HTMLKernToastElement;
+    };
     /**
      * Row above a table: search, filters, then (right-aligned) result count and actions.
      */
@@ -2442,6 +2500,7 @@ declare global {
         "kern-theme-toggle": HTMLKernThemeToggleElement;
         "kern-time": HTMLKernTimeElement;
         "kern-time-picker": HTMLKernTimePickerElement;
+        "kern-toast": HTMLKernToastElement;
         "kern-toolbar": HTMLKernToolbarElement;
         "kern-tooltip": HTMLKernTooltipElement;
         "kern-topbar": HTMLKernTopbarElement;
@@ -4020,6 +4079,39 @@ declare namespace LocalJSX {
         "value"?: string;
     }
     /**
+     * Short, non-blocking feedback after an action („Snapshot gespeichert“). Usually created with `toast()`, which stacks
+     * them at the bottom right. Closes itself after `duration` (paused while hovered or focused), with the × or the
+     * optional action. `toast()` announces it through a polite live region; `danger` interrupts as an alert.
+     */
+    interface KernToast {
+        /**
+          * Text of an optional action, e.g. „Rückgängig“.
+         */
+        "actionLabel"?: string;
+        /**
+          * @default 'Schliessen'
+         */
+        "closeLabel"?: string;
+        /**
+          * Milliseconds until it closes itself; 0 keeps it until closed.
+          * @default 5000
+         */
+        "duration"?: number;
+        "heading"?: string;
+        /**
+          * The action was clicked (the toast then closes).
+         */
+        "onKernAction"?: (event: KernToastCustomEvent<void>) => void;
+        /**
+          * The toast closed; `reason` says why.
+         */
+        "onKernClose"?: (event: KernToastCustomEvent<{ reason: KernToastReason }>) => void;
+        /**
+          * @default 'neutral'
+         */
+        "tone"?: 'neutral' | 'info' | 'ok' | 'warn' | 'danger';
+    }
+    /**
      * Row above a table: search, filters, then (right-aligned) result count and actions.
      */
     interface KernToolbar {
@@ -4481,6 +4573,13 @@ declare namespace LocalJSX {
         "labelList": string;
         "labelOutOfRange": string;
     }
+    interface KernToastAttributes {
+        "tone": 'neutral' | 'info' | 'ok' | 'warn' | 'danger';
+        "heading": string;
+        "actionLabel": string;
+        "duration": number;
+        "closeLabel": string;
+    }
     interface KernTooltipAttributes {
         "text": string;
         "for": string;
@@ -4540,6 +4639,7 @@ declare namespace LocalJSX {
         "kern-theme-toggle": Omit<KernThemeToggle, keyof KernThemeToggleAttributes> & { [K in keyof KernThemeToggle & keyof KernThemeToggleAttributes]?: KernThemeToggle[K] } & { [K in keyof KernThemeToggle & keyof KernThemeToggleAttributes as `attr:${K}`]?: KernThemeToggleAttributes[K] } & { [K in keyof KernThemeToggle & keyof KernThemeToggleAttributes as `prop:${K}`]?: KernThemeToggle[K] };
         "kern-time": Omit<KernTime, keyof KernTimeAttributes> & { [K in keyof KernTime & keyof KernTimeAttributes]?: KernTime[K] } & { [K in keyof KernTime & keyof KernTimeAttributes as `attr:${K}`]?: KernTimeAttributes[K] } & { [K in keyof KernTime & keyof KernTimeAttributes as `prop:${K}`]?: KernTime[K] };
         "kern-time-picker": Omit<KernTimePicker, keyof KernTimePickerAttributes> & { [K in keyof KernTimePicker & keyof KernTimePickerAttributes]?: KernTimePicker[K] } & { [K in keyof KernTimePicker & keyof KernTimePickerAttributes as `attr:${K}`]?: KernTimePickerAttributes[K] } & { [K in keyof KernTimePicker & keyof KernTimePickerAttributes as `prop:${K}`]?: KernTimePicker[K] };
+        "kern-toast": Omit<KernToast, keyof KernToastAttributes> & { [K in keyof KernToast & keyof KernToastAttributes]?: KernToast[K] } & { [K in keyof KernToast & keyof KernToastAttributes as `attr:${K}`]?: KernToastAttributes[K] } & { [K in keyof KernToast & keyof KernToastAttributes as `prop:${K}`]?: KernToast[K] };
         "kern-toolbar": KernToolbar;
         "kern-tooltip": Omit<KernTooltip, keyof KernTooltipAttributes> & { [K in keyof KernTooltip & keyof KernTooltipAttributes]?: KernTooltip[K] } & { [K in keyof KernTooltip & keyof KernTooltipAttributes as `attr:${K}`]?: KernTooltipAttributes[K] } & { [K in keyof KernTooltip & keyof KernTooltipAttributes as `prop:${K}`]?: KernTooltip[K] };
         "kern-topbar": Omit<KernTopbar, keyof KernTopbarAttributes> & { [K in keyof KernTopbar & keyof KernTopbarAttributes]?: KernTopbar[K] } & { [K in keyof KernTopbar & keyof KernTopbarAttributes as `attr:${K}`]?: KernTopbarAttributes[K] } & { [K in keyof KernTopbar & keyof KernTopbarAttributes as `prop:${K}`]?: KernTopbar[K] };
@@ -4788,6 +4888,12 @@ declare module "@stencil/core" {
              * (every `step`, at least 5 minutes; every 30 minutes when `step` is smaller).
              */
             "kern-time-picker": LocalJSX.IntrinsicElements["kern-time-picker"] & JSXBase.HTMLAttributes<HTMLKernTimePickerElement>;
+            /**
+             * Short, non-blocking feedback after an action („Snapshot gespeichert“). Usually created with `toast()`, which stacks
+             * them at the bottom right. Closes itself after `duration` (paused while hovered or focused), with the × or the
+             * optional action. `toast()` announces it through a polite live region; `danger` interrupts as an alert.
+             */
+            "kern-toast": LocalJSX.IntrinsicElements["kern-toast"] & JSXBase.HTMLAttributes<HTMLKernToastElement>;
             /**
              * Row above a table: search, filters, then (right-aligned) result count and actions.
              */

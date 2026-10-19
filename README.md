@@ -14,13 +14,29 @@ dort und hier sind dieselben (`tokens/tokens.json`).
 | Layout | `kern-topbar`, `kern-page-header`, `kern-card`, `kern-toolbar` |
 | Navigation | `kern-tabs` + `kern-tab-panel`, `kern-theme-toggle` |
 | Aktionen | `kern-button` |
-| Formulare | `kern-input`, `kern-ip`, `kern-textarea`, `kern-select`, `kern-switch`, `kern-checkbox`, `kern-segmented`, `kern-date-picker`, `kern-date-range-picker`, `kern-time-picker` |
+| Formulare | `kern-input`, `kern-ip-input`, `kern-textarea`, `kern-select`, `kern-switch`, `kern-checkbox`, `kern-segmented`, `kern-date-picker`, `kern-date-range-picker`, `kern-time-picker` |
 | Status | `kern-badge`, `kern-status` |
 | Rückmeldung | `kern-alert`, `kern-progress`, `kern-spinner`, `kern-dialog` (+ `confirm()`) |
 | Daten | `kern-table`, `kern-kv` + `kern-kv-item`, `kern-stat`, `kern-sparkline`, `kern-meter`, `kern-signal`, `kern-copy`, `kern-json` |
 | Datum & Zeit | `kern-date`, `kern-time`, `kern-calendar` |
 
 Props, Events, Slots und Parts jeder Komponente: `src/components/<tag>/readme.md` (aus dem Code erzeugt).
+
+### Benennung
+
+Jede Komponente hat einen eigenen Tag (kein `kern-input type="…"`), weil Werte, Events, Props und Popover je Typ
+verschieden sind. Der Name sagt die Rolle:
+
+| Rolle | Name | Beispiele |
+| --- | --- | --- |
+| Anzeige | Nomen | `kern-date`, `kern-time`, `kern-status`, `kern-meter` |
+| Bedienelement ohne Feldbox | Nomen | `kern-switch`, `kern-checkbox`, `kern-segmented`, `kern-calendar`, `kern-tabs` |
+| Tippfeld mit eigenem Wertmodell | `-input` | `kern-ip-input` |
+| Feld, das ein Auswahl-Popover anbietet | `-picker` | `kern-date-picker`, `kern-date-range-picker`, `kern-time-picker` |
+
+Native Gegenstücke behalten ihren Namen: `kern-input` (allgemeines Tippfeld), `kern-textarea`, `kern-select`. So
+können Anzeige und Eingabe nebeneinander bestehen (`kern-date` / `kern-date-picker`, später `kern-ip` /
+`kern-ip-input`).
 Eine Demo aller Komponenten zeigt `npm start` unter http://localhost:3333.
 
 ## Einbinden
@@ -60,12 +76,12 @@ zusätzlich Standalone-Wrapper mit `ControlValueAccessor` für `ngModel` und Rea
 
 ## Wichtige Verhaltensregeln
 
-- **Formulare:** `kern-input`, `kern-ip`, `kern-textarea`, `kern-select`, `kern-switch`, `kern-checkbox`,
+- **Formulare:** `kern-input`, `kern-ip-input`, `kern-textarea`, `kern-select`, `kern-switch`, `kern-checkbox`,
   `kern-segmented`, `kern-date-picker`, `kern-date-range-picker` und `kern-time-picker` sind formularfähig
   (ElementInternals): `name`, `FormData`, `form.reset()` und `required` funktionieren wie bei nativen Feldern.
   `kern-button type="submit"` sendet das umgebende Formular. Ein Feld mit `error` gilt als ungültig und **blockiert
   das Absenden**, bis der Fehler entfernt ist.
-- **IPv4:** `kern-ip` nimmt eine Adresse (`192.168.1.10`), einen Bereich (`192.168.1.10-192.168.1.50`, auch
+- **IPv4:** `kern-ip-input` nimmt eine Adresse (`192.168.1.10`), einen Bereich (`192.168.1.10-192.168.1.50`, auch
   `192.168.1.10-50`) oder CIDR (`192.168.1.0/24`) und normalisiert beim Verlassen (Host-Adresse in CIDR → Netz,
   umgekehrter Bereich → getauscht). `allow="single range cidr"` und `max-addresses` begrenzen; Bereiche zeigen ihre
   Grösse im Feld. `kernChange` liefert `{ value, kind, first, last, count }`. `parseIpv4()`, `ipv4ToInt()` und
@@ -116,8 +132,8 @@ npm run build    # dist/, loader/, www/, Angular-Wrapper, readme.md pro Komponen
 - Tokens nur in `tokens/tokens.json` ändern; `npm run tokens` (läuft bei build/test/start mit) erzeugt
   `src/global/tokens.css`.
 - Komponenten-Styles nutzen ausschliesslich Tokens (`var(--surface)`, `var(--space-4)` …).
-- Neue Komponente: `npm run generate`, Doku-Kommentar über der Klasse (erster Satz = Zusammenfassung), Props mit
-  JSDoc, Spec-Test für Logik.
+- Neue Komponente: Name nach «Benennung», `npm run generate`, Doku-Kommentar über der Klasse (erster Satz =
+  Zusammenfassung), Props mit JSDoc, Spec-Test für Logik.
 
 ## Lizenz
 

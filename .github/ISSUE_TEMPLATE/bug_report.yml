@@ -26,7 +26,7 @@ body:
         - kern-date-range-picker
         - kern-dialog
         - kern-input
-        - kern-ip
+        - kern-ip-input
         - kern-json
         - kern-kv
         - kern-kv-item

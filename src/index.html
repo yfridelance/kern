@@ -80,6 +80,7 @@
           <kern-kv-item label="IP"><kern-copy>192.168.1.21</kern-copy></kern-kv-item>
           <kern-kv-item label="Signal"><kern-signal rssi="-63"></kern-signal></kern-kv-item>
           <kern-kv-item label="Firmware" mono>1.4.4</kern-kv-item>
+          <kern-kv-item label="Web-UI"><kern-link href="http://192.168.1.21" external>192.168.1.21</kern-link></kern-kv-item>
           <kern-kv-item label="Laufzeit"><kern-time duration="356420"></kern-time></kern-kv-item>
           <kern-kv-item label="Zuletzt gesehen"><kern-date relative time data-ago="45"></kern-date></kern-kv-item>
           <kern-kv-item label="Zeitplan">täglich <kern-time value="06:30"></kern-time></kern-kv-item>
@@ -90,7 +91,7 @@
           <kern-tabs label="Gerätedaten">
             <kern-tab-panel name="config" label="Config"><kern-json id="json" open-depth="1"></kern-json></kern-tab-panel>
             <kern-tab-panel name="status" label="Status"><kern-progress label="Firmware wird installiert …"></kern-progress></kern-tab-panel>
-            <kern-tab-panel name="snapshots" label="Snapshots" count="12"><p style="margin:0;color:var(--text-muted)">12 Snapshots, der neuste von heute 09:41.</p></kern-tab-panel>
+            <kern-tab-panel name="snapshots" label="Snapshots" count="12"><p style="margin:0;color:var(--text-muted)">12 Snapshots, der neuste von heute 09:41. <kern-link href="#" tone="muted">Alle anzeigen</kern-link></p></kern-tab-panel>
           </kern-tabs>
         </div>
       </kern-card>

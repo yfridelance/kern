@@ -702,6 +702,43 @@ export namespace Components {
         "mono": boolean;
     }
     /**
+     * Text link for running text, table cells and cards. `external` opens a new tab (with `rel="noopener noreferrer"`)
+     * and marks the link with ↗; `tone="muted"` for secondary links; `disabled` keeps the text but removes the link.
+     * For actions use kern-button, also when it navigates.
+     */
+    interface KernLink {
+        /**
+          * Shown as text, not a link.
+          * @default false
+         */
+        "disabled": boolean;
+        /**
+          * Download instead of navigate (optionally with this file name).
+         */
+        "download"?: string | boolean;
+        /**
+          * Opens in a new tab and shows ↗.
+          * @default false
+         */
+        "external": boolean;
+        "href"?: string;
+        /**
+          * Read after the text of `external` links.
+          * @default 'öffnet in neuem Tab'
+         */
+        "labelExternal": string;
+        /**
+          * Defaults to `noopener noreferrer` for `external` or `target="_blank"`.
+         */
+        "rel"?: string;
+        "target"?: string;
+        /**
+          * `muted` for secondary links.
+          * @default 'accent'
+         */
+        "tone": 'accent' | 'muted';
+    }
+    /**
      * Fill level with thresholds (RAM, flash, temperature, load). Colour goes ok → warn → danger;
      * `neutral` uses the accent for amounts without good/bad.
      */
@@ -1534,6 +1571,17 @@ declare global {
         new (): HTMLKernKvItemElement;
     };
     /**
+     * Text link for running text, table cells and cards. `external` opens a new tab (with `rel="noopener noreferrer"`)
+     * and marks the link with ↗; `tone="muted"` for secondary links; `disabled` keeps the text but removes the link.
+     * For actions use kern-button, also when it navigates.
+     */
+    interface HTMLKernLinkElement extends Components.KernLink, HTMLStencilElement {
+    }
+    var HTMLKernLinkElement: {
+        prototype: HTMLKernLinkElement;
+        new (): HTMLKernLinkElement;
+    };
+    /**
      * Fill level with thresholds (RAM, flash, temperature, load). Colour goes ok → warn → danger;
      * `neutral` uses the accent for amounts without good/bad.
      */
@@ -1824,6 +1872,7 @@ declare global {
         "kern-json": HTMLKernJsonElement;
         "kern-kv": HTMLKernKvElement;
         "kern-kv-item": HTMLKernKvItemElement;
+        "kern-link": HTMLKernLinkElement;
         "kern-meter": HTMLKernMeterElement;
         "kern-page-header": HTMLKernPageHeaderElement;
         "kern-progress": HTMLKernProgressElement;
@@ -2560,6 +2609,43 @@ declare namespace LocalJSX {
         "mono"?: boolean;
     }
     /**
+     * Text link for running text, table cells and cards. `external` opens a new tab (with `rel="noopener noreferrer"`)
+     * and marks the link with ↗; `tone="muted"` for secondary links; `disabled` keeps the text but removes the link.
+     * For actions use kern-button, also when it navigates.
+     */
+    interface KernLink {
+        /**
+          * Shown as text, not a link.
+          * @default false
+         */
+        "disabled"?: boolean;
+        /**
+          * Download instead of navigate (optionally with this file name).
+         */
+        "download"?: string | boolean;
+        /**
+          * Opens in a new tab and shows ↗.
+          * @default false
+         */
+        "external"?: boolean;
+        "href"?: string;
+        /**
+          * Read after the text of `external` links.
+          * @default 'öffnet in neuem Tab'
+         */
+        "labelExternal"?: string;
+        /**
+          * Defaults to `noopener noreferrer` for `external` or `target="_blank"`.
+         */
+        "rel"?: string;
+        "target"?: string;
+        /**
+          * `muted` for secondary links.
+          * @default 'accent'
+         */
+        "tone"?: 'accent' | 'muted';
+    }
+    /**
      * Fill level with thresholds (RAM, flash, temperature, load). Colour goes ok → warn → danger;
      * `neutral` uses the accent for amounts without good/bad.
      */
@@ -3260,6 +3346,16 @@ declare namespace LocalJSX {
         "label": string;
         "mono": boolean;
     }
+    interface KernLinkAttributes {
+        "href": string;
+        "target": string;
+        "rel": string;
+        "download": string;
+        "external": boolean;
+        "tone": 'accent' | 'muted';
+        "disabled": boolean;
+        "labelExternal": string;
+    }
     interface KernMeterAttributes {
         "value": number;
         "max": number;
@@ -3424,6 +3520,7 @@ declare namespace LocalJSX {
         "kern-json": Omit<KernJson, keyof KernJsonAttributes> & { [K in keyof KernJson & keyof KernJsonAttributes]?: KernJson[K] } & { [K in keyof KernJson & keyof KernJsonAttributes as `attr:${K}`]?: KernJsonAttributes[K] } & { [K in keyof KernJson & keyof KernJsonAttributes as `prop:${K}`]?: KernJson[K] };
         "kern-kv": KernKv;
         "kern-kv-item": Omit<KernKvItem, keyof KernKvItemAttributes> & { [K in keyof KernKvItem & keyof KernKvItemAttributes]?: KernKvItem[K] } & { [K in keyof KernKvItem & keyof KernKvItemAttributes as `attr:${K}`]?: KernKvItemAttributes[K] } & { [K in keyof KernKvItem & keyof KernKvItemAttributes as `prop:${K}`]?: KernKvItem[K] } & OneOf<"label", KernKvItem["label"], KernKvItemAttributes["label"]>;
+        "kern-link": Omit<KernLink, keyof KernLinkAttributes> & { [K in keyof KernLink & keyof KernLinkAttributes]?: KernLink[K] } & { [K in keyof KernLink & keyof KernLinkAttributes as `attr:${K}`]?: KernLinkAttributes[K] } & { [K in keyof KernLink & keyof KernLinkAttributes as `prop:${K}`]?: KernLink[K] };
         "kern-meter": Omit<KernMeter, keyof KernMeterAttributes> & { [K in keyof KernMeter & keyof KernMeterAttributes]?: KernMeter[K] } & { [K in keyof KernMeter & keyof KernMeterAttributes as `attr:${K}`]?: KernMeterAttributes[K] } & { [K in keyof KernMeter & keyof KernMeterAttributes as `prop:${K}`]?: KernMeter[K] };
         "kern-page-header": Omit<KernPageHeader, keyof KernPageHeaderAttributes> & { [K in keyof KernPageHeader & keyof KernPageHeaderAttributes]?: KernPageHeader[K] } & { [K in keyof KernPageHeader & keyof KernPageHeaderAttributes as `attr:${K}`]?: KernPageHeaderAttributes[K] } & { [K in keyof KernPageHeader & keyof KernPageHeaderAttributes as `prop:${K}`]?: KernPageHeader[K] } & OneOf<"heading", KernPageHeader["heading"], KernPageHeaderAttributes["heading"]>;
         "kern-progress": Omit<KernProgress, keyof KernProgressAttributes> & { [K in keyof KernProgress & keyof KernProgressAttributes]?: KernProgress[K] } & { [K in keyof KernProgress & keyof KernProgressAttributes as `attr:${K}`]?: KernProgressAttributes[K] } & { [K in keyof KernProgress & keyof KernProgressAttributes as `prop:${K}`]?: KernProgress[K] };
@@ -3537,6 +3634,12 @@ declare module "@stencil/core" {
              * One row of kern-kv. Technical values in `mono`; copyable ones as kern-copy. Unknown: "–", never empty.
              */
             "kern-kv-item": LocalJSX.IntrinsicElements["kern-kv-item"] & JSXBase.HTMLAttributes<HTMLKernKvItemElement>;
+            /**
+             * Text link for running text, table cells and cards. `external` opens a new tab (with `rel="noopener noreferrer"`)
+             * and marks the link with ↗; `tone="muted"` for secondary links; `disabled` keeps the text but removes the link.
+             * For actions use kern-button, also when it navigates.
+             */
+            "kern-link": LocalJSX.IntrinsicElements["kern-link"] & JSXBase.HTMLAttributes<HTMLKernLinkElement>;
             /**
              * Fill level with thresholds (RAM, flash, temperature, load). Colour goes ok → warn → danger;
              * `neutral` uses the accent for amounts without good/bad.

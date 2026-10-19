@@ -1,0 +1,28 @@
+@import '../../utils/field.css';
+
+.dropzone {
+  position: relative; display: grid; justify-items: center; gap: 4px; padding: var(--space-4);
+  border: 1px dashed var(--line-strong); border-radius: var(--radius-md); background: var(--surface-sunken);
+  text-align: center; color: var(--text-muted); font: 400 13px/18px var(--font-sans); transition: border-color .15s, background-color .15s;
+}
+.dropzone.over { border-color: var(--accent); border-style: solid; background: var(--accent-soft); }
+.dropzone.disabled { opacity: .5; }
+:host([invalid]) .dropzone { border-color: var(--danger); }
+.upload { width: 18px; height: 18px; color: var(--text-muted); }
+.choose { all: unset; color: var(--accent-text); font-weight: 600; cursor: pointer; border-radius: 2px; }
+.choose:hover { text-decoration: underline; text-underline-offset: 3px; }
+.choose:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+.choose:disabled { cursor: not-allowed; text-decoration: none; }
+.limits { font-size: 12px; color: var(--text-faint); }
+.native { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
+
+.files { display: grid; gap: 2px; margin: 0; padding: 0; list-style: none; font: 400 13px/18px var(--font-sans); }
+.files li { display: flex; align-items: center; gap: var(--space-2); padding: 4px 4px 4px var(--space-2); border-radius: var(--radius-sm); background: var(--surface-sunken); }
+.name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--text); }
+.size { flex: none; color: var(--text-muted); font-variant-numeric: tabular-nums; }
+.remove { all: unset; display: inline-grid; place-items: center; width: 22px; height: 22px; border-radius: var(--radius-sm); color: var(--text-muted); cursor: pointer; }
+.remove:hover { background: var(--hover); color: var(--text); }
+.remove:focus-visible { outline: 2px solid var(--focus); }
+.remove svg { width: 12px; height: 12px; }
+
+@media (prefers-reduced-motion: reduce) { .dropzone { transition: none; } }

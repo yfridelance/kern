@@ -178,6 +178,7 @@
       <h2>Formular</h2>
       <form id="form" class="grid">
         <kern-ip-input name="range" label="IP-Bereich" value="192.168.1.0/24" max-addresses="1024" hint="Adresse, Bereich (Start–Ende) oder CIDR, max. 1024 Adressen" required></kern-ip-input>
+        <kern-file-input name="firmware" label="Firmware-Datei" accept=".zip,.bin" max-size="16MB" hint="Aus dem Download-Bereich des Herstellers"></kern-file-input>
         <kern-mac-input name="mac" label="MAC-Adresse" value="c82b961a3f00" hint="Jede Schreibweise, z.B. c82b.961a.3f00"></kern-mac-input>
         <kern-ip-input name="gateway" label="Gateway" allow="single" value="192.168.1.1"></kern-ip-input>
         <kern-step-input name="target" label="Zieltemperatur" value="21.5" min="5" max="30" step="0.5" unit="°C"></kern-step-input>

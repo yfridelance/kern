@@ -1,5 +1,5 @@
 import { Component, Event, EventEmitter, Host, Prop, h } from '@stencil/core';
-import { Icon, type IconName } from '../../utils/icons';
+import { Icon, type GlyphName } from '../../utils/icons';
 
 /**
  * One action in kern-menu, with optional icon; `tone="danger"` for destructive actions (Werksreset, Löschen).
@@ -15,7 +15,7 @@ export class KernMenuItem {
   /** Passed in `kernSelect`; defaults to the text. */
   @Prop() value?: string;
   /** Glyph name (see kern-icon). */
-  @Prop() icon?: IconName;
+  @Prop() icon?: GlyphName;
   @Prop({ reflect: true }) tone: 'default' | 'danger' = 'default';
   @Prop({ reflect: true }) disabled = false;
 

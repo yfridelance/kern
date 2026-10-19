@@ -1,8 +1,10 @@
 @import '../../utils/picker.css';
 
+:host { --_field-min: 120px; }
+
 .box { padding: 0 3px; gap: var(--space-1); }
 :host([size="sm"]) .box { padding: 0 2px; }
-.text { text-align: right; }
+.text { text-align: right; --_text-width: 6ch; }
 .unit { flex: none; color: var(--text-muted); font-size: 13px; }
 .step:disabled { opacity: .35; }
 .step:disabled:hover { background: none; }

@@ -1,11 +1,15 @@
 @import '../../utils/field.css';
 
+:host { --_field-min: 120px; }
+
 :host { gap: var(--space-2); }
 .head { display: flex; align-items: baseline; justify-content: space-between; gap: var(--space-3); }
 .shown { font-size: 13px; line-height: 18px; color: var(--text); font-variant-numeric: tabular-nums; white-space: nowrap; }
 
 /* 20px high hit area around a 4px rail; handles centred on their value */
 .track { position: relative; height: 20px; margin: 0 9px; touch-action: none; cursor: pointer; }
+/* Natural width of 160px as a flex item without a width; min = max = the column (percentages) so it always fills it. */
+.track, .marks { inline-size: 160px; min-inline-size: calc(100% - 18px); max-inline-size: calc(100% - 18px); }
 :host([disabled]) .track { opacity: .5; cursor: not-allowed; }
 .rail, .fill { position: absolute; top: 8px; height: 4px; border-radius: 2px; }
 .rail { left: -9px; right: -9px; background: var(--line-strong); opacity: .5; }

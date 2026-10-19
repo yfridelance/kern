@@ -1,7 +1,7 @@
 @import '../../utils/picker.css';
 
 /* Both dates as wide as their content, the buttons at the right end. */
-.text { flex: 0 1 11ch; }
+.text { flex: 0 1 11ch; --_text-width: 11ch; }
 .dash { flex: none; padding: 0 var(--space-2); color: var(--text-muted); }
 .text.end + .icon { margin-left: auto; }
 
@@ -15,8 +15,9 @@
   .presets ::slotted(*) { width: auto; }
 }
 
-/* Narrow columns (two dates need ~250px): tighter type and buttons, down to ~220px. */
-:host { container-type: inline-size; }
+/* Narrow columns (two dates need ~250px): tighter type and buttons, down to ~220px. The size container has no
+   width of its own, so contain-intrinsic-inline-size gives it one as a flex item without a width. */
+:host { container-type: inline-size; contain-intrinsic-inline-size: 270px; --_field-min: 220px; }
 @container (max-width: 259px) {
   .box { padding-left: var(--space-2); }
   .text { font-size: 13px; }

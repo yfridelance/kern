@@ -1,1 +1,6 @@
 @import '../../utils/picker.css';
+
+:host { --_field-min: 136px; }
+
+/* Room for a date or its placeholder (TT.MM.JJJJ, MM/DD/YYYY). */
+.text { --_text-width: 11ch; }

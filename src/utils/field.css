@@ -1,5 +1,10 @@
 /* Shared by kern-input, kern-textarea, kern-select: label, control, hint/error. */
-:host { display: grid; gap: var(--space-1); align-content: start; min-width: 0; }
+/* Never wider than its column (min-width resolves to 0 there, and the parts never widen the host's own column),
+   but as a flex item it does not shrink below --_field-min (set per field), unless the flex row itself is narrower. */
+:host {
+  display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--space-1); align-content: start;
+  min-width: min(100%, var(--_field-min, 0px));
+}
 :host([hidden]) { display: none; }
 * { box-sizing: border-box; }
 

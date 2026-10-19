@@ -1,3 +1,5 @@
 @import '../../utils/field.css';
 
+:host { --_field-min: 150px; }
+
 .control { font-family: var(--font-mono); font-size: 13px; }

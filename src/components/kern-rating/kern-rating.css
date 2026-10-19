@@ -1,0 +1,16 @@
+@import '../../utils/field.css';
+
+:host { justify-items: start; }
+.stars { display: inline-flex; gap: 2px; border-radius: var(--radius-sm); }
+.star { display: inline-grid; place-items: center; color: var(--text-faint); border-radius: var(--radius-sm); }
+.star svg { width: 20px; height: 20px; }
+:host([size="sm"]) .star svg { width: 16px; height: 16px; }
+.star.filled { color: var(--warn); }
+.star.filled svg path { fill: currentColor; }
+.star.preview { opacity: .75; }
+
+[role="radio"] { cursor: pointer; }
+[role="radio"]:focus-visible { outline: 2px solid var(--focus); outline-offset: 1px; }
+:host([disabled]) .stars { opacity: .5; }
+:host([disabled]) [role="radio"] { cursor: not-allowed; }
+:host([invalid]) .star:not(.filled) { color: var(--danger); }

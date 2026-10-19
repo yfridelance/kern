@@ -14,7 +14,7 @@ dort und hier sind dieselben (`tokens/tokens.json`).
 | Layout | `kern-topbar`, `kern-page-header`, `kern-card`, `kern-toolbar` |
 | Navigation | `kern-tabs` + `kern-tab-panel`, `kern-link`, `kern-theme-toggle` |
 | Aktionen | `kern-button` |
-| Formulare | `kern-input`, `kern-ip-input`, `kern-textarea`, `kern-select`, `kern-switch`, `kern-checkbox`, `kern-segmented`, `kern-date-picker`, `kern-date-range-picker`, `kern-time-picker` |
+| Formulare | `kern-input`, `kern-ip-input`, `kern-textarea`, `kern-select`, `kern-switch`, `kern-checkbox`, `kern-segmented`, `kern-date-picker`, `kern-date-range-picker`, `kern-time-picker`, `kern-rating` |
 | Status | `kern-badge`, `kern-status` |
 | Rückmeldung | `kern-alert`, `kern-progress`, `kern-spinner`, `kern-dialog` (+ `confirm()`) |
 | Daten | `kern-table`, `kern-list` + `kern-list-item`, `kern-kv` + `kern-kv-item`, `kern-stat`, `kern-sparkline`, `kern-meter`, `kern-signal`, `kern-copy`, `kern-json` |
@@ -77,10 +77,10 @@ zusätzlich Standalone-Wrapper mit `ControlValueAccessor` für `ngModel` und Rea
 ## Wichtige Verhaltensregeln
 
 - **Formulare:** `kern-input`, `kern-ip-input`, `kern-textarea`, `kern-select`, `kern-switch`, `kern-checkbox`,
-  `kern-segmented`, `kern-date-picker`, `kern-date-range-picker` und `kern-time-picker` sind formularfähig
-  (ElementInternals): `name`, `FormData`, `form.reset()` und `required` funktionieren wie bei nativen Feldern.
-  `kern-button type="submit"` sendet das umgebende Formular. Ein Feld mit `error` gilt als ungültig und **blockiert
-  das Absenden**, bis der Fehler entfernt ist.
+  `kern-segmented`, `kern-date-picker`, `kern-date-range-picker`, `kern-time-picker` und `kern-rating` sind
+  formularfähig (ElementInternals): `name`, `FormData`, `form.reset()` und `required` funktionieren wie bei nativen
+  Feldern. `kern-button type="submit"` sendet das umgebende Formular. Ein Feld mit `error` gilt als ungültig und
+  **blockiert das Absenden**, bis der Fehler entfernt ist.
 - **IPv4:** `kern-ip-input` nimmt eine Adresse (`192.168.1.10`), einen Bereich (`192.168.1.10-192.168.1.50`, auch
   `192.168.1.10-50`) oder CIDR (`192.168.1.0/24`) und normalisiert beim Verlassen (Host-Adresse in CIDR → Netz,
   umgekehrter Bereich → getauscht). `allow="single range cidr"` und `max-addresses` begrenzen; Bereiche zeigen ihre
@@ -115,6 +115,9 @@ zusätzlich Standalone-Wrapper mit `ControlValueAccessor` für `ngModel` und Rea
   Bereiche. Ein Ende vor dem Start wird getauscht, `max-days` begrenzt die Länge. Im Popover zwei Monate (schmal: einer).
   Schnellauswahl über Slot `presets`: Elemente mit `data-range="P7D"` (Dauer bis heute, inkl. heute) oder
   `data-start`/`data-end`.
+- **Bewertung:** `kern-rating` ist eine Radiogruppe aus `max` Sternen (Standard 5) mit einem Tab-Stopp; Pfeile,
+  Home/End und Ziffern setzen den Wert, `clearable` erlaubt 0 (0/Backspace oder Klick auf den aktuellen Stern).
+  `readonly` zeigt nur an («4 von 5 Sternen»). Wert ist eine Zahl, im Formular leer bei 0.
 - **Listen:** `kern-list` mit `kern-list-item` für Zeilen mit Icon/Status (`slot="start"`), Titel, Beschreibung, Meta
   (`slot="meta"`, z.B. `kern-date relative`) und Aktionen (`slot="end"`). Mit `href` wird die Zeile ein Link, mit
   `clickable` ein Button (`kernItemClick`); Aktionen liegen daneben und lösen die Zeile nie aus. `flush` in Karten,

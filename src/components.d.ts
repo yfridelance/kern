@@ -857,6 +857,62 @@ export namespace Components {
         "valueText"?: string;
     }
     /**
+     * Star rating 1–`max`, form-associated (value 0 = not rated). A radio group with one tab stop: arrow keys change the
+     * rating, Home/End jump, with `clearable` 0/Backspace or a click on the current star clears it. Hovering previews.
+     * `readonly` only shows the rating („4 von 5 Sternen“).
+     */
+    interface KernRating {
+        /**
+          * Accessible name when there is no visible label.
+         */
+        "ariaLabelText"?: string;
+        /**
+          * Allows going back to 0 (not rated).
+          * @default false
+         */
+        "clearable": boolean;
+        /**
+          * @default false
+         */
+        "disabled": boolean;
+        "error"?: string;
+        "hint"?: string;
+        "label"?: string;
+        /**
+          * Name of each star and the read-only rating; `{n}` and `{max}` are replaced.
+          * @default '{n} von {max} Sternen'
+         */
+        "labelValue": string;
+        /**
+          * Number of stars.
+          * @default 5
+         */
+        "max": number;
+        "name"?: string;
+        /**
+          * Display only, no interaction.
+          * @default false
+         */
+        "readonly": boolean;
+        /**
+          * @default false
+         */
+        "required": boolean;
+        /**
+          * Focuses the selected star (or the first).
+         */
+        "setFocus": () => Promise<void>;
+        /**
+          * @default 'md'
+         */
+        "size": 'md' | 'sm';
+        /**
+          * Number of filled stars, 0 = not rated.
+          * @default 0
+         */
+        "value": number;
+    }
+    /**
      * Compact single choice for 2–5 short options (filters, Stable/Beta, DHCP/Statisch), form-associated.
      * Options from the `options` property or child `<option>` elements. Arrow keys move the selection.
      */
@@ -1348,6 +1404,10 @@ export interface KernListItemCustomEvent<T> extends CustomEvent<T> {
     detail: T;
     target: HTMLKernListItemElement;
 }
+export interface KernRatingCustomEvent<T> extends CustomEvent<T> {
+    detail: T;
+    target: HTMLKernRatingElement;
+}
 export interface KernSegmentedCustomEvent<T> extends CustomEvent<T> {
     detail: T;
     target: HTMLKernSegmentedElement;
@@ -1704,6 +1764,28 @@ declare global {
         prototype: HTMLKernProgressElement;
         new (): HTMLKernProgressElement;
     };
+    interface HTMLKernRatingElementEventMap {
+        "kernChange": { value: number };
+    }
+    /**
+     * Star rating 1–`max`, form-associated (value 0 = not rated). A radio group with one tab stop: arrow keys change the
+     * rating, Home/End jump, with `clearable` 0/Backspace or a click on the current star clears it. Hovering previews.
+     * `readonly` only shows the rating („4 von 5 Sternen“).
+     */
+    interface HTMLKernRatingElement extends Components.KernRating, HTMLStencilElement {
+        addEventListener<K extends keyof HTMLKernRatingElementEventMap>(type: K, listener: (this: HTMLKernRatingElement, ev: KernRatingCustomEvent<HTMLKernRatingElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLKernRatingElementEventMap>(type: K, listener: (this: HTMLKernRatingElement, ev: KernRatingCustomEvent<HTMLKernRatingElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
+    }
+    var HTMLKernRatingElement: {
+        prototype: HTMLKernRatingElement;
+        new (): HTMLKernRatingElement;
+    };
     interface HTMLKernSegmentedElementEventMap {
         "kernChange": { value: string };
     }
@@ -1971,6 +2053,7 @@ declare global {
         "kern-meter": HTMLKernMeterElement;
         "kern-page-header": HTMLKernPageHeaderElement;
         "kern-progress": HTMLKernProgressElement;
+        "kern-rating": HTMLKernRatingElement;
         "kern-segmented": HTMLKernSegmentedElement;
         "kern-select": HTMLKernSelectElement;
         "kern-signal": HTMLKernSignalElement;
@@ -2863,6 +2946,66 @@ declare namespace LocalJSX {
         "valueText"?: string;
     }
     /**
+     * Star rating 1–`max`, form-associated (value 0 = not rated). A radio group with one tab stop: arrow keys change the
+     * rating, Home/End jump, with `clearable` 0/Backspace or a click on the current star clears it. Hovering previews.
+     * `readonly` only shows the rating („4 von 5 Sternen“).
+     */
+    interface KernRating {
+        /**
+          * Accessible name when there is no visible label.
+         */
+        "ariaLabelText"?: string;
+        /**
+          * Allows going back to 0 (not rated).
+          * @default false
+         */
+        "clearable"?: boolean;
+        /**
+          * @default false
+         */
+        "disabled"?: boolean;
+        "error"?: string;
+        /**
+          * The `id` of a `<form>` element to associate this element with.
+         */
+        "form"?: string;
+        "hint"?: string;
+        "label"?: string;
+        /**
+          * Name of each star and the read-only rating; `{n}` and `{max}` are replaced.
+          * @default '{n} von {max} Sternen'
+         */
+        "labelValue"?: string;
+        /**
+          * Number of stars.
+          * @default 5
+         */
+        "max"?: number;
+        "name"?: string;
+        /**
+          * When the rating changes.
+         */
+        "onKernChange"?: (event: KernRatingCustomEvent<{ value: number }>) => void;
+        /**
+          * Display only, no interaction.
+          * @default false
+         */
+        "readonly"?: boolean;
+        /**
+          * @default false
+         */
+        "required"?: boolean;
+        /**
+          * @default 'md'
+         */
+        "size"?: 'md' | 'sm';
+        /**
+          * Number of filled stars, 0 = not rated.
+          * @default 0
+         */
+        "value"?: number;
+    }
+    /**
      * Compact single choice for 2–5 short options (filters, Stable/Beta, DHCP/Statisch), form-associated.
      * Options from the `options` property or child `<option>` elements. Arrow keys move the selection.
      */
@@ -3547,6 +3690,21 @@ declare namespace LocalJSX {
         "label": string;
         "valueText": string;
     }
+    interface KernRatingAttributes {
+        "label": string;
+        "hint": string;
+        "error": string;
+        "value": number;
+        "name": string;
+        "max": number;
+        "clearable": boolean;
+        "readonly": boolean;
+        "disabled": boolean;
+        "required": boolean;
+        "size": 'md' | 'sm';
+        "ariaLabelText": string;
+        "labelValue": string;
+    }
     interface KernSegmentedAttributes {
         "value": string;
         "name": string;
@@ -3698,6 +3856,7 @@ declare namespace LocalJSX {
         "kern-meter": Omit<KernMeter, keyof KernMeterAttributes> & { [K in keyof KernMeter & keyof KernMeterAttributes]?: KernMeter[K] } & { [K in keyof KernMeter & keyof KernMeterAttributes as `attr:${K}`]?: KernMeterAttributes[K] } & { [K in keyof KernMeter & keyof KernMeterAttributes as `prop:${K}`]?: KernMeter[K] };
         "kern-page-header": Omit<KernPageHeader, keyof KernPageHeaderAttributes> & { [K in keyof KernPageHeader & keyof KernPageHeaderAttributes]?: KernPageHeader[K] } & { [K in keyof KernPageHeader & keyof KernPageHeaderAttributes as `attr:${K}`]?: KernPageHeaderAttributes[K] } & { [K in keyof KernPageHeader & keyof KernPageHeaderAttributes as `prop:${K}`]?: KernPageHeader[K] } & OneOf<"heading", KernPageHeader["heading"], KernPageHeaderAttributes["heading"]>;
         "kern-progress": Omit<KernProgress, keyof KernProgressAttributes> & { [K in keyof KernProgress & keyof KernProgressAttributes]?: KernProgress[K] } & { [K in keyof KernProgress & keyof KernProgressAttributes as `attr:${K}`]?: KernProgressAttributes[K] } & { [K in keyof KernProgress & keyof KernProgressAttributes as `prop:${K}`]?: KernProgress[K] };
+        "kern-rating": Omit<KernRating, keyof KernRatingAttributes> & { [K in keyof KernRating & keyof KernRatingAttributes]?: KernRating[K] } & { [K in keyof KernRating & keyof KernRatingAttributes as `attr:${K}`]?: KernRatingAttributes[K] } & { [K in keyof KernRating & keyof KernRatingAttributes as `prop:${K}`]?: KernRating[K] };
         "kern-segmented": Omit<KernSegmented, keyof KernSegmentedAttributes> & { [K in keyof KernSegmented & keyof KernSegmentedAttributes]?: KernSegmented[K] } & { [K in keyof KernSegmented & keyof KernSegmentedAttributes as `attr:${K}`]?: KernSegmentedAttributes[K] } & { [K in keyof KernSegmented & keyof KernSegmentedAttributes as `prop:${K}`]?: KernSegmented[K] };
         "kern-select": Omit<KernSelect, keyof KernSelectAttributes> & { [K in keyof KernSelect & keyof KernSelectAttributes]?: KernSelect[K] } & { [K in keyof KernSelect & keyof KernSelectAttributes as `attr:${K}`]?: KernSelectAttributes[K] } & { [K in keyof KernSelect & keyof KernSelectAttributes as `prop:${K}`]?: KernSelect[K] };
         "kern-signal": Omit<KernSignal, keyof KernSignalAttributes> & { [K in keyof KernSignal & keyof KernSignalAttributes]?: KernSignal[K] } & { [K in keyof KernSignal & keyof KernSignalAttributes as `attr:${K}`]?: KernSignalAttributes[K] } & { [K in keyof KernSignal & keyof KernSignalAttributes as `prop:${K}`]?: KernSignal[K] };
@@ -3840,6 +3999,12 @@ declare module "@stencil/core" {
              * without `value` it runs as an indeterminate band (firmware update, reboot).
              */
             "kern-progress": LocalJSX.IntrinsicElements["kern-progress"] & JSXBase.HTMLAttributes<HTMLKernProgressElement>;
+            /**
+             * Star rating 1–`max`, form-associated (value 0 = not rated). A radio group with one tab stop: arrow keys change the
+             * rating, Home/End jump, with `clearable` 0/Backspace or a click on the current star clears it. Hovering previews.
+             * `readonly` only shows the rating („4 von 5 Sternen“).
+             */
+            "kern-rating": LocalJSX.IntrinsicElements["kern-rating"] & JSXBase.HTMLAttributes<HTMLKernRatingElement>;
             /**
              * Compact single choice for 2–5 short options (filters, Stable/Beta, DHCP/Statisch), form-associated.
              * Options from the `options` property or child `<option>` elements. Arrow keys move the selection.

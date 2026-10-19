@@ -1,4 +1,4 @@
-import { Component, Element, Event, EventEmitter, Method, Prop, Watch } from '@stencil/core';
+import { Component, Element, Event, EventEmitter, Listen, Method, Prop, Watch } from '@stencil/core';
 import { resolveLocale } from '../../utils/datetime';
 import { isBlank, sortByValue, type KernSortDirection, type KernTableColumn } from './sort';
 
@@ -15,6 +15,10 @@ const INTERACTIVE = 'a, button, input, select, textarea, label, summary, [role="
  *
  * Data mode: with `columns` (and `rows`) the table builds its own `<table>`; don't combine it with own markup.
  * Assign new arrays to update it.
+ *
+ * Pagination: `page-size` adds a `kern-pagination` below the rows. `internal` pages the rows itself (back to page 1
+ * after sorting); `external` shows the rows it gets and the app loads a page on `kernPageChange` (bubbles from the
+ * embedded pagination) and sets `total`. Labels: set them on `table.querySelector('kern-pagination')`.
  *
  * @slot - A native `<table>` (not in data mode)
  */
@@ -51,6 +55,14 @@ export class KernTable {
   @Prop() loadingRows = 3;
   /** Data mode: shown when `rows` is empty. */
   @Prop() labelEmpty = 'Keine Einträge';
+  /** Rows per page; turns the pagination on. */
+  @Prop({ mutable: true }) pageSize?: number;
+  /** Current page, from 1. */
+  @Prop({ mutable: true }) page = 1;
+  /** Offered page sizes, e.g. `10,25,50`; empty hides the choice. */
+  @Prop() pageSizes: number[] | string = '';
+  /** `controlled="external"`: number of all rows (the table only gets the current page). */
+  @Prop() total?: number;
 
   /** A sortable header was activated (or `sortBy()` called), with the requested direction. Cancelable: `preventDefault()` skips the built-in sort. */
   @Event({ cancelable: true }) kernSort!: EventEmitter<{ key: string; column: number; direction: KernSortDirection }>;
@@ -67,7 +79,11 @@ export class KernTable {
     this.el.addEventListener('click', this.onClick);
     if (typeof MutationObserver === 'undefined') return; // server-side / test DOM
     // Header changes from outside (e.g. Angular `[attr.sorted]`): only aria-sort and buttons follow, rows are not re-sorted.
-    this.observer = new MutationObserver(() => this.sync());
+    this.observer = new MutationObserver((records) => {
+      this.sync();
+      // Rows added or replaced by the app: page them again (moving rows only, no attributes it watches).
+      if (records.some((r) => r.type === 'childList' && /^(TBODY|TABLE)$/.test((r.target as Element).nodeName))) this.applyPaging();
+    });
     this.observer.observe(this.el, { childList: true, subtree: true, attributes: true, attributeFilter: ['sortable', 'sorted'] });
   }
 
@@ -82,6 +98,7 @@ export class KernTable {
     this.busy();
     const th = this.headers().find((h) => this.direction(h));
     if (th && this.controlled === 'internal') this.sortRows(this.column(th), this.direction(th)!);
+    this.applyPaging();
   }
 
   /** New columns: header rebuilt, sort taken from `columns[].sorted`. */
@@ -104,6 +121,23 @@ export class KernTable {
   onRows() {
     this.buildBody();
     this.busy();
+  }
+
+  @Watch('page')
+  @Watch('pageSize')
+  @Watch('pageSizes')
+  @Watch('total')
+  onPaging() {
+    if (this.columns) this.buildBody();
+    else this.applyPaging();
+  }
+
+  /** The embedded pagination changed page or size; the event keeps bubbling for the app. */
+  @Listen('kernPageChange')
+  onPageChange(ev: CustomEvent<{ page: number; pageSize: number }>) {
+    if (ev.target !== this.pager()) return;
+    this.pageSize = ev.detail.pageSize;
+    this.page = ev.detail.page;
   }
 
   /** Sorts by a column (`data-key` or index); without `direction` it toggles, starting with `asc`. With `controlled="external"` it only emits `kernSort`. */
@@ -149,8 +183,58 @@ export class KernTable {
     if (this.columns) {
       this.sortKey = key;
       this.sortDir = next;
-      this.buildBody(); // body only: the header button keeps focus
     } else this.sortRows(column, next);
+    if (this.page !== 1) this.page = 1; // the watcher re-pages
+    else this.onPaging(); // data mode: body only, so the header button keeps focus
+  }
+
+  /** Internal paging: first and last+1 index of the current page among `count` rows; clamps `page`. */
+  private range(count: number): [number, number] {
+    const size = Math.max(1, this.pageSize!);
+    const pages = Math.max(1, Math.ceil(count / size));
+    const page = Math.min(Math.max(1, this.page || 1), pages);
+    if (page !== this.page) this.page = page;
+    return [(page - 1) * size, page * size];
+  }
+
+  private paged() {
+    return !!this.pageSize && this.controlled === 'internal';
+  }
+
+  /** The embedded pagination; created, updated or removed with `page-size`. */
+  private pager(count?: number): HTMLElement | undefined {
+    let p = this.children(this.el, 'kern-pagination').find((x) => x.hasAttribute('data-kern-generated')) as any;
+    if (count === undefined) return p;
+    if (!this.pageSize) return void p?.remove();
+    if (!p) {
+      p = document.createElement('kern-pagination');
+      p.setAttribute('data-kern-generated', '');
+      this.el.append(p);
+    }
+    Object.assign(p, {
+      total: this.controlled === 'external' ? this.total ?? 0 : count,
+      page: this.page,
+      pageSize: this.pageSize,
+      pageSizes: this.pageSizes,
+    });
+    return p;
+  }
+
+  /** Markup mode: rows outside the page get `data-kern-paged-out` (the app's own `hidden` rows don't count). */
+  private applyPaging() {
+    if (this.columns) return;
+    const rows = this.children(this.table(), 'tbody')
+      .flatMap((tb) => this.children(tb, 'tr'))
+      .filter((r) => !this.isFiller(r) && !r.hasAttribute('hidden'));
+    const [from, to] = this.paged() ? this.range(rows.length) : [0, rows.length];
+    rows.forEach((r, i) => {
+      const out = i < from || i >= to;
+      if (out !== r.hasAttribute('data-kern-paged-out')) {
+        if (out) r.setAttribute('data-kern-paged-out', '');
+        else r.removeAttribute('data-kern-paged-out');
+      }
+    });
+    this.pager(rows.length);
   }
 
   /** Header cells of the last header row (the one that names the columns). */
@@ -236,7 +320,7 @@ export class KernTable {
       table = document.createElement('table');
       table.setAttribute('data-kern-generated', '');
       table.append(document.createElement('thead'), document.createElement('tbody'));
-      this.el.append(table);
+      this.el.insertBefore(table, this.pager() ?? null);
     }
     return { table, thead: this.children(table, 'thead')[0], tbody: this.children(table, 'tbody')[0] };
   }
@@ -281,8 +365,9 @@ export class KernTable {
       col && this.sortDir && this.controlled === 'internal'
         ? sortByValue(items, ({ row }) => (col.sortValue ? col.sortValue(row) : row?.[col.key]), this.sortDir, this.collator())
         : items;
+    const visible = this.paged() ? ordered.slice(...this.range(ordered.length)) : ordered;
 
-    const trs = ordered.map(({ row, index }) => {
+    const trs = visible.map(({ row, index }) => {
       const tr = document.createElement('tr');
       const rowCls = this.getRowClass?.(row, index);
       if (rowCls) tr.className = rowCls;
@@ -322,6 +407,7 @@ export class KernTable {
     }
     this.replace(tbody, trs);
     this.busy();
+    this.pager(ordered.length);
   }
 
   /** Like replaceChildren (not in every test DOM). */

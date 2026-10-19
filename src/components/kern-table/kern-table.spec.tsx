@@ -220,4 +220,86 @@ describe('kern-table', () => {
     await page.waitForChanges();
     expect(page.root!.querySelector('table')!.hasAttribute('aria-busy')).toBe(false);
   });
+
+  describe('pagination', () => {
+    const many = Array.from({ length: 12 }, (_, i) => ({ n: i + 1 }));
+    async function data(attrs = '') {
+      const page = await newSpecPage({ components: [KernTable], html: `<kern-table${attrs}></kern-table>` });
+      const el = page.root as any;
+      el.columns = [{ key: 'n', label: 'N', sortable: true }];
+      el.rows = many;
+      await page.waitForChanges();
+      const shown = () => Array.from(el.querySelectorAll('tbody td')).map((t: any) => t.textContent);
+      const pager = () => el.querySelector('kern-pagination[data-kern-generated]');
+      const turn = async (p: number, size = el.pageSize) => {
+        pager().dispatchEvent(new CustomEvent('kernPageChange', { detail: { page: p, pageSize: size }, bubbles: true }));
+        await page.waitForChanges();
+      };
+      return { page, el, shown, pager, turn };
+    }
+
+    it('adds no pagination without page-size', async () => {
+      const { pager, shown } = await data();
+      expect(pager()).toBeNull();
+      expect(shown().length).toBe(12);
+    });
+
+    it('pages data internally, follows kernPageChange and clamps', async () => {
+      const { page, el, shown, pager, turn } = await data(' page-size="5"');
+      expect(shown()).toEqual(['1', '2', '3', '4', '5']);
+      expect(pager().total).toBe(12);
+      expect(pager().pageSize).toBe(5);
+      await turn(3);
+      expect(shown()).toEqual(['11', '12']);
+      expect(el.page).toBe(3);
+      el.rows = many.slice(0, 7);
+      await page.waitForChanges();
+      expect(el.page).toBe(2);
+      expect(shown()).toEqual(['6', '7']);
+      await turn(1, 10);
+      expect(shown().length).toBe(7);
+    });
+
+    it('goes back to page 1 after sorting', async () => {
+      const { page, el, shown, turn } = await data(' page-size="5"');
+      await turn(2);
+      el.querySelector('th button').click();
+      await page.waitForChanges();
+      expect(el.page).toBe(1);
+      expect(shown()).toEqual(['1', '2', '3', '4', '5']);
+      el.querySelector('th button').click();
+      await page.waitForChanges();
+      expect(shown()).toEqual(['12', '11', '10', '9', '8']);
+    });
+
+    it('shows all given rows and the app total when external', async () => {
+      const { page, el, shown, pager } = await data(' controlled="external" page-size="5"');
+      el.total = 120;
+      el.page = 4;
+      await page.waitForChanges();
+      expect(shown().length).toBe(12);
+      expect(pager().total).toBe(120);
+      expect(pager().page).toBe(4);
+    });
+
+    it('pages own markup with data-kern-paged-out, keeping filler and hidden rows out of the count', async () => {
+      const page = await newSpecPage({
+        components: [KernTable],
+        html: `<kern-table page-size="2"><table><thead><tr><th>N</th></tr></thead><tbody>
+          <tr><td>a</td></tr><tr hidden><td>x</td></tr><tr><td>b</td></tr><tr><td>c</td></tr><tr><td colspan="2" class="empty">-</td></tr>
+        </tbody></table></kern-table>`,
+      });
+      const el = page.root as any;
+      const visible = () => Array.from(el.querySelectorAll('tbody tr:not([data-kern-paged-out]):not([hidden])')).map((r: any) => r.textContent.trim());
+      expect(visible()).toEqual(['a', 'b', '-']);
+      expect(el.querySelector('kern-pagination').total).toBe(3);
+      el.page = 2;
+      await page.waitForChanges();
+      expect(visible()).toEqual(['c', '-']);
+      el.pageSize = undefined;
+      await page.waitForChanges();
+      expect(visible()).toEqual(['a', 'b', 'c', '-']);
+      expect(el.querySelector('kern-pagination')).toBeNull();
+    });
+  });
 });

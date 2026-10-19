@@ -38,3 +38,9 @@ kern-table[loading] thead tr:last-child th {
 kern-table tr.skeleton td kern-skeleton { display: block; max-width: 120px; }
 kern-table tr.skeleton td.num kern-skeleton { margin-left: auto; max-width: 48px; }
 kern-table tbody tr.skeleton:hover td { background: none; }
+kern-table tbody tr[data-kern-paged-out] { display: none; }
+/* Pagination footer: stays in view while the table scrolls sideways or down; covers the last row's border. */
+kern-table > kern-pagination[data-kern-generated] {
+  position: sticky; left: 0; bottom: 0; z-index: 2; margin-top: -1px;
+  padding: var(--space-2) var(--space-3); background: var(--surface); border-top: 1px solid var(--line);
+}

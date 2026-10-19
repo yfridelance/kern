@@ -14,3 +14,4 @@ export type { KernMacFormat } from './utils/mac';
 export type { IconName } from './utils/icons';
 export type { KernIpv4, KernIpKind } from './utils/ip';
 export type { KernOption } from './components/kern-select/kern-select';
+export type { KernTableColumn, KernSortDirection } from './components/kern-table/sort';

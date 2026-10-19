@@ -24,3 +24,17 @@ kern-table th[aria-sort="ascending"] button::after { content: "▲"; font-size: 
 kern-table th[aria-sort="descending"] button::after { content: "▼"; font-size: 8px; color: var(--accent-text); }
 kern-table th[sortable]:not([sortable="false"]):not([aria-sort]) button::after { content: "↕"; font-size: 10px; color: var(--text-faint); opacity: 0; }
 kern-table th[sortable]:not([sortable="false"]) button:is(:hover, :focus-visible)::after { opacity: 1; }
+kern-table[loading] tbody { opacity: .5; pointer-events: none; transition: opacity .15s; }
+kern-table[loading] tbody tr.skeleton { opacity: 1; }
+kern-table[loading] thead tr:last-child th {
+  background-image: linear-gradient(90deg, transparent, var(--accent), transparent);
+  background-repeat: no-repeat; background-size: 40% 2px; background-position: -40% 100%;
+  animation: kern-table-loading 1.2s ease-in-out infinite;
+}
+@keyframes kern-table-loading { to { background-position: 140% 100%; } }
+@media (prefers-reduced-motion: reduce) {
+  kern-table[loading] thead tr:last-child th { animation: none; background-size: 100% 2px; background-image: linear-gradient(var(--accent), var(--accent)); }
+}
+kern-table tr.skeleton td kern-skeleton { display: block; max-width: 120px; }
+kern-table tr.skeleton td.num kern-skeleton { margin-left: auto; max-width: 48px; }
+kern-table tbody tr.skeleton:hover td { background: none; }

@@ -14,6 +14,9 @@ Cells: `class="mono"` (IP, MAC, IDs), `class="num"` (right-aligned figures).
 Rows: `class="clickable"`, `aria-selected="true"`, `class="dim"` (reset/inactive).
 Empty state: `<td colspan="…" class="empty">`.
 
+Data mode: with `columns` (and `rows`) the table builds its own `<table>`; don't combine it with own markup.
+Assign new arrays to update it.
+
 ## Usage
 
 ### 01-device-table
@@ -168,20 +171,103 @@ When a filter matches nothing, render a single cell spanning all columns with `c
 ```
 
 
+### 05-data
+
+# Built from data
+
+Set `columns` and `rows` and the table builds its own `<table>`; don't combine this with own markup. Each column reads `row[key]`; `cell` returns a Node (for components like `kern-signal`) or text, `sortValue` what to sort by. `getRowClass`, `getCellClass` and `getHeaderCellClass` add classes; `kernRowClick` reports clicks on a row (not on buttons or fields in it). Assign new arrays to update the table. Sorting, `controlled` and `sortBy()` work as with markup.
+
+```html
+<kern-table></kern-table>
+<p class="last-click">Click a row.</p>
+```
+
+```js
+const el = (tag, attrs, text) => Object.assign(document.createElement(tag), attrs, text ? { textContent: text } : {});
+const table = root.querySelector('kern-table');
+table.columns = [
+  { key: 'name', label: 'Name', sortable: true, sorted: 'asc' },
+  { key: 'ip', label: 'IP', sortable: true, mono: true },
+  {
+    key: 'rssi', label: 'Signal', sortable: true,
+    cell: (d) => (d.rssi == null ? '–' : Object.assign(el('kern-signal'), { rssi: d.rssi, hideValue: true, label: 'Wi-Fi signal' })),
+  },
+  {
+    key: 'online', label: 'Status',
+    cell: (d) => Object.assign(el('kern-status', {}, d.online ? 'Active' : 'Missing'), { tone: d.online ? 'ok' : 'warn' }),
+  },
+  { key: 'power', label: 'Power (W)', sortable: true, align: 'end' },
+];
+table.rows = [
+  { name: 'Kitchen light', ip: '192.168.1.34', rssi: -71, online: true, power: 9 },
+  { name: 'Bathroom fan', ip: '192.168.1.21', rssi: -58, online: true, power: 42 },
+  { name: 'Shutter south', ip: '192.168.1.52', rssi: -84, online: false, power: null },
+  { name: 'Garage door', ip: null, rssi: null, online: false, power: null, reset: true },
+];
+table.getRowClass = (d) => (d.reset ? 'dim' : 'clickable');
+table.addEventListener('kernRowClick', (ev) => {
+  root.querySelector('.last-click').textContent = `Clicked: ${ev.detail.row.name}`;
+});
+```
+
+
+### 06-loading
+
+# Loading
+
+`loading` dims the content, shows a bar under the header and sets `aria-busy`. In data mode without rows it shows `loading-rows` skeleton rows instead; `label-empty` is the text for empty data. `loading` works with markup too.
+
+```html
+<kern-button>Reload</kern-button>
+<kern-table loading></kern-table>
+```
+
+```js
+const table = root.querySelector('kern-table');
+const data = [
+  { name: 'Kitchen light', uptime: 412 },
+  { name: 'Bathroom fan', uptime: 99 },
+];
+table.columns = [
+  { key: 'name', label: 'Name', sortable: true },
+  { key: 'uptime', label: 'Uptime (h)', sortable: true, align: 'end' },
+];
+table.rows = [];
+const load = () => {
+  table.loading = true;
+  setTimeout(() => {
+    table.rows = data.map((d) => ({ ...d, uptime: d.uptime + Math.floor(Math.random() * 5) }));
+    table.loading = false;
+  }, 1500);
+};
+root.querySelector('kern-button').addEventListener('click', load);
+load();
+```
+
+
 
 ## Properties
 
-| Property     | Attribute    | Description                                                                                                                                 | Type                       | Default      |
-| ------------ | ------------ | ------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------- | ------------ |
-| `compact`    | `compact`    | 30px rows instead of 36px.                                                                                                                  | `boolean`                  | `false`      |
-| `controlled` | `controlled` | `internal`: the table sorts its rows itself. `external`: it only emits `kernSort`; the app orders the rows and sets `sorted` on the header. | `"external" \| "internal"` | `'internal'` |
+| Property             | Attribute      | Description                                                                                                                                                                                   | Type                                                                                            | Default            |
+| -------------------- | -------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------- | ------------------ |
+| `columns`            | --             | Data mode: column definitions. The table builds its own `<table>` from them and `rows`.                                                                                                       | `KernTableColumn<any>[] \| undefined`                                                           | `undefined`        |
+| `compact`            | `compact`      | 30px rows instead of 36px.                                                                                                                                                                    | `boolean`                                                                                       | `false`            |
+| `controlled`         | `controlled`   | `internal`: the table sorts its rows itself. `external`: it only emits `kernSort`; the app orders the rows and sets `sorted` on the header (in data mode: new `rows` and `columns[].sorted`). | `"external" \| "internal"`                                                                      | `'internal'`       |
+| `getCellClass`       | --             | Data mode: classes for a cell.                                                                                                                                                                | `((row: any, column: KernTableColumn<any>, index: number) => string \| undefined) \| undefined` | `undefined`        |
+| `getHeaderCellClass` | --             | Data mode: classes for a header cell.                                                                                                                                                         | `((column: KernTableColumn<any>) => string \| undefined) \| undefined`                          | `undefined`        |
+| `getRowClass`        | --             | Data mode: classes for a row, e.g. `clickable` or `dim`.                                                                                                                                      | `((row: any, index: number) => string \| undefined) \| undefined`                               | `undefined`        |
+| `labelEmpty`         | `label-empty`  | Data mode: shown when `rows` is empty.                                                                                                                                                        | `string`                                                                                        | `'Keine Einträge'` |
+| `loading`            | `loading`      | Loading: content dimmed, a bar under the header, `aria-busy`; in data mode without rows, skeleton rows.                                                                                       | `boolean`                                                                                       | `false`            |
+| `loadingRows`        | `loading-rows` | Data mode: number of skeleton rows while loading without rows.                                                                                                                                | `number`                                                                                        | `3`                |
+| `rows`               | --             | Data mode: one object per row; each column reads `row[column.key]`.                                                                                                                           | `any[] \| undefined`                                                                            | `undefined`        |
 
 
 ## Events
 
-| Event      | Description                                                                                                                                   | Type                                                                          |
-| ---------- | --------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------- |
-| `kernSort` | A sortable header was activated (or `sortBy()` called), with the requested direction. Cancelable: `preventDefault()` skips the built-in sort. | `CustomEvent<{ key: string; column: number; direction: KernSortDirection; }>` |
+| Event          | Description                                                                                                                                   | Type                                                                          |
+| -------------- | --------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------- |
+| `kernRowClick` | Data mode: a row was clicked (not on a button, link or field in it). `index` is the position in `rows`.                                       | `CustomEvent<{ row: any; index: number; }>`                                   |
+| `kernSort`     | A sortable header was activated (or `sortBy()` called), with the requested direction. Cancelable: `preventDefault()` skips the built-in sort. | `CustomEvent<{ key: string; column: number; direction: KernSortDirection; }>` |
 
 
 ## Methods
@@ -206,10 +292,23 @@ Type: `Promise<void>`
 
 ## Slots
 
-| Slot | Description        |
-| ---- | ------------------ |
-|      | A native `<table>` |
+| Slot | Description                           |
+| ---- | ------------------------------------- |
+|      | A native `<table>` (not in data mode) |
 
+
+## Dependencies
+
+### Depends on
+
+- [kern-skeleton](../kern-skeleton)
+
+### Graph
+```mermaid
+graph TD;
+  kern-table --> kern-skeleton
+  style kern-table fill:#f9f,stroke:#333,stroke-width:4px
+```
 
 ----------------------------------------------
 

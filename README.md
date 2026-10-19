@@ -17,7 +17,7 @@ dort und hier sind dieselben (`tokens/tokens.json`).
 | Formulare | `kern-input`, `kern-ip-input`, `kern-textarea`, `kern-select`, `kern-switch`, `kern-checkbox`, `kern-segmented`, `kern-date-picker`, `kern-date-range-picker`, `kern-time-picker` |
 | Status | `kern-badge`, `kern-status` |
 | Rückmeldung | `kern-alert`, `kern-progress`, `kern-spinner`, `kern-dialog` (+ `confirm()`) |
-| Daten | `kern-table`, `kern-kv` + `kern-kv-item`, `kern-stat`, `kern-sparkline`, `kern-meter`, `kern-signal`, `kern-copy`, `kern-json` |
+| Daten | `kern-table`, `kern-list` + `kern-list-item`, `kern-kv` + `kern-kv-item`, `kern-stat`, `kern-sparkline`, `kern-meter`, `kern-signal`, `kern-copy`, `kern-json` |
 | Datum & Zeit | `kern-date`, `kern-time`, `kern-calendar` |
 
 Props, Events, Slots und Parts jeder Komponente: `src/components/<tag>/readme.md` (aus dem Code erzeugt).
@@ -115,6 +115,10 @@ zusätzlich Standalone-Wrapper mit `ControlValueAccessor` für `ngModel` und Rea
   Bereiche. Ein Ende vor dem Start wird getauscht, `max-days` begrenzt die Länge. Im Popover zwei Monate (schmal: einer).
   Schnellauswahl über Slot `presets`: Elemente mit `data-range="P7D"` (Dauer bis heute, inkl. heute) oder
   `data-start`/`data-end`.
+- **Listen:** `kern-list` mit `kern-list-item` für Zeilen mit Icon/Status (`slot="start"`), Titel, Beschreibung, Meta
+  (`slot="meta"`, z.B. `kern-date relative`) und Aktionen (`slot="end"`). Mit `href` wird die Zeile ein Link, mit
+  `clickable` ein Button (`kernItemClick`); Aktionen liegen daneben und lösen die Zeile nie aus. `flush` in Karten,
+  `empty` für die leere Liste.
 - **Links:** `kern-link` für Links im Text, in Tabellen und Karten; `external` öffnet einen neuen Tab (mit
   `rel="noopener noreferrer"`, ↗ und Hinweis für Screenreader), `tone="muted"` für Nebensächliches. Aktionen bleiben
   `kern-button` (auch mit `href`).

@@ -31,6 +31,8 @@ body:
         - kern-kv
         - kern-kv-item
         - kern-link
+        - kern-list
+        - kern-list-item
         - kern-meter
         - kern-page-header
         - kern-progress

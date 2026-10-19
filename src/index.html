@@ -97,6 +97,26 @@
       </kern-card>
     </section>
 
+    <section class="two">
+      <kern-list label="Ereignisse">
+        <kern-list-item heading="Bad Lüftung" description="Plus 1PM · 192.168.1.21" href="#" selected>
+          <kern-status slot="start" tone="ok"></kern-status>
+          <kern-date slot="meta" relative data-ago="45"></kern-date>
+        </kern-list-item>
+        <kern-list-item heading="Rollladen Süd" description="Pro 2PM · seit gestern nicht erreichbar" clickable>
+          <kern-status slot="start" tone="warn"></kern-status>
+          <kern-date slot="meta" relative data-ago="93000"></kern-date>
+          <kern-button slot="end" size="sm" variant="ghost">Erneut suchen</kern-button>
+        </kern-list-item>
+        <kern-list-item heading="Firmware 1.4.4 verfügbar" description="3 Geräte" meta="Stable">
+          <kern-button slot="end" size="sm">Aktualisieren</kern-button>
+        </kern-list-item>
+      </kern-list>
+      <kern-card heading="Benachrichtigungen" flush>
+        <kern-list flush size="sm" empty="Keine Benachrichtigungen"></kern-list>
+      </kern-card>
+    </section>
+
     <section>
       <h2>Kalender</h2>
       <div style="display:flex;flex-wrap:wrap;gap:var(--space-4);align-items:flex-start">

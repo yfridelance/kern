@@ -46,12 +46,14 @@ Works as a form submit/reset button through ElementInternals.
 ### Used by
 
  - [kern-dialog](../kern-dialog)
+ - [kern-drawer](../kern-drawer)
  - [kern-theme-toggle](../kern-theme-toggle)
 
 ### Graph
 ```mermaid
 graph TD;
   kern-dialog --> kern-button
+  kern-drawer --> kern-button
   kern-theme-toggle --> kern-button
   style kern-button fill:#f9f,stroke:#333,stroke-width:4px
 ```

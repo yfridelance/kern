@@ -1,0 +1,18 @@
+:host { display: block; min-width: 0; font: 400 13px/18px var(--font-sans); color: var(--text-muted); }
+:host([hidden]) { display: none; }
+ol { display: flex; flex-wrap: wrap; align-items: center; gap: 2px; margin: 0; padding: 0; list-style: none; }
+li { display: inline-flex; align-items: center; gap: 2px; min-width: 0; }
+li[hidden] { display: none; }
+.sep { display: inline-grid; place-items: center; color: var(--text-faint); }
+.sep svg { width: 12px; height: 12px; }
+
+::slotted(*) { color: var(--text-muted); text-decoration: none; }
+::slotted(a:hover) { color: var(--text); text-decoration: underline; text-underline-offset: 3px; }
+li.current ::slotted(*) { color: var(--text); font-weight: 500; }
+
+.more-button {
+  all: unset; display: inline-grid; place-items: center; min-width: 22px; height: 20px; padding: 0 4px;
+  border-radius: var(--radius-sm); color: var(--text-muted); cursor: pointer;
+}
+.more-button:hover { background: var(--hover); color: var(--text); }
+.more-button:focus-visible { outline: 2px solid var(--focus); }

@@ -43,6 +43,11 @@ export class KernMenu {
     return Array.from(this.el.children).filter((c): c is Item => c.localName === 'kern-menu-item');
   }
 
+  /** Focused element in the tree the items live in (the document, or a shadow root when nested in a component). */
+  private get focused(): Element | null {
+    return (this.el.getRootNode() as Document | ShadowRoot).activeElement ?? null;
+  }
+
   private get enabled(): Item[] {
     return this.items.filter((i) => !(i.disabled ?? i.hasAttribute('disabled')));
   }
@@ -111,7 +116,8 @@ export class KernMenu {
       window.removeEventListener('scroll', this.reposition, true);
       window.removeEventListener('resize', this.reposition);
       // Light dismiss (Escape, click outside) while focus was inside: give it back to the trigger.
-      if (this.items.some((i) => i === document.activeElement || i.contains(document.activeElement))) this.focusTrigger();
+      const f = this.focused;
+      if (this.items.some((i) => i === f || i.contains(f))) this.focusTrigger();
     }
   }
 
@@ -149,7 +155,8 @@ export class KernMenu {
   private onMenuKey = (ev: KeyboardEvent) => {
     const list = this.enabled;
     if (!list.length) return;
-    const i = list.findIndex((it) => it === document.activeElement || it.contains(document.activeElement));
+    const f = this.focused;
+    const i = list.findIndex((it) => it === f || it.contains(f));
     const moves: Record<string, number> = { ArrowDown: i + 1, ArrowUp: i - 1, Home: 0, End: list.length - 1 };
     if (ev.key in moves) {
       ev.preventDefault();

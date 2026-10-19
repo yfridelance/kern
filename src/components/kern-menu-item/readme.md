@@ -33,6 +33,19 @@ One action in kern-menu, with optional icon; `tone="danger"` for destructive act
 |      | Text        |
 
 
+## Dependencies
+
+### Used by
+
+ - [kern-breadcrumb](../kern-breadcrumb)
+
+### Graph
+```mermaid
+graph TD;
+  kern-breadcrumb --> kern-menu-item
+  style kern-menu-item fill:#f9f,stroke:#333,stroke-width:4px
+```
+
 ----------------------------------------------
 
 

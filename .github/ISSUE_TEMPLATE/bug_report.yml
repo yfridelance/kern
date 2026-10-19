@@ -18,6 +18,7 @@ body:
         - kern-accordion-item
         - kern-alert
         - kern-badge
+        - kern-breadcrumb
         - kern-button
         - kern-calendar
         - kern-card

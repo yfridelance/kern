@@ -22,3 +22,5 @@ kern-table th button:focus-visible { outline: 2px solid var(--focus); outline-of
 kern-table th[aria-sort] { color: var(--text); }
 kern-table th[aria-sort="ascending"] button::after { content: "▲"; font-size: 8px; color: var(--accent-text); }
 kern-table th[aria-sort="descending"] button::after { content: "▼"; font-size: 8px; color: var(--accent-text); }
+kern-table th[sortable]:not([sortable="false"]):not([aria-sort]) button::after { content: "↕"; font-size: 10px; color: var(--text-faint); opacity: 0; }
+kern-table th[sortable]:not([sortable="false"]) button:is(:hover, :focus-visible)::after { opacity: 1; }

@@ -289,6 +289,14 @@ function iconGrid() {
     .join('')}</div>`;
 }
 
+function brandGrid() {
+  const src = readFileSync(join(root, 'src/utils/brands.ts'), 'utf8');
+  const names = [...src.matchAll(/^  '(brand-[a-z0-9-]+)': \{ title: "([^"]+)"/gm)];
+  return `<div class="icon-grid">${names
+    .map(([, n, title]) => `<div class="icon-cell"><kern-icon name="${n}" label="${esc(title)}"></kern-icon><kern-copy value="${n}">${n}</kern-copy></div>`)
+    .join('')}</div>`;
+}
+
 function componentGrid() {
   return GROUPS.map(
     ([title, tags]) =>
@@ -311,6 +319,7 @@ const PLACEHOLDERS = {
   radius: () => scaleTable('radius'),
   sizes: () => scaleTable('size'),
   icons: iconGrid,
+  brands: brandGrid,
   components: componentGrid,
   version: () => esc(pkg.version),
 };

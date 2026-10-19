@@ -181,6 +181,11 @@ zusätzlich Standalone-Wrapper mit `ControlValueAccessor` für `ngModel` und Rea
   `chevron-up`, `chevron-left`, `chevron-right`, `calendar`, `clock`, `minus`, `plus`, `star`, `more`, `menu`,
   `search`, `filter`, `settings`, `edit`, `trash`, `refresh`, `power`, `download`, `upload`, `link`, `lock`, `eye`,
   `eye-off`, `info`, `warn`, `wifi`, `home`, `bulb`, `thermometer`, `external`.
+  Marken-Icons mit Präfix `brand-` (`BRAND_NAMES`): `brand-home-assistant`, `brand-zigbee`, `brand-mqtt`,
+  `brand-shelly`, `brand-esphome`, `brand-github`, `brand-google` u.a.; `brand-color` zeigt die offizielle Farbe.
+  Quelle: [Simple Icons](https://simpleicons.org) (CC0), Auswahl und Erzeugung in `scripts/build-brands.mjs`
+  (`npm run brands`). Die Logos sind Marken ihrer Inhaber: nur zum Verweis auf das Produkt verwenden. Microsoft,
+  Z-Wave, Matter, Thread, Alexa, HomeKit und UniFi fehlen, weil die Inhaber sie aus Simple Icons entfernen liessen.
 - **Menüs:** `kern-menu` mit Auslöser in `slot="trigger"` (z.B. `kern-button icon-only` mit `kern-icon name="more"`),
   `kern-menu-item` (`value`, `icon`, `tone="danger"`, `disabled`) und `<hr>` als Trenner. Tastatur: Enter/Leertaste/Pfeil
   öffnen, Pfeile/Home/End/Buchstaben bewegen, Escape/Tab schliessen; `kernSelect` liefert `{ value }`. `align="end"`

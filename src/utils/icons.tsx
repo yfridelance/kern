@@ -44,12 +44,13 @@ const PATHS = {
   external: () => [<path d="M9.5 2.5h4v4M13.5 2.5 7.5 8.5M11.5 9.5v3c0 .6-.4 1-1 1h-7c-.6 0-1-.4-1-1v-7c0-.6.4-1 1-1h3" />],
 };
 
-export type IconName = keyof typeof PATHS;
+export type GlyphName = keyof typeof PATHS;
 
-/** All glyph names, e.g. for an overview. */
-export const ICON_NAMES = Object.keys(PATHS) as IconName[];
+/** Kern's own glyph names (brand icons: see brands.ts; all names: icon-names.ts). */
+export const GLYPH_NAMES = Object.keys(PATHS) as GlyphName[];
 
-export function Icon({ name, class: cls }: { name: IconName; class?: string }) {
+/** A glyph inside a component. Brand icons are only drawn by kern-icon, so their data stays out of other components. */
+export function Icon({ name, class: cls }: { name: GlyphName; class?: string }) {
   return (
     <svg class={cls} viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
       {PATHS[name]?.()}

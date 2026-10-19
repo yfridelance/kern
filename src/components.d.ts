@@ -7,18 +7,20 @@
 import { HTMLStencilElement, JSXBase } from "@stencil/core/internal";
 import { KernCodeLanguage } from "./utils/highlight";
 import { KernDateFormat } from "./utils/datetime";
-import { IconName } from "./utils/icons";
+import { IconName } from "./utils/icon-names";
 import { KernIpKind } from "./utils/ip";
 import { KernMacFormat } from "./utils/mac";
+import { GlyphName } from "./utils/icons";
 import { KernOption } from "./components/kern-select/kern-select";
 import { KernOption as KernOption1 } from "./components/kern-select/kern-select";
 import { KernSortDirection, KernTableColumn } from "./components/kern-table/sort";
 import { KernToastReason } from "./components/kern-toast/kern-toast";
 export { KernCodeLanguage } from "./utils/highlight";
 export { KernDateFormat } from "./utils/datetime";
-export { IconName } from "./utils/icons";
+export { IconName } from "./utils/icon-names";
 export { KernIpKind } from "./utils/ip";
 export { KernMacFormat } from "./utils/mac";
+export { GlyphName } from "./utils/icons";
 export { KernOption } from "./components/kern-select/kern-select";
 export { KernOption as KernOption1 } from "./components/kern-select/kern-select";
 export { KernSortDirection, KernTableColumn } from "./components/kern-table/sort";
@@ -841,16 +843,22 @@ export namespace Components {
         "required": boolean;
     }
     /**
-     * One of Kern's glyphs (Lucide style). Sized by `font-size` (1em) and coloured by `currentColor`, so it fits text and
-     * buttons. Decorative without `label`; with `label` it is announced as an image. Names: see the README.
+     * One of Kern's glyphs (Lucide style) or a brand icon (`brand-github`, `brand-home-assistant` …, from Simple Icons).
+     * Sized by `font-size` (1em) and coloured by `currentColor`, so it fits text and buttons; `brand-color` shows a brand
+     * icon in its official colour. Decorative without `label`; with `label` it is announced as an image.
      */
     interface KernIcon {
+        /**
+          * Brand icons in their official colour instead of `currentColor` (check the contrast: some are near-black or white).
+          * @default false
+         */
+        "brandColor": boolean;
         /**
           * Accessible name; without it the icon is decorative.
          */
         "label"?: string;
         /**
-          * Glyph name, e.g. `wifi`, `power`, `refresh`.
+          * Glyph name, e.g. `wifi`, `power`, `refresh`, or a brand icon, e.g. `brand-github`.
          */
         "name": IconName;
     }
@@ -1215,7 +1223,7 @@ export namespace Components {
         /**
           * Glyph name (see kern-icon).
          */
-        "icon"?: IconName;
+        "icon"?: GlyphName;
         /**
           * @default 'default'
          */
@@ -2691,8 +2699,9 @@ declare global {
         new (): HTMLKernFileInputElement;
     };
     /**
-     * One of Kern's glyphs (Lucide style). Sized by `font-size` (1em) and coloured by `currentColor`, so it fits text and
-     * buttons. Decorative without `label`; with `label` it is announced as an image. Names: see the README.
+     * One of Kern's glyphs (Lucide style) or a brand icon (`brand-github`, `brand-home-assistant` …, from Simple Icons).
+     * Sized by `font-size` (1em) and coloured by `currentColor`, so it fits text and buttons; `brand-color` shows a brand
+     * icon in its official colour. Decorative without `label`; with `label` it is announced as an image.
      */
     interface HTMLKernIconElement extends Components.KernIcon, HTMLStencilElement {
     }
@@ -4255,16 +4264,22 @@ declare namespace LocalJSX {
         "required"?: boolean;
     }
     /**
-     * One of Kern's glyphs (Lucide style). Sized by `font-size` (1em) and coloured by `currentColor`, so it fits text and
-     * buttons. Decorative without `label`; with `label` it is announced as an image. Names: see the README.
+     * One of Kern's glyphs (Lucide style) or a brand icon (`brand-github`, `brand-home-assistant` …, from Simple Icons).
+     * Sized by `font-size` (1em) and coloured by `currentColor`, so it fits text and buttons; `brand-color` shows a brand
+     * icon in its official colour. Decorative without `label`; with `label` it is announced as an image.
      */
     interface KernIcon {
+        /**
+          * Brand icons in their official colour instead of `currentColor` (check the contrast: some are near-black or white).
+          * @default false
+         */
+        "brandColor"?: boolean;
         /**
           * Accessible name; without it the icon is decorative.
          */
         "label"?: string;
         /**
-          * Glyph name, e.g. `wifi`, `power`, `refresh`.
+          * Glyph name, e.g. `wifi`, `power`, `refresh`, or a brand icon, e.g. `brand-github`.
          */
         "name": IconName;
     }
@@ -4649,7 +4664,7 @@ declare namespace LocalJSX {
         /**
           * Glyph name (see kern-icon).
          */
-        "icon"?: IconName;
+        "icon"?: GlyphName;
         /**
           * Asks the menu to pick this item (internal).
          */
@@ -5934,6 +5949,7 @@ declare namespace LocalJSX {
     interface KernIconAttributes {
         "name": IconName;
         "label": string;
+        "brandColor": boolean;
     }
     interface KernInputAttributes {
         "label": string;
@@ -6032,7 +6048,7 @@ declare namespace LocalJSX {
     }
     interface KernMenuItemAttributes {
         "value": string;
-        "icon": IconName;
+        "icon": GlyphName;
         "tone": 'default' | 'danger';
         "disabled": boolean;
     }
@@ -6477,8 +6493,9 @@ declare module "@stencil/core" {
              */
             "kern-file-input": LocalJSX.IntrinsicElements["kern-file-input"] & JSXBase.HTMLAttributes<HTMLKernFileInputElement>;
             /**
-             * One of Kern's glyphs (Lucide style). Sized by `font-size` (1em) and coloured by `currentColor`, so it fits text and
-             * buttons. Decorative without `label`; with `label` it is announced as an image. Names: see the README.
+             * One of Kern's glyphs (Lucide style) or a brand icon (`brand-github`, `brand-home-assistant` …, from Simple Icons).
+             * Sized by `font-size` (1em) and coloured by `currentColor`, so it fits text and buttons; `brand-color` shows a brand
+             * icon in its official colour. Decorative without `label`; with `label` it is announced as an image.
              */
             "kern-icon": LocalJSX.IntrinsicElements["kern-icon"] & JSXBase.HTMLAttributes<HTMLKernIconElement>;
             /**

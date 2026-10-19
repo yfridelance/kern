@@ -7,11 +7,15 @@ export { getTheme, setTheme, initTheme, THEMES, THEME_STORAGE_KEY } from './util
 export type { KernTheme } from './utils/theme';
 export { rssiLevel } from './utils/signal';
 export { parseIpv4, ipv4ToInt, intToIpv4 } from './utils/ip';
-export { ICON_NAMES } from './utils/icons';
+export { GLYPH_NAMES } from './utils/icons';
+export { ICON_NAMES } from './utils/icon-names';
+export { BRAND_NAMES } from './utils/brands';
 export { parseMac, formatMac } from './utils/mac';
 export type { KernCodeLanguage } from './utils/highlight';
 export type { KernMacFormat } from './utils/mac';
-export type { IconName } from './utils/icons';
+export type { GlyphName } from './utils/icons';
+export type { IconName } from './utils/icon-names';
+export type { BrandName } from './utils/brands';
 export type { KernIpv4, KernIpKind } from './utils/ip';
 export type { KernOption } from './components/kern-select/kern-select';
 export type { KernTableColumn, KernSortDirection } from './components/kern-table/sort';

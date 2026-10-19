@@ -47,7 +47,7 @@ export class KernInput {
   @Event() kernChange!: EventEmitter<{ value: string }>;
 
   private input?: HTMLInputElement;
-  private id = `kern-input-${++nextId}`;
+  private uid = `kern-input-${++nextId}`;
   private initial = '';
 
   componentWillLoad() {
@@ -95,18 +95,18 @@ export class KernInput {
   };
 
   render() {
-    const describedBy = this.error ? `${this.id}-error` : this.hint ? `${this.id}-hint` : undefined;
+    const describedBy = this.error ? `${this.uid}-error` : this.hint ? `${this.uid}-hint` : undefined;
     return (
       <Host invalid={!!this.error}>
         {this.label && (
-          <label class="label" htmlFor={this.id}>
+          <label class="label" htmlFor={this.uid}>
             {this.label}
             {this.required && <span class="req" aria-hidden="true">*</span>}
           </label>
         )}
         <input
           ref={(el) => (this.input = el)}
-          id={this.id}
+          id={this.uid}
           class="control"
           part="control"
           type={this.type}
@@ -129,12 +129,12 @@ export class KernInput {
           onInput={this.onInput}
         />
         {this.error ? (
-          <span class="error" id={`${this.id}-error`}>
+          <span class="error" id={`${this.uid}-error`}>
             {this.error}
           </span>
         ) : (
           this.hint && (
-            <span class="hint" id={`${this.id}-hint`}>
+            <span class="hint" id={`${this.uid}-hint`}>
               {this.hint}
             </span>
           )

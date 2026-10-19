@@ -55,7 +55,7 @@ export class KernBreadcrumb {
   }
 
   /** Indices of entries folded into „…“. */
-  private get hidden(): number[] {
+  private get collapsed(): number[] {
     const n = this.count;
     const max = this.maxItems;
     if (!max || max < 3 || n <= max) return [];
@@ -71,7 +71,7 @@ export class KernBreadcrumb {
   };
 
   render() {
-    const hidden = new Set(this.hidden);
+    const hidden = new Set(this.collapsed);
     const items = this.items;
     // A function: Stencil must not reuse the same JSX node in two places.
     const sep = () => (

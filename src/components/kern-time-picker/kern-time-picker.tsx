@@ -76,7 +76,7 @@ export class KernTimePicker {
   private box?: HTMLElement;
   private popup?: HTMLElement;
   private listbox?: HTMLElement;
-  private id = `kern-time-picker-${++nextId}`;
+  private uid = `kern-time-picker-${++nextId}`;
   private initial = '';
   private typed = '';
   private wasOpen = false;
@@ -336,7 +336,7 @@ export class KernTimePicker {
   }
 
   private scrollActive() {
-    this.listbox?.querySelector<HTMLElement>(`#${this.id}-opt-${this.active}`)?.scrollIntoView?.({ block: 'nearest' });
+    this.listbox?.querySelector<HTMLElement>(`#${this.uid}-opt-${this.active}`)?.scrollIntoView?.({ block: 'nearest' });
   }
 
   private pick(secs: number) {
@@ -407,7 +407,7 @@ export class KernTimePicker {
         class={{ seg: true, empty: text === null, [seg]: true }}
         role="spinbutton"
         tabindex={this.disabled ? undefined : 0}
-        id={seg === 'hour' ? this.id : undefined}
+        id={seg === 'hour' ? this.uid : undefined}
         aria-label={[this.label ?? this.ariaLabelText, labels[seg]].filter(Boolean).join(', ')}
         aria-valuemin={range?.[0]}
         aria-valuemax={range?.[1]}
@@ -425,15 +425,15 @@ export class KernTimePicker {
 
   render() {
     const message = this.error ?? this.problem;
-    const describedBy = message ? `${this.id}-error` : this.hint ? `${this.id}-hint` : undefined;
-    const labelId = this.label ? `${this.id}-label` : undefined;
+    const describedBy = message ? `${this.uid}-error` : this.hint ? `${this.uid}-hint` : undefined;
+    const labelId = this.label ? `${this.uid}-label` : undefined;
     const opts = this.list ? this.options : [];
     const current = this.secs;
     const fmt = new Intl.DateTimeFormat(resolveLocale(this.locale), { hour: '2-digit', minute: '2-digit', hour12: this.twelve });
     return (
       <Host invalid={!!message}>
         {this.label && (
-          <label class="label" id={labelId} htmlFor={this.id} onClick={() => this.segs.hour?.focus()}>
+          <label class="label" id={labelId} htmlFor={this.uid} onClick={() => this.segs.hour?.focus()}>
             {this.label}
             {this.required && <span class="req" aria-hidden="true">*</span>}
           </label>
@@ -480,12 +480,12 @@ export class KernTimePicker {
               role="listbox"
               tabIndex={-1}
               aria-label={this.label ?? this.ariaLabelText}
-              aria-activedescendant={this.active >= 0 ? `${this.id}-opt-${this.active}` : undefined}
+              aria-activedescendant={this.active >= 0 ? `${this.uid}-opt-${this.active}` : undefined}
               onKeyDown={this.onListKey}
             >
               {opts.map((o, i) => (
                 <div
-                  id={`${this.id}-opt-${i}`}
+                  id={`${this.uid}-opt-${i}`}
                   class={{ option: true, active: i === this.active, selected: o === current }}
                   role="option"
                   aria-selected={o === current ? 'true' : 'false'}
@@ -499,12 +499,12 @@ export class KernTimePicker {
           </div>
         )}
         {message ? (
-          <span class="error" id={`${this.id}-error`}>
+          <span class="error" id={`${this.uid}-error`}>
             {message}
           </span>
         ) : (
           this.hint && (
-            <span class="hint" id={`${this.id}-hint`}>
+            <span class="hint" id={`${this.uid}-hint`}>
               {this.hint}
             </span>
           )

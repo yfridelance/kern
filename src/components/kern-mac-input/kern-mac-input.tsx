@@ -47,7 +47,7 @@ export class KernMacInput {
   @State() problem?: string;
 
   private input?: HTMLInputElement;
-  private id = `kern-mac-input-${++nextId}`;
+  private uid = `kern-mac-input-${++nextId}`;
   private initial = '';
 
   componentWillLoad() {
@@ -134,18 +134,18 @@ export class KernMacInput {
 
   render() {
     const message = this.error ?? this.problem;
-    const describedBy = message ? `${this.id}-error` : this.hint ? `${this.id}-hint` : undefined;
+    const describedBy = message ? `${this.uid}-error` : this.hint ? `${this.uid}-hint` : undefined;
     return (
       <Host invalid={!!message}>
         {this.label && (
-          <label class="label" htmlFor={this.id}>
+          <label class="label" htmlFor={this.uid}>
             {this.label}
             {this.required && <span class="req" aria-hidden="true">*</span>}
           </label>
         )}
         <input
           ref={(el) => (this.input = el)}
-          id={this.id}
+          id={this.uid}
           class="control"
           part="control"
           type="text"
@@ -165,12 +165,12 @@ export class KernMacInput {
           onKeyDown={this.onKey}
         />
         {message ? (
-          <span class="error" id={`${this.id}-error`}>
+          <span class="error" id={`${this.uid}-error`}>
             {message}
           </span>
         ) : (
           this.hint && (
-            <span class="hint" id={`${this.id}-hint`}>
+            <span class="hint" id={`${this.uid}-hint`}>
               {this.hint}
             </span>
           )

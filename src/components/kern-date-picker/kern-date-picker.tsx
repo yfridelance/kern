@@ -75,7 +75,7 @@ export class KernDatePicker {
   private box?: HTMLElement;
   private popup?: HTMLElement;
   private calendar?: HTMLKernCalendarElement;
-  private id = `kern-date-picker-${++nextId}`;
+  private uid = `kern-date-picker-${++nextId}`;
   private initial = '';
   private wasOpen = false;
 
@@ -272,12 +272,12 @@ export class KernDatePicker {
 
   render() {
     const message = this.error ?? this.problem;
-    const describedBy = message ? `${this.id}-error` : this.hint ? `${this.id}-hint` : undefined;
+    const describedBy = message ? `${this.uid}-error` : this.hint ? `${this.uid}-hint` : undefined;
     const locked = this.disabled || this.readonly;
     return (
       <Host invalid={!!message}>
         {this.label && (
-          <label class="label" htmlFor={this.id}>
+          <label class="label" htmlFor={this.uid}>
             {this.label}
             {this.required && <span class="req" aria-hidden="true">*</span>}
           </label>
@@ -285,7 +285,7 @@ export class KernDatePicker {
         <div ref={(el) => (this.box = el)} class={{ control: true, box: true, disabled: this.disabled }} part="control">
           <input
             ref={(el) => (this.input = el)}
-            id={this.id}
+            id={this.uid}
             class="text"
             type="text"
             inputMode="numeric"
@@ -345,12 +345,12 @@ export class KernDatePicker {
           </div>
         </div>
         {message ? (
-          <span class="error" id={`${this.id}-error`}>
+          <span class="error" id={`${this.uid}-error`}>
             {message}
           </span>
         ) : (
           this.hint && (
-            <span class="hint" id={`${this.id}-hint`}>
+            <span class="hint" id={`${this.uid}-hint`}>
               {this.hint}
             </span>
           )

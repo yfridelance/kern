@@ -203,7 +203,7 @@ export class KernTable {
 
   /** The embedded pagination; created, updated or removed with `page-size`. */
   private pager(count?: number): HTMLElement | undefined {
-    let p = this.children(this.el, 'kern-pagination').find((x) => x.hasAttribute('data-kern-generated')) as any;
+    let p = this.childrenOf(this.el, 'kern-pagination').find((x) => x.hasAttribute('data-kern-generated')) as any;
     if (count === undefined) return p;
     if (!this.pageSize) return void p?.remove();
     if (!p) {
@@ -223,8 +223,8 @@ export class KernTable {
   /** Markup mode: rows outside the page get `data-kern-paged-out` (the app's own `hidden` rows don't count). */
   private applyPaging() {
     if (this.columns) return;
-    const rows = this.children(this.table(), 'tbody')
-      .flatMap((tb) => this.children(tb, 'tr'))
+    const rows = this.childrenOf(this.table(), 'tbody')
+      .flatMap((tb) => this.childrenOf(tb, 'tr'))
       .filter((r) => !this.isFiller(r) && !r.hasAttribute('hidden'));
     const [from, to] = this.paged() ? this.range(rows.length) : [0, rows.length];
     rows.forEach((r, i) => {
@@ -239,8 +239,8 @@ export class KernTable {
 
   /** Header cells of the last header row (the one that names the columns). */
   private headers(): HTMLTableCellElement[] {
-    const rows = this.children(this.children(this.table(), 'thead')[0], 'tr');
-    return this.children(rows[rows.length - 1], 'th', 'td') as HTMLTableCellElement[];
+    const rows = this.childrenOf(this.childrenOf(this.table(), 'thead')[0], 'tr');
+    return this.childrenOf(rows[rows.length - 1], 'th', 'td') as HTMLTableCellElement[];
   }
 
   private sortable(th: Element) {
@@ -286,10 +286,10 @@ export class KernTable {
   }
 
   private sortRows(column: number, direction: KernSortDirection) {
-    for (const tbody of this.children(this.table(), 'tbody')) {
-      const rows = this.children(tbody, 'tr');
+    for (const tbody of this.childrenOf(this.table(), 'tbody')) {
+      const rows = this.childrenOf(tbody, 'tr');
       const filler = rows.filter((r) => this.isFiller(r));
-      const sorted = sortByValue(rows.filter((r) => !this.isFiller(r)), (row) => this.value(this.children(row, 'td', 'th')[column]), direction, this.collator());
+      const sorted = sortByValue(rows.filter((r) => !this.isFiller(r)), (row) => this.value(this.childrenOf(row, 'td', 'th')[column]), direction, this.collator());
       tbody.append(...sorted, ...filler);
     }
   }
@@ -301,13 +301,13 @@ export class KernTable {
 
   /** Empty state or a cell spanning the row: stays at the end, unsorted. */
   private isFiller(row: Element) {
-    const cells = this.children(row, 'td', 'th');
+    const cells = this.childrenOf(row, 'td', 'th');
     return cells.some((c) => c.classList.contains('empty')) || (cells.length === 1 && Number(cells[0].getAttribute('colspan') ?? 1) > 1);
   }
 
   /** The slotted table (not one nested in a cell); in data mode the generated one. */
   private table(): Element | undefined {
-    const tables = this.children(this.el, 'table');
+    const tables = this.childrenOf(this.el, 'table');
     return this.columns ? tables.find((t) => t.hasAttribute('data-kern-generated')) : tables[0];
   }
 
@@ -322,7 +322,7 @@ export class KernTable {
       table.append(document.createElement('thead'), document.createElement('tbody'));
       this.el.insertBefore(table, this.pager() ?? null);
     }
-    return { table, thead: this.children(table, 'thead')[0], tbody: this.children(table, 'tbody')[0] };
+    return { table, thead: this.childrenOf(table, 'thead')[0], tbody: this.childrenOf(table, 'tbody')[0] };
   }
 
   private classes(...parts: (string | undefined | false)[]) {
@@ -416,7 +416,7 @@ export class KernTable {
     parent.append(...nodes);
   }
 
-  private children(parent: Element | null | undefined, ...tags: string[]): Element[] {
+  private childrenOf(parent: Element | null | undefined, ...tags: string[]): Element[] {
     return parent ? Array.from(parent.children).filter((c) => tags.includes(c.tagName.toLowerCase())) : [];
   }
 }

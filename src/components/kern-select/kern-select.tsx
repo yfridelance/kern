@@ -79,7 +79,7 @@ export class KernSelect {
   private listbox?: HTMLElement;
   private search?: HTMLInputElement;
   private observer?: MutationObserver;
-  private id = `kern-select-${++nextId}`;
+  private uid = `kern-select-${++nextId}`;
   private initial: string | string[] = '';
   private wasOpen = false;
   private typed = '';
@@ -272,7 +272,7 @@ export class KernSelect {
     this.closeList();
   }
 
-  private remove(value: string) {
+  private removeValue(value: string) {
     if (this.disabled) return;
     this.value = this.values.filter((v) => v !== value);
     this.kernChange.emit({ value: this.value });
@@ -287,7 +287,7 @@ export class KernSelect {
   }
 
   private scrollActive() {
-    const el = this.listbox?.querySelector<HTMLElement>(`#${this.id}-opt-${this.active}`);
+    const el = this.listbox?.querySelector<HTMLElement>(`#${this.uid}-opt-${this.active}`);
     el?.scrollIntoView?.({ block: 'nearest' });
   }
 
@@ -360,7 +360,7 @@ export class KernSelect {
       this.openList();
     } else if (this.multiple && ev.key === 'Backspace' && this.values.length) {
       ev.preventDefault();
-      this.remove(this.values[this.values.length - 1]);
+      this.removeValue(this.values[this.values.length - 1]);
     } else if (this.isPrintable(ev)) {
       if (this.searchable) {
         // Start searching with the typed letter.
@@ -430,7 +430,7 @@ export class KernSelect {
                     disabled={this.disabled}
                     onClick={(e) => {
                       e.stopPropagation();
-                      this.remove(o.value);
+                      this.removeValue(o.value);
                     }}
                   >
                     <Icon name="close" />
@@ -450,12 +450,12 @@ export class KernSelect {
     const list = this.list;
     const vis = this.visible;
     const empty = !this.values.some((v) => list.some((o) => o.value === v));
-    const describedBy = this.error ? `${this.id}-error` : this.hint ? `${this.id}-hint` : undefined;
-    const listId = `${this.id}-list`;
-    const activeId = this.active >= 0 && vis.has(this.active) ? `${this.id}-opt-${this.active}` : undefined;
+    const describedBy = this.error ? `${this.uid}-error` : this.hint ? `${this.uid}-hint` : undefined;
+    const listId = `${this.uid}-list`;
+    const activeId = this.active >= 0 && vis.has(this.active) ? `${this.uid}-opt-${this.active}` : undefined;
     const triggerProps = {
       ref: (el?: HTMLElement) => (this.trigger = el),
-      id: this.id,
+      id: this.uid,
       class: { control: true, trigger: true, empty, multi: this.multiple },
       part: 'control',
       role: 'combobox',
@@ -472,7 +472,7 @@ export class KernSelect {
     return (
       <Host invalid={!!this.error}>
         {this.label && (
-          <label class="label" htmlFor={this.id}>
+          <label class="label" htmlFor={this.uid}>
             {this.label}
             {this.required && <span class="req" aria-hidden="true">*</span>}
           </label>
@@ -525,7 +525,7 @@ export class KernSelect {
               const sel = this.isSelected(o);
               return (
                 <div
-                  id={`${this.id}-opt-${i}`}
+                  id={`${this.uid}-opt-${i}`}
                   class={{ option: true, active: i === this.active, selected: sel }}
                   part="option"
                   role="option"
@@ -549,12 +549,12 @@ export class KernSelect {
           </div>
         </div>
         {this.error ? (
-          <span class="error" id={`${this.id}-error`}>
+          <span class="error" id={`${this.uid}-error`}>
             {this.error}
           </span>
         ) : (
           this.hint && (
-            <span class="hint" id={`${this.id}-hint`}>
+            <span class="hint" id={`${this.uid}-hint`}>
               {this.hint}
             </span>
           )

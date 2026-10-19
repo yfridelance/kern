@@ -62,7 +62,7 @@ export class KernStepInput {
   @State() problem?: string;
 
   private input?: HTMLInputElement;
-  private id = `kern-step-input-${++nextId}`;
+  private uid = `kern-step-input-${++nextId}`;
   private initial: number | '' = '';
   private repeat?: ReturnType<typeof setTimeout>;
 
@@ -220,7 +220,7 @@ export class KernStepInput {
 
   render() {
     const message = this.error ?? this.problem;
-    const describedBy = message ? `${this.id}-error` : this.hint ? `${this.id}-hint` : undefined;
+    const describedBy = message ? `${this.uid}-error` : this.hint ? `${this.uid}-hint` : undefined;
     const n = this.num;
     const locked = this.disabled || this.readonly;
     const atMin = n !== null && this.min !== undefined && n <= this.min;
@@ -244,7 +244,7 @@ export class KernStepInput {
     return (
       <Host invalid={!!message}>
         {this.label && (
-          <label class="label" htmlFor={this.id}>
+          <label class="label" htmlFor={this.uid}>
             {this.label}
             {this.required && <span class="req" aria-hidden="true">*</span>}
           </label>
@@ -253,7 +253,7 @@ export class KernStepInput {
           {button(-1)}
           <input
             ref={(el) => (this.input = el)}
-            id={this.id}
+            id={this.uid}
             class="text"
             type="text"
             inputMode={this.places ? 'decimal' : 'numeric'}
@@ -284,12 +284,12 @@ export class KernStepInput {
           {button(1)}
         </div>
         {message ? (
-          <span class="error" id={`${this.id}-error`}>
+          <span class="error" id={`${this.uid}-error`}>
             {message}
           </span>
         ) : (
           this.hint && (
-            <span class="hint" id={`${this.id}-hint`}>
+            <span class="hint" id={`${this.uid}-hint`}>
               {this.hint}
             </span>
           )

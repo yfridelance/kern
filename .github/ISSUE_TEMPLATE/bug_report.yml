@@ -37,6 +37,8 @@ body:
         - kern-meter
         - kern-page-header
         - kern-progress
+        - kern-radio
+        - kern-radio-group
         - kern-rating
         - kern-segmented
         - kern-select

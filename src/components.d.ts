@@ -873,6 +873,63 @@ export namespace Components {
         "valueText"?: string;
     }
     /**
+     * One option of kern-radio-group: a round marker with label and optional description. The group sets `checked` and
+     * the tab stop; use it only inside kern-radio-group.
+     */
+    interface KernRadio {
+        /**
+          * Set by kern-radio-group.
+          * @default false
+         */
+        "checked": boolean;
+        "description"?: string;
+        /**
+          * @default false
+         */
+        "disabled": boolean;
+        "label"?: string;
+        /**
+          * @default ''
+         */
+        "value": string;
+    }
+    /**
+     * Single choice from kern-radio children, form-associated. For longer or described options; for 2–5 short ones use
+     * kern-segmented. One tab stop: arrow keys move and select (wrapping), Space/Enter selects the focused option.
+     */
+    interface KernRadioGroup {
+        /**
+          * Accessible name when there is no visible label.
+         */
+        "ariaLabelText"?: string;
+        /**
+          * @default false
+         */
+        "disabled": boolean;
+        "error"?: string;
+        "hint"?: string;
+        "label"?: string;
+        "name"?: string;
+        /**
+          * Layout of the options.
+          * @default 'vertical'
+         */
+        "orientation": 'vertical' | 'horizontal';
+        /**
+          * @default false
+         */
+        "required": boolean;
+        /**
+          * Focuses the checked option (or the first).
+         */
+        "setFocus": () => Promise<void>;
+        /**
+          * Value of the checked kern-radio, empty when none.
+          * @default ''
+         */
+        "value": string;
+    }
+    /**
      * Star rating 1–`max`, form-associated (value 0 = not rated). A radio group with one tab stop: arrow keys change the
      * rating, Home/End jump, with `clearable` 0/Backspace or a click on the current star clears it. Hovering previews.
      * `readonly` only shows the rating („4 von 5 Sternen“).
@@ -1490,6 +1547,14 @@ export interface KernListItemCustomEvent<T> extends CustomEvent<T> {
     detail: T;
     target: HTMLKernListItemElement;
 }
+export interface KernRadioCustomEvent<T> extends CustomEvent<T> {
+    detail: T;
+    target: HTMLKernRadioElement;
+}
+export interface KernRadioGroupCustomEvent<T> extends CustomEvent<T> {
+    detail: T;
+    target: HTMLKernRadioGroupElement;
+}
 export interface KernRatingCustomEvent<T> extends CustomEvent<T> {
     detail: T;
     target: HTMLKernRatingElement;
@@ -1864,6 +1929,48 @@ declare global {
         prototype: HTMLKernProgressElement;
         new (): HTMLKernProgressElement;
     };
+    interface HTMLKernRadioElementEventMap {
+        "kernRadioSelect": { value: string };
+    }
+    /**
+     * One option of kern-radio-group: a round marker with label and optional description. The group sets `checked` and
+     * the tab stop; use it only inside kern-radio-group.
+     */
+    interface HTMLKernRadioElement extends Components.KernRadio, HTMLStencilElement {
+        addEventListener<K extends keyof HTMLKernRadioElementEventMap>(type: K, listener: (this: HTMLKernRadioElement, ev: KernRadioCustomEvent<HTMLKernRadioElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLKernRadioElementEventMap>(type: K, listener: (this: HTMLKernRadioElement, ev: KernRadioCustomEvent<HTMLKernRadioElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
+    }
+    var HTMLKernRadioElement: {
+        prototype: HTMLKernRadioElement;
+        new (): HTMLKernRadioElement;
+    };
+    interface HTMLKernRadioGroupElementEventMap {
+        "kernChange": { value: string };
+    }
+    /**
+     * Single choice from kern-radio children, form-associated. For longer or described options; for 2–5 short ones use
+     * kern-segmented. One tab stop: arrow keys move and select (wrapping), Space/Enter selects the focused option.
+     */
+    interface HTMLKernRadioGroupElement extends Components.KernRadioGroup, HTMLStencilElement {
+        addEventListener<K extends keyof HTMLKernRadioGroupElementEventMap>(type: K, listener: (this: HTMLKernRadioGroupElement, ev: KernRadioGroupCustomEvent<HTMLKernRadioGroupElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLKernRadioGroupElementEventMap>(type: K, listener: (this: HTMLKernRadioGroupElement, ev: KernRadioGroupCustomEvent<HTMLKernRadioGroupElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
+    }
+    var HTMLKernRadioGroupElement: {
+        prototype: HTMLKernRadioGroupElement;
+        new (): HTMLKernRadioGroupElement;
+    };
     interface HTMLKernRatingElementEventMap {
         "kernChange": { value: number };
     }
@@ -2177,6 +2284,8 @@ declare global {
         "kern-meter": HTMLKernMeterElement;
         "kern-page-header": HTMLKernPageHeaderElement;
         "kern-progress": HTMLKernProgressElement;
+        "kern-radio": HTMLKernRadioElement;
+        "kern-radio-group": HTMLKernRadioGroupElement;
         "kern-rating": HTMLKernRatingElement;
         "kern-segmented": HTMLKernSegmentedElement;
         "kern-select": HTMLKernSelectElement;
@@ -3085,6 +3194,71 @@ declare namespace LocalJSX {
         "valueText"?: string;
     }
     /**
+     * One option of kern-radio-group: a round marker with label and optional description. The group sets `checked` and
+     * the tab stop; use it only inside kern-radio-group.
+     */
+    interface KernRadio {
+        /**
+          * Set by kern-radio-group.
+          * @default false
+         */
+        "checked"?: boolean;
+        "description"?: string;
+        /**
+          * @default false
+         */
+        "disabled"?: boolean;
+        "label"?: string;
+        /**
+          * Asks the group to select this option (internal).
+         */
+        "onKernRadioSelect"?: (event: KernRadioCustomEvent<{ value: string }>) => void;
+        /**
+          * @default ''
+         */
+        "value"?: string;
+    }
+    /**
+     * Single choice from kern-radio children, form-associated. For longer or described options; for 2–5 short ones use
+     * kern-segmented. One tab stop: arrow keys move and select (wrapping), Space/Enter selects the focused option.
+     */
+    interface KernRadioGroup {
+        /**
+          * Accessible name when there is no visible label.
+         */
+        "ariaLabelText"?: string;
+        /**
+          * @default false
+         */
+        "disabled"?: boolean;
+        "error"?: string;
+        /**
+          * The `id` of a `<form>` element to associate this element with.
+         */
+        "form"?: string;
+        "hint"?: string;
+        "label"?: string;
+        "name"?: string;
+        /**
+          * When the user picks an option.
+         */
+        "onKernChange"?: (event: KernRadioGroupCustomEvent<{ value: string }>) => void;
+        /**
+          * Layout of the options.
+          * @default 'vertical'
+         */
+        "orientation"?: 'vertical' | 'horizontal';
+        /**
+          * @default false
+         */
+        "required"?: boolean;
+        /**
+          * Value of the checked kern-radio, empty when none.
+          * @default ''
+         */
+        "value"?: string;
+    }
+    /**
      * Star rating 1–`max`, form-associated (value 0 = not rated). A radio group with one tab stop: arrow keys change the
      * rating, Home/End jump, with `clearable` 0/Backspace or a click on the current star clears it. Hovering previews.
      * `readonly` only shows the rating („4 von 5 Sternen“).
@@ -3907,6 +4081,24 @@ declare namespace LocalJSX {
         "label": string;
         "valueText": string;
     }
+    interface KernRadioAttributes {
+        "value": string;
+        "label": string;
+        "description": string;
+        "disabled": boolean;
+        "checked": boolean;
+    }
+    interface KernRadioGroupAttributes {
+        "label": string;
+        "hint": string;
+        "error": string;
+        "value": string;
+        "name": string;
+        "orientation": 'vertical' | 'horizontal';
+        "disabled": boolean;
+        "required": boolean;
+        "ariaLabelText": string;
+    }
     interface KernRatingAttributes {
         "label": string;
         "hint": string;
@@ -4095,6 +4287,8 @@ declare namespace LocalJSX {
         "kern-meter": Omit<KernMeter, keyof KernMeterAttributes> & { [K in keyof KernMeter & keyof KernMeterAttributes]?: KernMeter[K] } & { [K in keyof KernMeter & keyof KernMeterAttributes as `attr:${K}`]?: KernMeterAttributes[K] } & { [K in keyof KernMeter & keyof KernMeterAttributes as `prop:${K}`]?: KernMeter[K] };
         "kern-page-header": Omit<KernPageHeader, keyof KernPageHeaderAttributes> & { [K in keyof KernPageHeader & keyof KernPageHeaderAttributes]?: KernPageHeader[K] } & { [K in keyof KernPageHeader & keyof KernPageHeaderAttributes as `attr:${K}`]?: KernPageHeaderAttributes[K] } & { [K in keyof KernPageHeader & keyof KernPageHeaderAttributes as `prop:${K}`]?: KernPageHeader[K] } & OneOf<"heading", KernPageHeader["heading"], KernPageHeaderAttributes["heading"]>;
         "kern-progress": Omit<KernProgress, keyof KernProgressAttributes> & { [K in keyof KernProgress & keyof KernProgressAttributes]?: KernProgress[K] } & { [K in keyof KernProgress & keyof KernProgressAttributes as `attr:${K}`]?: KernProgressAttributes[K] } & { [K in keyof KernProgress & keyof KernProgressAttributes as `prop:${K}`]?: KernProgress[K] };
+        "kern-radio": Omit<KernRadio, keyof KernRadioAttributes> & { [K in keyof KernRadio & keyof KernRadioAttributes]?: KernRadio[K] } & { [K in keyof KernRadio & keyof KernRadioAttributes as `attr:${K}`]?: KernRadioAttributes[K] } & { [K in keyof KernRadio & keyof KernRadioAttributes as `prop:${K}`]?: KernRadio[K] };
+        "kern-radio-group": Omit<KernRadioGroup, keyof KernRadioGroupAttributes> & { [K in keyof KernRadioGroup & keyof KernRadioGroupAttributes]?: KernRadioGroup[K] } & { [K in keyof KernRadioGroup & keyof KernRadioGroupAttributes as `attr:${K}`]?: KernRadioGroupAttributes[K] } & { [K in keyof KernRadioGroup & keyof KernRadioGroupAttributes as `prop:${K}`]?: KernRadioGroup[K] };
         "kern-rating": Omit<KernRating, keyof KernRatingAttributes> & { [K in keyof KernRating & keyof KernRatingAttributes]?: KernRating[K] } & { [K in keyof KernRating & keyof KernRatingAttributes as `attr:${K}`]?: KernRatingAttributes[K] } & { [K in keyof KernRating & keyof KernRatingAttributes as `prop:${K}`]?: KernRating[K] };
         "kern-segmented": Omit<KernSegmented, keyof KernSegmentedAttributes> & { [K in keyof KernSegmented & keyof KernSegmentedAttributes]?: KernSegmented[K] } & { [K in keyof KernSegmented & keyof KernSegmentedAttributes as `attr:${K}`]?: KernSegmentedAttributes[K] } & { [K in keyof KernSegmented & keyof KernSegmentedAttributes as `prop:${K}`]?: KernSegmented[K] };
         "kern-select": Omit<KernSelect, keyof KernSelectAttributes> & { [K in keyof KernSelect & keyof KernSelectAttributes]?: KernSelect[K] } & { [K in keyof KernSelect & keyof KernSelectAttributes as `attr:${K}`]?: KernSelectAttributes[K] } & { [K in keyof KernSelect & keyof KernSelectAttributes as `prop:${K}`]?: KernSelect[K] };
@@ -4244,6 +4438,16 @@ declare module "@stencil/core" {
              * without `value` it runs as an indeterminate band (firmware update, reboot).
              */
             "kern-progress": LocalJSX.IntrinsicElements["kern-progress"] & JSXBase.HTMLAttributes<HTMLKernProgressElement>;
+            /**
+             * One option of kern-radio-group: a round marker with label and optional description. The group sets `checked` and
+             * the tab stop; use it only inside kern-radio-group.
+             */
+            "kern-radio": LocalJSX.IntrinsicElements["kern-radio"] & JSXBase.HTMLAttributes<HTMLKernRadioElement>;
+            /**
+             * Single choice from kern-radio children, form-associated. For longer or described options; for 2–5 short ones use
+             * kern-segmented. One tab stop: arrow keys move and select (wrapping), Space/Enter selects the focused option.
+             */
+            "kern-radio-group": LocalJSX.IntrinsicElements["kern-radio-group"] & JSXBase.HTMLAttributes<HTMLKernRadioGroupElement>;
             /**
              * Star rating 1–`max`, form-associated (value 0 = not rated). A radio group with one tab stop: arrow keys change the
              * rating, Home/End jump, with `clearable` 0/Backspace or a click on the current star clears it. Hovering previews.

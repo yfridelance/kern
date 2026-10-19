@@ -12,7 +12,7 @@ dort und hier sind dieselben (`tokens/tokens.json`).
 | Bereich | Elemente |
 | --- | --- |
 | Layout | `kern-topbar`, `kern-page-header`, `kern-card`, `kern-toolbar`, `kern-accordion` + `kern-accordion-item` |
-| Navigation | `kern-tabs` + `kern-tab-panel`, `kern-link`, `kern-pagination`, `kern-theme-toggle` |
+| Navigation | `kern-tabs` + `kern-tab-panel`, `kern-link`, `kern-breadcrumb`, `kern-pagination`, `kern-theme-toggle` |
 | Aktionen | `kern-button`, `kern-menu` + `kern-menu-item` |
 | Formulare | `kern-input`, `kern-ip-input`, `kern-textarea`, `kern-select`, `kern-switch`, `kern-checkbox`, `kern-radio-group` + `kern-radio`, `kern-segmented`, `kern-date-picker`, `kern-date-range-picker`, `kern-time-picker`, `kern-step-input`, `kern-rating` |
 | Status | `kern-badge`, `kern-status`, `kern-icon` |
@@ -29,7 +29,7 @@ verschieden sind. Der Name sagt die Rolle:
 
 | Rolle | Name | Beispiele |
 | --- | --- | --- |
-| Anzeige | Nomen | `kern-date`, `kern-time`, `kern-status`, `kern-meter`, `kern-list`, `kern-link`, `kern-icon`, `kern-tooltip`, `kern-toast`, `kern-pagination` |
+| Anzeige | Nomen | `kern-date`, `kern-time`, `kern-status`, `kern-meter`, `kern-list`, `kern-link`, `kern-icon`, `kern-tooltip`, `kern-toast`, `kern-pagination`, `kern-breadcrumb` |
 | Bedienelement ohne Feldbox | Nomen | `kern-switch`, `kern-checkbox`, `kern-segmented`, `kern-radio-group`, `kern-calendar`, `kern-rating`, `kern-tabs`, `kern-menu`, `kern-drawer`, `kern-accordion` |
 | Tippfeld mit eigenem Wertmodell | `-input` | `kern-ip-input`, `kern-step-input` |
 | Feld, das ein Auswahl-Popover anbietet | `-picker` | `kern-date-picker`, `kern-date-range-picker`, `kern-time-picker` |
@@ -100,6 +100,8 @@ zusätzlich Standalone-Wrapper mit `ControlValueAccessor` für `ngModel` und Rea
   pro Wert.
 - **Aufklappen:** `kern-accordion` mit `kern-accordion-item` (`heading` oder `slot="heading"`, `open`, `disabled`) auf
   `<details>`; ohne `multiple` schliesst das Öffnen eines Abschnitts die anderen. Event `kernToggle` mit `{ open }`.
+- **Pfad:** `kern-breadcrumb` mit Kind-Links (`kern-link`/`a`), das letzte Kind ist die aktuelle Seite
+  (`aria-current="page"`); `max-items` faltet die mittleren Ebenen in ein «…»-Menü, das den Original-Link klickt.
 - **Seiten:** `kern-pagination` unter Tabellen/Listen mit `total`, `page`, `page-size` und optional `page-sizes="10,25,50"`;
   zeigt «1–25 von 380», Seitenzahlen mit «…» (feste Anzahl Plätze) und meldet `kernPageChange` mit `{ page, pageSize }`.
   Beim Wechsel der Seitengrösse bleibt der erste sichtbare Eintrag auf der Seite.

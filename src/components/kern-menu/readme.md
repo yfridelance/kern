@@ -64,6 +64,19 @@ Type: `Promise<void>`
 | `"menu"` | The popover panel |
 
 
+## Dependencies
+
+### Used by
+
+ - [kern-breadcrumb](../kern-breadcrumb)
+
+### Graph
+```mermaid
+graph TD;
+  kern-breadcrumb --> kern-menu
+  style kern-menu fill:#f9f,stroke:#333,stroke-width:4px
+```
+
 ----------------------------------------------
 
 

@@ -80,6 +80,27 @@ export namespace Components {
         "tone": 'neutral' | 'accent' | 'ok' | 'warn' | 'danger';
     }
     /**
+     * Path back through a hierarchy (Standort › Raum › Gerät › Einstellungen): child links (kern-link or `<a>`), the last
+     * child is the current page (`aria-current="page"`). With `max-items` the middle entries collapse into a „…“ menu;
+     * picking one clicks the original link, so app routers still handle it.
+     */
+    interface KernBreadcrumb {
+        /**
+          * Accessible name of the navigation.
+          * @default 'Pfad'
+         */
+        "label": string;
+        /**
+          * @default 'Weitere Ebenen'
+         */
+        "labelMore": string;
+        /**
+          * Show at most this many entries (first, „…“ and the last ones); 0 shows all.
+          * @default 0
+         */
+        "maxItems": number;
+    }
+    /**
      * Button for actions. One `primary` per area; `danger` for destructive actions; `icon-only` needs `label`.
      * Works as a form submit/reset button through ElementInternals.
      */
@@ -1938,6 +1959,17 @@ declare global {
         new (): HTMLKernBadgeElement;
     };
     /**
+     * Path back through a hierarchy (Standort › Raum › Gerät › Einstellungen): child links (kern-link or `<a>`), the last
+     * child is the current page (`aria-current="page"`). With `max-items` the middle entries collapse into a „…“ menu;
+     * picking one clicks the original link, so app routers still handle it.
+     */
+    interface HTMLKernBreadcrumbElement extends Components.KernBreadcrumb, HTMLStencilElement {
+    }
+    var HTMLKernBreadcrumbElement: {
+        prototype: HTMLKernBreadcrumbElement;
+        new (): HTMLKernBreadcrumbElement;
+    };
+    /**
      * Button for actions. One `primary` per area; `danger` for destructive actions; `icon-only` needs `label`.
      * Works as a form submit/reset button through ElementInternals.
      */
@@ -2718,6 +2750,7 @@ declare global {
         "kern-accordion-item": HTMLKernAccordionItemElement;
         "kern-alert": HTMLKernAlertElement;
         "kern-badge": HTMLKernBadgeElement;
+        "kern-breadcrumb": HTMLKernBreadcrumbElement;
         "kern-button": HTMLKernButtonElement;
         "kern-calendar": HTMLKernCalendarElement;
         "kern-card": HTMLKernCardElement;
@@ -2835,6 +2868,27 @@ declare namespace LocalJSX {
           * @default 'neutral'
          */
         "tone"?: 'neutral' | 'accent' | 'ok' | 'warn' | 'danger';
+    }
+    /**
+     * Path back through a hierarchy (Standort › Raum › Gerät › Einstellungen): child links (kern-link or `<a>`), the last
+     * child is the current page (`aria-current="page"`). With `max-items` the middle entries collapse into a „…“ menu;
+     * picking one clicks the original link, so app routers still handle it.
+     */
+    interface KernBreadcrumb {
+        /**
+          * Accessible name of the navigation.
+          * @default 'Pfad'
+         */
+        "label"?: string;
+        /**
+          * @default 'Weitere Ebenen'
+         */
+        "labelMore"?: string;
+        /**
+          * Show at most this many entries (first, „…“ and the last ones); 0 shows all.
+          * @default 0
+         */
+        "maxItems"?: number;
     }
     /**
      * Button for actions. One `primary` per area; `danger` for destructive actions; `icon-only` needs `label`.
@@ -4620,6 +4674,11 @@ declare namespace LocalJSX {
         "tone": 'neutral' | 'accent' | 'ok' | 'warn' | 'danger';
         "mono": boolean;
     }
+    interface KernBreadcrumbAttributes {
+        "label": string;
+        "maxItems": number;
+        "labelMore": string;
+    }
     interface KernButtonAttributes {
         "variant": 'default' | 'primary' | 'ghost' | 'danger';
         "size": 'md' | 'sm';
@@ -5071,6 +5130,7 @@ declare namespace LocalJSX {
         "kern-accordion-item": Omit<KernAccordionItem, keyof KernAccordionItemAttributes> & { [K in keyof KernAccordionItem & keyof KernAccordionItemAttributes]?: KernAccordionItem[K] } & { [K in keyof KernAccordionItem & keyof KernAccordionItemAttributes as `attr:${K}`]?: KernAccordionItemAttributes[K] } & { [K in keyof KernAccordionItem & keyof KernAccordionItemAttributes as `prop:${K}`]?: KernAccordionItem[K] };
         "kern-alert": Omit<KernAlert, keyof KernAlertAttributes> & { [K in keyof KernAlert & keyof KernAlertAttributes]?: KernAlert[K] } & { [K in keyof KernAlert & keyof KernAlertAttributes as `attr:${K}`]?: KernAlertAttributes[K] } & { [K in keyof KernAlert & keyof KernAlertAttributes as `prop:${K}`]?: KernAlert[K] };
         "kern-badge": Omit<KernBadge, keyof KernBadgeAttributes> & { [K in keyof KernBadge & keyof KernBadgeAttributes]?: KernBadge[K] } & { [K in keyof KernBadge & keyof KernBadgeAttributes as `attr:${K}`]?: KernBadgeAttributes[K] } & { [K in keyof KernBadge & keyof KernBadgeAttributes as `prop:${K}`]?: KernBadge[K] };
+        "kern-breadcrumb": Omit<KernBreadcrumb, keyof KernBreadcrumbAttributes> & { [K in keyof KernBreadcrumb & keyof KernBreadcrumbAttributes]?: KernBreadcrumb[K] } & { [K in keyof KernBreadcrumb & keyof KernBreadcrumbAttributes as `attr:${K}`]?: KernBreadcrumbAttributes[K] } & { [K in keyof KernBreadcrumb & keyof KernBreadcrumbAttributes as `prop:${K}`]?: KernBreadcrumb[K] };
         "kern-button": Omit<KernButton, keyof KernButtonAttributes> & { [K in keyof KernButton & keyof KernButtonAttributes]?: KernButton[K] } & { [K in keyof KernButton & keyof KernButtonAttributes as `attr:${K}`]?: KernButtonAttributes[K] } & { [K in keyof KernButton & keyof KernButtonAttributes as `prop:${K}`]?: KernButton[K] };
         "kern-calendar": Omit<KernCalendar, keyof KernCalendarAttributes> & { [K in keyof KernCalendar & keyof KernCalendarAttributes]?: KernCalendar[K] } & { [K in keyof KernCalendar & keyof KernCalendarAttributes as `attr:${K}`]?: KernCalendarAttributes[K] } & { [K in keyof KernCalendar & keyof KernCalendarAttributes as `prop:${K}`]?: KernCalendar[K] };
         "kern-card": Omit<KernCard, keyof KernCardAttributes> & { [K in keyof KernCard & keyof KernCardAttributes]?: KernCard[K] } & { [K in keyof KernCard & keyof KernCardAttributes as `attr:${K}`]?: KernCardAttributes[K] } & { [K in keyof KernCard & keyof KernCardAttributes as `prop:${K}`]?: KernCard[K] };
@@ -5145,6 +5205,12 @@ declare module "@stencil/core" {
              * device states use kern-status instead.
              */
             "kern-badge": LocalJSX.IntrinsicElements["kern-badge"] & JSXBase.HTMLAttributes<HTMLKernBadgeElement>;
+            /**
+             * Path back through a hierarchy (Standort › Raum › Gerät › Einstellungen): child links (kern-link or `<a>`), the last
+             * child is the current page (`aria-current="page"`). With `max-items` the middle entries collapse into a „…“ menu;
+             * picking one clicks the original link, so app routers still handle it.
+             */
+            "kern-breadcrumb": LocalJSX.IntrinsicElements["kern-breadcrumb"] & JSXBase.HTMLAttributes<HTMLKernBreadcrumbElement>;
             /**
              * Button for actions. One `primary` per area; `danger` for destructive actions; `icon-only` needs `label`.
              * Works as a form submit/reset button through ElementInternals.

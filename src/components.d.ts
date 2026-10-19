@@ -626,6 +626,81 @@ export namespace Components {
         "width": number;
     }
     /**
+     * File picker with drop zone (firmware, configuration import), form-associated. Checks `accept` and `max-size`;
+     * rejected files are named in the message and not added. The chosen files are listed with size and ×; with `multiple`
+     * new files are added, otherwise they replace the previous one. The form gets the files under `name`.
+     */
+    interface KernFileInput {
+        /**
+          * Like the native attribute: `.bin,.json`, `image/*`, `application/pdf`.
+         */
+        "accept"?: string;
+        /**
+          * Check and add files (also used for drops).
+         */
+        "addFiles": (list: FileList | File[]) => Promise<void>;
+        /**
+          * @default false
+         */
+        "disabled": boolean;
+        "error"?: string;
+        /**
+          * The chosen files; set `[]` to clear.
+          * @default []
+         */
+        "files": File[];
+        "hint"?: string;
+        "label"?: string;
+        /**
+          * @default 'Datei wählen'
+         */
+        "labelChoose": string;
+        /**
+          * @default 'Dateien wählen'
+         */
+        "labelChooseMultiple": string;
+        /**
+          * @default 'oder hierher ziehen'
+         */
+        "labelDrop": string;
+        /**
+          * `{name}` is replaced.
+          * @default '{name} entfernen'
+         */
+        "labelRemove": string;
+        /**
+          * `{name}` and `{max}` are replaced.
+          * @default '«{name}» ist grösser als {max}.'
+         */
+        "labelTooLarge": string;
+        /**
+          * `{name}` is replaced.
+          * @default '«{name}» hat keinen erlaubten Dateityp.'
+         */
+        "labelWrongType": string;
+        /**
+          * BCP 47 locale for sizes; defaults to `<html lang>`, then the browser language.
+         */
+        "locale"?: string;
+        /**
+          * Largest file, in bytes or as `"16MB"`, `"500KB"`.
+         */
+        "maxSize"?: number | string;
+        /**
+          * @default false
+         */
+        "multiple": boolean;
+        "name"?: string;
+        /**
+          * Opens the file dialog.
+         */
+        "open": () => Promise<void>;
+        /**
+          * @default false
+         */
+        "required": boolean;
+    }
+    /**
      * One of Kern's glyphs (Lucide style). Sized by `font-size` (1em) and coloured by `currentColor`, so it fits text and
      * buttons. Decorative without `label`; with `label` it is announced as an image. Names: see the README.
      */
@@ -1997,6 +2072,10 @@ export interface KernDrawerCustomEvent<T> extends CustomEvent<T> {
     detail: T;
     target: HTMLKernDrawerElement;
 }
+export interface KernFileInputCustomEvent<T> extends CustomEvent<T> {
+    detail: T;
+    target: HTMLKernFileInputElement;
+}
 export interface KernInputCustomEvent<T> extends CustomEvent<T> {
     detail: T;
     target: HTMLKernInputElement;
@@ -2322,6 +2401,28 @@ declare global {
     var HTMLKernDrawerElement: {
         prototype: HTMLKernDrawerElement;
         new (): HTMLKernDrawerElement;
+    };
+    interface HTMLKernFileInputElementEventMap {
+        "kernChange": { files: File[] };
+    }
+    /**
+     * File picker with drop zone (firmware, configuration import), form-associated. Checks `accept` and `max-size`;
+     * rejected files are named in the message and not added. The chosen files are listed with size and ×; with `multiple`
+     * new files are added, otherwise they replace the previous one. The form gets the files under `name`.
+     */
+    interface HTMLKernFileInputElement extends Components.KernFileInput, HTMLStencilElement {
+        addEventListener<K extends keyof HTMLKernFileInputElementEventMap>(type: K, listener: (this: HTMLKernFileInputElement, ev: KernFileInputCustomEvent<HTMLKernFileInputElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLKernFileInputElementEventMap>(type: K, listener: (this: HTMLKernFileInputElement, ev: KernFileInputCustomEvent<HTMLKernFileInputElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
+    }
+    var HTMLKernFileInputElement: {
+        prototype: HTMLKernFileInputElement;
+        new (): HTMLKernFileInputElement;
     };
     /**
      * One of Kern's glyphs (Lucide style). Sized by `font-size` (1em) and coloured by `currentColor`, so it fits text and
@@ -2985,6 +3086,7 @@ declare global {
         "kern-date-range-picker": HTMLKernDateRangePickerElement;
         "kern-dialog": HTMLKernDialogElement;
         "kern-drawer": HTMLKernDrawerElement;
+        "kern-file-input": HTMLKernFileInputElement;
         "kern-icon": HTMLKernIconElement;
         "kern-input": HTMLKernInputElement;
         "kern-ip-input": HTMLKernIpInputElement;
@@ -3646,6 +3748,81 @@ declare namespace LocalJSX {
           * @default 420
          */
         "width"?: number;
+    }
+    /**
+     * File picker with drop zone (firmware, configuration import), form-associated. Checks `accept` and `max-size`;
+     * rejected files are named in the message and not added. The chosen files are listed with size and ×; with `multiple`
+     * new files are added, otherwise they replace the previous one. The form gets the files under `name`.
+     */
+    interface KernFileInput {
+        /**
+          * Like the native attribute: `.bin,.json`, `image/*`, `application/pdf`.
+         */
+        "accept"?: string;
+        /**
+          * @default false
+         */
+        "disabled"?: boolean;
+        "error"?: string;
+        /**
+          * The chosen files; set `[]` to clear.
+          * @default []
+         */
+        "files"?: File[];
+        /**
+          * The `id` of a `<form>` element to associate this element with.
+         */
+        "form"?: string;
+        "hint"?: string;
+        "label"?: string;
+        /**
+          * @default 'Datei wählen'
+         */
+        "labelChoose"?: string;
+        /**
+          * @default 'Dateien wählen'
+         */
+        "labelChooseMultiple"?: string;
+        /**
+          * @default 'oder hierher ziehen'
+         */
+        "labelDrop"?: string;
+        /**
+          * `{name}` is replaced.
+          * @default '{name} entfernen'
+         */
+        "labelRemove"?: string;
+        /**
+          * `{name}` and `{max}` are replaced.
+          * @default '«{name}» ist grösser als {max}.'
+         */
+        "labelTooLarge"?: string;
+        /**
+          * `{name}` is replaced.
+          * @default '«{name}» hat keinen erlaubten Dateityp.'
+         */
+        "labelWrongType"?: string;
+        /**
+          * BCP 47 locale for sizes; defaults to `<html lang>`, then the browser language.
+         */
+        "locale"?: string;
+        /**
+          * Largest file, in bytes or as `"16MB"`, `"500KB"`.
+         */
+        "maxSize"?: number | string;
+        /**
+          * @default false
+         */
+        "multiple"?: boolean;
+        "name"?: string;
+        /**
+          * When files were added or removed.
+         */
+        "onKernChange"?: (event: KernFileInputCustomEvent<{ files: File[] }>) => void;
+        /**
+          * @default false
+         */
+        "required"?: boolean;
     }
     /**
      * One of Kern's glyphs (Lucide style). Sized by `font-size` (1em) and coloured by `currentColor`, so it fits text and
@@ -5200,6 +5377,24 @@ declare namespace LocalJSX {
         "dismissible": boolean;
         "closeLabel": string;
     }
+    interface KernFileInputAttributes {
+        "label": string;
+        "hint": string;
+        "error": string;
+        "name": string;
+        "accept": string;
+        "multiple": boolean;
+        "maxSize": string;
+        "disabled": boolean;
+        "required": boolean;
+        "locale": string;
+        "labelChoose": string;
+        "labelChooseMultiple": string;
+        "labelDrop": string;
+        "labelRemove": string;
+        "labelTooLarge": string;
+        "labelWrongType": string;
+    }
     interface KernIconAttributes {
         "name": IconName;
         "label": string;
@@ -5583,6 +5778,7 @@ declare namespace LocalJSX {
         "kern-date-range-picker": Omit<KernDateRangePicker, keyof KernDateRangePickerAttributes> & { [K in keyof KernDateRangePicker & keyof KernDateRangePickerAttributes]?: KernDateRangePicker[K] } & { [K in keyof KernDateRangePicker & keyof KernDateRangePickerAttributes as `attr:${K}`]?: KernDateRangePickerAttributes[K] } & { [K in keyof KernDateRangePicker & keyof KernDateRangePickerAttributes as `prop:${K}`]?: KernDateRangePicker[K] };
         "kern-dialog": Omit<KernDialog, keyof KernDialogAttributes> & { [K in keyof KernDialog & keyof KernDialogAttributes]?: KernDialog[K] } & { [K in keyof KernDialog & keyof KernDialogAttributes as `attr:${K}`]?: KernDialogAttributes[K] } & { [K in keyof KernDialog & keyof KernDialogAttributes as `prop:${K}`]?: KernDialog[K] };
         "kern-drawer": Omit<KernDrawer, keyof KernDrawerAttributes> & { [K in keyof KernDrawer & keyof KernDrawerAttributes]?: KernDrawer[K] } & { [K in keyof KernDrawer & keyof KernDrawerAttributes as `attr:${K}`]?: KernDrawerAttributes[K] } & { [K in keyof KernDrawer & keyof KernDrawerAttributes as `prop:${K}`]?: KernDrawer[K] };
+        "kern-file-input": Omit<KernFileInput, keyof KernFileInputAttributes> & { [K in keyof KernFileInput & keyof KernFileInputAttributes]?: KernFileInput[K] } & { [K in keyof KernFileInput & keyof KernFileInputAttributes as `attr:${K}`]?: KernFileInputAttributes[K] } & { [K in keyof KernFileInput & keyof KernFileInputAttributes as `prop:${K}`]?: KernFileInput[K] };
         "kern-icon": Omit<KernIcon, keyof KernIconAttributes> & { [K in keyof KernIcon & keyof KernIconAttributes]?: KernIcon[K] } & { [K in keyof KernIcon & keyof KernIconAttributes as `attr:${K}`]?: KernIconAttributes[K] } & { [K in keyof KernIcon & keyof KernIconAttributes as `prop:${K}`]?: KernIcon[K] } & OneOf<"name", KernIcon["name"], KernIconAttributes["name"]>;
         "kern-input": Omit<KernInput, keyof KernInputAttributes> & { [K in keyof KernInput & keyof KernInputAttributes]?: KernInput[K] } & { [K in keyof KernInput & keyof KernInputAttributes as `attr:${K}`]?: KernInputAttributes[K] } & { [K in keyof KernInput & keyof KernInputAttributes as `prop:${K}`]?: KernInput[K] };
         "kern-ip-input": Omit<KernIpInput, keyof KernIpInputAttributes> & { [K in keyof KernIpInput & keyof KernIpInputAttributes]?: KernIpInput[K] } & { [K in keyof KernIpInput & keyof KernIpInputAttributes as `attr:${K}`]?: KernIpInputAttributes[K] } & { [K in keyof KernIpInput & keyof KernIpInputAttributes as `prop:${K}`]?: KernIpInput[K] };
@@ -5715,6 +5911,12 @@ declare module "@stencil/core" {
              * button and a click on the backdrop close it unless `dismissible` is false. For short confirmations use kern-dialog.
              */
             "kern-drawer": LocalJSX.IntrinsicElements["kern-drawer"] & JSXBase.HTMLAttributes<HTMLKernDrawerElement>;
+            /**
+             * File picker with drop zone (firmware, configuration import), form-associated. Checks `accept` and `max-size`;
+             * rejected files are named in the message and not added. The chosen files are listed with size and ×; with `multiple`
+             * new files are added, otherwise they replace the previous one. The form gets the files under `name`.
+             */
+            "kern-file-input": LocalJSX.IntrinsicElements["kern-file-input"] & JSXBase.HTMLAttributes<HTMLKernFileInputElement>;
             /**
              * One of Kern's glyphs (Lucide style). Sized by `font-size` (1em) and coloured by `currentColor`, so it fits text and
              * buttons. Decorative without `label`; with `label` it is announced as an image. Names: see the README.

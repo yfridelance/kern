@@ -1,6 +1,6 @@
 # Brand icons
 
-Names starting with `brand-` show a logo from Simple Icons (CC0), filled in `currentColor`; `brand-color` uses the official colour. The logos are trademarks of their owners: use them to refer to the product, and give them a `label` when they carry meaning on their own.
+Names starting with `brand-` show a logo from Simple Icons (CC0; four from other free sets, see Fundamentals → Icons), filled in `currentColor`; `brand-color` uses the official colour. The logos are trademarks of their owners: use them to refer to the product, and give them a `label` when they carry meaning on their own.
 
 ```html
 <div style="display:flex;flex-wrap:wrap;gap:16px;align-items:center;font-size:24px">

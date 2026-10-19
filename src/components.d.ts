@@ -941,6 +941,75 @@ export namespace Components {
         "heading": string;
     }
     /**
+     * Paging for long tables and lists: range („1–25 von 380“), optional page size, first/previous, page numbers with
+     * „…“, next/last. Emits `kernPageChange`; the app loads the page. Changing the page size keeps the first visible
+     * item on screen.
+     */
+    interface KernPagination {
+        /**
+          * @default 'Seiten'
+         */
+        "label": string;
+        /**
+          * @default 'Erste Seite'
+         */
+        "labelFirst": string;
+        /**
+          * @default 'Letzte Seite'
+         */
+        "labelLast": string;
+        /**
+          * @default 'Nächste Seite'
+         */
+        "labelNext": string;
+        /**
+          * `{n}` is replaced.
+          * @default 'Seite {n}'
+         */
+        "labelPage": string;
+        /**
+          * @default 'Pro Seite'
+         */
+        "labelPageSize": string;
+        /**
+          * @default 'Vorherige Seite'
+         */
+        "labelPrevious": string;
+        /**
+          * `{from}`, `{to}` and `{total}` are replaced.
+          * @default '{from}–{to} von {total}'
+         */
+        "labelRange": string;
+        /**
+          * BCP 47 locale for numbers; defaults to `<html lang>`, then the browser language.
+         */
+        "locale"?: string;
+        /**
+          * Current page, from 1.
+          * @default 1
+         */
+        "page": number;
+        /**
+          * @default 25
+         */
+        "pageSize": number;
+        /**
+          * Offered page sizes, e.g. `10,25,50,100`; empty hides the choice.
+          * @default ''
+         */
+        "pageSizes": number[] | string;
+        /**
+          * Page numbers on each side of the current one.
+          * @default 1
+         */
+        "siblings": number;
+        /**
+          * Number of items.
+          * @default 0
+         */
+        "total": number;
+    }
+    /**
      * Progress of a long operation. With `value` it shows the share of `max` (scan, template on N devices);
      * without `value` it runs as an indeterminate band (firmware update, reboot).
      */
@@ -1732,6 +1801,10 @@ export interface KernMenuItemCustomEvent<T> extends CustomEvent<T> {
     detail: T;
     target: HTMLKernMenuItemElement;
 }
+export interface KernPaginationCustomEvent<T> extends CustomEvent<T> {
+    detail: T;
+    target: HTMLKernPaginationElement;
+}
 export interface KernRadioCustomEvent<T> extends CustomEvent<T> {
     detail: T;
     target: HTMLKernRadioElement;
@@ -2172,6 +2245,28 @@ declare global {
         prototype: HTMLKernPageHeaderElement;
         new (): HTMLKernPageHeaderElement;
     };
+    interface HTMLKernPaginationElementEventMap {
+        "kernPageChange": { page: number; pageSize: number };
+    }
+    /**
+     * Paging for long tables and lists: range („1–25 von 380“), optional page size, first/previous, page numbers with
+     * „…“, next/last. Emits `kernPageChange`; the app loads the page. Changing the page size keeps the first visible
+     * item on screen.
+     */
+    interface HTMLKernPaginationElement extends Components.KernPagination, HTMLStencilElement {
+        addEventListener<K extends keyof HTMLKernPaginationElementEventMap>(type: K, listener: (this: HTMLKernPaginationElement, ev: KernPaginationCustomEvent<HTMLKernPaginationElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLKernPaginationElementEventMap>(type: K, listener: (this: HTMLKernPaginationElement, ev: KernPaginationCustomEvent<HTMLKernPaginationElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
+    }
+    var HTMLKernPaginationElement: {
+        prototype: HTMLKernPaginationElement;
+        new (): HTMLKernPaginationElement;
+    };
     /**
      * Progress of a long operation. With `value` it shows the share of `max` (scan, template on N devices);
      * without `value` it runs as an indeterminate band (firmware update, reboot).
@@ -2577,6 +2672,7 @@ declare global {
         "kern-menu-item": HTMLKernMenuItemElement;
         "kern-meter": HTMLKernMeterElement;
         "kern-page-header": HTMLKernPageHeaderElement;
+        "kern-pagination": HTMLKernPaginationElement;
         "kern-progress": HTMLKernProgressElement;
         "kern-radio": HTMLKernRadioElement;
         "kern-radio-group": HTMLKernRadioGroupElement;
@@ -3550,6 +3646,79 @@ declare namespace LocalJSX {
     interface KernPageHeader {
         "description"?: string;
         "heading": string;
+    }
+    /**
+     * Paging for long tables and lists: range („1–25 von 380“), optional page size, first/previous, page numbers with
+     * „…“, next/last. Emits `kernPageChange`; the app loads the page. Changing the page size keeps the first visible
+     * item on screen.
+     */
+    interface KernPagination {
+        /**
+          * @default 'Seiten'
+         */
+        "label"?: string;
+        /**
+          * @default 'Erste Seite'
+         */
+        "labelFirst"?: string;
+        /**
+          * @default 'Letzte Seite'
+         */
+        "labelLast"?: string;
+        /**
+          * @default 'Nächste Seite'
+         */
+        "labelNext"?: string;
+        /**
+          * `{n}` is replaced.
+          * @default 'Seite {n}'
+         */
+        "labelPage"?: string;
+        /**
+          * @default 'Pro Seite'
+         */
+        "labelPageSize"?: string;
+        /**
+          * @default 'Vorherige Seite'
+         */
+        "labelPrevious"?: string;
+        /**
+          * `{from}`, `{to}` and `{total}` are replaced.
+          * @default '{from}–{to} von {total}'
+         */
+        "labelRange"?: string;
+        /**
+          * BCP 47 locale for numbers; defaults to `<html lang>`, then the browser language.
+         */
+        "locale"?: string;
+        /**
+          * The page or page size changed.
+         */
+        "onKernPageChange"?: (event: KernPaginationCustomEvent<{ page: number; pageSize: number }>) => void;
+        /**
+          * Current page, from 1.
+          * @default 1
+         */
+        "page"?: number;
+        /**
+          * @default 25
+         */
+        "pageSize"?: number;
+        /**
+          * Offered page sizes, e.g. `10,25,50,100`; empty hides the choice.
+          * @default ''
+         */
+        "pageSizes"?: number[] | string;
+        /**
+          * Page numbers on each side of the current one.
+          * @default 1
+         */
+        "siblings"?: number;
+        /**
+          * Number of items.
+          * @default 0
+         */
+        "total"?: number;
     }
     /**
      * Progress of a long operation. With `value` it shows the share of `max` (scan, template on N devices);
@@ -4560,6 +4729,22 @@ declare namespace LocalJSX {
         "heading": string;
         "description": string;
     }
+    interface KernPaginationAttributes {
+        "total": number;
+        "page": number;
+        "pageSize": number;
+        "pageSizes": number[] | string;
+        "siblings": number;
+        "locale": string;
+        "label": string;
+        "labelRange": string;
+        "labelPageSize": string;
+        "labelPage": string;
+        "labelFirst": string;
+        "labelPrevious": string;
+        "labelNext": string;
+        "labelLast": string;
+    }
     interface KernProgressAttributes {
         "value": number;
         "max": number;
@@ -4793,6 +4978,7 @@ declare namespace LocalJSX {
         "kern-menu-item": Omit<KernMenuItem, keyof KernMenuItemAttributes> & { [K in keyof KernMenuItem & keyof KernMenuItemAttributes]?: KernMenuItem[K] } & { [K in keyof KernMenuItem & keyof KernMenuItemAttributes as `attr:${K}`]?: KernMenuItemAttributes[K] } & { [K in keyof KernMenuItem & keyof KernMenuItemAttributes as `prop:${K}`]?: KernMenuItem[K] };
         "kern-meter": Omit<KernMeter, keyof KernMeterAttributes> & { [K in keyof KernMeter & keyof KernMeterAttributes]?: KernMeter[K] } & { [K in keyof KernMeter & keyof KernMeterAttributes as `attr:${K}`]?: KernMeterAttributes[K] } & { [K in keyof KernMeter & keyof KernMeterAttributes as `prop:${K}`]?: KernMeter[K] };
         "kern-page-header": Omit<KernPageHeader, keyof KernPageHeaderAttributes> & { [K in keyof KernPageHeader & keyof KernPageHeaderAttributes]?: KernPageHeader[K] } & { [K in keyof KernPageHeader & keyof KernPageHeaderAttributes as `attr:${K}`]?: KernPageHeaderAttributes[K] } & { [K in keyof KernPageHeader & keyof KernPageHeaderAttributes as `prop:${K}`]?: KernPageHeader[K] } & OneOf<"heading", KernPageHeader["heading"], KernPageHeaderAttributes["heading"]>;
+        "kern-pagination": Omit<KernPagination, keyof KernPaginationAttributes> & { [K in keyof KernPagination & keyof KernPaginationAttributes]?: KernPagination[K] } & { [K in keyof KernPagination & keyof KernPaginationAttributes as `attr:${K}`]?: KernPaginationAttributes[K] } & { [K in keyof KernPagination & keyof KernPaginationAttributes as `prop:${K}`]?: KernPagination[K] };
         "kern-progress": Omit<KernProgress, keyof KernProgressAttributes> & { [K in keyof KernProgress & keyof KernProgressAttributes]?: KernProgress[K] } & { [K in keyof KernProgress & keyof KernProgressAttributes as `attr:${K}`]?: KernProgressAttributes[K] } & { [K in keyof KernProgress & keyof KernProgressAttributes as `prop:${K}`]?: KernProgress[K] };
         "kern-radio": Omit<KernRadio, keyof KernRadioAttributes> & { [K in keyof KernRadio & keyof KernRadioAttributes]?: KernRadio[K] } & { [K in keyof KernRadio & keyof KernRadioAttributes as `attr:${K}`]?: KernRadioAttributes[K] } & { [K in keyof KernRadio & keyof KernRadioAttributes as `prop:${K}`]?: KernRadio[K] };
         "kern-radio-group": Omit<KernRadioGroup, keyof KernRadioGroupAttributes> & { [K in keyof KernRadioGroup & keyof KernRadioGroupAttributes]?: KernRadioGroup[K] } & { [K in keyof KernRadioGroup & keyof KernRadioGroupAttributes as `attr:${K}`]?: KernRadioGroupAttributes[K] } & { [K in keyof KernRadioGroup & keyof KernRadioGroupAttributes as `prop:${K}`]?: KernRadioGroup[K] };
@@ -4958,6 +5144,12 @@ declare module "@stencil/core" {
              * One `primary` button at most among the actions.
              */
             "kern-page-header": LocalJSX.IntrinsicElements["kern-page-header"] & JSXBase.HTMLAttributes<HTMLKernPageHeaderElement>;
+            /**
+             * Paging for long tables and lists: range („1–25 von 380“), optional page size, first/previous, page numbers with
+             * „…“, next/last. Emits `kernPageChange`; the app loads the page. Changing the page size keeps the first visible
+             * item on screen.
+             */
+            "kern-pagination": LocalJSX.IntrinsicElements["kern-pagination"] & JSXBase.HTMLAttributes<HTMLKernPaginationElement>;
             /**
              * Progress of a long operation. With `value` it shows the share of `max` (scan, template on N devices);
              * without `value` it runs as an indeterminate band (firmware update, reboot).

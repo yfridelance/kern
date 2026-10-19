@@ -99,6 +99,19 @@ Type: `Promise<void>`
 | `"option"`  | Each option          |
 
 
+## Dependencies
+
+### Used by
+
+ - [kern-pagination](../kern-pagination)
+
+### Graph
+```mermaid
+graph TD;
+  kern-pagination --> kern-select
+  style kern-select fill:#f9f,stroke:#333,stroke-width:4px
+```
+
 ----------------------------------------------
 
 

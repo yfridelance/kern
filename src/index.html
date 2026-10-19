@@ -67,6 +67,7 @@
           </tbody>
         </table>
       </kern-table>
+      <kern-pagination id="pager" total="38" page-size="4" page-sizes="4,10,25" style="margin-top:12px"></kern-pagination>
     </section>
 
     <section class="two">
@@ -260,6 +261,7 @@
     document.getElementById('drawer-cancel').addEventListener('click', () => drawer.close('cancel'));
     document.getElementById('drawer-save').addEventListener('click', () => drawer.close('save'));
     drawer.addEventListener('kernClose', (e) => (document.getElementById('out').textContent = 'drawer → ' + e.detail.returnValue));
+    document.getElementById('pager').addEventListener('kernPageChange', (e) => (document.getElementById('cal-out').textContent = 'kernPageChange → ' + JSON.stringify(e.detail)));
     const due = document.getElementById('due');
     document.getElementById('period').max = iso(new Date());
     due.isDateDisabled = (d) => [0, 6].includes(new Date(d + 'T00:00').getDay());

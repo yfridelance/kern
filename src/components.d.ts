@@ -739,6 +739,63 @@ export namespace Components {
         "tone": 'accent' | 'muted';
     }
     /**
+     * List of rows (devices, settings, events): kern-list-item children, separated by lines, in a bordered box.
+     * `flush` drops the box, e.g. inside kern-card. Shows `empty` when there are no items.
+     */
+    interface KernList {
+        /**
+          * Shown when there are no items; empty string shows nothing.
+          * @default 'Keine Einträge'
+         */
+        "empty": string;
+        /**
+          * Without border and background, e.g. inside kern-card.
+          * @default false
+         */
+        "flush": boolean;
+        /**
+          * Accessible name of the list.
+         */
+        "label"?: string;
+        /**
+          * `sm` = denser rows.
+          * @default 'md'
+         */
+        "size": 'md' | 'sm';
+    }
+    /**
+     * One row of kern-list: optional icon or status at the start, heading and description, meta text (e.g. a time) and
+     * actions at the end. With `href` the row is a link, with `clickable` a button (`kernItemClick`); actions in the
+     * `end` slot sit beside it, so clicking them never triggers the row.
+     */
+    interface KernListItem {
+        /**
+          * Turns the row into a button that emits `kernItemClick`.
+          * @default false
+         */
+        "clickable": boolean;
+        "description"?: string;
+        /**
+          * @default false
+         */
+        "disabled": boolean;
+        "heading"?: string;
+        /**
+          * Turns the row into a link.
+         */
+        "href"?: string;
+        /**
+          * Right-aligned, muted (time, count, size).
+         */
+        "meta"?: string;
+        /**
+          * Marks the current row (`aria-current`).
+          * @default false
+         */
+        "selected": boolean;
+        "target"?: string;
+    }
+    /**
      * Fill level with thresholds (RAM, flash, temperature, load). Colour goes ok → warn → danger;
      * `neutral` uses the accent for amounts without good/bad.
      */
@@ -1287,6 +1344,10 @@ export interface KernIpInputCustomEvent<T> extends CustomEvent<T> {
     detail: T;
     target: HTMLKernIpInputElement;
 }
+export interface KernListItemCustomEvent<T> extends CustomEvent<T> {
+    detail: T;
+    target: HTMLKernListItemElement;
+}
 export interface KernSegmentedCustomEvent<T> extends CustomEvent<T> {
     detail: T;
     target: HTMLKernSegmentedElement;
@@ -1582,6 +1643,38 @@ declare global {
         new (): HTMLKernLinkElement;
     };
     /**
+     * List of rows (devices, settings, events): kern-list-item children, separated by lines, in a bordered box.
+     * `flush` drops the box, e.g. inside kern-card. Shows `empty` when there are no items.
+     */
+    interface HTMLKernListElement extends Components.KernList, HTMLStencilElement {
+    }
+    var HTMLKernListElement: {
+        prototype: HTMLKernListElement;
+        new (): HTMLKernListElement;
+    };
+    interface HTMLKernListItemElementEventMap {
+        "kernItemClick": void;
+    }
+    /**
+     * One row of kern-list: optional icon or status at the start, heading and description, meta text (e.g. a time) and
+     * actions at the end. With `href` the row is a link, with `clickable` a button (`kernItemClick`); actions in the
+     * `end` slot sit beside it, so clicking them never triggers the row.
+     */
+    interface HTMLKernListItemElement extends Components.KernListItem, HTMLStencilElement {
+        addEventListener<K extends keyof HTMLKernListItemElementEventMap>(type: K, listener: (this: HTMLKernListItemElement, ev: KernListItemCustomEvent<HTMLKernListItemElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLKernListItemElementEventMap>(type: K, listener: (this: HTMLKernListItemElement, ev: KernListItemCustomEvent<HTMLKernListItemElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
+    }
+    var HTMLKernListItemElement: {
+        prototype: HTMLKernListItemElement;
+        new (): HTMLKernListItemElement;
+    };
+    /**
      * Fill level with thresholds (RAM, flash, temperature, load). Colour goes ok → warn → danger;
      * `neutral` uses the accent for amounts without good/bad.
      */
@@ -1873,6 +1966,8 @@ declare global {
         "kern-kv": HTMLKernKvElement;
         "kern-kv-item": HTMLKernKvItemElement;
         "kern-link": HTMLKernLinkElement;
+        "kern-list": HTMLKernListElement;
+        "kern-list-item": HTMLKernListItemElement;
         "kern-meter": HTMLKernMeterElement;
         "kern-page-header": HTMLKernPageHeaderElement;
         "kern-progress": HTMLKernProgressElement;
@@ -2646,6 +2741,67 @@ declare namespace LocalJSX {
         "tone"?: 'accent' | 'muted';
     }
     /**
+     * List of rows (devices, settings, events): kern-list-item children, separated by lines, in a bordered box.
+     * `flush` drops the box, e.g. inside kern-card. Shows `empty` when there are no items.
+     */
+    interface KernList {
+        /**
+          * Shown when there are no items; empty string shows nothing.
+          * @default 'Keine Einträge'
+         */
+        "empty"?: string;
+        /**
+          * Without border and background, e.g. inside kern-card.
+          * @default false
+         */
+        "flush"?: boolean;
+        /**
+          * Accessible name of the list.
+         */
+        "label"?: string;
+        /**
+          * `sm` = denser rows.
+          * @default 'md'
+         */
+        "size"?: 'md' | 'sm';
+    }
+    /**
+     * One row of kern-list: optional icon or status at the start, heading and description, meta text (e.g. a time) and
+     * actions at the end. With `href` the row is a link, with `clickable` a button (`kernItemClick`); actions in the
+     * `end` slot sit beside it, so clicking them never triggers the row.
+     */
+    interface KernListItem {
+        /**
+          * Turns the row into a button that emits `kernItemClick`.
+          * @default false
+         */
+        "clickable"?: boolean;
+        "description"?: string;
+        /**
+          * @default false
+         */
+        "disabled"?: boolean;
+        "heading"?: string;
+        /**
+          * Turns the row into a link.
+         */
+        "href"?: string;
+        /**
+          * Right-aligned, muted (time, count, size).
+         */
+        "meta"?: string;
+        /**
+          * Click or Enter/Space on a `clickable` row.
+         */
+        "onKernItemClick"?: (event: KernListItemCustomEvent<void>) => void;
+        /**
+          * Marks the current row (`aria-current`).
+          * @default false
+         */
+        "selected"?: boolean;
+        "target"?: string;
+    }
+    /**
      * Fill level with thresholds (RAM, flash, temperature, load). Colour goes ok → warn → danger;
      * `neutral` uses the accent for amounts without good/bad.
      */
@@ -3356,6 +3512,22 @@ declare namespace LocalJSX {
         "disabled": boolean;
         "labelExternal": string;
     }
+    interface KernListAttributes {
+        "flush": boolean;
+        "size": 'md' | 'sm';
+        "empty": string;
+        "label": string;
+    }
+    interface KernListItemAttributes {
+        "heading": string;
+        "description": string;
+        "meta": string;
+        "href": string;
+        "target": string;
+        "clickable": boolean;
+        "selected": boolean;
+        "disabled": boolean;
+    }
     interface KernMeterAttributes {
         "value": number;
         "max": number;
@@ -3521,6 +3693,8 @@ declare namespace LocalJSX {
         "kern-kv": KernKv;
         "kern-kv-item": Omit<KernKvItem, keyof KernKvItemAttributes> & { [K in keyof KernKvItem & keyof KernKvItemAttributes]?: KernKvItem[K] } & { [K in keyof KernKvItem & keyof KernKvItemAttributes as `attr:${K}`]?: KernKvItemAttributes[K] } & { [K in keyof KernKvItem & keyof KernKvItemAttributes as `prop:${K}`]?: KernKvItem[K] } & OneOf<"label", KernKvItem["label"], KernKvItemAttributes["label"]>;
         "kern-link": Omit<KernLink, keyof KernLinkAttributes> & { [K in keyof KernLink & keyof KernLinkAttributes]?: KernLink[K] } & { [K in keyof KernLink & keyof KernLinkAttributes as `attr:${K}`]?: KernLinkAttributes[K] } & { [K in keyof KernLink & keyof KernLinkAttributes as `prop:${K}`]?: KernLink[K] };
+        "kern-list": Omit<KernList, keyof KernListAttributes> & { [K in keyof KernList & keyof KernListAttributes]?: KernList[K] } & { [K in keyof KernList & keyof KernListAttributes as `attr:${K}`]?: KernListAttributes[K] } & { [K in keyof KernList & keyof KernListAttributes as `prop:${K}`]?: KernList[K] };
+        "kern-list-item": Omit<KernListItem, keyof KernListItemAttributes> & { [K in keyof KernListItem & keyof KernListItemAttributes]?: KernListItem[K] } & { [K in keyof KernListItem & keyof KernListItemAttributes as `attr:${K}`]?: KernListItemAttributes[K] } & { [K in keyof KernListItem & keyof KernListItemAttributes as `prop:${K}`]?: KernListItem[K] };
         "kern-meter": Omit<KernMeter, keyof KernMeterAttributes> & { [K in keyof KernMeter & keyof KernMeterAttributes]?: KernMeter[K] } & { [K in keyof KernMeter & keyof KernMeterAttributes as `attr:${K}`]?: KernMeterAttributes[K] } & { [K in keyof KernMeter & keyof KernMeterAttributes as `prop:${K}`]?: KernMeter[K] };
         "kern-page-header": Omit<KernPageHeader, keyof KernPageHeaderAttributes> & { [K in keyof KernPageHeader & keyof KernPageHeaderAttributes]?: KernPageHeader[K] } & { [K in keyof KernPageHeader & keyof KernPageHeaderAttributes as `attr:${K}`]?: KernPageHeaderAttributes[K] } & { [K in keyof KernPageHeader & keyof KernPageHeaderAttributes as `prop:${K}`]?: KernPageHeader[K] } & OneOf<"heading", KernPageHeader["heading"], KernPageHeaderAttributes["heading"]>;
         "kern-progress": Omit<KernProgress, keyof KernProgressAttributes> & { [K in keyof KernProgress & keyof KernProgressAttributes]?: KernProgress[K] } & { [K in keyof KernProgress & keyof KernProgressAttributes as `attr:${K}`]?: KernProgressAttributes[K] } & { [K in keyof KernProgress & keyof KernProgressAttributes as `prop:${K}`]?: KernProgress[K] };
@@ -3640,6 +3814,17 @@ declare module "@stencil/core" {
              * For actions use kern-button, also when it navigates.
              */
             "kern-link": LocalJSX.IntrinsicElements["kern-link"] & JSXBase.HTMLAttributes<HTMLKernLinkElement>;
+            /**
+             * List of rows (devices, settings, events): kern-list-item children, separated by lines, in a bordered box.
+             * `flush` drops the box, e.g. inside kern-card. Shows `empty` when there are no items.
+             */
+            "kern-list": LocalJSX.IntrinsicElements["kern-list"] & JSXBase.HTMLAttributes<HTMLKernListElement>;
+            /**
+             * One row of kern-list: optional icon or status at the start, heading and description, meta text (e.g. a time) and
+             * actions at the end. With `href` the row is a link, with `clickable` a button (`kernItemClick`); actions in the
+             * `end` slot sit beside it, so clicking them never triggers the row.
+             */
+            "kern-list-item": LocalJSX.IntrinsicElements["kern-list-item"] & JSXBase.HTMLAttributes<HTMLKernListItemElement>;
             /**
              * Fill level with thresholds (RAM, flash, temperature, load). Colour goes ok → warn → danger;
              * `neutral` uses the accent for amounts without good/bad.

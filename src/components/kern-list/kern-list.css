@@ -1,0 +1,13 @@
+:host {
+  --kern-list-pad-y: 10px; --kern-list-pad-x: var(--space-4);
+  display: block; min-width: 0; box-sizing: border-box; color: var(--text);
+  background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-lg); overflow: hidden;
+}
+:host([hidden]) { display: none; }
+:host([flush]) { background: none; border: 0; border-radius: 0; }
+:host([size="sm"]) { --kern-list-pad-y: 6px; --kern-list-pad-x: var(--space-3); }
+
+.list[hidden] { display: none; }
+::slotted(:not(:first-child)) { border-top: 1px solid var(--line); }
+
+.empty { padding: var(--space-5) var(--kern-list-pad-x); text-align: center; font-size: 13px; line-height: 18px; color: var(--text-muted); }

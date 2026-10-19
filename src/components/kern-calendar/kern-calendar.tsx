@@ -234,7 +234,7 @@ export class KernCalendar {
         <div class="header">
           {isFirst ? (
             <button type="button" class="nav prev" aria-label={this.labelPrev} title={this.labelPrev} disabled={prevDisabled} onClick={() => this.step(-1)}>
-              <Icon name="chevron" />
+              <Icon name="chevron-left" />
             </button>
           ) : (
             <span class="nav" />
@@ -244,7 +244,7 @@ export class KernCalendar {
           </span>
           {isLast ? (
             <button type="button" class="nav next" aria-label={this.labelNext} title={this.labelNext} disabled={nextDisabled} onClick={() => this.step(1)}>
-              <Icon name="chevron" />
+              <Icon name="chevron-right" />
             </button>
           ) : (
             <span class="nav" />

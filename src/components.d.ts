@@ -6,10 +6,12 @@
  */
 import { HTMLStencilElement, JSXBase } from "@stencil/core/internal";
 import { KernDateFormat } from "./utils/datetime";
+import { IconName } from "./utils/icons";
 import { KernIpKind } from "./utils/ip";
 import { KernOption } from "./components/kern-select/kern-select";
 import { KernOption as KernOption1 } from "./components/kern-select/kern-select";
 export { KernDateFormat } from "./utils/datetime";
+export { IconName } from "./utils/icons";
 export { KernIpKind } from "./utils/ip";
 export { KernOption } from "./components/kern-select/kern-select";
 export { KernOption as KernOption1 } from "./components/kern-select/kern-select";
@@ -525,6 +527,20 @@ export namespace Components {
           * @default 520
          */
         "width": number;
+    }
+    /**
+     * One of Kern's glyphs (Lucide style). Sized by `font-size` (1em) and coloured by `currentColor`, so it fits text and
+     * buttons. Decorative without `label`; with `label` it is announced as an image. Names: see the README.
+     */
+    interface KernIcon {
+        /**
+          * Accessible name; without it the icon is decorative.
+         */
+        "label"?: string;
+        /**
+          * Glyph name, e.g. `wifi`, `power`, `refresh`.
+         */
+        "name": IconName;
     }
     /**
      * Labelled text field (text, password, search, number …), form-associated.
@@ -1692,6 +1708,16 @@ declare global {
         prototype: HTMLKernDialogElement;
         new (): HTMLKernDialogElement;
     };
+    /**
+     * One of Kern's glyphs (Lucide style). Sized by `font-size` (1em) and coloured by `currentColor`, so it fits text and
+     * buttons. Decorative without `label`; with `label` it is announced as an image. Names: see the README.
+     */
+    interface HTMLKernIconElement extends Components.KernIcon, HTMLStencilElement {
+    }
+    var HTMLKernIconElement: {
+        prototype: HTMLKernIconElement;
+        new (): HTMLKernIconElement;
+    };
     interface HTMLKernInputElementEventMap {
         "kernInput": { value: string };
         "kernChange": { value: string };
@@ -2139,6 +2165,7 @@ declare global {
         "kern-date-picker": HTMLKernDatePickerElement;
         "kern-date-range-picker": HTMLKernDateRangePickerElement;
         "kern-dialog": HTMLKernDialogElement;
+        "kern-icon": HTMLKernIconElement;
         "kern-input": HTMLKernInputElement;
         "kern-ip-input": HTMLKernIpInputElement;
         "kern-json": HTMLKernJsonElement;
@@ -2696,6 +2723,20 @@ declare namespace LocalJSX {
           * @default 520
          */
         "width"?: number;
+    }
+    /**
+     * One of Kern's glyphs (Lucide style). Sized by `font-size` (1em) and coloured by `currentColor`, so it fits text and
+     * buttons. Decorative without `label`; with `label` it is announced as an image. Names: see the README.
+     */
+    interface KernIcon {
+        /**
+          * Accessible name; without it the icon is decorative.
+         */
+        "label"?: string;
+        /**
+          * Glyph name, e.g. `wifi`, `power`, `refresh`.
+         */
+        "name": IconName;
     }
     /**
      * Labelled text field (text, password, search, number …), form-associated.
@@ -3768,6 +3809,10 @@ declare namespace LocalJSX {
         "closeLabel": string;
         "width": number;
     }
+    interface KernIconAttributes {
+        "name": IconName;
+        "label": string;
+    }
     interface KernInputAttributes {
         "label": string;
         "hint": string;
@@ -4038,6 +4083,7 @@ declare namespace LocalJSX {
         "kern-date-picker": Omit<KernDatePicker, keyof KernDatePickerAttributes> & { [K in keyof KernDatePicker & keyof KernDatePickerAttributes]?: KernDatePicker[K] } & { [K in keyof KernDatePicker & keyof KernDatePickerAttributes as `attr:${K}`]?: KernDatePickerAttributes[K] } & { [K in keyof KernDatePicker & keyof KernDatePickerAttributes as `prop:${K}`]?: KernDatePicker[K] };
         "kern-date-range-picker": Omit<KernDateRangePicker, keyof KernDateRangePickerAttributes> & { [K in keyof KernDateRangePicker & keyof KernDateRangePickerAttributes]?: KernDateRangePicker[K] } & { [K in keyof KernDateRangePicker & keyof KernDateRangePickerAttributes as `attr:${K}`]?: KernDateRangePickerAttributes[K] } & { [K in keyof KernDateRangePicker & keyof KernDateRangePickerAttributes as `prop:${K}`]?: KernDateRangePicker[K] };
         "kern-dialog": Omit<KernDialog, keyof KernDialogAttributes> & { [K in keyof KernDialog & keyof KernDialogAttributes]?: KernDialog[K] } & { [K in keyof KernDialog & keyof KernDialogAttributes as `attr:${K}`]?: KernDialogAttributes[K] } & { [K in keyof KernDialog & keyof KernDialogAttributes as `prop:${K}`]?: KernDialog[K] };
+        "kern-icon": Omit<KernIcon, keyof KernIconAttributes> & { [K in keyof KernIcon & keyof KernIconAttributes]?: KernIcon[K] } & { [K in keyof KernIcon & keyof KernIconAttributes as `attr:${K}`]?: KernIconAttributes[K] } & { [K in keyof KernIcon & keyof KernIconAttributes as `prop:${K}`]?: KernIcon[K] } & OneOf<"name", KernIcon["name"], KernIconAttributes["name"]>;
         "kern-input": Omit<KernInput, keyof KernInputAttributes> & { [K in keyof KernInput & keyof KernInputAttributes]?: KernInput[K] } & { [K in keyof KernInput & keyof KernInputAttributes as `attr:${K}`]?: KernInputAttributes[K] } & { [K in keyof KernInput & keyof KernInputAttributes as `prop:${K}`]?: KernInput[K] };
         "kern-ip-input": Omit<KernIpInput, keyof KernIpInputAttributes> & { [K in keyof KernIpInput & keyof KernIpInputAttributes]?: KernIpInput[K] } & { [K in keyof KernIpInput & keyof KernIpInputAttributes as `attr:${K}`]?: KernIpInputAttributes[K] } & { [K in keyof KernIpInput & keyof KernIpInputAttributes as `prop:${K}`]?: KernIpInput[K] };
         "kern-json": Omit<KernJson, keyof KernJsonAttributes> & { [K in keyof KernJson & keyof KernJsonAttributes]?: KernJson[K] } & { [K in keyof KernJson & keyof KernJsonAttributes as `attr:${K}`]?: KernJsonAttributes[K] } & { [K in keyof KernJson & keyof KernJsonAttributes as `prop:${K}`]?: KernJson[K] };
@@ -4137,6 +4183,11 @@ declare module "@stencil/core" {
              * the confirm button is `variant="danger"` with a verb.
              */
             "kern-dialog": LocalJSX.IntrinsicElements["kern-dialog"] & JSXBase.HTMLAttributes<HTMLKernDialogElement>;
+            /**
+             * One of Kern's glyphs (Lucide style). Sized by `font-size` (1em) and coloured by `currentColor`, so it fits text and
+             * buttons. Decorative without `label`; with `label` it is announced as an image. Names: see the README.
+             */
+            "kern-icon": LocalJSX.IntrinsicElements["kern-icon"] & JSXBase.HTMLAttributes<HTMLKernIconElement>;
             /**
              * Labelled text field (text, password, search, number …), form-associated.
              * Use `mono` for IP, MAC, CIDR and IDs.

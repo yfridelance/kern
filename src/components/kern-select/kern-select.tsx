@@ -343,7 +343,7 @@ export class KernSelect {
           onKeyDown={this.onTriggerKey}
         >
           <span class="value">{selected ? selected.label : (this.placeholder ?? '')}</span>
-          <Icon name="chevron" class="chevron" />
+          <Icon name="chevron-down" class="chevron" />
         </button>
         <div ref={(el) => (this.popup = el)} class="popup" part="listbox" onFocusout={this.onPopupFocusOut}>
           <div

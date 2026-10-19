@@ -1,0 +1,3 @@
+@import '../../utils/field.css';
+
+.control { font-family: var(--font-mono); font-size: 13px; }

@@ -38,6 +38,7 @@ body:
         - kern-link
         - kern-list
         - kern-list-item
+        - kern-mac-input
         - kern-menu
         - kern-menu-item
         - kern-meter

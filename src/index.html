@@ -121,6 +121,11 @@
     </section>
 
     <section>
+      <h2>Icons</h2>
+      <div id="icons" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:8px;font-size:13px;color:var(--text-muted)"></div>
+    </section>
+
+    <section>
       <h2>Kalender</h2>
       <div style="display:flex;flex-wrap:wrap;gap:var(--space-4);align-items:flex-start">
         <kern-card heading="Wartung">
@@ -201,7 +206,8 @@
   </main>
 
   <script type="module">
-    import { confirm } from '/build/index.esm.js';
+    import { confirm, ICON_NAMES } from '/build/index.esm.js';
+    document.getElementById('icons').innerHTML = ICON_NAMES.map((n) => `<span style="display:flex;align-items:center;gap:8px"><kern-icon name="${n}" style="font-size:18px;color:var(--text)"></kern-icon>${n}</span>`).join('');
     document.getElementById('json').data = {
       sys: { device: { name: 'Bad Lüftung', mac: 'C82B961A3F00', eco_mode: false }, sntp: { server: 'time.google.com' } },
       wifi: { sta: { ssid: 'Haus', ipv4mode: 'static', ip: '192.168.1.21' }, roam: { rssi_thr: -80, interval: 60 } },

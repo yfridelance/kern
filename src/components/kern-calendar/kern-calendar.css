@@ -16,8 +16,6 @@ button.nav:hover:not(:disabled) { background: var(--hover); color: var(--text); 
 button.nav:focus-visible { outline: 2px solid var(--focus); }
 button.nav:disabled { opacity: .35; cursor: default; }
 button.nav svg { width: 14px; height: 14px; }
-.prev svg { transform: rotate(90deg); }
-.next svg { transform: rotate(-90deg); }
 
 /* Grid */
 table { border-collapse: collapse; border-spacing: 0; }

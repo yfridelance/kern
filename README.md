@@ -15,7 +15,7 @@ dort und hier sind dieselben (`tokens/tokens.json`).
 | Navigation | `kern-tabs` + `kern-tab-panel`, `kern-link`, `kern-theme-toggle` |
 | Aktionen | `kern-button` |
 | Formulare | `kern-input`, `kern-ip-input`, `kern-textarea`, `kern-select`, `kern-switch`, `kern-checkbox`, `kern-segmented`, `kern-date-picker`, `kern-date-range-picker`, `kern-time-picker`, `kern-step-input`, `kern-rating` |
-| Status | `kern-badge`, `kern-status` |
+| Status | `kern-badge`, `kern-status`, `kern-icon` |
 | Rückmeldung | `kern-alert`, `kern-progress`, `kern-spinner`, `kern-dialog` (+ `confirm()`) |
 | Daten | `kern-table`, `kern-list` + `kern-list-item`, `kern-kv` + `kern-kv-item`, `kern-stat`, `kern-sparkline`, `kern-meter`, `kern-signal`, `kern-copy`, `kern-json` |
 | Datum & Zeit | `kern-date`, `kern-time`, `kern-calendar` |
@@ -29,7 +29,7 @@ verschieden sind. Der Name sagt die Rolle:
 
 | Rolle | Name | Beispiele |
 | --- | --- | --- |
-| Anzeige | Nomen | `kern-date`, `kern-time`, `kern-status`, `kern-meter`, `kern-list`, `kern-link` |
+| Anzeige | Nomen | `kern-date`, `kern-time`, `kern-status`, `kern-meter`, `kern-list`, `kern-link`, `kern-icon` |
 | Bedienelement ohne Feldbox | Nomen | `kern-switch`, `kern-checkbox`, `kern-segmented`, `kern-calendar`, `kern-rating`, `kern-tabs` |
 | Tippfeld mit eigenem Wertmodell | `-input` | `kern-ip-input`, `kern-step-input` |
 | Feld, das ein Auswahl-Popover anbietet | `-picker` | `kern-date-picker`, `kern-date-range-picker`, `kern-time-picker` |
@@ -126,6 +126,11 @@ zusätzlich Standalone-Wrapper mit `ControlValueAccessor` für `ngModel` und Rea
   (`slot="meta"`, z.B. `kern-date relative`) und Aktionen (`slot="end"`). Mit `href` wird die Zeile ein Link, mit
   `clickable` ein Button (`kernItemClick`); Aktionen liegen daneben und lösen die Zeile nie aus. `flush` in Karten,
   `empty` für die leere Liste.
+- **Icons:** `<kern-icon name="wifi">` folgt `font-size` und `currentColor`; ohne `label` dekorativ, mit `label` als
+  Bild angesagt. Namen (auch als `ICON_NAMES` exportiert): `sun`, `moon`, `copy`, `check`, `close`, `chevron-down`,
+  `chevron-up`, `chevron-left`, `chevron-right`, `calendar`, `clock`, `minus`, `plus`, `star`, `more`, `menu`,
+  `search`, `filter`, `settings`, `edit`, `trash`, `refresh`, `power`, `download`, `upload`, `link`, `lock`, `eye`,
+  `eye-off`, `info`, `warn`, `wifi`, `home`, `bulb`, `thermometer`, `external`.
 - **Links:** `kern-link` für Links im Text, in Tabellen und Karten; `external` öffnet einen neuen Tab (mit
   `rel="noopener noreferrer"`, ↗ und Hinweis für Screenreader), `tone="muted"` für Nebensächliches. Aktionen bleiben
   `kern-button` (auch mit `href`).

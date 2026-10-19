@@ -25,6 +25,7 @@ body:
         - kern-date-picker
         - kern-date-range-picker
         - kern-dialog
+        - kern-icon
         - kern-input
         - kern-ip-input
         - kern-json

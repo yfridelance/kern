@@ -8,12 +8,14 @@ import { HTMLStencilElement, JSXBase } from "@stencil/core/internal";
 import { KernDateFormat } from "./utils/datetime";
 import { IconName } from "./utils/icons";
 import { KernIpKind } from "./utils/ip";
+import { KernMacFormat } from "./utils/mac";
 import { KernOption } from "./components/kern-select/kern-select";
 import { KernOption as KernOption1 } from "./components/kern-select/kern-select";
 import { KernToastReason } from "./components/kern-toast/kern-toast";
 export { KernDateFormat } from "./utils/datetime";
 export { IconName } from "./utils/icons";
 export { KernIpKind } from "./utils/ip";
+export { KernMacFormat } from "./utils/mac";
 export { KernOption } from "./components/kern-select/kern-select";
 export { KernOption as KernOption1 } from "./components/kern-select/kern-select";
 export { KernToastReason } from "./components/kern-toast/kern-toast";
@@ -905,6 +907,63 @@ export namespace Components {
          */
         "selected": boolean;
         "target"?: string;
+    }
+    /**
+     * MAC address field, form-associated. Accepts every common notation (`C82B961A3F00`, `c8:2b:…`, `c8-2b-…`,
+     * `c82b.961a.3f00`) and normalises on Enter or when leaving the field to `format` and `letter-case`; `value` and the
+     * form value are the normalised form.
+     */
+    interface KernMacInput {
+        /**
+          * Accessible name when there is no visible label.
+         */
+        "ariaLabelText"?: string;
+        /**
+          * @default false
+         */
+        "disabled": boolean;
+        "error"?: string;
+        /**
+          * Notation of `value`: `C8:2B:…` (colon), `C8-2B-…` (dash), `c82b.961a.3f00` (dot), `C82B961A3F00` (plain).
+          * @default 'colon'
+         */
+        "format": KernMacFormat;
+        "hint"?: string;
+        "label"?: string;
+        /**
+          * @default 'Keine gültige MAC-Adresse'
+         */
+        "labelInvalid": string;
+        /**
+          * @default 'upper'
+         */
+        "letterCase": 'upper' | 'lower';
+        "name"?: string;
+        /**
+          * Defaults to an example in `format`.
+         */
+        "placeholder"?: string;
+        /**
+          * @default false
+         */
+        "readonly": boolean;
+        /**
+          * @default false
+         */
+        "required": boolean;
+        /**
+          * Focuses the native input.
+         */
+        "setFocus": () => Promise<void>;
+        /**
+          * @default 'md'
+         */
+        "size": 'md' | 'sm';
+        /**
+          * Normalised MAC address; empty when none.
+          * @default ''
+         */
+        "value": string;
     }
     /**
      * Action menu behind a trigger (e.g. a „⋯“ kern-button): kern-menu-item children, `<hr>` as separator. Opens on click,
@@ -1950,6 +2009,10 @@ export interface KernListItemCustomEvent<T> extends CustomEvent<T> {
     detail: T;
     target: HTMLKernListItemElement;
 }
+export interface KernMacInputCustomEvent<T> extends CustomEvent<T> {
+    detail: T;
+    target: HTMLKernMacInputElement;
+}
 export interface KernMenuCustomEvent<T> extends CustomEvent<T> {
     detail: T;
     target: HTMLKernMenuElement;
@@ -2385,6 +2448,29 @@ declare global {
     var HTMLKernListItemElement: {
         prototype: HTMLKernListItemElement;
         new (): HTMLKernListItemElement;
+    };
+    interface HTMLKernMacInputElementEventMap {
+        "kernInput": { value: string };
+        "kernChange": { value: string };
+    }
+    /**
+     * MAC address field, form-associated. Accepts every common notation (`C82B961A3F00`, `c8:2b:…`, `c8-2b-…`,
+     * `c82b.961a.3f00`) and normalises on Enter or when leaving the field to `format` and `letter-case`; `value` and the
+     * form value are the normalised form.
+     */
+    interface HTMLKernMacInputElement extends Components.KernMacInput, HTMLStencilElement {
+        addEventListener<K extends keyof HTMLKernMacInputElementEventMap>(type: K, listener: (this: HTMLKernMacInputElement, ev: KernMacInputCustomEvent<HTMLKernMacInputElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLKernMacInputElementEventMap>(type: K, listener: (this: HTMLKernMacInputElement, ev: KernMacInputCustomEvent<HTMLKernMacInputElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
+    }
+    var HTMLKernMacInputElement: {
+        prototype: HTMLKernMacInputElement;
+        new (): HTMLKernMacInputElement;
     };
     interface HTMLKernMenuElementEventMap {
         "kernSelect": { value: string };
@@ -2908,6 +2994,7 @@ declare global {
         "kern-link": HTMLKernLinkElement;
         "kern-list": HTMLKernListElement;
         "kern-list-item": HTMLKernListItemElement;
+        "kern-mac-input": HTMLKernMacInputElement;
         "kern-menu": HTMLKernMenuElement;
         "kern-menu-item": HTMLKernMenuItemElement;
         "kern-meter": HTMLKernMeterElement;
@@ -3858,6 +3945,71 @@ declare namespace LocalJSX {
          */
         "selected"?: boolean;
         "target"?: string;
+    }
+    /**
+     * MAC address field, form-associated. Accepts every common notation (`C82B961A3F00`, `c8:2b:…`, `c8-2b-…`,
+     * `c82b.961a.3f00`) and normalises on Enter or when leaving the field to `format` and `letter-case`; `value` and the
+     * form value are the normalised form.
+     */
+    interface KernMacInput {
+        /**
+          * Accessible name when there is no visible label.
+         */
+        "ariaLabelText"?: string;
+        /**
+          * @default false
+         */
+        "disabled"?: boolean;
+        "error"?: string;
+        /**
+          * The `id` of a `<form>` element to associate this element with.
+         */
+        "form"?: string;
+        /**
+          * Notation of `value`: `C8:2B:…` (colon), `C8-2B-…` (dash), `c82b.961a.3f00` (dot), `C82B961A3F00` (plain).
+          * @default 'colon'
+         */
+        "format"?: KernMacFormat;
+        "hint"?: string;
+        "label"?: string;
+        /**
+          * @default 'Keine gültige MAC-Adresse'
+         */
+        "labelInvalid"?: string;
+        /**
+          * @default 'upper'
+         */
+        "letterCase"?: 'upper' | 'lower';
+        "name"?: string;
+        /**
+          * When typed text is applied, with the normalised value (empty when cleared).
+         */
+        "onKernChange"?: (event: KernMacInputCustomEvent<{ value: string }>) => void;
+        /**
+          * On every keystroke, with the raw text.
+         */
+        "onKernInput"?: (event: KernMacInputCustomEvent<{ value: string }>) => void;
+        /**
+          * Defaults to an example in `format`.
+         */
+        "placeholder"?: string;
+        /**
+          * @default false
+         */
+        "readonly"?: boolean;
+        /**
+          * @default false
+         */
+        "required"?: boolean;
+        /**
+          * @default 'md'
+         */
+        "size"?: 'md' | 'sm';
+        /**
+          * Normalised MAC address; empty when none.
+          * @default ''
+         */
+        "value"?: string;
     }
     /**
      * Action menu behind a trigger (e.g. a „⋯“ kern-button): kern-menu-item children, `<hr>` as separator. Opens on click,
@@ -5127,6 +5279,22 @@ declare namespace LocalJSX {
         "selected": boolean;
         "disabled": boolean;
     }
+    interface KernMacInputAttributes {
+        "label": string;
+        "hint": string;
+        "error": string;
+        "value": string;
+        "name": string;
+        "format": KernMacFormat;
+        "letterCase": 'upper' | 'lower';
+        "placeholder": string;
+        "size": 'md' | 'sm';
+        "disabled": boolean;
+        "readonly": boolean;
+        "required": boolean;
+        "ariaLabelText": string;
+        "labelInvalid": string;
+    }
     interface KernMenuAttributes {
         "align": 'start' | 'end';
         "label": string;
@@ -5424,6 +5592,7 @@ declare namespace LocalJSX {
         "kern-link": Omit<KernLink, keyof KernLinkAttributes> & { [K in keyof KernLink & keyof KernLinkAttributes]?: KernLink[K] } & { [K in keyof KernLink & keyof KernLinkAttributes as `attr:${K}`]?: KernLinkAttributes[K] } & { [K in keyof KernLink & keyof KernLinkAttributes as `prop:${K}`]?: KernLink[K] };
         "kern-list": Omit<KernList, keyof KernListAttributes> & { [K in keyof KernList & keyof KernListAttributes]?: KernList[K] } & { [K in keyof KernList & keyof KernListAttributes as `attr:${K}`]?: KernListAttributes[K] } & { [K in keyof KernList & keyof KernListAttributes as `prop:${K}`]?: KernList[K] };
         "kern-list-item": Omit<KernListItem, keyof KernListItemAttributes> & { [K in keyof KernListItem & keyof KernListItemAttributes]?: KernListItem[K] } & { [K in keyof KernListItem & keyof KernListItemAttributes as `attr:${K}`]?: KernListItemAttributes[K] } & { [K in keyof KernListItem & keyof KernListItemAttributes as `prop:${K}`]?: KernListItem[K] };
+        "kern-mac-input": Omit<KernMacInput, keyof KernMacInputAttributes> & { [K in keyof KernMacInput & keyof KernMacInputAttributes]?: KernMacInput[K] } & { [K in keyof KernMacInput & keyof KernMacInputAttributes as `attr:${K}`]?: KernMacInputAttributes[K] } & { [K in keyof KernMacInput & keyof KernMacInputAttributes as `prop:${K}`]?: KernMacInput[K] };
         "kern-menu": Omit<KernMenu, keyof KernMenuAttributes> & { [K in keyof KernMenu & keyof KernMenuAttributes]?: KernMenu[K] } & { [K in keyof KernMenu & keyof KernMenuAttributes as `attr:${K}`]?: KernMenuAttributes[K] } & { [K in keyof KernMenu & keyof KernMenuAttributes as `prop:${K}`]?: KernMenu[K] };
         "kern-menu-item": Omit<KernMenuItem, keyof KernMenuItemAttributes> & { [K in keyof KernMenuItem & keyof KernMenuItemAttributes]?: KernMenuItem[K] } & { [K in keyof KernMenuItem & keyof KernMenuItemAttributes as `attr:${K}`]?: KernMenuItemAttributes[K] } & { [K in keyof KernMenuItem & keyof KernMenuItemAttributes as `prop:${K}`]?: KernMenuItem[K] };
         "kern-meter": Omit<KernMeter, keyof KernMeterAttributes> & { [K in keyof KernMeter & keyof KernMeterAttributes]?: KernMeter[K] } & { [K in keyof KernMeter & keyof KernMeterAttributes as `attr:${K}`]?: KernMeterAttributes[K] } & { [K in keyof KernMeter & keyof KernMeterAttributes as `prop:${K}`]?: KernMeter[K] };
@@ -5592,6 +5761,12 @@ declare module "@stencil/core" {
              * `end` slot sit beside it, so clicking them never triggers the row.
              */
             "kern-list-item": LocalJSX.IntrinsicElements["kern-list-item"] & JSXBase.HTMLAttributes<HTMLKernListItemElement>;
+            /**
+             * MAC address field, form-associated. Accepts every common notation (`C82B961A3F00`, `c8:2b:…`, `c8-2b-…`,
+             * `c82b.961a.3f00`) and normalises on Enter or when leaving the field to `format` and `letter-case`; `value` and the
+             * form value are the normalised form.
+             */
+            "kern-mac-input": LocalJSX.IntrinsicElements["kern-mac-input"] & JSXBase.HTMLAttributes<HTMLKernMacInputElement>;
             /**
              * Action menu behind a trigger (e.g. a „⋯“ kern-button): kern-menu-item children, `<hr>` as separator. Opens on click,
              * Enter, Space or Arrow Down (Arrow Up starts at the end); Arrow keys, Home/End and letters move, Enter picks, Escape

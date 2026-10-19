@@ -14,6 +14,8 @@ body:
       label: Komponente
       description: Welcher Teil von Kern ist betroffen?
       options:
+        - kern-accordion
+        - kern-accordion-item
         - kern-alert
         - kern-badge
         - kern-button

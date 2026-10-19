@@ -5,6 +5,9 @@ export const config: Config = {
   namespace: 'kern',
   // Tokens, theme switch, base styles and the light-DOM parts (kern-table) for the whole page.
   globalStyle: 'src/global/kern.css',
+  // Without a hint Stencil bundles every component used in src/index.html (the demo page, i.e. all of them)
+  // into one lazy entry. An empty hint keeps one entry per component (plus its JSX dependencies).
+  entryComponentsHint: [],
   outputTargets: [
     { type: 'dist', esmLoaderPath: '../loader' },
     {

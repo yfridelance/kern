@@ -11,6 +11,45 @@ Star rating 1–`max`, form-associated (value 0 = not rated). A radio group with
 rating, Home/End jump, with `clearable` 0/Backspace or a click on the current star clears it. Hovering previews.
 `readonly` only shows the rating („4 von 5 Sternen“).
 
+## Usage
+
+### 01-basic
+
+# Star rating
+
+A radio group with one tab stop: arrow keys change the rating, Home/End jump. With `clearable`, 0, Backspace or a click on the current star clears it (value 0 = not rated). Hovering previews.
+
+```html
+<div style="display:grid;gap:16px">
+  <kern-rating name="score" label="Reliability" value="4" clearable hint="How stable does the device run?" label-value="{n} of {max} stars"></kern-rating>
+  <kern-rating label="Signal" max="3" value="2" size="sm" label-value="{n} of {max}"></kern-rating>
+  <output style="font:12px var(--font-mono);color:var(--text-muted)">kernChange → …</output>
+</div>
+```
+
+```js
+root.querySelector('kern-rating').addEventListener('kernChange', (e) => {
+  root.querySelector('output').textContent = 'kernChange → ' + e.detail.value;
+});
+```
+
+
+### 02-readonly
+
+# Read-only and required
+
+`readonly` only shows the rating, e.g. in a card or table. `required` blocks submitting while the value is 0; `disabled` stops interaction.
+
+```html
+<div style="display:grid;gap:16px">
+  <kern-rating value="5" readonly size="sm" aria-label-text="Rating" label-value="{n} of {max} stars"></kern-rating>
+  <kern-rating label="Rate this update" required error="Please rate the update"></kern-rating>
+  <kern-rating label="Rating" value="3" disabled></kern-rating>
+</div>
+```
+
+
+
 ## Properties
 
 | Property        | Attribute         | Description                                                                 | Type                  | Default                   |

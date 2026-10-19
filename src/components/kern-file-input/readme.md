@@ -11,6 +11,49 @@ File picker with drop zone (firmware, configuration import), form-associated. Ch
 rejected files are named in the message and not added. The chosen files are listed with size and ×; with `multiple`
 new files are added, otherwise they replace the previous one. The form gets the files under `name`.
 
+## Usage
+
+### 01-basic
+
+# Firmware upload
+
+A drop zone with a button. `accept` and `max-size` are checked; rejected files are named in the message and not added. A new file replaces the previous one; × removes it. The form receives the file under `name`.
+
+```html
+<div style="display:grid;gap:16px;max-width:420px">
+  <kern-file-input name="firmware" label="Firmware file" accept=".zip,.bin" max-size="16MB" hint=".zip or .bin, max. 16 MB" required label-choose="Choose file" label-drop="or drop it here" label-too-large="“{name}” is larger than {max}." label-wrong-type="“{name}” is not an allowed file type." locale="en"></kern-file-input>
+  <output style="font:12px var(--font-mono);color:var(--text-muted)">kernChange → …</output>
+</div>
+```
+
+```js
+root.querySelector('kern-file-input').addEventListener('kernChange', (e) => {
+  root.querySelector('output').textContent = 'kernChange → ' + (e.detail.files.map((f) => `${f.name} (${f.size} B)`).join(', ') || 'none');
+});
+```
+
+
+### 02-multiple
+
+# Several files
+
+With `multiple`, new files are added to the list instead of replacing it. Set `files = []` to clear the list from script.
+
+```html
+<div style="display:grid;gap:12px;max-width:420px">
+  <kern-file-input label="Configuration backups" accept=".json" multiple max-size="500KB" label-choose-multiple="Choose files" label-drop="or drop them here"></kern-file-input>
+  <kern-file-input label="Certificate" accept=".pem,.crt" disabled hint="Only with MQTT over TLS"></kern-file-input>
+  <kern-button size="sm" variant="ghost" style="justify-self:start">Clear backups</kern-button>
+</div>
+```
+
+```js
+const input = root.querySelector('kern-file-input');
+root.querySelector('kern-button').addEventListener('click', () => (input.files = []));
+```
+
+
+
 ## Properties
 
 | Property              | Attribute               | Description                                                                    | Type                            | Default                                     |

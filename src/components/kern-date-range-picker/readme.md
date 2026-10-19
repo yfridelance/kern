@@ -15,6 +15,52 @@ the start is swapped.
 Presets: elements in the `presets` slot with `data-range` (ISO 8601 duration ending today, e.g. `P7D` = the last
 7 days incl. today) or `data-start`/`data-end` set the range on click.
 
+## Usage
+
+### 01-basic
+
+# Date range
+
+Two dates with a calendar popover. `start` and `end` are ISO dates; `value` and the form value are the interval `start/end`. An end before the start is swapped.
+
+```html
+<div style="display:grid;gap:16px;max-width:360px">
+  <kern-date-range-picker name="period" label="Report period" start="2026-10-01" end="2026-10-14" locale="en-GB" clearable label-start="From" label-end="To"></kern-date-range-picker>
+  <output style="font:12px var(--font-mono);color:var(--text-muted)">kernChange → …</output>
+</div>
+```
+
+```js
+root.querySelector('kern-date-range-picker').addEventListener('kernChange', (e) => {
+  root.querySelector('output').textContent = 'kernChange → ' + JSON.stringify(e.detail);
+});
+```
+
+
+### 02-presets
+
+# Presets and limits
+
+Elements in the `presets` slot set the range on click: `data-range` is an ISO 8601 duration ending today (`P7D` = the last 7 days incl. today), or use `data-start`/`data-end`. `max-days` limits the length; `max` is set to today here so no future days can be picked.
+
+```html
+<div style="max-width:360px">
+  <kern-date-range-picker label="Energy statistics" max-days="90" hint="At most 90 days" locale="en-GB" label-too-long="At most {n} days" label-incomplete="Enter a start and an end">
+    <kern-button slot="presets" variant="ghost" size="sm" data-range="P1D">Today</kern-button>
+    <kern-button slot="presets" variant="ghost" size="sm" data-range="P7D">Last 7 days</kern-button>
+    <kern-button slot="presets" variant="ghost" size="sm" data-range="P30D">Last 30 days</kern-button>
+    <kern-button slot="presets" variant="ghost" size="sm" data-start="2026-01-01" data-end="2026-03-31">Q1 2026</kern-button>
+  </kern-date-range-picker>
+</div>
+```
+
+```js
+const d = new Date();
+root.querySelector('kern-date-range-picker').max = new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 10);
+```
+
+
+
 ## Properties
 
 | Property          | Attribute            | Description                                                                               | Type                                      | Default                    |

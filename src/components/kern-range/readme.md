@@ -11,6 +11,43 @@ Slider for brightness, volume or thresholds, form-associated. One handle (`value
 (`value` is `"from/to"`, the handles cannot cross). Drag or click the track; keyboard: Arrow keys ± `step`,
 Page Up/Down ± a tenth of the range, Home/End to the limits. `marks` adds labelled ticks.
 
+## Usage
+
+### 01-basic
+
+# Slider
+
+Drag or click the track. Keyboard: arrow keys ± `step`, Page Up/Down ± a tenth of the range, Home/End to the limits. `marks` adds labelled ticks; the current value with `unit` is shown next to the label.
+
+```html
+<div style="display:grid;gap:24px;max-width:360px">
+  <kern-range name="brightness" label="Brightness" value="60" unit="%" step="5" marks="0,25,50,75,100"></kern-range>
+  <kern-range label="Volume" value="30" disabled></kern-range>
+  <output style="font:12px var(--font-mono);color:var(--text-muted)">kernChange → …</output>
+</div>
+```
+
+```js
+root.querySelector('kern-range').addEventListener('kernChange', (e) => {
+  root.querySelector('output').textContent = 'kernChange → ' + e.detail.value;
+});
+```
+
+
+### 02-range
+
+# Two handles
+
+With `range`, `value` is `"from/to"` and the handles cannot cross. `label-from` and `label-to` name the handles for screen readers.
+
+```html
+<div style="max-width:360px">
+  <kern-range name="window" label="Active between" range value="8/18" min="0" max="24" unit="h" marks="0,6,12,18,24" hint="No notifications outside this window" label-from="From" label-to="To"></kern-range>
+</div>
+```
+
+
+
 ## Properties
 
 | Property        | Attribute         | Description                                                                      | Type                  | Default     |

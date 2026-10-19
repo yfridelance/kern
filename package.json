@@ -1,6 +1,22 @@
 {
   "name": "@yfridelance/kern",
-  "version": "0.5.0",
+  "version": "0.6.0",
+  "keywords": [
+    "web-components",
+    "stencil",
+    "custom-elements",
+    "design-system",
+    "dark-mode",
+    "angular"
+  ],
+  "homepage": "https://yfridelance.github.io/kern/",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yfridelance/kern.git"
+  },
+  "bugs": {
+    "url": "https://github.com/yfridelance/kern/issues"
+  },
   "description": "Kern – dark-first web components for device management, monitoring, network and smart home tools",
   "license": "MIT",
   "type": "module",
@@ -60,5 +76,8 @@
     "@types/jest": "29.5.14",
     "jest": "29.7.0",
     "jest-cli": "29.7.0"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

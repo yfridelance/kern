@@ -278,6 +278,92 @@ export namespace Components {
         "value": string;
     }
     /**
+     * Colour field for smart-home lights, form-associated. `mode="color"`: `value` is `#rrggbb`; the popover has a
+     * saturation/brightness area, a hue bar and `swatches`. `mode="temperature"`: `value` is a colour temperature in
+     * Kelvin (`min-kelvin`–`max-kelvin`) on a warm-to-cold bar. The hex or Kelvin text can be typed (Enter or leaving
+     * applies it). Area and bars work with pointer and keys (Arrows, Shift = larger steps, Home/End on bars).
+     */
+    interface KernColorPicker {
+        /**
+          * Accessible name when there is no visible label.
+         */
+        "ariaLabelText"?: string;
+        /**
+          * @default false
+         */
+        "disabled": boolean;
+        "error"?: string;
+        /**
+          * Closes the colour panel.
+         */
+        "hide": () => Promise<void>;
+        "hint"?: string;
+        /**
+          * @default 100
+         */
+        "kelvinStep": number;
+        "label"?: string;
+        /**
+          * @default 'Sättigung und Helligkeit'
+         */
+        "labelArea": string;
+        /**
+          * @default 'Farbton'
+         */
+        "labelHue": string;
+        /**
+          * @default 'Keine gültige Farbe'
+         */
+        "labelInvalid": string;
+        /**
+          * @default 'Farbe wählen'
+         */
+        "labelOpen": string;
+        /**
+          * @default 'Farbtemperatur'
+         */
+        "labelTemperature": string;
+        /**
+          * @default 6500
+         */
+        "maxKelvin": number;
+        /**
+          * @default 2700
+         */
+        "minKelvin": number;
+        /**
+          * @default 'color'
+         */
+        "mode": 'color' | 'temperature';
+        "name"?: string;
+        /**
+          * @default false
+         */
+        "readonly": boolean;
+        /**
+          * @default false
+         */
+        "required": boolean;
+        /**
+          * Opens the colour panel.
+         */
+        "show": () => Promise<void>;
+        /**
+          * @default 'md'
+         */
+        "size": 'md' | 'sm';
+        /**
+          * Presets: hex colours, or Kelvin values with `mode="temperature"`, e.g. `#ff8a3c,#3cc8cc` or `2700,4000,6500`.
+          * @default ''
+         */
+        "swatches": string[] | string;
+        /**
+          * `#rrggbb`, or Kelvin with `mode="temperature"`.
+          * @default ''
+         */
+        "value": string | number;
+    }
+    /**
      * Technical value in monospace with a copy button (MAC, IP, device ID, commands).
      * The button stops click propagation so a clickable table row does not open.
      */
@@ -2052,6 +2138,10 @@ export interface KernCheckboxCustomEvent<T> extends CustomEvent<T> {
     detail: T;
     target: HTMLKernCheckboxElement;
 }
+export interface KernColorPickerCustomEvent<T> extends CustomEvent<T> {
+    detail: T;
+    target: HTMLKernColorPickerElement;
+}
 export interface KernCopyCustomEvent<T> extends CustomEvent<T> {
     detail: T;
     target: HTMLKernCopyElement;
@@ -2277,6 +2367,30 @@ declare global {
     var HTMLKernCheckboxElement: {
         prototype: HTMLKernCheckboxElement;
         new (): HTMLKernCheckboxElement;
+    };
+    interface HTMLKernColorPickerElementEventMap {
+        "kernInput": { value: string | number };
+        "kernChange": { value: string | number };
+    }
+    /**
+     * Colour field for smart-home lights, form-associated. `mode="color"`: `value` is `#rrggbb`; the popover has a
+     * saturation/brightness area, a hue bar and `swatches`. `mode="temperature"`: `value` is a colour temperature in
+     * Kelvin (`min-kelvin`–`max-kelvin`) on a warm-to-cold bar. The hex or Kelvin text can be typed (Enter or leaving
+     * applies it). Area and bars work with pointer and keys (Arrows, Shift = larger steps, Home/End on bars).
+     */
+    interface HTMLKernColorPickerElement extends Components.KernColorPicker, HTMLStencilElement {
+        addEventListener<K extends keyof HTMLKernColorPickerElementEventMap>(type: K, listener: (this: HTMLKernColorPickerElement, ev: KernColorPickerCustomEvent<HTMLKernColorPickerElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLKernColorPickerElementEventMap>(type: K, listener: (this: HTMLKernColorPickerElement, ev: KernColorPickerCustomEvent<HTMLKernColorPickerElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
+    }
+    var HTMLKernColorPickerElement: {
+        prototype: HTMLKernColorPickerElement;
+        new (): HTMLKernColorPickerElement;
     };
     interface HTMLKernCopyElementEventMap {
         "kernCopy": { value: string };
@@ -3080,6 +3194,7 @@ declare global {
         "kern-calendar": HTMLKernCalendarElement;
         "kern-card": HTMLKernCardElement;
         "kern-checkbox": HTMLKernCheckboxElement;
+        "kern-color-picker": HTMLKernColorPickerElement;
         "kern-copy": HTMLKernCopyElement;
         "kern-date": HTMLKernDateElement;
         "kern-date-picker": HTMLKernDatePickerElement;
@@ -3406,6 +3521,96 @@ declare namespace LocalJSX {
           * @default 'on'
          */
         "value"?: string;
+    }
+    /**
+     * Colour field for smart-home lights, form-associated. `mode="color"`: `value` is `#rrggbb`; the popover has a
+     * saturation/brightness area, a hue bar and `swatches`. `mode="temperature"`: `value` is a colour temperature in
+     * Kelvin (`min-kelvin`–`max-kelvin`) on a warm-to-cold bar. The hex or Kelvin text can be typed (Enter or leaving
+     * applies it). Area and bars work with pointer and keys (Arrows, Shift = larger steps, Home/End on bars).
+     */
+    interface KernColorPicker {
+        /**
+          * Accessible name when there is no visible label.
+         */
+        "ariaLabelText"?: string;
+        /**
+          * @default false
+         */
+        "disabled"?: boolean;
+        "error"?: string;
+        /**
+          * The `id` of a `<form>` element to associate this element with.
+         */
+        "form"?: string;
+        "hint"?: string;
+        /**
+          * @default 100
+         */
+        "kelvinStep"?: number;
+        "label"?: string;
+        /**
+          * @default 'Sättigung und Helligkeit'
+         */
+        "labelArea"?: string;
+        /**
+          * @default 'Farbton'
+         */
+        "labelHue"?: string;
+        /**
+          * @default 'Keine gültige Farbe'
+         */
+        "labelInvalid"?: string;
+        /**
+          * @default 'Farbe wählen'
+         */
+        "labelOpen"?: string;
+        /**
+          * @default 'Farbtemperatur'
+         */
+        "labelTemperature"?: string;
+        /**
+          * @default 6500
+         */
+        "maxKelvin"?: number;
+        /**
+          * @default 2700
+         */
+        "minKelvin"?: number;
+        /**
+          * @default 'color'
+         */
+        "mode"?: 'color' | 'temperature';
+        "name"?: string;
+        /**
+          * When a colour is applied (drag end, key, swatch, typed text).
+         */
+        "onKernChange"?: (event: KernColorPickerCustomEvent<{ value: string | number }>) => void;
+        /**
+          * While dragging or stepping.
+         */
+        "onKernInput"?: (event: KernColorPickerCustomEvent<{ value: string | number }>) => void;
+        /**
+          * @default false
+         */
+        "readonly"?: boolean;
+        /**
+          * @default false
+         */
+        "required"?: boolean;
+        /**
+          * @default 'md'
+         */
+        "size"?: 'md' | 'sm';
+        /**
+          * Presets: hex colours, or Kelvin values with `mode="temperature"`, e.g. `#ff8a3c,#3cc8cc` or `2700,4000,6500`.
+          * @default ''
+         */
+        "swatches"?: string[] | string;
+        /**
+          * `#rrggbb`, or Kelvin with `mode="temperature"`.
+          * @default ''
+         */
+        "value"?: string | number;
     }
     /**
      * Technical value in monospace with a copy button (MAC, IP, device ID, commands).
@@ -5298,6 +5503,28 @@ declare namespace LocalJSX {
         "value": string;
         "label": string;
     }
+    interface KernColorPickerAttributes {
+        "label": string;
+        "hint": string;
+        "error": string;
+        "value": string;
+        "name": string;
+        "mode": 'color' | 'temperature';
+        "swatches": string[] | string;
+        "minKelvin": number;
+        "maxKelvin": number;
+        "kelvinStep": number;
+        "size": 'md' | 'sm';
+        "disabled": boolean;
+        "readonly": boolean;
+        "required": boolean;
+        "ariaLabelText": string;
+        "labelOpen": string;
+        "labelArea": string;
+        "labelHue": string;
+        "labelTemperature": string;
+        "labelInvalid": string;
+    }
     interface KernCopyAttributes {
         "value": string;
         "label": string;
@@ -5772,6 +5999,7 @@ declare namespace LocalJSX {
         "kern-calendar": Omit<KernCalendar, keyof KernCalendarAttributes> & { [K in keyof KernCalendar & keyof KernCalendarAttributes]?: KernCalendar[K] } & { [K in keyof KernCalendar & keyof KernCalendarAttributes as `attr:${K}`]?: KernCalendarAttributes[K] } & { [K in keyof KernCalendar & keyof KernCalendarAttributes as `prop:${K}`]?: KernCalendar[K] };
         "kern-card": Omit<KernCard, keyof KernCardAttributes> & { [K in keyof KernCard & keyof KernCardAttributes]?: KernCard[K] } & { [K in keyof KernCard & keyof KernCardAttributes as `attr:${K}`]?: KernCardAttributes[K] } & { [K in keyof KernCard & keyof KernCardAttributes as `prop:${K}`]?: KernCard[K] };
         "kern-checkbox": Omit<KernCheckbox, keyof KernCheckboxAttributes> & { [K in keyof KernCheckbox & keyof KernCheckboxAttributes]?: KernCheckbox[K] } & { [K in keyof KernCheckbox & keyof KernCheckboxAttributes as `attr:${K}`]?: KernCheckboxAttributes[K] } & { [K in keyof KernCheckbox & keyof KernCheckboxAttributes as `prop:${K}`]?: KernCheckbox[K] };
+        "kern-color-picker": Omit<KernColorPicker, keyof KernColorPickerAttributes> & { [K in keyof KernColorPicker & keyof KernColorPickerAttributes]?: KernColorPicker[K] } & { [K in keyof KernColorPicker & keyof KernColorPickerAttributes as `attr:${K}`]?: KernColorPickerAttributes[K] } & { [K in keyof KernColorPicker & keyof KernColorPickerAttributes as `prop:${K}`]?: KernColorPicker[K] };
         "kern-copy": Omit<KernCopy, keyof KernCopyAttributes> & { [K in keyof KernCopy & keyof KernCopyAttributes]?: KernCopy[K] } & { [K in keyof KernCopy & keyof KernCopyAttributes as `attr:${K}`]?: KernCopyAttributes[K] } & { [K in keyof KernCopy & keyof KernCopyAttributes as `prop:${K}`]?: KernCopy[K] };
         "kern-date": Omit<KernDate, keyof KernDateAttributes> & { [K in keyof KernDate & keyof KernDateAttributes]?: KernDate[K] } & { [K in keyof KernDate & keyof KernDateAttributes as `attr:${K}`]?: KernDateAttributes[K] } & { [K in keyof KernDate & keyof KernDateAttributes as `prop:${K}`]?: KernDate[K] };
         "kern-date-picker": Omit<KernDatePicker, keyof KernDatePickerAttributes> & { [K in keyof KernDatePicker & keyof KernDatePickerAttributes]?: KernDatePicker[K] } & { [K in keyof KernDatePicker & keyof KernDatePickerAttributes as `attr:${K}`]?: KernDatePickerAttributes[K] } & { [K in keyof KernDatePicker & keyof KernDatePickerAttributes as `prop:${K}`]?: KernDatePicker[K] };
@@ -5872,6 +6100,13 @@ declare module "@stencil/core" {
              * Checkbox for selection and filters ("nur mit Firmware-Update", device selection), form-associated.
              */
             "kern-checkbox": LocalJSX.IntrinsicElements["kern-checkbox"] & JSXBase.HTMLAttributes<HTMLKernCheckboxElement>;
+            /**
+             * Colour field for smart-home lights, form-associated. `mode="color"`: `value` is `#rrggbb`; the popover has a
+             * saturation/brightness area, a hue bar and `swatches`. `mode="temperature"`: `value` is a colour temperature in
+             * Kelvin (`min-kelvin`–`max-kelvin`) on a warm-to-cold bar. The hex or Kelvin text can be typed (Enter or leaving
+             * applies it). Area and bars work with pointer and keys (Arrows, Shift = larger steps, Home/End on bars).
+             */
+            "kern-color-picker": LocalJSX.IntrinsicElements["kern-color-picker"] & JSXBase.HTMLAttributes<HTMLKernColorPickerElement>;
             /**
              * Technical value in monospace with a copy button (MAC, IP, device ID, commands).
              * The button stops click propagation so a clickable table row does not open.

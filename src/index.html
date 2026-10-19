@@ -188,6 +188,8 @@
           <kern-radio value="static" label="Statisch" description="Feste Adresse und Gateway"></kern-radio>
           <kern-radio value="ap" label="Access Point" description="Nur nach Werksreset" disabled></kern-radio>
         </kern-radio-group>
+        <kern-color-picker name="color" label="Lichtfarbe" value="#3cc8cc" swatches="#ff8a3c,#ffd23c,#3cc8cc,#7fa8ff,#e58bbf,#ffffff"></kern-color-picker>
+        <kern-color-picker name="white" label="Weisston" mode="temperature" value="3000" swatches="2700,3000,4000,5000,6500"></kern-color-picker>
         <kern-range name="brightness" label="Helligkeit" value="60" unit="%" step="5" marks="0,25,50,75,100"></kern-range>
         <kern-range name="window" label="Aktiv zwischen" range value="8/18" min="0" max="24" unit="h" hint="Ausserhalb keine Benachrichtigungen"></kern-range>
         <kern-rating name="score" label="Zuverlässigkeit" value="4" clearable hint="Wie stabil läuft das Gerät?"></kern-rating>

@@ -14,7 +14,7 @@ dort und hier sind dieselben (`tokens/tokens.json`).
 | Layout | `kern-topbar`, `kern-page-header`, `kern-card`, `kern-toolbar`, `kern-accordion` + `kern-accordion-item` |
 | Navigation | `kern-tabs` + `kern-tab-panel`, `kern-link`, `kern-breadcrumb`, `kern-pagination`, `kern-theme-toggle` |
 | Aktionen | `kern-button`, `kern-menu` + `kern-menu-item` |
-| Formulare | `kern-input`, `kern-ip-input`, `kern-mac-input`, `kern-file-input`, `kern-textarea`, `kern-select`, `kern-switch`, `kern-checkbox`, `kern-radio-group` + `kern-radio`, `kern-segmented`, `kern-date-picker`, `kern-date-range-picker`, `kern-time-picker`, `kern-step-input`, `kern-range`, `kern-rating` |
+| Formulare | `kern-input`, `kern-ip-input`, `kern-mac-input`, `kern-file-input`, `kern-textarea`, `kern-select`, `kern-switch`, `kern-checkbox`, `kern-radio-group` + `kern-radio`, `kern-segmented`, `kern-date-picker`, `kern-date-range-picker`, `kern-time-picker`, `kern-color-picker`, `kern-step-input`, `kern-range`, `kern-rating` |
 | Status | `kern-badge`, `kern-status`, `kern-icon` |
 | Rückmeldung | `kern-alert`, `kern-skeleton`, `kern-toast` (+ `toast()`), `kern-tooltip`, `kern-drawer`, `kern-progress`, `kern-spinner`, `kern-dialog` (+ `confirm()`) |
 | Daten | `kern-table`, `kern-list` + `kern-list-item`, `kern-kv` + `kern-kv-item`, `kern-stat`, `kern-sparkline`, `kern-meter`, `kern-signal`, `kern-copy`, `kern-json` |
@@ -32,7 +32,7 @@ verschieden sind. Der Name sagt die Rolle:
 | Anzeige | Nomen | `kern-date`, `kern-time`, `kern-status`, `kern-meter`, `kern-list`, `kern-link`, `kern-icon`, `kern-tooltip`, `kern-toast`, `kern-pagination`, `kern-breadcrumb`, `kern-skeleton` |
 | Bedienelement ohne Feldbox | Nomen | `kern-switch`, `kern-checkbox`, `kern-segmented`, `kern-radio-group`, `kern-calendar`, `kern-rating`, `kern-range`, `kern-tabs`, `kern-menu`, `kern-drawer`, `kern-accordion` |
 | Tippfeld mit eigenem Wertmodell | `-input` | `kern-ip-input`, `kern-mac-input`, `kern-file-input`, `kern-step-input` |
-| Feld, das ein Auswahl-Popover anbietet | `-picker` | `kern-date-picker`, `kern-date-range-picker`, `kern-time-picker` |
+| Feld, das ein Auswahl-Popover anbietet | `-picker` | `kern-date-picker`, `kern-date-range-picker`, `kern-time-picker`, `kern-color-picker` |
 
 Native Gegenstücke behalten ihren Namen: `kern-input` (allgemeines Tippfeld), `kern-textarea`, `kern-select`. So
 können Anzeige und Eingabe nebeneinander bestehen (`kern-date` / `kern-date-picker`, später `kern-ip` /
@@ -78,10 +78,10 @@ zusätzlich Standalone-Wrapper mit `ControlValueAccessor` für `ngModel` und Rea
 
 - **Formulare:** `kern-input`, `kern-ip-input`, `kern-mac-input`, `kern-file-input`, `kern-textarea`, `kern-select`,
   `kern-switch`, `kern-checkbox`, `kern-segmented`, `kern-date-picker`, `kern-date-range-picker`,
-  `kern-time-picker`, `kern-step-input` und `kern-rating` sind formularfähig (ElementInternals): `name`, `FormData`,
-  `form.reset()` und `required` funktionieren wie bei nativen Feldern. `kern-button type="submit"` sendet das
-  umgebende Formular. Ein Feld mit `error` gilt als ungültig und **blockiert das Absenden**, bis der Fehler entfernt
-  ist.
+  `kern-time-picker`, `kern-color-picker`, `kern-step-input` und `kern-rating` sind formularfähig
+  (ElementInternals): `name`, `FormData`, `form.reset()` und `required` funktionieren wie bei nativen Feldern.
+  `kern-button type="submit"` sendet das umgebende Formular. Ein Feld mit `error` gilt als ungültig und **blockiert
+  das Absenden**, bis der Fehler entfernt ist.
 - **IPv4:** `kern-ip-input` nimmt eine Adresse (`192.168.1.10`), einen Bereich (`192.168.1.10-192.168.1.50`, auch
   `192.168.1.10-50`) oder CIDR (`192.168.1.0/24`) und normalisiert beim Verlassen (Host-Adresse in CIDR → Netz,
   umgekehrter Bereich → getauscht). `allow="single range cidr"` und `max-addresses` begrenzen; Bereiche zeigen ihre
@@ -154,6 +154,9 @@ zusätzlich Standalone-Wrapper mit `ControlValueAccessor` für `ngModel` und Rea
 - **Schieberegler:** `kern-range` mit `min`, `max`, `step`, `unit` und optional `marks="0,50,100"`; Ziehen oder Klick auf
   die Spur, Tastatur wie nativ (Pfeile, Bild↑/↓ = ein Zehntel, Home/End). `range` gibt zwei Griffe, Wert `"von/bis"`.
   `kernInput` beim Ziehen, `kernChange` beim Loslassen.
+- **Farbe:** `kern-color-picker` mit Farbfeld und Hex-Eingabe; im Panel Sättigung/Helligkeit, Farbton und `swatches`.
+  `mode="temperature"` wählt Weisstöne in Kelvin (`min-kelvin`–`max-kelvin`, Standard 2700–6500). Fläche und Leisten per
+  Maus und Tastatur (Pfeile, Shift = grössere Schritte). Wert `#rrggbb` bzw. Kelvin.
 - **Bewertung:** `kern-rating` ist eine Radiogruppe aus `max` Sternen (Standard 5) mit einem Tab-Stopp; Pfeile,
   Home/End und Ziffern setzen den Wert, `clearable` erlaubt 0 (0/Backspace oder Klick auf den aktuellen Stern).
   `readonly` zeigt nur an («4 von 5 Sternen»). Wert ist eine Zahl, im Formular leer bei 0.

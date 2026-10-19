@@ -1,0 +1,30 @@
+@import '../../utils/picker.css';
+
+.box { padding-left: 4px; gap: var(--space-2); }
+.text { font-family: var(--font-mono); font-size: 13px; }
+.unit { flex: none; padding-right: var(--space-2); color: var(--text-muted); font-size: 13px; }
+
+.swatch {
+  all: unset; flex: none; box-sizing: border-box; width: 26px; height: 26px; border-radius: var(--radius-sm);
+  border: 1px solid var(--line-strong); cursor: pointer;
+}
+:host([size="sm"]) .swatch { width: 20px; height: 20px; }
+.swatch.empty { background: repeating-conic-gradient(var(--line) 0 25%, transparent 0 50%) 0 0 / 8px 8px !important; }
+.swatch:focus-visible { outline: 2px solid var(--focus); outline-offset: 1px; }
+.swatch:disabled { cursor: not-allowed; }
+
+.panel { width: 236px; gap: var(--space-3); }
+.area { position: relative; height: 140px; border-radius: var(--radius-sm); cursor: crosshair; touch-action: none; outline: none; }
+.bar { position: relative; height: 14px; border-radius: 7px; cursor: pointer; touch-action: none; outline: none; }
+.hue { background: linear-gradient(90deg, #f00 0%, #ff0 17%, #0f0 33%, #0ff 50%, #00f 67%, #f0f 83%, #f00 100%); }
+.knob {
+  position: absolute; top: 50%; width: 16px; height: 16px; margin: -8px 0 0 -8px; box-sizing: border-box;
+  border: 2px solid #fff; border-radius: 50%; box-shadow: 0 0 0 1px rgba(0, 0, 0, .35), 0 1px 3px rgba(0, 0, 0, .3); pointer-events: none;
+}
+.area .knob { top: auto; margin: -8px 0 0 -8px; }
+.area:focus-visible, .bar:focus-visible { box-shadow: 0 0 0 2px var(--surface-raised), 0 0 0 4px var(--focus); }
+
+.swatches { display: flex; flex-wrap: wrap; gap: 6px; }
+.preset { all: unset; box-sizing: border-box; width: 22px; height: 22px; border-radius: var(--radius-sm); border: 1px solid var(--line-strong); cursor: pointer; }
+.preset.current { box-shadow: 0 0 0 2px var(--surface-raised), 0 0 0 4px var(--accent); }
+.preset:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }

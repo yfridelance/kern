@@ -23,6 +23,7 @@ body:
         - kern-calendar
         - kern-card
         - kern-checkbox
+        - kern-color-picker
         - kern-copy
         - kern-date
         - kern-date-picker

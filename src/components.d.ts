@@ -1093,10 +1093,13 @@ export namespace Components {
         "value": string;
     }
     /**
-     * Labelled single choice with its own dropdown list, form-associated. Options come from the `options`
+     * Labelled choice with its own dropdown list, form-associated. Options come from the `options`
      * property or from child `<option>` elements (kept in sync, so `@for` / `*ngFor` over options works).
      * Elements in the `footer` slot appear below the list, e.g. a button "Standorte bearbeiten"; clicking
      * one closes the list.
+     * `searchable` adds a search field to the list (filters by label). `multiple` makes `value` a `string[]`: the field
+     * shows chips (× removes, Backspace removes the last), the list stays open and toggles options; the form gets one
+     * entry per value.
      * Keyboard: Enter, Space or Arrow keys open; Arrow keys, Home, End and typing a letter move; Enter
      * or Space picks; Escape closes; Tab moves on to the footer.
      */
@@ -1116,6 +1119,24 @@ export namespace Components {
         "hide": () => Promise<void>;
         "hint"?: string;
         "label"?: string;
+        /**
+          * @default 'Keine Treffer'
+         */
+        "labelNoResults": string;
+        /**
+          * Accessible name of a chip's ×; `{label}` is replaced.
+          * @default '{label} entfernen'
+         */
+        "labelRemove": string;
+        /**
+          * @default 'Suchen …'
+         */
+        "labelSearch": string;
+        /**
+          * Several values; `value` becomes a `string[]`.
+          * @default false
+         */
+        "multiple": boolean;
         "name"?: string;
         /**
           * Takes precedence over child `<option>` elements.
@@ -1129,6 +1150,11 @@ export namespace Components {
           * @default false
          */
         "required": boolean;
+        /**
+          * Search field in the list; filters options by label.
+          * @default false
+         */
+        "searchable": boolean;
         "setFocus": () => Promise<void>;
         /**
           * Opens the dropdown.
@@ -1139,9 +1165,10 @@ export namespace Components {
          */
         "size": 'md' | 'sm';
         /**
+          * The picked value; with `multiple` a `string[]` (a comma-separated attribute is accepted).
           * @default ''
          */
-        "value": string;
+        "value": string | string[];
     }
     /**
      * WLAN signal strength: four bars plus dBm. ≥ −55: 4 · ≥ −67: 3 · ≥ −75: 2 · ≥ −85: 1 (warn) · below: 0 (danger).
@@ -2241,13 +2268,16 @@ declare global {
         new (): HTMLKernSegmentedElement;
     };
     interface HTMLKernSelectElementEventMap {
-        "kernChange": { value: string };
+        "kernChange": { value: string | string[] };
     }
     /**
-     * Labelled single choice with its own dropdown list, form-associated. Options come from the `options`
+     * Labelled choice with its own dropdown list, form-associated. Options come from the `options`
      * property or from child `<option>` elements (kept in sync, so `@for` / `*ngFor` over options works).
      * Elements in the `footer` slot appear below the list, e.g. a button "Standorte bearbeiten"; clicking
      * one closes the list.
+     * `searchable` adds a search field to the list (filters by label). `multiple` makes `value` a `string[]`: the field
+     * shows chips (× removes, Backspace removes the last), the list stays open and toggles options; the form gets one
+     * entry per value.
      * Keyboard: Enter, Space or Arrow keys open; Arrow keys, Home, End and typing a letter move; Enter
      * or Space picks; Escape closes; Tab moves on to the footer.
      */
@@ -3691,10 +3721,13 @@ declare namespace LocalJSX {
         "value"?: string;
     }
     /**
-     * Labelled single choice with its own dropdown list, form-associated. Options come from the `options`
+     * Labelled choice with its own dropdown list, form-associated. Options come from the `options`
      * property or from child `<option>` elements (kept in sync, so `@for` / `*ngFor` over options works).
      * Elements in the `footer` slot appear below the list, e.g. a button "Standorte bearbeiten"; clicking
      * one closes the list.
+     * `searchable` adds a search field to the list (filters by label). `multiple` makes `value` a `string[]`: the field
+     * shows chips (× removes, Backspace removes the last), the list stays open and toggles options; the form gets one
+     * entry per value.
      * Keyboard: Enter, Space or Arrow keys open; Arrow keys, Home, End and typing a letter move; Enter
      * or Space picks; Escape closes; Tab moves on to the footer.
      */
@@ -3714,11 +3747,29 @@ declare namespace LocalJSX {
         "form"?: string;
         "hint"?: string;
         "label"?: string;
+        /**
+          * @default 'Keine Treffer'
+         */
+        "labelNoResults"?: string;
+        /**
+          * Accessible name of a chip's ×; `{label}` is replaced.
+          * @default '{label} entfernen'
+         */
+        "labelRemove"?: string;
+        /**
+          * @default 'Suchen …'
+         */
+        "labelSearch"?: string;
+        /**
+          * Several values; `value` becomes a `string[]`.
+          * @default false
+         */
+        "multiple"?: boolean;
         "name"?: string;
         /**
-          * When the user picks an option.
+          * When the user picks (or, with `multiple`, toggles) an option.
          */
-        "onKernChange"?: (event: KernSelectCustomEvent<{ value: string }>) => void;
+        "onKernChange"?: (event: KernSelectCustomEvent<{ value: string | string[] }>) => void;
         /**
           * Takes precedence over child `<option>` elements.
          */
@@ -3732,13 +3783,19 @@ declare namespace LocalJSX {
          */
         "required"?: boolean;
         /**
+          * Search field in the list; filters options by label.
+          * @default false
+         */
+        "searchable"?: boolean;
+        /**
           * @default 'md'
          */
         "size"?: 'md' | 'sm';
         /**
+          * The picked value; with `multiple` a `string[]` (a comma-separated attribute is accepted).
           * @default ''
          */
-        "value"?: string;
+        "value"?: string | string[];
     }
     /**
      * WLAN signal strength: four bars plus dBm. ≥ −55: 4 · ≥ −67: 3 · ≥ −75: 2 · ≥ −85: 1 (warn) · below: 0 (danger).
@@ -4552,13 +4609,18 @@ declare namespace LocalJSX {
         "label": string;
         "hint": string;
         "error": string;
-        "value": string;
+        "value": string | string[];
         "name": string;
         "placeholder": string;
+        "searchable": boolean;
+        "multiple": boolean;
         "size": 'md' | 'sm';
         "disabled": boolean;
         "required": boolean;
         "ariaLabelText": string;
+        "labelSearch": string;
+        "labelNoResults": string;
+        "labelRemove": string;
     }
     interface KernSignalAttributes {
         "rssi": number;
@@ -4923,10 +4985,13 @@ declare module "@stencil/core" {
              */
             "kern-segmented": LocalJSX.IntrinsicElements["kern-segmented"] & JSXBase.HTMLAttributes<HTMLKernSegmentedElement>;
             /**
-             * Labelled single choice with its own dropdown list, form-associated. Options come from the `options`
+             * Labelled choice with its own dropdown list, form-associated. Options come from the `options`
              * property or from child `<option>` elements (kept in sync, so `@for` / `*ngFor` over options works).
              * Elements in the `footer` slot appear below the list, e.g. a button "Standorte bearbeiten"; clicking
              * one closes the list.
+             * `searchable` adds a search field to the list (filters by label). `multiple` makes `value` a `string[]`: the field
+             * shows chips (× removes, Backspace removes the last), the list stays open and toggles options; the form gets one
+             * entry per value.
              * Keyboard: Enter, Space or Arrow keys open; Arrow keys, Home, End and typing a letter move; Enter
              * or Space picks; Escape closes; Tab moves on to the footer.
              */

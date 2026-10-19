@@ -55,4 +55,54 @@ describe('kern-select', () => {
     await page.waitForChanges();
     expect(page.root!.shadowRoot!.querySelectorAll('[role="option"]').length).toBe(1);
   });
+
+  it('filters options with searchable and picks the active match on Enter', async () => {
+    const page = await newSpecPage({
+      components: [KernSelect],
+      html: `<kern-select searchable placeholder="Gerät"><option value="1">Bad Lüftung</option><option value="2">Küche Licht</option><option value="3">Bad Spiegel</option></kern-select>`,
+    });
+    const sr = page.root!.shadowRoot!;
+    const search = sr.querySelector<HTMLInputElement>('.search input')!;
+    expect(search.getAttribute('aria-label')).toBe('Suchen …');
+    search.value = 'bad';
+    search.dispatchEvent(new Event('input'));
+    await page.waitForChanges();
+    expect(Array.from(sr.querySelectorAll('[role="option"]')).map((o) => o.textContent)).toEqual(['Bad Lüftung', 'Bad Spiegel']);
+    search.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown' }));
+    search.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter' }));
+    await page.waitForChanges();
+    expect(page.root!.value).toBe('3');
+    search.value = 'xyz';
+    search.dispatchEvent(new Event('input'));
+    await page.waitForChanges();
+    expect(sr.querySelector('.no-results')!.textContent).toBe('Keine Treffer');
+  });
+
+  it('toggles several values with multiple and shows them as chips', async () => {
+    const page = await newSpecPage({
+      components: [KernSelect],
+      html: `<kern-select multiple name="tags" placeholder="Tags"><option value="a" selected>Aussen</option><option value="b">Bad</option><option value="c" selected>Cloud</option></kern-select>`,
+    });
+    const sr = page.root!.shadowRoot!;
+    const seen: unknown[] = [];
+    page.root!.addEventListener('kernChange', (e) => seen.push((e as CustomEvent).detail.value));
+    expect(page.root!.value).toEqual(['a', 'c']);
+    expect(Array.from(sr.querySelectorAll('.chip-label')).map((c) => c.textContent)).toEqual(['Aussen', 'Cloud']);
+    expect(sr.querySelector('[role="combobox"]')!.tagName).toBe('DIV');
+    (sr.querySelectorAll('[role="option"]')[1] as HTMLElement).click();
+    await page.waitForChanges();
+    expect(page.root!.value).toEqual(['a', 'c', 'b']);
+    (sr.querySelectorAll('.chip-remove')[0] as HTMLElement).click();
+    await page.waitForChanges();
+    expect(page.root!.value).toEqual(['c', 'b']);
+    sr.querySelector('[role="combobox"]')!.dispatchEvent(new KeyboardEvent('keydown', { key: 'Backspace' }));
+    await page.waitForChanges();
+    expect(seen).toEqual([['a', 'c', 'b'], ['c', 'b'], ['c']]);
+    expect(sr.querySelectorAll('[role="option"][aria-selected="true"]').length).toBe(1);
+  });
+
+  it('accepts a comma-separated value attribute with multiple', async () => {
+    const page = await newSpecPage({ components: [KernSelect], html: `<kern-select multiple value="a, b"><option value="a">A</option><option value="b">B</option></kern-select>` });
+    expect(page.root!.value).toEqual(['a', 'b']);
+  });
 });

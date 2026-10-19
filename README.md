@@ -16,7 +16,7 @@ dort und hier sind dieselben (`tokens/tokens.json`).
 | Aktionen | `kern-button` |
 | Formulare | `kern-input`, `kern-ip-input`, `kern-textarea`, `kern-select`, `kern-switch`, `kern-checkbox`, `kern-radio-group` + `kern-radio`, `kern-segmented`, `kern-date-picker`, `kern-date-range-picker`, `kern-time-picker`, `kern-step-input`, `kern-rating` |
 | Status | `kern-badge`, `kern-status`, `kern-icon` |
-| Rückmeldung | `kern-alert`, `kern-progress`, `kern-spinner`, `kern-dialog` (+ `confirm()`) |
+| Rückmeldung | `kern-alert`, `kern-tooltip`, `kern-progress`, `kern-spinner`, `kern-dialog` (+ `confirm()`) |
 | Daten | `kern-table`, `kern-list` + `kern-list-item`, `kern-kv` + `kern-kv-item`, `kern-stat`, `kern-sparkline`, `kern-meter`, `kern-signal`, `kern-copy`, `kern-json` |
 | Datum & Zeit | `kern-date`, `kern-time`, `kern-calendar` |
 
@@ -29,7 +29,7 @@ verschieden sind. Der Name sagt die Rolle:
 
 | Rolle | Name | Beispiele |
 | --- | --- | --- |
-| Anzeige | Nomen | `kern-date`, `kern-time`, `kern-status`, `kern-meter`, `kern-list`, `kern-link`, `kern-icon` |
+| Anzeige | Nomen | `kern-date`, `kern-time`, `kern-status`, `kern-meter`, `kern-list`, `kern-link`, `kern-icon`, `kern-tooltip` |
 | Bedienelement ohne Feldbox | Nomen | `kern-switch`, `kern-checkbox`, `kern-segmented`, `kern-radio-group`, `kern-calendar`, `kern-rating`, `kern-tabs` |
 | Tippfeld mit eigenem Wertmodell | `-input` | `kern-ip-input`, `kern-step-input` |
 | Feld, das ein Auswahl-Popover anbietet | `-picker` | `kern-date-picker`, `kern-date-range-picker`, `kern-time-picker` |
@@ -133,6 +133,9 @@ zusätzlich Standalone-Wrapper mit `ControlValueAccessor` für `ngModel` und Rea
   `chevron-up`, `chevron-left`, `chevron-right`, `calendar`, `clock`, `minus`, `plus`, `star`, `more`, `menu`,
   `search`, `filter`, `settings`, `edit`, `trash`, `refresh`, `power`, `download`, `upload`, `link`, `lock`, `eye`,
   `eye-off`, `info`, `warn`, `wifi`, `home`, `bulb`, `thermometer`, `external`.
+- **Tooltips:** `kern-tooltip text="…"` um den Auslöser oder mit `for="id"`; erscheint nach `delay` (400 ms) bei
+  Hover und sofort bei Tastaturfokus, Escape schliesst. Nur Ergänzungen (Touch sieht sie nie); bei Icon-Buttons
+  bleibt `label` der Name.
 - **Links:** `kern-link` für Links im Text, in Tabellen und Karten; `external` öffnet einen neuen Tab (mit
   `rel="noopener noreferrer"`, ↗ und Hinweis für Screenreader), `tone="muted"` für Nebensächliches. Aktionen bleiben
   `kern-button` (auch mit `href`).

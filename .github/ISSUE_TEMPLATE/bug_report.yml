@@ -57,6 +57,7 @@ body:
         - kern-time
         - kern-time-picker
         - kern-toolbar
+        - kern-tooltip
         - kern-topbar
         - Tokens / Theme
         - Angular-Wrapper

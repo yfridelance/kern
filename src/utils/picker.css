@@ -1,7 +1,9 @@
 /* Shared by kern-date-picker and kern-time-picker: field box with text/segments and icon buttons, popover panel. */
 @import './field.css';
 
-/* min-width: 0 so the native minimum width of inputs never pushes the field out of its column. */
+/* min-width: 0 so the native minimum width of inputs never pushes the field out of its column. The text keeps a
+   natural width for its typical content (--_text-width, set per field), so the field is not squeezed to its icons
+   as a flex item without a width; in a narrow column it still shrinks (min-width: 0). */
 .box { display: flex; align-items: center; gap: 2px; min-width: 0; padding-right: 3px; cursor: text; }
 .box:focus-within { outline: 2px solid var(--focus); outline-offset: -1px; border-color: var(--focus); }
 :host([invalid]) .box:focus-within { outline-color: var(--danger); }
@@ -9,7 +11,7 @@
 :host([size="sm"]) .box { padding-right: 2px; }
 
 .text {
-  all: unset; flex: 1; width: 0; min-width: 0; height: 100%; font: inherit; color: inherit; font-variant-numeric: tabular-nums;
+  all: unset; flex: 1; width: var(--_text-width, 10ch); min-width: 0; height: 100%; font: inherit; color: inherit; font-variant-numeric: tabular-nums;
 }
 .text::placeholder { color: var(--text-faint); }
 .text:disabled { cursor: not-allowed; }

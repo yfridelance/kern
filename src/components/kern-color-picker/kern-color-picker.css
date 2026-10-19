@@ -1,7 +1,10 @@
 @import '../../utils/picker.css';
 
+:host { --_field-min: 104px; }
+
 .box { padding-left: 4px; gap: var(--space-2); }
-.text { font-family: var(--font-mono); font-size: 13px; }
+.text { font-family: var(--font-mono); font-size: 13px; --_text-width: 8ch; }
+:host([mode="temperature"]) .text { --_text-width: 5ch; }
 .unit { flex: none; padding-right: var(--space-2); color: var(--text-muted); font-size: 13px; }
 
 .swatch {

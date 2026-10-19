@@ -1,5 +1,7 @@
 @import '../../utils/picker.css';
 
+:host { --_field-min: 72px; }
+
 .box { padding-left: var(--space-2); }
 :host([size="sm"]) .box { padding-left: 6px; }
 .segments { flex: 1; display: flex; align-items: center; min-width: 0; font-variant-numeric: tabular-nums; }

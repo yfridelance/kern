@@ -1,13 +1,16 @@
 @import '../../utils/field.css';
 
-/* min-width: 0 so the native minimum width of the input never pushes the field out of its column. */
+:host { --_field-min: 160px; }
+
+/* min-width: 0 so the native minimum width of the input never pushes the field out of its column; the text's own
+   width (room for an IPv4 address with prefix) keeps the field usable as a flex item without a width. */
 .box { display: flex; align-items: center; gap: var(--space-2); min-width: 0; cursor: text; }
 .box:focus-within { outline: 2px solid var(--focus); outline-offset: -1px; border-color: var(--focus); }
 :host([invalid]) .box:focus-within { outline-color: var(--danger); }
 .box.disabled { opacity: .5; cursor: not-allowed; }
 
 .text {
-  all: unset; flex: 1; width: 0; min-width: 0; height: 100%;
+  all: unset; flex: 1; width: 18ch; min-width: 0; height: 100%;
   font: 400 13px/18px var(--font-mono); color: inherit;
 }
 .text::placeholder { color: var(--text-faint); }

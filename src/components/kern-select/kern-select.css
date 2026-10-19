@@ -1,5 +1,7 @@
 @import '../../utils/field.css';
 
+:host { --_field-min: 120px; }
+
 /* Trigger */
 .trigger {
   display: flex; align-items: center; gap: var(--space-2); text-align: left; cursor: pointer;

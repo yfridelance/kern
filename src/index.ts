@@ -9,6 +9,7 @@ export { rssiLevel } from './utils/signal';
 export { parseIpv4, ipv4ToInt, intToIpv4 } from './utils/ip';
 export { ICON_NAMES } from './utils/icons';
 export { parseMac, formatMac } from './utils/mac';
+export type { KernCodeLanguage } from './utils/highlight';
 export type { KernMacFormat } from './utils/mac';
 export type { IconName } from './utils/icons';
 export type { KernIpv4, KernIpKind } from './utils/ip';

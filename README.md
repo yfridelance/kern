@@ -17,7 +17,7 @@ dort und hier sind dieselben (`tokens/tokens.json`).
 | Formulare | `kern-input`, `kern-ip-input`, `kern-mac-input`, `kern-file-input`, `kern-textarea`, `kern-select`, `kern-switch`, `kern-checkbox`, `kern-radio-group` + `kern-radio`, `kern-segmented`, `kern-date-picker`, `kern-date-range-picker`, `kern-time-picker`, `kern-color-picker`, `kern-step-input`, `kern-range`, `kern-rating` |
 | Status | `kern-badge`, `kern-status`, `kern-icon` |
 | Rückmeldung | `kern-alert`, `kern-skeleton`, `kern-toast` (+ `toast()`), `kern-tooltip`, `kern-drawer`, `kern-progress`, `kern-spinner`, `kern-dialog` (+ `confirm()`) |
-| Daten | `kern-table`, `kern-list` + `kern-list-item`, `kern-kv` + `kern-kv-item`, `kern-stat`, `kern-sparkline`, `kern-meter`, `kern-signal`, `kern-copy`, `kern-json` |
+| Daten | `kern-table`, `kern-list` + `kern-list-item`, `kern-kv` + `kern-kv-item`, `kern-stat`, `kern-sparkline`, `kern-meter`, `kern-signal`, `kern-copy`, `kern-json`, `kern-code` |
 | Datum & Zeit | `kern-date`, `kern-time`, `kern-calendar` |
 
 Props, Events, Slots und Parts jeder Komponente: `src/components/<tag>/readme.md` (aus dem Code erzeugt).
@@ -29,7 +29,7 @@ verschieden sind. Der Name sagt die Rolle:
 
 | Rolle | Name | Beispiele |
 | --- | --- | --- |
-| Anzeige | Nomen | `kern-date`, `kern-time`, `kern-status`, `kern-meter`, `kern-list`, `kern-link`, `kern-icon`, `kern-tooltip`, `kern-toast`, `kern-pagination`, `kern-breadcrumb`, `kern-skeleton` |
+| Anzeige | Nomen | `kern-date`, `kern-time`, `kern-status`, `kern-meter`, `kern-list`, `kern-link`, `kern-icon`, `kern-tooltip`, `kern-toast`, `kern-pagination`, `kern-breadcrumb`, `kern-skeleton`, `kern-code` |
 | Bedienelement ohne Feldbox | Nomen | `kern-switch`, `kern-checkbox`, `kern-segmented`, `kern-radio-group`, `kern-calendar`, `kern-rating`, `kern-range`, `kern-tabs`, `kern-menu`, `kern-drawer`, `kern-accordion` |
 | Tippfeld mit eigenem Wertmodell | `-input` | `kern-ip-input`, `kern-mac-input`, `kern-file-input`, `kern-step-input` |
 | Feld, das ein Auswahl-Popover anbietet | `-picker` | `kern-date-picker`, `kern-date-range-picker`, `kern-time-picker`, `kern-color-picker` |
@@ -176,6 +176,11 @@ zusätzlich Standalone-Wrapper mit `ControlValueAccessor` für `ngModel` und Rea
 - **Tooltips:** `kern-tooltip text="…"` um den Auslöser oder mit `for="id"`; erscheint nach `delay` (400 ms) bei
   Hover und sofort bei Tastaturfokus, Escape schliesst. Nur Ergänzungen (Touch sieht sie nie); bei Icon-Buttons
   bleibt `label` der Name.
+- **Code:** `kern-code` für Befehle und Konfiguration mit Kopieren-Button, `language="shell|yaml|json|js|ts|ini"`
+  (Hervorhebung ohne Abhängigkeit, Farben aus den Tokens), `heading`, `line-numbers`, `wrap`, `max-height`; Inhalt aus
+  `code` oder dem Text (Einrückung wird entfernt). `inline` für Pfade und Befehle im Fliesstext. JSON-Daten als Baum:
+  `kern-json`. Angular fasst Leerraum in Templates zusammen: dort `[code]="…"` binden oder `ngPreserveWhitespaces`
+  setzen.
 - **Links:** `kern-link` für Links im Text, in Tabellen und Karten; `external` öffnet einen neuen Tab (mit
   `rel="noopener noreferrer"`, ↗ und Hinweis für Screenreader), `tone="muted"` für Nebensächliches. Aktionen bleiben
   `kern-button` (auch mit `href`).

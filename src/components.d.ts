@@ -5,6 +5,7 @@
  * It contains typing information for all components that exist in this project.
  */
 import { HTMLStencilElement, JSXBase } from "@stencil/core/internal";
+import { KernCodeLanguage } from "./utils/highlight";
 import { KernDateFormat } from "./utils/datetime";
 import { IconName } from "./utils/icons";
 import { KernIpKind } from "./utils/ip";
@@ -12,6 +13,7 @@ import { KernMacFormat } from "./utils/mac";
 import { KernOption } from "./components/kern-select/kern-select";
 import { KernOption as KernOption1 } from "./components/kern-select/kern-select";
 import { KernToastReason } from "./components/kern-toast/kern-toast";
+export { KernCodeLanguage } from "./utils/highlight";
 export { KernDateFormat } from "./utils/datetime";
 export { IconName } from "./utils/icons";
 export { KernIpKind } from "./utils/ip";
@@ -276,6 +278,56 @@ export namespace Components {
           * @default 'on'
          */
         "value": string;
+    }
+    /**
+     * Code and commands: a block with copy button, optional heading (file name), line numbers, wrapping and a maximum
+     * height, highlighted for shell, yaml, json, js/ts and ini; or `inline` in running text. The code comes from `code`
+     * or the text content; common indentation is removed, so it can be written indented in HTML.
+     */
+    interface KernCode {
+        /**
+          * The code; defaults to the text content.
+         */
+        "code"?: string;
+        /**
+          * Title above the block, e.g. a file name.
+         */
+        "heading"?: string;
+        /**
+          * In running text, without copy button.
+          * @default false
+         */
+        "inline": boolean;
+        /**
+          * @default 'Kopiert'
+         */
+        "labelCopied": string;
+        /**
+          * @default 'Kopieren'
+         */
+        "labelCopy": string;
+        /**
+          * @default 'text'
+         */
+        "language": KernCodeLanguage;
+        /**
+          * @default false
+         */
+        "lineNumbers": boolean;
+        /**
+          * Scroll beyond this height, e.g. `240px`.
+         */
+        "maxHeight"?: string;
+        /**
+          * Hide the copy button.
+          * @default false
+         */
+        "noCopy": boolean;
+        /**
+          * Wrap long lines instead of scrolling sideways.
+          * @default false
+         */
+        "wrap": boolean;
     }
     /**
      * Colour field for smart-home lights, form-associated. `mode="color"`: `value` is `#rrggbb`; the popover has a
@@ -2138,6 +2190,10 @@ export interface KernCheckboxCustomEvent<T> extends CustomEvent<T> {
     detail: T;
     target: HTMLKernCheckboxElement;
 }
+export interface KernCodeCustomEvent<T> extends CustomEvent<T> {
+    detail: T;
+    target: HTMLKernCodeElement;
+}
 export interface KernColorPickerCustomEvent<T> extends CustomEvent<T> {
     detail: T;
     target: HTMLKernColorPickerElement;
@@ -2367,6 +2423,28 @@ declare global {
     var HTMLKernCheckboxElement: {
         prototype: HTMLKernCheckboxElement;
         new (): HTMLKernCheckboxElement;
+    };
+    interface HTMLKernCodeElementEventMap {
+        "kernCopy": { value: string };
+    }
+    /**
+     * Code and commands: a block with copy button, optional heading (file name), line numbers, wrapping and a maximum
+     * height, highlighted for shell, yaml, json, js/ts and ini; or `inline` in running text. The code comes from `code`
+     * or the text content; common indentation is removed, so it can be written indented in HTML.
+     */
+    interface HTMLKernCodeElement extends Components.KernCode, HTMLStencilElement {
+        addEventListener<K extends keyof HTMLKernCodeElementEventMap>(type: K, listener: (this: HTMLKernCodeElement, ev: KernCodeCustomEvent<HTMLKernCodeElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLKernCodeElementEventMap>(type: K, listener: (this: HTMLKernCodeElement, ev: KernCodeCustomEvent<HTMLKernCodeElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
+    }
+    var HTMLKernCodeElement: {
+        prototype: HTMLKernCodeElement;
+        new (): HTMLKernCodeElement;
     };
     interface HTMLKernColorPickerElementEventMap {
         "kernInput": { value: string | number };
@@ -3194,6 +3272,7 @@ declare global {
         "kern-calendar": HTMLKernCalendarElement;
         "kern-card": HTMLKernCardElement;
         "kern-checkbox": HTMLKernCheckboxElement;
+        "kern-code": HTMLKernCodeElement;
         "kern-color-picker": HTMLKernColorPickerElement;
         "kern-copy": HTMLKernCopyElement;
         "kern-date": HTMLKernDateElement;
@@ -3521,6 +3600,60 @@ declare namespace LocalJSX {
           * @default 'on'
          */
         "value"?: string;
+    }
+    /**
+     * Code and commands: a block with copy button, optional heading (file name), line numbers, wrapping and a maximum
+     * height, highlighted for shell, yaml, json, js/ts and ini; or `inline` in running text. The code comes from `code`
+     * or the text content; common indentation is removed, so it can be written indented in HTML.
+     */
+    interface KernCode {
+        /**
+          * The code; defaults to the text content.
+         */
+        "code"?: string;
+        /**
+          * Title above the block, e.g. a file name.
+         */
+        "heading"?: string;
+        /**
+          * In running text, without copy button.
+          * @default false
+         */
+        "inline"?: boolean;
+        /**
+          * @default 'Kopiert'
+         */
+        "labelCopied"?: string;
+        /**
+          * @default 'Kopieren'
+         */
+        "labelCopy"?: string;
+        /**
+          * @default 'text'
+         */
+        "language"?: KernCodeLanguage;
+        /**
+          * @default false
+         */
+        "lineNumbers"?: boolean;
+        /**
+          * Scroll beyond this height, e.g. `240px`.
+         */
+        "maxHeight"?: string;
+        /**
+          * Hide the copy button.
+          * @default false
+         */
+        "noCopy"?: boolean;
+        /**
+          * After a successful copy.
+         */
+        "onKernCopy"?: (event: KernCodeCustomEvent<{ value: string }>) => void;
+        /**
+          * Wrap long lines instead of scrolling sideways.
+          * @default false
+         */
+        "wrap"?: boolean;
     }
     /**
      * Colour field for smart-home lights, form-associated. `mode="color"`: `value` is `#rrggbb`; the popover has a
@@ -5503,6 +5636,18 @@ declare namespace LocalJSX {
         "value": string;
         "label": string;
     }
+    interface KernCodeAttributes {
+        "code": string;
+        "language": KernCodeLanguage;
+        "heading": string;
+        "lineNumbers": boolean;
+        "wrap": boolean;
+        "maxHeight": string;
+        "inline": boolean;
+        "noCopy": boolean;
+        "labelCopy": string;
+        "labelCopied": string;
+    }
     interface KernColorPickerAttributes {
         "label": string;
         "hint": string;
@@ -5999,6 +6144,7 @@ declare namespace LocalJSX {
         "kern-calendar": Omit<KernCalendar, keyof KernCalendarAttributes> & { [K in keyof KernCalendar & keyof KernCalendarAttributes]?: KernCalendar[K] } & { [K in keyof KernCalendar & keyof KernCalendarAttributes as `attr:${K}`]?: KernCalendarAttributes[K] } & { [K in keyof KernCalendar & keyof KernCalendarAttributes as `prop:${K}`]?: KernCalendar[K] };
         "kern-card": Omit<KernCard, keyof KernCardAttributes> & { [K in keyof KernCard & keyof KernCardAttributes]?: KernCard[K] } & { [K in keyof KernCard & keyof KernCardAttributes as `attr:${K}`]?: KernCardAttributes[K] } & { [K in keyof KernCard & keyof KernCardAttributes as `prop:${K}`]?: KernCard[K] };
         "kern-checkbox": Omit<KernCheckbox, keyof KernCheckboxAttributes> & { [K in keyof KernCheckbox & keyof KernCheckboxAttributes]?: KernCheckbox[K] } & { [K in keyof KernCheckbox & keyof KernCheckboxAttributes as `attr:${K}`]?: KernCheckboxAttributes[K] } & { [K in keyof KernCheckbox & keyof KernCheckboxAttributes as `prop:${K}`]?: KernCheckbox[K] };
+        "kern-code": Omit<KernCode, keyof KernCodeAttributes> & { [K in keyof KernCode & keyof KernCodeAttributes]?: KernCode[K] } & { [K in keyof KernCode & keyof KernCodeAttributes as `attr:${K}`]?: KernCodeAttributes[K] } & { [K in keyof KernCode & keyof KernCodeAttributes as `prop:${K}`]?: KernCode[K] };
         "kern-color-picker": Omit<KernColorPicker, keyof KernColorPickerAttributes> & { [K in keyof KernColorPicker & keyof KernColorPickerAttributes]?: KernColorPicker[K] } & { [K in keyof KernColorPicker & keyof KernColorPickerAttributes as `attr:${K}`]?: KernColorPickerAttributes[K] } & { [K in keyof KernColorPicker & keyof KernColorPickerAttributes as `prop:${K}`]?: KernColorPicker[K] };
         "kern-copy": Omit<KernCopy, keyof KernCopyAttributes> & { [K in keyof KernCopy & keyof KernCopyAttributes]?: KernCopy[K] } & { [K in keyof KernCopy & keyof KernCopyAttributes as `attr:${K}`]?: KernCopyAttributes[K] } & { [K in keyof KernCopy & keyof KernCopyAttributes as `prop:${K}`]?: KernCopy[K] };
         "kern-date": Omit<KernDate, keyof KernDateAttributes> & { [K in keyof KernDate & keyof KernDateAttributes]?: KernDate[K] } & { [K in keyof KernDate & keyof KernDateAttributes as `attr:${K}`]?: KernDateAttributes[K] } & { [K in keyof KernDate & keyof KernDateAttributes as `prop:${K}`]?: KernDate[K] };
@@ -6100,6 +6246,12 @@ declare module "@stencil/core" {
              * Checkbox for selection and filters ("nur mit Firmware-Update", device selection), form-associated.
              */
             "kern-checkbox": LocalJSX.IntrinsicElements["kern-checkbox"] & JSXBase.HTMLAttributes<HTMLKernCheckboxElement>;
+            /**
+             * Code and commands: a block with copy button, optional heading (file name), line numbers, wrapping and a maximum
+             * height, highlighted for shell, yaml, json, js/ts and ini; or `inline` in running text. The code comes from `code`
+             * or the text content; common indentation is removed, so it can be written indented in HTML.
+             */
+            "kern-code": LocalJSX.IntrinsicElements["kern-code"] & JSXBase.HTMLAttributes<HTMLKernCodeElement>;
             /**
              * Colour field for smart-home lights, form-associated. `mode="color"`: `value` is `#rrggbb`; the popover has a
              * saturation/brightness area, a hue bar and `swatches`. `mode="temperature"`: `value` is a colour temperature in

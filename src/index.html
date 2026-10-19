@@ -155,6 +155,27 @@
     </section>
 
     <section>
+      <h2>Code</h2>
+      <div class="two">
+        <kern-code language="shell" heading="Gerät neu starten">
+          # Neustart über die RPC-API
+          curl -X POST "http://${IP:-192.168.1.21}/rpc/Shelly.Reboot" \
+            -d '{"delay_ms": 500}'
+        </kern-code>
+        <kern-code language="yaml" heading="configuration.yaml" line-numbers max-height="200px">
+          mqtt:
+            broker: "192.168.1.5"
+            port: 1883
+            discovery: true   # Geräte automatisch anlegen
+          shelly:
+            - host: 192.168.1.21
+              name: Bad Lüftung
+        </kern-code>
+      </div>
+      <p style="margin:12px 0 0;color:var(--text-muted);font-size:13px">Die Konfiguration liegt unter <kern-code inline>/config/configuration.yaml</kern-code>; danach <kern-code inline language="shell">ha core restart</kern-code>.</p>
+    </section>
+
+    <section>
       <h2>Icons</h2>
       <div id="icons" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:8px;font-size:13px;color:var(--text-muted)"></div>
     </section>

@@ -12,6 +12,7 @@ import { KernIpKind } from "./utils/ip";
 import { KernMacFormat } from "./utils/mac";
 import { KernOption } from "./components/kern-select/kern-select";
 import { KernOption as KernOption1 } from "./components/kern-select/kern-select";
+import { KernSortDirection } from "./components/kern-table/kern-table";
 import { KernToastReason } from "./components/kern-toast/kern-toast";
 export { KernCodeLanguage } from "./utils/highlight";
 export { KernDateFormat } from "./utils/datetime";
@@ -20,6 +21,7 @@ export { KernIpKind } from "./utils/ip";
 export { KernMacFormat } from "./utils/mac";
 export { KernOption } from "./components/kern-select/kern-select";
 export { KernOption as KernOption1 } from "./components/kern-select/kern-select";
+export { KernSortDirection } from "./components/kern-table/kern-table";
 export { KernToastReason } from "./components/kern-toast/kern-toast";
 export namespace Components {
     /**
@@ -1867,7 +1869,8 @@ export namespace Components {
     }
     /**
      * Dense data table: wraps a native `<table>` (light DOM, so cells can hold any markup and Angular bindings).
-     * Sortable column: `<th aria-sort="ascending|descending"><button>…</button></th>`.
+     * Sortable column: `<th sortable>`; `sorted="asc|desc"` is the current direction (the table sets `aria-sort`),
+     * `data-key` names the column (else its index). `<td data-value="-71">` sorts by that value instead of the cell text.
      * Cells: `class="mono"` (IP, MAC, IDs), `class="num"` (right-aligned figures).
      * Rows: `class="clickable"`, `aria-selected="true"`, `class="dim"` (reset/inactive).
      * Empty state: `<td colspan="…" class="empty">`.
@@ -1878,6 +1881,15 @@ export namespace Components {
           * @default false
          */
         "compact": boolean;
+        /**
+          * `internal`: the table sorts its rows itself. `external`: it only emits `kernSort`; the app orders the rows and sets `sorted` on the header.
+          * @default 'internal'
+         */
+        "controlled": 'internal' | 'external';
+        /**
+          * Sorts by a column (`data-key` or index); without `direction` it toggles, starting with `asc`. With `controlled="external"` it only emits `kernSort`.
+         */
+        "sortBy": (column: string | number, direction?: KernSortDirection) => Promise<void>;
     }
     /**
      * Switches between views of the same object (Config / Status / Snapshots). Tabs are built from the
@@ -2281,6 +2293,10 @@ export interface KernStepInputCustomEvent<T> extends CustomEvent<T> {
 export interface KernSwitchCustomEvent<T> extends CustomEvent<T> {
     detail: T;
     target: HTMLKernSwitchElement;
+}
+export interface KernTableCustomEvent<T> extends CustomEvent<T> {
+    detail: T;
+    target: HTMLKernTableElement;
 }
 export interface KernTabsCustomEvent<T> extends CustomEvent<T> {
     detail: T;
@@ -3107,14 +3123,26 @@ declare global {
         prototype: HTMLKernTabPanelElement;
         new (): HTMLKernTabPanelElement;
     };
+    interface HTMLKernTableElementEventMap {
+        "kernSort": { key: string; column: number; direction: KernSortDirection };
+    }
     /**
      * Dense data table: wraps a native `<table>` (light DOM, so cells can hold any markup and Angular bindings).
-     * Sortable column: `<th aria-sort="ascending|descending"><button>…</button></th>`.
+     * Sortable column: `<th sortable>`; `sorted="asc|desc"` is the current direction (the table sets `aria-sort`),
+     * `data-key` names the column (else its index). `<td data-value="-71">` sorts by that value instead of the cell text.
      * Cells: `class="mono"` (IP, MAC, IDs), `class="num"` (right-aligned figures).
      * Rows: `class="clickable"`, `aria-selected="true"`, `class="dim"` (reset/inactive).
      * Empty state: `<td colspan="…" class="empty">`.
      */
     interface HTMLKernTableElement extends Components.KernTable, HTMLStencilElement {
+        addEventListener<K extends keyof HTMLKernTableElementEventMap>(type: K, listener: (this: HTMLKernTableElement, ev: KernTableCustomEvent<HTMLKernTableElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLKernTableElementEventMap>(type: K, listener: (this: HTMLKernTableElement, ev: KernTableCustomEvent<HTMLKernTableElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
     }
     var HTMLKernTableElement: {
         prototype: HTMLKernTableElement;
@@ -5252,7 +5280,8 @@ declare namespace LocalJSX {
     }
     /**
      * Dense data table: wraps a native `<table>` (light DOM, so cells can hold any markup and Angular bindings).
-     * Sortable column: `<th aria-sort="ascending|descending"><button>…</button></th>`.
+     * Sortable column: `<th sortable>`; `sorted="asc|desc"` is the current direction (the table sets `aria-sort`),
+     * `data-key` names the column (else its index). `<td data-value="-71">` sorts by that value instead of the cell text.
      * Cells: `class="mono"` (IP, MAC, IDs), `class="num"` (right-aligned figures).
      * Rows: `class="clickable"`, `aria-selected="true"`, `class="dim"` (reset/inactive).
      * Empty state: `<td colspan="…" class="empty">`.
@@ -5263,6 +5292,15 @@ declare namespace LocalJSX {
           * @default false
          */
         "compact"?: boolean;
+        /**
+          * `internal`: the table sorts its rows itself. `external`: it only emits `kernSort`; the app orders the rows and sets `sorted` on the header.
+          * @default 'internal'
+         */
+        "controlled"?: 'internal' | 'external';
+        /**
+          * A sortable header was activated (or `sortBy()` called), with the requested direction. Cancelable: `preventDefault()` skips the built-in sort.
+         */
+        "onKernSort"?: (event: KernTableCustomEvent<{ key: string; column: number; direction: KernSortDirection }>) => void;
     }
     /**
      * Switches between views of the same object (Config / Status / Snapshots). Tabs are built from the
@@ -6054,6 +6092,7 @@ declare namespace LocalJSX {
     }
     interface KernTableAttributes {
         "compact": boolean;
+        "controlled": 'internal' | 'external';
     }
     interface KernTabsAttributes {
         "value": string;
@@ -6473,7 +6512,8 @@ declare module "@stencil/core" {
             "kern-tab-panel": LocalJSX.IntrinsicElements["kern-tab-panel"] & JSXBase.HTMLAttributes<HTMLKernTabPanelElement>;
             /**
              * Dense data table: wraps a native `<table>` (light DOM, so cells can hold any markup and Angular bindings).
-             * Sortable column: `<th aria-sort="ascending|descending"><button>…</button></th>`.
+             * Sortable column: `<th sortable>`; `sorted="asc|desc"` is the current direction (the table sets `aria-sort`),
+             * `data-key` names the column (else its index). `<td data-value="-71">` sorts by that value instead of the cell text.
              * Cells: `class="mono"` (IP, MAC, IDs), `class="num"` (right-aligned figures).
              * Rows: `class="clickable"`, `aria-selected="true"`, `class="dim"` (reset/inactive).
              * Empty state: `<td colspan="…" class="empty">`.

@@ -218,6 +218,14 @@ npm run docs:serve  # http://localhost:4321/kern/
 - Neue Komponente: Name nach «Benennung», `npm run generate`, Doku-Kommentar über der Klasse (erster Satz =
   Zusammenfassung), Props mit JSDoc, Spec-Test für Logik.
 
+### Release
+
+1. Version heben (`npm version <x.y.z> --no-git-tag-version`) und per PR nach `main` mergen.
+2. Auf `main` einen GitHub-Release mit Tag `v<x.y.z>` veröffentlichen (`gh release create v<x.y.z> --generate-notes`).
+3. Der Workflow `release.yml` prüft, dass Tag und `package.json` übereinstimmen, testet, baut und veröffentlicht
+   das Paket per npm Trusted Publishing (mit Provenance, ohne Token). Vorabversionen wie `0.7.0-beta.1` landen
+   unter dem dist-tag `next`.
+
 ## Lizenz
 
 MIT

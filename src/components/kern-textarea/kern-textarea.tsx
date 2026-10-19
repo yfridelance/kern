@@ -34,7 +34,7 @@ export class KernTextarea {
   @Event() kernChange!: EventEmitter<{ value: string }>;
 
   private area?: HTMLTextAreaElement;
-  private id = `kern-textarea-${++nextId}`;
+  private uid = `kern-textarea-${++nextId}`;
   private initial = '';
 
   componentWillLoad() {
@@ -75,18 +75,18 @@ export class KernTextarea {
   };
 
   render() {
-    const describedBy = this.error ? `${this.id}-error` : this.hint ? `${this.id}-hint` : undefined;
+    const describedBy = this.error ? `${this.uid}-error` : this.hint ? `${this.uid}-hint` : undefined;
     return (
       <Host invalid={!!this.error}>
         {this.label && (
-          <label class="label" htmlFor={this.id}>
+          <label class="label" htmlFor={this.uid}>
             {this.label}
             {this.required && <span class="req" aria-hidden="true">*</span>}
           </label>
         )}
         <textarea
           ref={(el) => (this.area = el)}
-          id={this.id}
+          id={this.uid}
           class="control"
           part="control"
           rows={this.rows}
@@ -104,12 +104,12 @@ export class KernTextarea {
           value={this.value}
         />
         {this.error ? (
-          <span class="error" id={`${this.id}-error`}>
+          <span class="error" id={`${this.uid}-error`}>
             {this.error}
           </span>
         ) : (
           this.hint && (
-            <span class="hint" id={`${this.id}-hint`}>
+            <span class="hint" id={`${this.uid}-hint`}>
               {this.hint}
             </span>
           )

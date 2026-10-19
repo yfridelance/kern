@@ -56,7 +56,7 @@ export class KernFileInput {
 
   private input?: HTMLInputElement;
   private chooser?: HTMLButtonElement;
-  private id = `kern-file-input-${++nextId}`;
+  private uid = `kern-file-input-${++nextId}`;
   private depth = 0;
 
   componentDidLoad() {
@@ -114,7 +114,7 @@ export class KernFileInput {
     this.kernChange.emit({ files: this.files });
   }
 
-  private remove(i: number) {
+  private removeFile(i: number) {
     this.files = this.files.filter((_, n) => n !== i);
     this.problems = [];
     this.kernChange.emit({ files: this.files });
@@ -155,12 +155,12 @@ export class KernFileInput {
 
   render() {
     const message = this.error ?? this.problems.join(' ');
-    const describedBy = message ? `${this.id}-error` : this.hint ? `${this.id}-hint` : undefined;
+    const describedBy = message ? `${this.uid}-error` : this.hint ? `${this.uid}-hint` : undefined;
     const loc = resolveLocale(this.locale);
     return (
       <Host invalid={!!message}>
         {this.label && (
-          <label class="label" htmlFor={this.id}>
+          <label class="label" htmlFor={this.uid}>
             {this.label}
             {this.required && <span class="req" aria-hidden="true">*</span>}
           </label>
@@ -177,7 +177,7 @@ export class KernFileInput {
           <span class="prompt">
             <button
               ref={(el) => (this.chooser = el)}
-              id={this.id}
+              id={this.uid}
               type="button"
               class="choose"
               disabled={this.disabled}
@@ -215,7 +215,7 @@ export class KernFileInput {
                   aria-label={this.labelRemove.replace('{name}', f.name)}
                   title={this.labelRemove.replace('{name}', f.name)}
                   disabled={this.disabled}
-                  onClick={() => this.remove(i)}
+                  onClick={() => this.removeFile(i)}
                 >
                   <Icon name="close" />
                 </button>
@@ -224,12 +224,12 @@ export class KernFileInput {
           </ul>
         )}
         {message ? (
-          <span class="error" id={`${this.id}-error`} role="alert">
+          <span class="error" id={`${this.uid}-error`} role="alert">
             {message}
           </span>
         ) : (
           this.hint && (
-            <span class="hint" id={`${this.id}-hint`}>
+            <span class="hint" id={`${this.uid}-hint`}>
               {this.hint}
             </span>
           )

@@ -40,7 +40,7 @@ export class KernRadioGroup {
   /** When the user picks an option. */
   @Event() kernChange!: EventEmitter<{ value: string }>;
 
-  private id = `kern-radio-group-${++nextId}`;
+  private uid = `kern-radio-group-${++nextId}`;
   private initial = '';
 
   private get radios(): Radio[] {
@@ -123,8 +123,8 @@ export class KernRadioGroup {
   }
 
   render() {
-    const describedBy = this.error ? `${this.id}-error` : this.hint ? `${this.id}-hint` : undefined;
-    const labelId = this.label ? `${this.id}-label` : undefined;
+    const describedBy = this.error ? `${this.uid}-error` : this.hint ? `${this.uid}-hint` : undefined;
+    const labelId = this.label ? `${this.uid}-label` : undefined;
     return (
       <Host invalid={!!this.error}>
         {this.label && (
@@ -147,12 +147,12 @@ export class KernRadioGroup {
           <slot onSlotchange={() => this.sync()} />
         </div>
         {this.error ? (
-          <span class="error" id={`${this.id}-error`}>
+          <span class="error" id={`${this.uid}-error`}>
             {this.error}
           </span>
         ) : (
           this.hint && (
-            <span class="hint" id={`${this.id}-hint`}>
+            <span class="hint" id={`${this.uid}-hint`}>
               {this.hint}
             </span>
           )

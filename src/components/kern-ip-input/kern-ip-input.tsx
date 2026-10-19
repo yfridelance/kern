@@ -60,7 +60,7 @@ export class KernIpInput {
   @State() problem?: string;
 
   private input?: HTMLInputElement;
-  private id = `kern-ip-input-${++nextId}`;
+  private uid = `kern-ip-input-${++nextId}`;
   private initial = '';
 
   componentWillLoad() {
@@ -163,7 +163,7 @@ export class KernIpInput {
 
   render() {
     const message = this.error ?? this.problem;
-    const describedBy = message ? `${this.id}-error` : this.hint ? `${this.id}-hint` : undefined;
+    const describedBy = message ? `${this.uid}-error` : this.hint ? `${this.uid}-hint` : undefined;
     const ip = parseIpv4(this.value ?? '');
     const showCount = !this.hideCount && ip && ip.kind !== 'single' && ip.value === this.text.trim();
     const first = this.allowed[0] ?? 'cidr';
@@ -171,7 +171,7 @@ export class KernIpInput {
     return (
       <Host invalid={!!message}>
         {this.label && (
-          <label class="label" htmlFor={this.id}>
+          <label class="label" htmlFor={this.uid}>
             {this.label}
             {this.required && <span class="req" aria-hidden="true">*</span>}
           </label>
@@ -179,7 +179,7 @@ export class KernIpInput {
         <div class={{ control: true, box: true, disabled: this.disabled }} part="control">
           <input
             ref={(el) => (this.input = el)}
-            id={this.id}
+            id={this.uid}
             class="text"
             type="text"
             inputMode="decimal"
@@ -192,24 +192,24 @@ export class KernIpInput {
             required={this.required}
             aria-label={this.label ? undefined : this.ariaLabelText}
             aria-invalid={message ? 'true' : undefined}
-            aria-describedby={[describedBy, showCount ? `${this.id}-count` : undefined].filter(Boolean).join(' ') || undefined}
+            aria-describedby={[describedBy, showCount ? `${this.uid}-count` : undefined].filter(Boolean).join(' ') || undefined}
             onInput={this.onInput}
             onChange={() => this.commit()}
             onKeyDown={this.onKey}
           />
           {showCount && (
-            <span class="count" id={`${this.id}-count`} title={`${ip.first} – ${ip.last}`}>
+            <span class="count" id={`${this.uid}-count`} title={`${ip.first} – ${ip.last}`}>
               {this.labelCount.replace('{n}', this.number(ip.count))}
             </span>
           )}
         </div>
         {message ? (
-          <span class="error" id={`${this.id}-error`}>
+          <span class="error" id={`${this.uid}-error`}>
             {message}
           </span>
         ) : (
           this.hint && (
-            <span class="hint" id={`${this.id}-hint`}>
+            <span class="hint" id={`${this.uid}-hint`}>
               {this.hint}
             </span>
           )

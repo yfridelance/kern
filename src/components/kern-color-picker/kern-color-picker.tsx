@@ -65,7 +65,7 @@ export class KernColorPicker {
   private drag?: 'area' | 'hue' | 'kelvin';
   private dragStart: string | number = '';
   private wasOpen = false;
-  private id = `kern-color-picker-${++nextId}`;
+  private uid = `kern-color-picker-${++nextId}`;
   private initial: string | number = '';
 
   private get temperature(): boolean {
@@ -302,7 +302,7 @@ export class KernColorPicker {
 
   render() {
     const message = this.error ?? this.problem;
-    const describedBy = message ? `${this.id}-error` : this.hint ? `${this.id}-hint` : undefined;
+    const describedBy = message ? `${this.uid}-error` : this.hint ? `${this.uid}-hint` : undefined;
     const hex = this.hex;
     // Not `h`: that name is the JSX factory.
     const { h: hue, s: sat, v: val } = this.hsv;
@@ -313,7 +313,7 @@ export class KernColorPicker {
     return (
       <Host invalid={!!message}>
         {this.label && (
-          <label class="label" htmlFor={this.id}>
+          <label class="label" htmlFor={this.uid}>
             {this.label}
             {this.required && <span class="req" aria-hidden="true">*</span>}
           </label>
@@ -338,7 +338,7 @@ export class KernColorPicker {
             }}
           />
           <input
-            id={this.id}
+            id={this.uid}
             class="text"
             type="text"
             inputMode={this.temperature ? 'numeric' : 'text'}
@@ -436,12 +436,12 @@ export class KernColorPicker {
           )}
         </div>
         {message ? (
-          <span class="error" id={`${this.id}-error`}>
+          <span class="error" id={`${this.uid}-error`}>
             {message}
           </span>
         ) : (
           this.hint && (
-            <span class="hint" id={`${this.id}-hint`}>
+            <span class="hint" id={`${this.uid}-hint`}>
               {this.hint}
             </span>
           )

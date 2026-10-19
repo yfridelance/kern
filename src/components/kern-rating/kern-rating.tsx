@@ -46,7 +46,7 @@ export class KernRating {
   @State() preview = 0;
 
   private stars: HTMLElement[] = [];
-  private id = `kern-rating-${++nextId}`;
+  private uid = `kern-rating-${++nextId}`;
   private initial = 0;
 
   componentWillLoad() {
@@ -123,8 +123,8 @@ export class KernRating {
   render() {
     const v = this.current;
     const shown = this.preview || v;
-    const describedBy = this.error ? `${this.id}-error` : this.hint ? `${this.id}-hint` : undefined;
-    const labelId = this.label ? `${this.id}-label` : undefined;
+    const describedBy = this.error ? `${this.uid}-error` : this.hint ? `${this.uid}-hint` : undefined;
+    const labelId = this.label ? `${this.uid}-label` : undefined;
     const interactive = !this.readonly && !this.disabled;
     const n = Array.from({ length: this.max }, (_, i) => i + 1);
     this.stars = [];
@@ -175,12 +175,12 @@ export class KernRating {
           </span>
         )}
         {this.error ? (
-          <span class="error" id={`${this.id}-error`}>
+          <span class="error" id={`${this.uid}-error`}>
             {this.error}
           </span>
         ) : (
           this.hint && (
-            <span class="hint" id={`${this.id}-hint`}>
+            <span class="hint" id={`${this.uid}-hint`}>
               {this.hint}
             </span>
           )

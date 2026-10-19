@@ -205,6 +205,7 @@
         <kern-button variant="primary" busy>Scannt …</kern-button>
         <kern-button disabled>Deaktiviert</kern-button>
         <kern-button id="reset" variant="danger">Werksreset …</kern-button>
+        <kern-button id="drawer-open">Details (Drawer)</kern-button>
         <kern-button id="toast-ok">Toast</kern-button>
         <kern-button id="toast-undo">Toast mit Aktion</kern-button>
         <kern-button id="toast-err" variant="danger">Fehler-Toast</kern-button>
@@ -220,6 +221,19 @@
         <kern-button slot="footer" id="cancel">Abbrechen</kern-button>
         <kern-button slot="footer" variant="primary" id="confirm">Neustart</kern-button>
       </kern-dialog>
+      <kern-drawer id="drawer" heading="Bad Lüftung">
+        <kern-kv>
+          <kern-kv-item label="Modell">Shelly Plus 1PM</kern-kv-item>
+          <kern-kv-item label="IP"><kern-copy>192.168.1.21</kern-copy></kern-kv-item>
+          <kern-kv-item label="Firmware" mono>1.4.4</kern-kv-item>
+        </kern-kv>
+        <kern-input label="Name" value="Bad Lüftung"></kern-input>
+        <kern-ip-input label="Statische IP" allow="single" value="192.168.1.21"></kern-ip-input>
+        <kern-step-input label="Auto-Off" value="15" min="0" max="120" unit="min"></kern-step-input>
+        <kern-textarea label="Notizen" placeholder="Wo hängt das Gerät?"></kern-textarea>
+        <kern-button slot="footer" id="drawer-cancel">Abbrechen</kern-button>
+        <kern-button slot="footer" variant="primary" id="drawer-save">Speichern</kern-button>
+      </kern-drawer>
     </section>
   </main>
 
@@ -240,6 +254,11 @@
       document.getElementById('out').textContent = 'toast → ' + r;
     });
     document.getElementById('toast-err').addEventListener('click', () => toast({ heading: 'Neustart fehlgeschlagen', message: 'Küche Licht antwortet nicht (Zeitüberschreitung).', tone: 'danger', duration: 0 }));
+    const drawer = document.getElementById('drawer');
+    document.getElementById('drawer-open').addEventListener('click', () => drawer.show());
+    document.getElementById('drawer-cancel').addEventListener('click', () => drawer.close('cancel'));
+    document.getElementById('drawer-save').addEventListener('click', () => drawer.close('save'));
+    drawer.addEventListener('kernClose', (e) => (document.getElementById('out').textContent = 'drawer → ' + e.detail.returnValue));
     const due = document.getElementById('due');
     document.getElementById('period').max = iso(new Date());
     due.isDateDisabled = (d) => [0, 6].includes(new Date(d + 'T00:00').getDay());

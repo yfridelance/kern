@@ -531,6 +531,46 @@ export namespace Components {
         "width": number;
     }
     /**
+     * Side panel over the page for details, filters and longer forms, on the native modal `<dialog>` (focus stays inside
+     * and returns to the opener). Full height; header and footer stay put while the body scrolls. Escape, the close
+     * button and a click on the backdrop close it unless `dismissible` is false. For short confirmations use kern-dialog.
+     */
+    interface KernDrawer {
+        /**
+          * Closes the panel; `returnValue` is passed to `kernClose`.
+         */
+        "close": (returnValue?: string) => Promise<void>;
+        /**
+          * Accessible label of the close button.
+          * @default 'Schliessen'
+         */
+        "closeLabel": string;
+        /**
+          * Close button, Escape and backdrop click close the panel.
+          * @default true
+         */
+        "dismissible": boolean;
+        "heading"?: string;
+        /**
+          * @default false
+         */
+        "open": boolean;
+        /**
+          * Opens the panel modally.
+         */
+        "show": () => Promise<void>;
+        /**
+          * Edge the panel slides in from (`end` = right in left-to-right layouts).
+          * @default 'end'
+         */
+        "side": 'end' | 'start';
+        /**
+          * Panel width in px (at most the viewport minus 32px).
+          * @default 420
+         */
+        "width": number;
+    }
+    /**
      * One of Kern's glyphs (Lucide style). Sized by `font-size` (1em) and coloured by `currentColor`, so it fits text and
      * buttons. Decorative without `label`; with `label` it is announced as an image. Names: see the README.
      */
@@ -1641,6 +1681,10 @@ export interface KernDialogCustomEvent<T> extends CustomEvent<T> {
     detail: T;
     target: HTMLKernDialogElement;
 }
+export interface KernDrawerCustomEvent<T> extends CustomEvent<T> {
+    detail: T;
+    target: HTMLKernDrawerElement;
+}
 export interface KernInputCustomEvent<T> extends CustomEvent<T> {
     detail: T;
     target: HTMLKernInputElement;
@@ -1890,6 +1934,28 @@ declare global {
     var HTMLKernDialogElement: {
         prototype: HTMLKernDialogElement;
         new (): HTMLKernDialogElement;
+    };
+    interface HTMLKernDrawerElementEventMap {
+        "kernClose": { returnValue: string };
+    }
+    /**
+     * Side panel over the page for details, filters and longer forms, on the native modal `<dialog>` (focus stays inside
+     * and returns to the opener). Full height; header and footer stay put while the body scrolls. Escape, the close
+     * button and a click on the backdrop close it unless `dismissible` is false. For short confirmations use kern-dialog.
+     */
+    interface HTMLKernDrawerElement extends Components.KernDrawer, HTMLStencilElement {
+        addEventListener<K extends keyof HTMLKernDrawerElementEventMap>(type: K, listener: (this: HTMLKernDrawerElement, ev: KernDrawerCustomEvent<HTMLKernDrawerElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLKernDrawerElementEventMap>(type: K, listener: (this: HTMLKernDrawerElement, ev: KernDrawerCustomEvent<HTMLKernDrawerElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
+    }
+    var HTMLKernDrawerElement: {
+        prototype: HTMLKernDrawerElement;
+        new (): HTMLKernDrawerElement;
     };
     /**
      * One of Kern's glyphs (Lucide style). Sized by `font-size` (1em) and coloured by `currentColor`, so it fits text and
@@ -2467,6 +2533,7 @@ declare global {
         "kern-date-picker": HTMLKernDatePickerElement;
         "kern-date-range-picker": HTMLKernDateRangePickerElement;
         "kern-dialog": HTMLKernDialogElement;
+        "kern-drawer": HTMLKernDrawerElement;
         "kern-icon": HTMLKernIconElement;
         "kern-input": HTMLKernInputElement;
         "kern-ip-input": HTMLKernIpInputElement;
@@ -3029,6 +3096,42 @@ declare namespace LocalJSX {
         /**
           * Panel width in px.
           * @default 520
+         */
+        "width"?: number;
+    }
+    /**
+     * Side panel over the page for details, filters and longer forms, on the native modal `<dialog>` (focus stays inside
+     * and returns to the opener). Full height; header and footer stay put while the body scrolls. Escape, the close
+     * button and a click on the backdrop close it unless `dismissible` is false. For short confirmations use kern-dialog.
+     */
+    interface KernDrawer {
+        /**
+          * Accessible label of the close button.
+          * @default 'Schliessen'
+         */
+        "closeLabel"?: string;
+        /**
+          * Close button, Escape and backdrop click close the panel.
+          * @default true
+         */
+        "dismissible"?: boolean;
+        "heading"?: string;
+        /**
+          * After the panel closed; `detail.returnValue` as given to `close()` (`cancel` for Escape/backdrop/close button).
+         */
+        "onKernClose"?: (event: KernDrawerCustomEvent<{ returnValue: string }>) => void;
+        /**
+          * @default false
+         */
+        "open"?: boolean;
+        /**
+          * Edge the panel slides in from (`end` = right in left-to-right layouts).
+          * @default 'end'
+         */
+        "side"?: 'end' | 'start';
+        /**
+          * Panel width in px (at most the viewport minus 32px).
+          * @default 420
          */
         "width"?: number;
     }
@@ -4290,6 +4393,14 @@ declare namespace LocalJSX {
         "closeLabel": string;
         "width": number;
     }
+    interface KernDrawerAttributes {
+        "open": boolean;
+        "heading": string;
+        "side": 'end' | 'start';
+        "width": number;
+        "dismissible": boolean;
+        "closeLabel": string;
+    }
     interface KernIconAttributes {
         "name": IconName;
         "label": string;
@@ -4606,6 +4717,7 @@ declare namespace LocalJSX {
         "kern-date-picker": Omit<KernDatePicker, keyof KernDatePickerAttributes> & { [K in keyof KernDatePicker & keyof KernDatePickerAttributes]?: KernDatePicker[K] } & { [K in keyof KernDatePicker & keyof KernDatePickerAttributes as `attr:${K}`]?: KernDatePickerAttributes[K] } & { [K in keyof KernDatePicker & keyof KernDatePickerAttributes as `prop:${K}`]?: KernDatePicker[K] };
         "kern-date-range-picker": Omit<KernDateRangePicker, keyof KernDateRangePickerAttributes> & { [K in keyof KernDateRangePicker & keyof KernDateRangePickerAttributes]?: KernDateRangePicker[K] } & { [K in keyof KernDateRangePicker & keyof KernDateRangePickerAttributes as `attr:${K}`]?: KernDateRangePickerAttributes[K] } & { [K in keyof KernDateRangePicker & keyof KernDateRangePickerAttributes as `prop:${K}`]?: KernDateRangePicker[K] };
         "kern-dialog": Omit<KernDialog, keyof KernDialogAttributes> & { [K in keyof KernDialog & keyof KernDialogAttributes]?: KernDialog[K] } & { [K in keyof KernDialog & keyof KernDialogAttributes as `attr:${K}`]?: KernDialogAttributes[K] } & { [K in keyof KernDialog & keyof KernDialogAttributes as `prop:${K}`]?: KernDialog[K] };
+        "kern-drawer": Omit<KernDrawer, keyof KernDrawerAttributes> & { [K in keyof KernDrawer & keyof KernDrawerAttributes]?: KernDrawer[K] } & { [K in keyof KernDrawer & keyof KernDrawerAttributes as `attr:${K}`]?: KernDrawerAttributes[K] } & { [K in keyof KernDrawer & keyof KernDrawerAttributes as `prop:${K}`]?: KernDrawer[K] };
         "kern-icon": Omit<KernIcon, keyof KernIconAttributes> & { [K in keyof KernIcon & keyof KernIconAttributes]?: KernIcon[K] } & { [K in keyof KernIcon & keyof KernIconAttributes as `attr:${K}`]?: KernIconAttributes[K] } & { [K in keyof KernIcon & keyof KernIconAttributes as `prop:${K}`]?: KernIcon[K] } & OneOf<"name", KernIcon["name"], KernIconAttributes["name"]>;
         "kern-input": Omit<KernInput, keyof KernInputAttributes> & { [K in keyof KernInput & keyof KernInputAttributes]?: KernInput[K] } & { [K in keyof KernInput & keyof KernInputAttributes as `attr:${K}`]?: KernInputAttributes[K] } & { [K in keyof KernInput & keyof KernInputAttributes as `prop:${K}`]?: KernInput[K] };
         "kern-ip-input": Omit<KernIpInput, keyof KernIpInputAttributes> & { [K in keyof KernIpInput & keyof KernIpInputAttributes]?: KernIpInput[K] } & { [K in keyof KernIpInput & keyof KernIpInputAttributes as `attr:${K}`]?: KernIpInputAttributes[K] } & { [K in keyof KernIpInput & keyof KernIpInputAttributes as `prop:${K}`]?: KernIpInput[K] };
@@ -4712,6 +4824,12 @@ declare module "@stencil/core" {
              * the confirm button is `variant="danger"` with a verb.
              */
             "kern-dialog": LocalJSX.IntrinsicElements["kern-dialog"] & JSXBase.HTMLAttributes<HTMLKernDialogElement>;
+            /**
+             * Side panel over the page for details, filters and longer forms, on the native modal `<dialog>` (focus stays inside
+             * and returns to the opener). Full height; header and footer stay put while the body scrolls. Escape, the close
+             * button and a click on the backdrop close it unless `dismissible` is false. For short confirmations use kern-dialog.
+             */
+            "kern-drawer": LocalJSX.IntrinsicElements["kern-drawer"] & JSXBase.HTMLAttributes<HTMLKernDrawerElement>;
             /**
              * One of Kern's glyphs (Lucide style). Sized by `font-size` (1em) and coloured by `currentColor`, so it fits text and
              * buttons. Decorative without `label`; with `label` it is announced as an image. Names: see the README.

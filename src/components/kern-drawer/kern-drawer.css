@@ -1,0 +1,26 @@
+:host { display: contents; }
+* { box-sizing: border-box; }
+
+dialog {
+  position: fixed; inset: 0 0 0 auto; margin: 0; padding: 0; height: 100%; max-height: none; max-width: none;
+  background: var(--surface-raised); color: var(--text); border: 0; border-left: 1px solid var(--line);
+  box-shadow: var(--shadow-overlay); font: 400 14px/20px var(--font-sans); text-align: start;
+}
+:host([side="start"]) dialog { inset: 0 auto 0 0; border-left: 0; border-right: 1px solid var(--line); }
+dialog::backdrop { background: var(--scrim); }
+dialog[open] { animation: kern-drawer-in .2s ease-out; }
+:host([side="start"]) dialog[open] { animation-name: kern-drawer-in-start; }
+
+.panel { display: flex; flex-direction: column; height: 100%; }
+header { flex: none; display: flex; align-items: flex-start; gap: var(--space-3); padding: var(--space-4) var(--space-5); border-bottom: 1px solid var(--line); }
+h2 { margin: 0; font-size: 16px; line-height: 22px; font-weight: 600; }
+header kern-button { margin: -4px -8px 0 auto; }
+header kern-button svg { width: 16px; height: 16px; }
+.body { flex: 1; min-height: 0; overflow-y: auto; display: grid; align-content: start; gap: var(--space-4); padding: var(--space-4) var(--space-5); }
+::slotted(p) { margin: 0; }
+footer { flex: none; display: flex; justify-content: flex-end; gap: var(--space-2); padding: var(--space-3) var(--space-5); border-top: 1px solid var(--line); }
+footer[hidden] { display: none; }
+
+@keyframes kern-drawer-in { from { transform: translateX(100%); } to { transform: none; } }
+@keyframes kern-drawer-in-start { from { transform: translateX(-100%); } to { transform: none; } }
+@media (prefers-reduced-motion: reduce) { dialog[open] { animation: none; } }

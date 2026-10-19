@@ -29,9 +29,9 @@ verschieden sind. Der Name sagt die Rolle:
 
 | Rolle | Name | Beispiele |
 | --- | --- | --- |
-| Anzeige | Nomen | `kern-date`, `kern-time`, `kern-status`, `kern-meter` |
-| Bedienelement ohne Feldbox | Nomen | `kern-switch`, `kern-checkbox`, `kern-segmented`, `kern-calendar`, `kern-tabs` |
-| Tippfeld mit eigenem Wertmodell | `-input` | `kern-ip-input` |
+| Anzeige | Nomen | `kern-date`, `kern-time`, `kern-status`, `kern-meter`, `kern-list`, `kern-link` |
+| Bedienelement ohne Feldbox | Nomen | `kern-switch`, `kern-checkbox`, `kern-segmented`, `kern-calendar`, `kern-rating`, `kern-tabs` |
+| Tippfeld mit eigenem Wertmodell | `-input` | `kern-ip-input`, `kern-step-input` |
 | Feld, das ein Auswahl-Popover anbietet | `-picker` | `kern-date-picker`, `kern-date-range-picker`, `kern-time-picker` |
 
 Native Gegenstücke behalten ihren Namen: `kern-input` (allgemeines Tippfeld), `kern-textarea`, `kern-select`. So

@@ -12,19 +12,24 @@ export interface KernOption {
 }
 
 /**
- * Labelled single choice with its own dropdown list, form-associated. Options come from the `options`
+ * Labelled choice with its own dropdown list, form-associated. Options come from the `options`
  * property or from child `<option>` elements (kept in sync, so `@for` / `*ngFor` over options works).
  * Elements in the `footer` slot appear below the list, e.g. a button "Standorte bearbeiten"; clicking
  * one closes the list.
+ *
+ * `searchable` adds a search field to the list (filters by label). `multiple` makes `value` a `string[]`: the field
+ * shows chips (× removes, Backspace removes the last), the list stays open and toggles options; the form gets one
+ * entry per value.
  *
  * Keyboard: Enter, Space or Arrow keys open; Arrow keys, Home, End and typing a letter move; Enter
  * or Space picks; Escape closes; Tab moves on to the footer.
  *
  * @slot - `<option>` elements (read, not shown)
  * @slot footer - Actions below the list (kern-button variant="ghost" size="sm")
- * @part control - The trigger button
+ * @part control - The trigger
  * @part listbox - The dropdown panel
  * @part option - Each option
+ * @part chip - Each chip (multiple)
  */
 @Component({
   tag: 'kern-select',
@@ -39,32 +44,43 @@ export class KernSelect {
   @Prop() label?: string;
   @Prop() hint?: string;
   @Prop() error?: string;
-  @Prop({ mutable: true }) value = '';
+  /** The picked value; with `multiple` a `string[]` (a comma-separated attribute is accepted). */
+  @Prop({ mutable: true }) value: string | string[] = '';
   @Prop() name?: string;
   /** Takes precedence over child `<option>` elements. */
   @Prop() options?: KernOption[];
   /** Shown when no option is selected. */
   @Prop() placeholder?: string;
+  /** Search field in the list; filters options by label. */
+  @Prop() searchable = false;
+  /** Several values; `value` becomes a `string[]`. */
+  @Prop({ reflect: true }) multiple = false;
   @Prop({ reflect: true }) size: 'md' | 'sm' = 'md';
   @Prop({ reflect: true }) disabled = false;
   @Prop() required = false;
   /** Accessible name when there is no visible label. */
   @Prop() ariaLabelText?: string;
+  @Prop() labelSearch = 'Suchen …';
+  @Prop() labelNoResults = 'Keine Treffer';
+  /** Accessible name of a chip's ×; `{label}` is replaced. */
+  @Prop() labelRemove = '{label} entfernen';
 
-  /** When the user picks an option. */
-  @Event() kernChange!: EventEmitter<{ value: string }>;
+  /** When the user picks (or, with `multiple`, toggles) an option. */
+  @Event() kernChange!: EventEmitter<{ value: string | string[] }>;
 
   @State() childOptions: KernOption[] = [];
   @State() open = false;
   @State() active = -1;
   @State() hasFooter = false;
+  @State() query = '';
 
-  private trigger?: HTMLButtonElement;
+  private trigger?: HTMLElement;
   private popup?: HTMLElement;
   private listbox?: HTMLElement;
+  private search?: HTMLInputElement;
   private observer?: MutationObserver;
   private id = `kern-select-${++nextId}`;
-  private initial = '';
+  private initial: string | string[] = '';
   private wasOpen = false;
   private typed = '';
   private typedAt = 0;
@@ -82,7 +98,7 @@ export class KernSelect {
   }
 
   componentWillLoad() {
-    this.initial = this.value ?? '';
+    this.initial = this.multiple ? [...this.values] : ((this.value as string) ?? '');
     this.hasFooter = Array.from(this.el.children).some((c) => c.getAttribute('slot') === 'footer');
   }
 
@@ -97,8 +113,12 @@ export class KernSelect {
   private readChildren() {
     const opts = Array.from(this.el.children).filter((c) => c.localName === 'option');
     this.childOptions = opts.map((o) => optionOf(o));
-    const selected = opts.find((o) => o.hasAttribute('selected'));
-    if (selected && !this.value) this.value = optionOf(selected).value;
+    const selected = opts.filter((o) => o.hasAttribute('selected')).map((o) => optionOf(o).value);
+    if (this.multiple) {
+      if (selected.length && !this.values.length) this.value = selected;
+      return;
+    }
+    if (selected.length && !this.value) this.value = selected[0];
     if (!this.value && !this.options && !this.placeholder && this.childOptions.length) this.value = this.childOptions[0].value;
   }
 
@@ -106,17 +126,51 @@ export class KernSelect {
     return this.options ?? this.childOptions;
   }
 
+  /** Selected values as an array (also for single choice). */
+  private get values(): string[] {
+    const v = this.value;
+    if (Array.isArray(v)) return v;
+    if (!v) return [];
+    return this.multiple ? v.split(',').map((s) => s.trim()).filter(Boolean) : [v];
+  }
+
+  private isSelected(o: KernOption): boolean {
+    return this.values.includes(o.value);
+  }
+
+  /** Indices of options matching the search. */
+  private get visible(): Set<number> {
+    const q = this.query.trim().toLowerCase();
+    return new Set(this.list.map((o, i) => (!q || o.label.toLowerCase().includes(q) ? i : -1)).filter((i) => i >= 0));
+  }
+
   @Watch('value')
   @Watch('error')
+  @Watch('required')
   sync() {
-    this.internals?.setFormValue?.(this.value ?? '');
+    if (this.multiple && typeof this.value === 'string') {
+      // Attribute or form reset with a string: keep the property an array.
+      this.value = this.values;
+      return;
+    }
+    const vals = this.values;
+    if (this.multiple) {
+      let data: FormData | null = null;
+      if (this.name && vals.length && typeof FormData !== 'undefined') {
+        data = new FormData();
+        vals.forEach((v) => data!.append(this.name!, v));
+      }
+      this.internals?.setFormValue?.(data);
+    } else {
+      this.internals?.setFormValue?.((this.value as string) ?? '');
+    }
     if (this.error) this.internals?.setValidity?.({ customError: true }, this.error, this.trigger);
-    else if (this.required && !this.value) this.internals?.setValidity?.({ valueMissing: true }, 'required', this.trigger);
+    else if (this.required && !vals.length) this.internals?.setValidity?.({ valueMissing: true }, 'required', this.trigger);
     else this.internals?.setValidity?.({});
   }
 
   formResetCallback() {
-    this.value = this.initial;
+    this.value = Array.isArray(this.initial) ? [...this.initial] : this.initial;
   }
 
   formDisabledCallback(disabled: boolean) {
@@ -142,9 +196,11 @@ export class KernSelect {
 
   // ---------- open / close ----------
 
-  private openList() {
+  private openList(query = '') {
     if (this.disabled || this.open || !this.popup) return;
-    const i = this.list.findIndex((o) => o.value === this.value);
+    this.query = query;
+    const vis = this.visible;
+    const i = this.list.findIndex((o, idx) => this.isSelected(o) && vis.has(idx));
     this.active = i >= 0 ? i : this.step(-1, 1);
     this.position();
     (this.popup as HTMLElement & { showPopover?: () => void }).showPopover?.();
@@ -162,11 +218,18 @@ export class KernSelect {
       this.position();
       this.startTracking();
       requestAnimationFrame(() => {
-        this.listbox?.focus();
+        if (this.searchable && this.search) {
+          this.search.focus();
+          const end = this.search.value.length;
+          this.search.setSelectionRange(end, end);
+        } else {
+          this.listbox?.focus();
+        }
         this.scrollActive();
       });
     } else {
       this.stopTracking();
+      this.query = '';
       // Light dismiss (Escape, click outside) while focus was inside: give it back to the trigger.
       const focused = this.el.shadowRoot?.activeElement;
       if (focused && this.popup?.contains(focused)) this.trigger?.focus();
@@ -194,6 +257,14 @@ export class KernSelect {
   private pick(i: number) {
     const o = this.list[i];
     if (!o || o.disabled) return;
+    if (this.multiple) {
+      // Toggle and keep the list open.
+      const vals = this.values;
+      this.value = vals.includes(o.value) ? vals.filter((v) => v !== o.value) : [...vals, o.value];
+      this.kernChange.emit({ value: this.value });
+      this.active = i;
+      return;
+    }
     if (o.value !== this.value) {
       this.value = o.value;
       this.kernChange.emit({ value: this.value });
@@ -201,10 +272,17 @@ export class KernSelect {
     this.closeList();
   }
 
-  /** Next enabled index from `from` in direction `dir`, or `from` when there is none. */
+  private remove(value: string) {
+    if (this.disabled) return;
+    this.value = this.values.filter((v) => v !== value);
+    this.kernChange.emit({ value: this.value });
+  }
+
+  /** Next enabled, visible index from `from` in direction `dir`, or `from` when there is none. */
   private step(from: number, dir: 1 | -1): number {
     const l = this.list;
-    for (let i = from + dir; i >= 0 && i < l.length; i += dir) if (!l[i].disabled) return i;
+    const vis = this.visible;
+    for (let i = from + dir; i >= 0 && i < l.length; i += dir) if (!l[i].disabled && vis.has(i)) return i;
     return from;
   }
 
@@ -237,13 +315,35 @@ export class KernSelect {
     return ev.key.length === 1 && ev.key !== ' ' && !ev.ctrlKey && !ev.metaKey && !ev.altKey;
   }
 
+  /** Arrow keys and Enter shared by the list and the search field. */
+  private navigate(ev: KeyboardEvent, homeEnd: boolean): boolean {
+    const l = this.list;
+    const moves: Record<string, () => number> = {
+      ArrowDown: () => this.step(this.active, 1),
+      ArrowUp: () => this.step(this.active, -1),
+      ...(homeEnd ? { Home: () => this.step(-1, 1), End: () => this.step(l.length, -1) } : {}),
+    };
+    if (moves[ev.key]) {
+      ev.preventDefault();
+      this.moveTo(moves[ev.key]());
+      return true;
+    }
+    if (ev.key === 'Enter') {
+      ev.preventDefault();
+      if (this.visible.has(this.active)) this.pick(this.active);
+      return true;
+    }
+    return false;
+  }
+
   // ---------- events ----------
 
   private onTriggerPointerDown = () => {
     this.wasOpen = this.open;
   };
 
-  private onTriggerClick = () => {
+  private onTriggerClick = (ev: MouseEvent) => {
+    if ((ev.target as HTMLElement).closest?.('.chip-remove')) return;
     // A click on the trigger while open first light-dismisses the popover; do not reopen it.
     if (this.wasOpen) {
       this.wasOpen = false;
@@ -253,11 +353,23 @@ export class KernSelect {
   };
 
   private onTriggerKey = (ev: KeyboardEvent) => {
+    if (this.disabled) return;
     if (['ArrowDown', 'ArrowUp', 'Enter', ' '].includes(ev.key)) {
       ev.preventDefault();
       this.wasOpen = false;
       this.openList();
+    } else if (this.multiple && ev.key === 'Backspace' && this.values.length) {
+      ev.preventDefault();
+      this.remove(this.values[this.values.length - 1]);
     } else if (this.isPrintable(ev)) {
+      if (this.searchable) {
+        // Start searching with the typed letter.
+        ev.preventDefault();
+        this.wasOpen = false;
+        this.openList(ev.key);
+        return;
+      }
+      if (this.multiple) return;
       // Type to pick without opening, like a native select.
       const i = this.typeahead(ev.key);
       if (i >= 0) {
@@ -272,35 +384,24 @@ export class KernSelect {
   };
 
   private onListKey = (ev: KeyboardEvent) => {
-    const l = this.list;
-    switch (ev.key) {
-      case 'ArrowDown':
-        ev.preventDefault();
-        this.moveTo(this.step(this.active, 1));
-        break;
-      case 'ArrowUp':
-        ev.preventDefault();
-        this.moveTo(this.step(this.active, -1));
-        break;
-      case 'Home':
-        ev.preventDefault();
-        this.moveTo(this.step(-1, 1));
-        break;
-      case 'End':
-        ev.preventDefault();
-        this.moveTo(this.step(l.length, -1));
-        break;
-      case 'Enter':
-      case ' ':
-        ev.preventDefault();
-        this.pick(this.active);
-        break;
-      default:
-        if (this.isPrintable(ev)) {
-          const i = this.typeahead(ev.key);
-          if (i >= 0) this.moveTo(i);
-        }
+    if (this.navigate(ev, true)) return;
+    if (ev.key === ' ') {
+      ev.preventDefault();
+      this.pick(this.active);
+    } else if (this.isPrintable(ev)) {
+      const i = this.typeahead(ev.key);
+      if (i >= 0) this.moveTo(i);
     }
+  };
+
+  private onSearchInput = (ev: Event) => {
+    this.query = (ev.target as HTMLInputElement).value;
+    const first = this.step(-1, 1);
+    this.active = this.visible.has(first) ? first : -1;
+  };
+
+  private onSearchKey = (ev: KeyboardEvent) => {
+    this.navigate(ev, false);
   };
 
   private onPopupFocusOut = (ev: FocusEvent) => {
@@ -311,11 +412,63 @@ export class KernSelect {
 
   private onFooterClick = () => this.closeList(false);
 
+  private renderTriggerContent() {
+    if (this.multiple) {
+      const chosen = this.list.filter((o) => this.isSelected(o));
+      return [
+        <span class="chips">
+          {chosen.length
+            ? chosen.map((o) => (
+                <span class="chip" part="chip">
+                  <span class="chip-label">{o.label}</span>
+                  <button
+                    type="button"
+                    class="chip-remove"
+                    tabindex={-1}
+                    aria-label={this.labelRemove.replace('{label}', o.label)}
+                    title={this.labelRemove.replace('{label}', o.label)}
+                    disabled={this.disabled}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      this.remove(o.value);
+                    }}
+                  >
+                    <Icon name="close" />
+                  </button>
+                </span>
+              ))
+            : <span class="value">{this.placeholder ?? ''}</span>}
+        </span>,
+        <Icon name="chevron-down" class="chevron" />,
+      ];
+    }
+    const selected = this.list.find((o) => o.value === this.value);
+    return [<span class="value">{selected ? selected.label : (this.placeholder ?? '')}</span>, <Icon name="chevron-down" class="chevron" />];
+  }
+
   render() {
     const list = this.list;
-    const selected = list.find((o) => o.value === this.value);
+    const vis = this.visible;
+    const empty = !this.values.some((v) => list.some((o) => o.value === v));
     const describedBy = this.error ? `${this.id}-error` : this.hint ? `${this.id}-hint` : undefined;
     const listId = `${this.id}-list`;
+    const activeId = this.active >= 0 && vis.has(this.active) ? `${this.id}-opt-${this.active}` : undefined;
+    const triggerProps = {
+      ref: (el?: HTMLElement) => (this.trigger = el),
+      id: this.id,
+      class: { control: true, trigger: true, empty, multi: this.multiple },
+      part: 'control',
+      role: 'combobox',
+      'aria-haspopup': 'listbox',
+      'aria-expanded': this.open ? 'true' : 'false',
+      'aria-controls': listId,
+      'aria-label': this.label ? undefined : this.ariaLabelText,
+      'aria-invalid': this.error ? 'true' : undefined,
+      'aria-describedby': describedBy,
+      onPointerDown: this.onTriggerPointerDown,
+      onClick: this.onTriggerClick,
+      onKeyDown: this.onTriggerKey,
+    };
     return (
       <Host invalid={!!this.error}>
         {this.label && (
@@ -324,28 +477,38 @@ export class KernSelect {
             {this.required && <span class="req" aria-hidden="true">*</span>}
           </label>
         )}
-        <button
-          ref={(el) => (this.trigger = el)}
-          id={this.id}
-          type="button"
-          class={{ control: true, trigger: true, empty: !selected }}
-          part="control"
-          role="combobox"
-          aria-haspopup="listbox"
-          aria-expanded={this.open ? 'true' : 'false'}
-          aria-controls={listId}
-          aria-label={this.label ? undefined : this.ariaLabelText}
-          aria-invalid={this.error ? 'true' : undefined}
-          aria-describedby={describedBy}
-          disabled={this.disabled}
-          onPointerDown={this.onTriggerPointerDown}
-          onClick={this.onTriggerClick}
-          onKeyDown={this.onTriggerKey}
-        >
-          <span class="value">{selected ? selected.label : (this.placeholder ?? '')}</span>
-          <Icon name="chevron-down" class="chevron" />
-        </button>
+        {this.multiple ? (
+          // A div, not a button: the chips contain their own × buttons.
+          <div {...triggerProps} tabindex={this.disabled ? -1 : 0} aria-disabled={this.disabled ? 'true' : undefined} aria-multiselectable="true">
+            {this.renderTriggerContent()}
+          </div>
+        ) : (
+          <button {...triggerProps} type="button" disabled={this.disabled}>
+            {this.renderTriggerContent()}
+          </button>
+        )}
         <div ref={(el) => (this.popup = el)} class="popup" part="listbox" onFocusout={this.onPopupFocusOut}>
+          {this.searchable && (
+            <div class="search">
+              <Icon name="search" class="search-icon" />
+              <input
+                ref={(el) => (this.search = el)}
+                type="text"
+                role="combobox"
+                aria-autocomplete="list"
+                aria-expanded="true"
+                aria-controls={listId}
+                aria-activedescendant={activeId}
+                aria-label={this.labelSearch}
+                placeholder={this.labelSearch}
+                autocomplete="off"
+                spellcheck={false}
+                value={this.query}
+                onInput={this.onSearchInput}
+                onKeyDown={this.onSearchKey}
+              />
+            </div>
+          )}
           <div
             ref={(el) => (this.listbox = el)}
             id={listId}
@@ -353,26 +516,33 @@ export class KernSelect {
             role="listbox"
             tabIndex={-1}
             aria-label={this.label ?? this.ariaLabelText}
-            aria-activedescendant={this.active >= 0 ? `${this.id}-opt-${this.active}` : undefined}
+            aria-multiselectable={this.multiple ? 'true' : undefined}
+            aria-activedescendant={this.searchable ? undefined : activeId}
             onKeyDown={this.onListKey}
           >
-            {list.map((o, i) => (
-              <div
-                id={`${this.id}-opt-${i}`}
-                class={{ option: true, active: i === this.active, selected: o.value === this.value }}
-                part="option"
-                role="option"
-                aria-selected={o.value === this.value ? 'true' : 'false'}
-                aria-disabled={o.disabled ? 'true' : undefined}
-                onPointerMove={() => {
-                  if (!o.disabled && i !== this.active) this.active = i;
-                }}
-                onClick={() => this.pick(i)}
-              >
-                <span class="text">{o.label}</span>
-                {o.value === this.value && <Icon name="check" class="check" />}
-              </div>
-            ))}
+            {list.map((o, i) => {
+              if (!vis.has(i)) return null;
+              const sel = this.isSelected(o);
+              return (
+                <div
+                  id={`${this.id}-opt-${i}`}
+                  class={{ option: true, active: i === this.active, selected: sel }}
+                  part="option"
+                  role="option"
+                  aria-selected={sel ? 'true' : 'false'}
+                  aria-disabled={o.disabled ? 'true' : undefined}
+                  onPointerMove={() => {
+                    if (!o.disabled && i !== this.active) this.active = i;
+                  }}
+                  onClick={() => this.pick(i)}
+                >
+                  {this.multiple && <span class={{ box: true, on: sel }} aria-hidden="true">{sel && <Icon name="check" />}</span>}
+                  <span class="text">{o.label}</span>
+                  {!this.multiple && sel && <Icon name="check" class="check" />}
+                </div>
+              );
+            })}
+            {!vis.size && <div class="no-results">{this.labelNoResults}</div>}
           </div>
           <div class="footer" hidden={!this.hasFooter} onClick={this.onFooterClick}>
             <slot name="footer" onSlotchange={(e) => (this.hasFooter = (e.target as HTMLSlotElement).assignedElements().length > 0)} />

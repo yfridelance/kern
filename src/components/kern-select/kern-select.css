@@ -12,6 +12,21 @@
 .chevron { flex: none; width: 14px; height: 14px; color: var(--text-muted); transition: transform .15s; }
 .trigger[aria-expanded="true"] .chevron { transform: rotate(180deg); }
 
+/* Multiple: chips in a growing field */
+.trigger.multi { height: auto; min-height: var(--control-md); padding-block: 3px; cursor: pointer; }
+:host([size="sm"]) .trigger.multi { min-height: var(--control-sm); padding-block: 2px; }
+.trigger.multi:focus-visible { outline: 2px solid var(--focus); outline-offset: -1px; border-color: var(--focus); }
+.trigger.multi[aria-disabled="true"] { opacity: .5; cursor: not-allowed; }
+.chips { flex: 1; min-width: 0; display: flex; flex-wrap: wrap; gap: 4px; }
+.chip {
+  display: inline-flex; align-items: center; gap: 2px; max-width: 100%; height: 22px; padding: 0 2px 0 var(--space-2);
+  border-radius: var(--radius-sm); background: var(--accent-soft); color: var(--text); font-size: 13px; line-height: 18px;
+}
+.chip-label { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.chip-remove { all: unset; display: inline-grid; place-items: center; width: 18px; height: 18px; border-radius: 3px; color: var(--text-muted); cursor: pointer; }
+.chip-remove:hover { background: var(--hover); color: var(--text); }
+.chip-remove svg { width: 12px; height: 12px; }
+
 /* Dropdown panel (popover, top layer) */
 .popup {
   position: fixed; inset: auto; margin: 0; box-sizing: border-box;
@@ -39,6 +54,21 @@
 .option .check { flex: none; width: 14px; height: 14px; color: var(--accent-text); }
 .option[aria-disabled="true"] { opacity: .45; cursor: not-allowed; }
 :host([size="sm"]) .option { min-height: 26px; padding-block: 3px; font-size: 13px; }
+
+/* Search field and empty result */
+.search { flex: none; display: flex; align-items: center; gap: var(--space-2); padding: 0 var(--space-3); border-bottom: 1px solid var(--line); }
+.search-icon { flex: none; width: 14px; height: 14px; color: var(--text-muted); }
+.search input { all: unset; flex: 1; min-width: 0; height: 34px; font: inherit; color: var(--text); }
+.search input::placeholder { color: var(--text-faint); }
+.no-results { padding: var(--space-3) var(--space-2); color: var(--text-muted); font-size: 13px; }
+
+/* Multiple: checkbox in front of each option */
+.box {
+  flex: none; display: inline-grid; place-items: center; width: 16px; height: 16px;
+  border: 1px solid var(--line-strong); border-radius: var(--radius-sm); background: var(--surface-sunken);
+}
+.box.on { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+.box svg { width: 12px; height: 12px; }
 
 /* Actions below the list */
 .footer { flex: none; display: grid; gap: 2px; padding: var(--space-1); border-top: 1px solid var(--line); }

@@ -94,6 +94,10 @@ zusätzlich Standalone-Wrapper mit `ControlValueAccessor` für `ngModel` und Rea
   Tabellen) mit Tastaturbedienung (Pfeile, Home/End, Buchstaben, Enter, Escape). Elemente mit `slot="footer"`
   erscheinen unter der Liste, z.B. `<kern-button slot="footer" variant="ghost" size="sm">Standorte bearbeiten …</kern-button>`;
   ein Klick darauf schliesst die Liste. `placeholder` zeigt einen Text, solange nichts gewählt ist.
+  `searchable` setzt ein Suchfeld oben in die Liste (filtert nach Teilstring, Pfeile/Enter wählen; ein Buchstabe am
+  geschlossenen Feld startet die Suche). `multiple` macht `value` zum `string[]` (Attribut auch `"a,b"`): Chips mit ×
+  im Feld, Backspace entfernt den letzten, die Liste bleibt offen und schaltet um, das Formular bekommt einen Eintrag
+  pro Wert.
 - **Tabellen:** `kern-table` umschliesst eine native `<table>` ohne Shadow DOM, damit Zellen beliebiges Markup und
   Framework-Bindings enthalten können. Zellklassen `mono`, `num`, `empty`; Zeilen `clickable`, `dim`,
   `aria-selected="true"`; sortierbar mit `<th aria-sort><button>`.

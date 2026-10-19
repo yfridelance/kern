@@ -182,6 +182,8 @@
           <kern-radio value="static" label="Statisch" description="Feste Adresse und Gateway"></kern-radio>
           <kern-radio value="ap" label="Access Point" description="Nur nach Werksreset" disabled></kern-radio>
         </kern-radio-group>
+        <kern-range name="brightness" label="Helligkeit" value="60" unit="%" step="5" marks="0,25,50,75,100"></kern-range>
+        <kern-range name="window" label="Aktiv zwischen" range value="8/18" min="0" max="24" unit="h" hint="Ausserhalb keine Benachrichtigungen"></kern-range>
         <kern-rating name="score" label="Zuverlässigkeit" value="4" clearable hint="Wie stabil läuft das Gerät?"></kern-rating>
         <kern-select name="site" label="Standort"><option value="1">Haus Seeblick</option><option value="2">Ferienwohnung</option></kern-select>
         <kern-select name="model" label="Modell" placeholder="Modell wählen" searchable><option value="1pm">Plus 1PM</option><option value="2pm">Plus 2PM</option><option value="i4">Plus i4</option><option value="uni">Plus Uni</option><option value="ht" disabled>H&amp;T (nicht unterstützt)</option><option value="dimmer">Dimmer 2</option><option value="em">Pro 3EM</option><option value="mini">Mini 1PM Gen3</option><option value="s1">1PM Gen4</option><option value="rgbw">RGBW2</option></kern-select>

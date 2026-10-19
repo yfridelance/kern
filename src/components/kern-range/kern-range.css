@@ -1,0 +1,30 @@
+@import '../../utils/field.css';
+
+:host { gap: var(--space-2); }
+.head { display: flex; align-items: baseline; justify-content: space-between; gap: var(--space-3); }
+.shown { font-size: 13px; line-height: 18px; color: var(--text); font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+/* 20px high hit area around a 4px rail; handles centred on their value */
+.track { position: relative; height: 20px; margin: 0 9px; touch-action: none; cursor: pointer; }
+:host([disabled]) .track { opacity: .5; cursor: not-allowed; }
+.rail, .fill { position: absolute; top: 8px; height: 4px; border-radius: 2px; }
+.rail { left: -9px; right: -9px; background: var(--line-strong); opacity: .5; }
+.fill { background: var(--accent); }
+:host([invalid]) .fill { background: var(--danger); }
+.tick { position: absolute; top: 6px; width: 2px; height: 8px; margin-left: -1px; border-radius: 1px; background: var(--line-strong); }
+.tick.on { background: var(--accent); }
+
+.thumb {
+  position: absolute; top: 1px; width: 18px; height: 18px; margin-left: -9px; box-sizing: border-box;
+  border-radius: 50%; background: var(--surface-raised); border: 2px solid var(--accent);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, .3); cursor: grab; outline: none; transition: transform .1s;
+}
+.thumb:hover, .dragging .thumb:focus { transform: scale(1.1); }
+.thumb:focus-visible { box-shadow: 0 0 0 3px var(--surface), 0 0 0 5px var(--focus); }
+.dragging .thumb:focus { cursor: grabbing; }
+:host([disabled]) .thumb { cursor: not-allowed; }
+
+.marks { position: relative; height: 16px; margin: 0 9px; font-size: 11px; line-height: 16px; color: var(--text-muted); font-variant-numeric: tabular-nums; }
+.marks span { position: absolute; transform: translateX(-50%); white-space: nowrap; }
+
+@media (prefers-reduced-motion: reduce) { .thumb { transition: none; } }

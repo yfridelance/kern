@@ -1139,6 +1139,77 @@ export namespace Components {
         "value": string;
     }
     /**
+     * Slider for brightness, volume or thresholds, form-associated. One handle (`value` is a number) or two with `range`
+     * (`value` is `"from/to"`, the handles cannot cross). Drag or click the track; keyboard: Arrow keys ± `step`,
+     * Page Up/Down ± a tenth of the range, Home/End to the limits. `marks` adds labelled ticks.
+     */
+    interface KernRange {
+        /**
+          * Accessible name when there is no visible label.
+         */
+        "ariaLabelText"?: string;
+        /**
+          * @default false
+         */
+        "disabled": boolean;
+        "error"?: string;
+        "hint"?: string;
+        "label"?: string;
+        /**
+          * @default 'Von'
+         */
+        "labelFrom": string;
+        /**
+          * @default 'Bis'
+         */
+        "labelTo": string;
+        /**
+          * BCP 47 locale for numbers; defaults to `<html lang>`, then the browser language.
+         */
+        "locale"?: string;
+        /**
+          * Ticks with labels, e.g. `0,25,50,75,100`.
+          * @default ''
+         */
+        "marks": number[] | string;
+        /**
+          * @default 100
+         */
+        "max": number;
+        /**
+          * @default 0
+         */
+        "min": number;
+        "name"?: string;
+        /**
+          * Two handles; `value` becomes `"from/to"`.
+          * @default false
+         */
+        "range": boolean;
+        /**
+          * Focuses the (first) handle.
+         */
+        "setFocus": () => Promise<void>;
+        /**
+          * Show the current value next to the label.
+          * @default true
+         */
+        "showValue": boolean;
+        /**
+          * @default 1
+         */
+        "step": number;
+        /**
+          * Unit after the shown value, e.g. „%“.
+         */
+        "unit"?: string;
+        /**
+          * A number, or `"from/to"` with `range`.
+          * @default 0
+         */
+        "value": number | string;
+    }
+    /**
      * Star rating 1–`max`, form-associated (value 0 = not rated). A radio group with one tab stop: arrow keys change the
      * rating, Home/End jump, with `clearable` 0/Backspace or a click on the current star clears it. Hovering previews.
      * `readonly` only shows the rating („4 von 5 Sternen“).
@@ -1870,6 +1941,10 @@ export interface KernRadioGroupCustomEvent<T> extends CustomEvent<T> {
     detail: T;
     target: HTMLKernRadioGroupElement;
 }
+export interface KernRangeCustomEvent<T> extends CustomEvent<T> {
+    detail: T;
+    target: HTMLKernRangeElement;
+}
 export interface KernRatingCustomEvent<T> extends CustomEvent<T> {
     detail: T;
     target: HTMLKernRatingElement;
@@ -2418,6 +2493,29 @@ declare global {
         prototype: HTMLKernRadioGroupElement;
         new (): HTMLKernRadioGroupElement;
     };
+    interface HTMLKernRangeElementEventMap {
+        "kernInput": { value: number | string };
+        "kernChange": { value: number | string };
+    }
+    /**
+     * Slider for brightness, volume or thresholds, form-associated. One handle (`value` is a number) or two with `range`
+     * (`value` is `"from/to"`, the handles cannot cross). Drag or click the track; keyboard: Arrow keys ± `step`,
+     * Page Up/Down ± a tenth of the range, Home/End to the limits. `marks` adds labelled ticks.
+     */
+    interface HTMLKernRangeElement extends Components.KernRange, HTMLStencilElement {
+        addEventListener<K extends keyof HTMLKernRangeElementEventMap>(type: K, listener: (this: HTMLKernRangeElement, ev: KernRangeCustomEvent<HTMLKernRangeElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLKernRangeElementEventMap>(type: K, listener: (this: HTMLKernRangeElement, ev: KernRangeCustomEvent<HTMLKernRangeElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
+    }
+    var HTMLKernRangeElement: {
+        prototype: HTMLKernRangeElement;
+        new (): HTMLKernRangeElement;
+    };
     interface HTMLKernRatingElementEventMap {
         "kernChange": { value: number };
     }
@@ -2778,6 +2876,7 @@ declare global {
         "kern-progress": HTMLKernProgressElement;
         "kern-radio": HTMLKernRadioElement;
         "kern-radio-group": HTMLKernRadioGroupElement;
+        "kern-range": HTMLKernRangeElement;
         "kern-rating": HTMLKernRatingElement;
         "kern-segmented": HTMLKernSegmentedElement;
         "kern-select": HTMLKernSelectElement;
@@ -3964,6 +4063,85 @@ declare namespace LocalJSX {
         "value"?: string;
     }
     /**
+     * Slider for brightness, volume or thresholds, form-associated. One handle (`value` is a number) or two with `range`
+     * (`value` is `"from/to"`, the handles cannot cross). Drag or click the track; keyboard: Arrow keys ± `step`,
+     * Page Up/Down ± a tenth of the range, Home/End to the limits. `marks` adds labelled ticks.
+     */
+    interface KernRange {
+        /**
+          * Accessible name when there is no visible label.
+         */
+        "ariaLabelText"?: string;
+        /**
+          * @default false
+         */
+        "disabled"?: boolean;
+        "error"?: string;
+        /**
+          * The `id` of a `<form>` element to associate this element with.
+         */
+        "form"?: string;
+        "hint"?: string;
+        "label"?: string;
+        /**
+          * @default 'Von'
+         */
+        "labelFrom"?: string;
+        /**
+          * @default 'Bis'
+         */
+        "labelTo"?: string;
+        /**
+          * BCP 47 locale for numbers; defaults to `<html lang>`, then the browser language.
+         */
+        "locale"?: string;
+        /**
+          * Ticks with labels, e.g. `0,25,50,75,100`.
+          * @default ''
+         */
+        "marks"?: number[] | string;
+        /**
+          * @default 100
+         */
+        "max"?: number;
+        /**
+          * @default 0
+         */
+        "min"?: number;
+        "name"?: string;
+        /**
+          * When a drag ends or a key changed the value.
+         */
+        "onKernChange"?: (event: KernRangeCustomEvent<{ value: number | string }>) => void;
+        /**
+          * While dragging or on every key step.
+         */
+        "onKernInput"?: (event: KernRangeCustomEvent<{ value: number | string }>) => void;
+        /**
+          * Two handles; `value` becomes `"from/to"`.
+          * @default false
+         */
+        "range"?: boolean;
+        /**
+          * Show the current value next to the label.
+          * @default true
+         */
+        "showValue"?: boolean;
+        /**
+          * @default 1
+         */
+        "step"?: number;
+        /**
+          * Unit after the shown value, e.g. „%“.
+         */
+        "unit"?: string;
+        /**
+          * A number, or `"from/to"` with `range`.
+          * @default 0
+         */
+        "value"?: number | string;
+    }
+    /**
      * Star rating 1–`max`, form-associated (value 0 = not rated). A radio group with one tab stop: arrow keys change the
      * rating, Home/End jump, with `clearable` 0/Backspace or a click on the current star clears it. Hovering previews.
      * `readonly` only shows the rating („4 von 5 Sternen“).
@@ -4942,6 +5120,25 @@ declare namespace LocalJSX {
         "required": boolean;
         "ariaLabelText": string;
     }
+    interface KernRangeAttributes {
+        "label": string;
+        "hint": string;
+        "error": string;
+        "value": string;
+        "name": string;
+        "min": number;
+        "max": number;
+        "step": number;
+        "range": boolean;
+        "unit": string;
+        "showValue": boolean;
+        "marks": number[] | string;
+        "locale": string;
+        "disabled": boolean;
+        "ariaLabelText": string;
+        "labelFrom": string;
+        "labelTo": string;
+    }
     interface KernRatingAttributes {
         "label": string;
         "hint": string;
@@ -5158,6 +5355,7 @@ declare namespace LocalJSX {
         "kern-progress": Omit<KernProgress, keyof KernProgressAttributes> & { [K in keyof KernProgress & keyof KernProgressAttributes]?: KernProgress[K] } & { [K in keyof KernProgress & keyof KernProgressAttributes as `attr:${K}`]?: KernProgressAttributes[K] } & { [K in keyof KernProgress & keyof KernProgressAttributes as `prop:${K}`]?: KernProgress[K] };
         "kern-radio": Omit<KernRadio, keyof KernRadioAttributes> & { [K in keyof KernRadio & keyof KernRadioAttributes]?: KernRadio[K] } & { [K in keyof KernRadio & keyof KernRadioAttributes as `attr:${K}`]?: KernRadioAttributes[K] } & { [K in keyof KernRadio & keyof KernRadioAttributes as `prop:${K}`]?: KernRadio[K] };
         "kern-radio-group": Omit<KernRadioGroup, keyof KernRadioGroupAttributes> & { [K in keyof KernRadioGroup & keyof KernRadioGroupAttributes]?: KernRadioGroup[K] } & { [K in keyof KernRadioGroup & keyof KernRadioGroupAttributes as `attr:${K}`]?: KernRadioGroupAttributes[K] } & { [K in keyof KernRadioGroup & keyof KernRadioGroupAttributes as `prop:${K}`]?: KernRadioGroup[K] };
+        "kern-range": Omit<KernRange, keyof KernRangeAttributes> & { [K in keyof KernRange & keyof KernRangeAttributes]?: KernRange[K] } & { [K in keyof KernRange & keyof KernRangeAttributes as `attr:${K}`]?: KernRangeAttributes[K] } & { [K in keyof KernRange & keyof KernRangeAttributes as `prop:${K}`]?: KernRange[K] };
         "kern-rating": Omit<KernRating, keyof KernRatingAttributes> & { [K in keyof KernRating & keyof KernRatingAttributes]?: KernRating[K] } & { [K in keyof KernRating & keyof KernRatingAttributes as `attr:${K}`]?: KernRatingAttributes[K] } & { [K in keyof KernRating & keyof KernRatingAttributes as `prop:${K}`]?: KernRating[K] };
         "kern-segmented": Omit<KernSegmented, keyof KernSegmentedAttributes> & { [K in keyof KernSegmented & keyof KernSegmentedAttributes]?: KernSegmented[K] } & { [K in keyof KernSegmented & keyof KernSegmentedAttributes as `attr:${K}`]?: KernSegmentedAttributes[K] } & { [K in keyof KernSegmented & keyof KernSegmentedAttributes as `prop:${K}`]?: KernSegmented[K] };
         "kern-select": Omit<KernSelect, keyof KernSelectAttributes> & { [K in keyof KernSelect & keyof KernSelectAttributes]?: KernSelect[K] } & { [K in keyof KernSelect & keyof KernSelectAttributes as `attr:${K}`]?: KernSelectAttributes[K] } & { [K in keyof KernSelect & keyof KernSelectAttributes as `prop:${K}`]?: KernSelect[K] };
@@ -5357,6 +5555,12 @@ declare module "@stencil/core" {
              * kern-segmented. One tab stop: arrow keys move and select (wrapping), Space/Enter selects the focused option.
              */
             "kern-radio-group": LocalJSX.IntrinsicElements["kern-radio-group"] & JSXBase.HTMLAttributes<HTMLKernRadioGroupElement>;
+            /**
+             * Slider for brightness, volume or thresholds, form-associated. One handle (`value` is a number) or two with `range`
+             * (`value` is `"from/to"`, the handles cannot cross). Drag or click the track; keyboard: Arrow keys ± `step`,
+             * Page Up/Down ± a tenth of the range, Home/End to the limits. `marks` adds labelled ticks.
+             */
+            "kern-range": LocalJSX.IntrinsicElements["kern-range"] & JSXBase.HTMLAttributes<HTMLKernRangeElement>;
             /**
              * Star rating 1–`max`, form-associated (value 0 = not rated). A radio group with one tab stop: arrow keys change the
              * rating, Home/End jump, with `clearable` 0/Backspace or a click on the current star clears it. Hovering previews.

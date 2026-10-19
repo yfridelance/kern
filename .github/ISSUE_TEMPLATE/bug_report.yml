@@ -1,0 +1,124 @@
+name: Fehler melden
+description: Eine Komponente verhält sich nicht wie erwartet.
+title: "[Bug]: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Danke fürs Melden! Je genauer die Angaben, desto schneller lässt sich der Fehler nachstellen.
+
+  - type: dropdown
+    id: komponente
+    attributes:
+      label: Komponente
+      description: Welcher Teil von Kern ist betroffen?
+      options:
+        - kern-alert
+        - kern-badge
+        - kern-button
+        - kern-card
+        - kern-checkbox
+        - kern-copy
+        - kern-dialog
+        - kern-input
+        - kern-json
+        - kern-kv
+        - kern-kv-item
+        - kern-meter
+        - kern-page-header
+        - kern-progress
+        - kern-segmented
+        - kern-select
+        - kern-signal
+        - kern-sparkline
+        - kern-spinner
+        - kern-stat
+        - kern-status
+        - kern-switch
+        - kern-tab-panel
+        - kern-table
+        - kern-tabs
+        - kern-textarea
+        - kern-theme-toggle
+        - kern-toolbar
+        - kern-topbar
+        - Tokens / Theme
+        - Angular-Wrapper
+        - Andere
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: Kern-Version
+      placeholder: "0.2.0"
+    validations:
+      required: true
+
+  - type: textarea
+    id: beschreibung
+    attributes:
+      label: Beschreibung
+      description: Was ist das Problem?
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduktion
+    attributes:
+      label: Schritte zur Reproduktion
+      description: Minimales Markup bzw. Code und die Schritte, die zum Fehler führen.
+      placeholder: |
+        1. `<kern-select placeholder="Wählen">…</kern-select>` einbinden
+        2. Mit der Tastatur öffnen
+        3. …
+    validations:
+      required: true
+
+  - type: textarea
+    id: erwartet
+    attributes:
+      label: Erwartetes Verhalten
+    validations:
+      required: true
+
+  - type: textarea
+    id: tatsaechlich
+    attributes:
+      label: Tatsächliches Verhalten
+    validations:
+      required: true
+
+  - type: dropdown
+    id: theme
+    attributes:
+      label: Theme
+      options:
+        - Dark
+        - Light
+        - Beide
+        - Unklar
+
+  - type: dropdown
+    id: framework
+    attributes:
+      label: Einbindung
+      options:
+        - Vanilla HTML / JS
+        - Angular (Wrapper)
+        - Anderes Framework
+
+  - type: input
+    id: browser
+    attributes:
+      label: Browser und Betriebssystem
+      placeholder: z. B. Firefox 131, macOS 15
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Screenshots / Konsolenausgabe
+      description: Optional. Bilder per Drag & Drop, Logs werden als Code formatiert.
+      render: shell

@@ -1,0 +1,64 @@
+name: Feature vorschlagen
+description: Eine neue Komponente oder eine Erweiterung vorschlagen.
+title: "[Feature]: "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Danke für den Vorschlag! Beschreib zuerst das Problem – die Lösung darf offen bleiben.
+
+  - type: dropdown
+    id: art
+    attributes:
+      label: Art
+      options:
+        - Neue Komponente
+        - Erweiterung einer bestehenden Komponente
+        - Tokens / Theme
+        - Angular-Wrapper
+        - Dokumentation
+        - Andere
+    validations:
+      required: true
+
+  - type: input
+    id: komponente
+    attributes:
+      label: Betroffene Komponente
+      description: Optional, falls eine bestehende Komponente erweitert werden soll.
+      placeholder: z. B. kern-table
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem / Anwendungsfall
+      description: Was willst du bauen, und woran scheitert es heute?
+    validations:
+      required: true
+
+  - type: textarea
+    id: vorschlag
+    attributes:
+      label: Lösungsvorschlag
+      description: Wie könnte die API aussehen? Props, Events, Slots, CSS-Parts.
+      placeholder: |
+        <kern-table sortable>
+          …
+        </kern-table>
+
+        Event: `kernSort` mit `{ column, direction }`
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternativen
+    attributes:
+      label: Alternativen
+      description: Optional. Welche Umwege oder anderen Lösungen hast du erwogen?
+
+  - type: textarea
+    id: zusatz
+    attributes:
+      label: Zusätzliche Infos
+      description: Optional. Mockups, Screenshots, Beispiele aus anderen Bibliotheken.

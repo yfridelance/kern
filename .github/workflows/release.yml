@@ -1,0 +1,62 @@
+name: Release
+
+# Veröffentlicht das Paket auf npmjs per Trusted Publishing (OIDC, kein NPM_TOKEN).
+# Auf npmjs.com muss dieser Workflow (release.yml) als Trusted Publisher eingetragen sein.
+
+on:
+  release:
+    types: [published]
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: read
+  id-token: write
+
+# Release und Tag-Push lösen für denselben Tag beide aus: nacheinander laufen lassen,
+# der zweite Lauf erkennt die bereits veröffentlichte Version und überspringt.
+concurrency:
+  group: release-${{ github.ref_name }}
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+          registry-url: https://registry.npmjs.org
+      # Trusted Publishing braucht npm >= 11.5.1
+      - run: npm install -g npm@latest
+
+      - name: Version prüfen
+        id: version
+        run: |
+          tag="${GITHUB_REF_NAME#v}"
+          pkg="$(node -p "require('./package.json').version")"
+          name="$(node -p "require('./package.json').name")"
+          if [ "$tag" != "$pkg" ]; then
+            echo "::error::Tag $GITHUB_REF_NAME passt nicht zu package.json ($pkg)"
+            exit 1
+          fi
+          if npm view "$name@$pkg" version >/dev/null 2>&1; then
+            echo "::notice::$name@$pkg ist bereits veröffentlicht – nichts zu tun"
+            echo "published=true" >> "$GITHUB_OUTPUT"
+          fi
+          # Vorabversionen (z. B. 0.7.0-beta.1) nicht als latest markieren
+          case "$pkg" in
+            *-*) echo "dist_tag=next" >> "$GITHUB_OUTPUT" ;;
+            *) echo "dist_tag=latest" >> "$GITHUB_OUTPUT" ;;
+          esac
+
+      - if: steps.version.outputs.published != 'true'
+        run: npm ci
+      - if: steps.version.outputs.published != 'true'
+        run: npm test
+      - if: steps.version.outputs.published != 'true'
+        run: npm run build
+      - if: steps.version.outputs.published != 'true'
+        run: npm publish --provenance --access public --tag ${{ steps.version.outputs.dist_tag }}

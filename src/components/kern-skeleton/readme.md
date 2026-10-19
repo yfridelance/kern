@@ -72,6 +72,19 @@ load();
 | `width`   | `width`   | Width, e.g. `120px` or `60%` (text and block; default 100%). | `string \| undefined`           | `undefined` |
 
 
+## Dependencies
+
+### Used by
+
+ - [kern-table](../kern-table)
+
+### Graph
+```mermaid
+graph TD;
+  kern-table --> kern-skeleton
+  style kern-skeleton fill:#f9f,stroke:#333,stroke-width:4px
+```
+
 ----------------------------------------------
 
 

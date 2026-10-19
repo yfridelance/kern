@@ -101,4 +101,123 @@ describe('kern-table', () => {
     });
     expect(page.root!.querySelector('th button')).toBeNull();
   });
+
+  describe('data mode', () => {
+    const data = [
+      { name: 'Kitchen light', rssi: -71, power: 9 },
+      { name: 'Bathroom fan', rssi: -58, power: 42 },
+      { name: 'Shutter south', rssi: -84, power: null },
+    ];
+    async function build(props: Record<string, unknown> = {}) {
+      const page = await newSpecPage({ components: [KernTable], html: `<kern-table></kern-table>` });
+      const el = page.root as any;
+      el.columns = [
+        { key: 'name', label: 'Name', sortable: true },
+        {
+          key: 'rssi',
+          label: 'Signal',
+          sortable: true,
+          cell: (r: any) => Object.assign(page.doc.createElement('span'), { textContent: `${r.rssi} dBm` }),
+          sortValue: (r: any) => -r.rssi,
+        },
+        { key: 'power', label: 'Power', sortable: true, align: 'end' },
+      ];
+      el.rows = data;
+      Object.assign(el, props);
+      await page.waitForChanges();
+      const cells = (col: number) => Array.from(el.querySelectorAll('tbody tr')).map((r: any) => r.children[col]?.textContent);
+      const ths = () => Array.from(el.querySelectorAll('th')) as HTMLElement[];
+      return { page, el, cells, ths };
+    }
+
+    it('builds header and rows from columns and rows', async () => {
+      const { el, cells, ths } = await build({
+        getRowClass: (r: any) => (r.power ? 'clickable' : 'dim'),
+        getCellClass: (_r: any, c: any) => (c.key === 'name' ? 'strong' : undefined),
+        getHeaderCellClass: (c: any) => `col-${c.key}`,
+      });
+      expect(ths().map((t) => t.textContent)).toEqual(['Name', 'Signal', 'Power']);
+      expect(ths()[2].className).toBe('num col-power');
+      expect(ths()[0].querySelector('button')).not.toBeNull();
+      expect(cells(1)).toEqual(['-71 dBm', '-58 dBm', '-84 dBm']);
+      expect(cells(2)).toEqual(['9', '42', '–']);
+      const trs = el.querySelectorAll('tbody tr');
+      expect(trs[0].className).toBe('clickable');
+      expect(trs[2].className).toBe('dim');
+      expect(trs[0].children[0].className).toBe('strong');
+      expect(trs[0].children[2].className).toBe('num');
+    });
+
+    it('sorts a copy of rows, by sortValue, blanks last', async () => {
+      const { page, el, cells, ths } = await build();
+      ths()[1].querySelector('button')!.click();
+      await page.waitForChanges();
+      expect(cells(0)).toEqual(['Bathroom fan', 'Kitchen light', 'Shutter south']); // sortValue -rssi: 58, 71, 84
+      expect(ths()[1].getAttribute('aria-sort')).toBe('ascending');
+      ths()[2].querySelector('button')!.click();
+      await page.waitForChanges();
+      expect(cells(2)).toEqual(['9', '42', '–']);
+      await el.sortBy('power', 'desc');
+      await page.waitForChanges();
+      expect(cells(2)).toEqual(['42', '9', '–']);
+      expect(el.rows.map((r: any) => r.name)).toEqual(['Kitchen light', 'Bathroom fan', 'Shutter south']);
+    });
+
+    it('applies columns[].sorted initially', async () => {
+      const page = await newSpecPage({ components: [KernTable], html: `<kern-table></kern-table>` });
+      const el = page.root as any;
+      el.columns = [{ key: 'name', label: 'Name', sortable: true, sorted: 'desc' }];
+      el.rows = data;
+      await page.waitForChanges();
+      expect(Array.from(el.querySelectorAll('tbody td')).map((t: any) => t.textContent)).toEqual(['Shutter south', 'Kitchen light', 'Bathroom fan']);
+      expect(el.querySelector('th').getAttribute('aria-sort')).toBe('descending');
+    });
+
+    it('only emits kernSort when controlled externally', async () => {
+      const { page, el, cells, ths } = await build({ controlled: 'external' });
+      const spy = jest.fn();
+      el.addEventListener('kernSort', (e: CustomEvent) => spy(e.detail));
+      ths()[0].querySelector('button')!.click();
+      await page.waitForChanges();
+      expect(spy).toHaveBeenCalledWith({ key: 'name', column: 0, direction: 'asc' });
+      expect(cells(0)[0]).toBe('Kitchen light');
+    });
+
+    it('emits kernRowClick, not for buttons in the row', async () => {
+      const { page, el } = await build();
+      el.columns = [...el.columns, { key: 'x', label: 'Act', cell: () => Object.assign(page.doc.createElement('button'), { textContent: 'Go' }) }];
+      await page.waitForChanges();
+      const spy = jest.fn();
+      el.addEventListener('kernRowClick', (e: CustomEvent) => spy(e.detail.index));
+      (el.querySelectorAll('tbody tr')[1].children[0] as HTMLElement).click();
+      (el.querySelectorAll('tbody tr')[1].querySelector('button') as HTMLElement).click();
+      expect(spy).toHaveBeenCalledTimes(1);
+      expect(spy).toHaveBeenCalledWith(1);
+    });
+
+    it('shows the empty label, skeleton rows while loading and aria-busy', async () => {
+      const { page, el } = await build({ rows: [], labelEmpty: 'Nothing' });
+      expect(el.querySelector('tbody td.empty').textContent).toBe('Nothing');
+      expect(el.querySelector('tbody td.empty').getAttribute('colspan')).toBe('3');
+      el.loading = true;
+      el.loadingRows = 2;
+      await page.waitForChanges();
+      expect(el.querySelectorAll('tbody tr.skeleton').length).toBe(2);
+      expect(el.querySelectorAll('tbody kern-skeleton').length).toBe(6);
+      expect(el.querySelector('table').getAttribute('aria-busy')).toBe('true');
+      el.rows = data;
+      el.loading = false;
+      await page.waitForChanges();
+      expect(el.querySelectorAll('tbody tr').length).toBe(3);
+      expect(el.querySelector('table').hasAttribute('aria-busy')).toBe(false);
+    });
+  });
+
+  it('sets aria-busy on own markup while loading', async () => {
+    const { page } = await setup(' loading');
+    expect(page.root!.querySelector('table')!.getAttribute('aria-busy')).toBe('true');
+    (page.root as any).loading = false;
+    await page.waitForChanges();
+    expect(page.root!.querySelector('table')!.hasAttribute('aria-busy')).toBe(false);
+  });
 });

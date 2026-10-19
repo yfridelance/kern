@@ -12,7 +12,7 @@ import { KernIpKind } from "./utils/ip";
 import { KernMacFormat } from "./utils/mac";
 import { KernOption } from "./components/kern-select/kern-select";
 import { KernOption as KernOption1 } from "./components/kern-select/kern-select";
-import { KernSortDirection } from "./components/kern-table/kern-table";
+import { KernSortDirection, KernTableColumn } from "./components/kern-table/sort";
 import { KernToastReason } from "./components/kern-toast/kern-toast";
 export { KernCodeLanguage } from "./utils/highlight";
 export { KernDateFormat } from "./utils/datetime";
@@ -21,7 +21,7 @@ export { KernIpKind } from "./utils/ip";
 export { KernMacFormat } from "./utils/mac";
 export { KernOption } from "./components/kern-select/kern-select";
 export { KernOption as KernOption1 } from "./components/kern-select/kern-select";
-export { KernSortDirection } from "./components/kern-table/kern-table";
+export { KernSortDirection, KernTableColumn } from "./components/kern-table/sort";
 export { KernToastReason } from "./components/kern-toast/kern-toast";
 export namespace Components {
     /**
@@ -1874,18 +1874,55 @@ export namespace Components {
      * Cells: `class="mono"` (IP, MAC, IDs), `class="num"` (right-aligned figures).
      * Rows: `class="clickable"`, `aria-selected="true"`, `class="dim"` (reset/inactive).
      * Empty state: `<td colspan="…" class="empty">`.
+     * Data mode: with `columns` (and `rows`) the table builds its own `<table>`; don't combine it with own markup.
+     * Assign new arrays to update it.
      */
     interface KernTable {
+        /**
+          * Data mode: column definitions. The table builds its own `<table>` from them and `rows`.
+         */
+        "columns"?: KernTableColumn[];
         /**
           * 30px rows instead of 36px.
           * @default false
          */
         "compact": boolean;
         /**
-          * `internal`: the table sorts its rows itself. `external`: it only emits `kernSort`; the app orders the rows and sets `sorted` on the header.
+          * `internal`: the table sorts its rows itself. `external`: it only emits `kernSort`; the app orders the rows and sets `sorted` on the header (in data mode: new `rows` and `columns[].sorted`).
           * @default 'internal'
          */
         "controlled": 'internal' | 'external';
+        /**
+          * Data mode: classes for a cell.
+         */
+        "getCellClass"?: (row: any, column: KernTableColumn, index: number) => string | undefined;
+        /**
+          * Data mode: classes for a header cell.
+         */
+        "getHeaderCellClass"?: (column: KernTableColumn) => string | undefined;
+        /**
+          * Data mode: classes for a row, e.g. `clickable` or `dim`.
+         */
+        "getRowClass"?: (row: any, index: number) => string | undefined;
+        /**
+          * Data mode: shown when `rows` is empty.
+          * @default 'Keine Einträge'
+         */
+        "labelEmpty": string;
+        /**
+          * Loading: content dimmed, a bar under the header, `aria-busy`; in data mode without rows, skeleton rows.
+          * @default false
+         */
+        "loading": boolean;
+        /**
+          * Data mode: number of skeleton rows while loading without rows.
+          * @default 3
+         */
+        "loadingRows": number;
+        /**
+          * Data mode: one object per row; each column reads `row[column.key]`.
+         */
+        "rows"?: any[];
         /**
           * Sorts by a column (`data-key` or index); without `direction` it toggles, starting with `asc`. With `controlled="external"` it only emits `kernSort`.
          */
@@ -3125,6 +3162,7 @@ declare global {
     };
     interface HTMLKernTableElementEventMap {
         "kernSort": { key: string; column: number; direction: KernSortDirection };
+        "kernRowClick": { row: any; index: number };
     }
     /**
      * Dense data table: wraps a native `<table>` (light DOM, so cells can hold any markup and Angular bindings).
@@ -3133,6 +3171,8 @@ declare global {
      * Cells: `class="mono"` (IP, MAC, IDs), `class="num"` (right-aligned figures).
      * Rows: `class="clickable"`, `aria-selected="true"`, `class="dim"` (reset/inactive).
      * Empty state: `<td colspan="…" class="empty">`.
+     * Data mode: with `columns` (and `rows`) the table builds its own `<table>`; don't combine it with own markup.
+     * Assign new arrays to update it.
      */
     interface HTMLKernTableElement extends Components.KernTable, HTMLStencilElement {
         addEventListener<K extends keyof HTMLKernTableElementEventMap>(type: K, listener: (this: HTMLKernTableElement, ev: KernTableCustomEvent<HTMLKernTableElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
@@ -5285,22 +5325,63 @@ declare namespace LocalJSX {
      * Cells: `class="mono"` (IP, MAC, IDs), `class="num"` (right-aligned figures).
      * Rows: `class="clickable"`, `aria-selected="true"`, `class="dim"` (reset/inactive).
      * Empty state: `<td colspan="…" class="empty">`.
+     * Data mode: with `columns` (and `rows`) the table builds its own `<table>`; don't combine it with own markup.
+     * Assign new arrays to update it.
      */
     interface KernTable {
+        /**
+          * Data mode: column definitions. The table builds its own `<table>` from them and `rows`.
+         */
+        "columns"?: KernTableColumn[];
         /**
           * 30px rows instead of 36px.
           * @default false
          */
         "compact"?: boolean;
         /**
-          * `internal`: the table sorts its rows itself. `external`: it only emits `kernSort`; the app orders the rows and sets `sorted` on the header.
+          * `internal`: the table sorts its rows itself. `external`: it only emits `kernSort`; the app orders the rows and sets `sorted` on the header (in data mode: new `rows` and `columns[].sorted`).
           * @default 'internal'
          */
         "controlled"?: 'internal' | 'external';
         /**
+          * Data mode: classes for a cell.
+         */
+        "getCellClass"?: (row: any, column: KernTableColumn, index: number) => string | undefined;
+        /**
+          * Data mode: classes for a header cell.
+         */
+        "getHeaderCellClass"?: (column: KernTableColumn) => string | undefined;
+        /**
+          * Data mode: classes for a row, e.g. `clickable` or `dim`.
+         */
+        "getRowClass"?: (row: any, index: number) => string | undefined;
+        /**
+          * Data mode: shown when `rows` is empty.
+          * @default 'Keine Einträge'
+         */
+        "labelEmpty"?: string;
+        /**
+          * Loading: content dimmed, a bar under the header, `aria-busy`; in data mode without rows, skeleton rows.
+          * @default false
+         */
+        "loading"?: boolean;
+        /**
+          * Data mode: number of skeleton rows while loading without rows.
+          * @default 3
+         */
+        "loadingRows"?: number;
+        /**
+          * Data mode: a row was clicked (not on a button, link or field in it). `index` is the position in `rows`.
+         */
+        "onKernRowClick"?: (event: KernTableCustomEvent<{ row: any; index: number }>) => void;
+        /**
           * A sortable header was activated (or `sortBy()` called), with the requested direction. Cancelable: `preventDefault()` skips the built-in sort.
          */
         "onKernSort"?: (event: KernTableCustomEvent<{ key: string; column: number; direction: KernSortDirection }>) => void;
+        /**
+          * Data mode: one object per row; each column reads `row[column.key]`.
+         */
+        "rows"?: any[];
     }
     /**
      * Switches between views of the same object (Config / Status / Snapshots). Tabs are built from the
@@ -6093,6 +6174,9 @@ declare namespace LocalJSX {
     interface KernTableAttributes {
         "compact": boolean;
         "controlled": 'internal' | 'external';
+        "loading": boolean;
+        "loadingRows": number;
+        "labelEmpty": string;
     }
     interface KernTabsAttributes {
         "value": string;
@@ -6517,6 +6601,8 @@ declare module "@stencil/core" {
              * Cells: `class="mono"` (IP, MAC, IDs), `class="num"` (right-aligned figures).
              * Rows: `class="clickable"`, `aria-selected="true"`, `class="dim"` (reset/inactive).
              * Empty state: `<td colspan="…" class="empty">`.
+             * Data mode: with `columns` (and `rows`) the table builds its own `<table>`; don't combine it with own markup.
+             * Assign new arrays to update it.
              */
             "kern-table": LocalJSX.IntrinsicElements["kern-table"] & JSXBase.HTMLAttributes<HTMLKernTableElement>;
             /**

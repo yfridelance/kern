@@ -281,7 +281,7 @@ export namespace Components {
     }
     /**
      * Code and commands: a block with copy button, optional heading (file name), line numbers, wrapping and a maximum
-     * height, highlighted for shell, yaml, json, js/ts and ini; or `inline` in running text. The code comes from `code`
+     * height, highlighted for shell, yaml, json, js/ts, ini and html; or `inline` in running text. The code comes from `code`
      * or the text content; common indentation is removed, so it can be written indented in HTML.
      */
     interface KernCode {
@@ -2429,7 +2429,7 @@ declare global {
     }
     /**
      * Code and commands: a block with copy button, optional heading (file name), line numbers, wrapping and a maximum
-     * height, highlighted for shell, yaml, json, js/ts and ini; or `inline` in running text. The code comes from `code`
+     * height, highlighted for shell, yaml, json, js/ts, ini and html; or `inline` in running text. The code comes from `code`
      * or the text content; common indentation is removed, so it can be written indented in HTML.
      */
     interface HTMLKernCodeElement extends Components.KernCode, HTMLStencilElement {
@@ -3603,7 +3603,7 @@ declare namespace LocalJSX {
     }
     /**
      * Code and commands: a block with copy button, optional heading (file name), line numbers, wrapping and a maximum
-     * height, highlighted for shell, yaml, json, js/ts and ini; or `inline` in running text. The code comes from `code`
+     * height, highlighted for shell, yaml, json, js/ts, ini and html; or `inline` in running text. The code comes from `code`
      * or the text content; common indentation is removed, so it can be written indented in HTML.
      */
     interface KernCode {
@@ -6248,7 +6248,7 @@ declare module "@stencil/core" {
             "kern-checkbox": LocalJSX.IntrinsicElements["kern-checkbox"] & JSXBase.HTMLAttributes<HTMLKernCheckboxElement>;
             /**
              * Code and commands: a block with copy button, optional heading (file name), line numbers, wrapping and a maximum
-             * height, highlighted for shell, yaml, json, js/ts and ini; or `inline` in running text. The code comes from `code`
+             * height, highlighted for shell, yaml, json, js/ts, ini and html; or `inline` in running text. The code comes from `code`
              * or the text content; common indentation is removed, so it can be written indented in HTML.
              */
             "kern-code": LocalJSX.IntrinsicElements["kern-code"] & JSXBase.HTMLAttributes<HTMLKernCodeElement>;

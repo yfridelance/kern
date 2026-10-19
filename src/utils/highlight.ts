@@ -1,4 +1,4 @@
-export type KernCodeLanguage = 'text' | 'shell' | 'yaml' | 'json' | 'js' | 'ts' | 'ini';
+export type KernCodeLanguage = 'text' | 'shell' | 'yaml' | 'json' | 'js' | 'ts' | 'ini' | 'html';
 export type TokenType = 'comment' | 'string' | 'number' | 'keyword' | 'literal' | 'key' | 'variable' | 'section';
 
 export interface Token {
@@ -41,6 +41,13 @@ const RULES: Record<Exclude<KernCodeLanguage, 'text'>, Rule[]> = {
     ['number', /\b\d+(?:\.\d+)?\b/y],
   ],
   ts: [],
+  html: [
+    ['comment', /<!--[\s\S]*?-->/y],
+    // Tag names (with the angle bracket), attribute names and quoted values.
+    ['keyword', /<\/?[A-Za-z][\w-]*|\/?>/y],
+    ['key', /[A-Za-z_:@][\w:.@-]*(?=\s*=)/y],
+    ['string', /"[^"]*"|'[^']*'/y],
+  ],
   ini: [
     ['comment', /[;#][^\n]*/y],
     ['section', /\[[^\]\n]*\]/y],

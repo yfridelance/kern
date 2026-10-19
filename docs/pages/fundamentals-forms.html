@@ -1,0 +1,26 @@
+<!-- title: Forms -->
+<header class="page-head">
+  <span class="overline">Fundamentals</span>
+  <h1>Forms</h1>
+  <p class="lead">All input components are form-associated (ElementInternals): they take part in <code>&lt;form&gt;</code> like native fields.</p>
+</header>
+<h2>What works like native fields</h2>
+<ul>
+  <li><code>name</code> puts the value into <code>FormData</code>. Components with several values (<code>kern-select multiple</code>, <code>kern-file-input multiple</code>) add one entry per value.</li>
+  <li><code>required</code> blocks submitting while empty; <code>form.reset()</code> restores the initial value; a disabled <code>&lt;fieldset&gt;</code> disables the fields.</li>
+  <li><code>kern-button type="submit"</code> / <code>type="reset"</code> submit or reset the surrounding form.</li>
+</ul>
+<h2>Errors</h2>
+<p>Set <code>error</code> to show a message. A field with <code>error</code> is invalid and blocks submitting until the message is removed. Typed fields (dates, IPs, MACs, numbers, colours) also report their own problems, e.g. «Not a valid IPv4 address».</p>
+<div class="demo" style="border-radius:var(--radius-md)">
+  <kern-input label="Device password" type="password" value="secret" error="Wrong credentials" style="max-width:320px"></kern-input>
+</div>
+<h2>Events</h2>
+<ul>
+  <li><code>kernChange</code> with <code>{ value }</code>: the value was applied. For typed fields this is on Enter or when leaving the field; for controls on every change.</li>
+  <li><code>kernInput</code>: on every keystroke or while dragging (where offered).</li>
+</ul>
+<h2>Normalised values</h2>
+<p>Typed fields accept several notations and store one: <code>kern-ip-input</code> («192.168.1.10 - 50» → <code>192.168.1.10-192.168.1.50</code>), <code>kern-mac-input</code> (any notation → <code>C8:2B:96:1A:3F:00</code>), <code>kern-date-picker</code> (locale text → ISO <code>2026-10-19</code>), <code>kern-color-picker</code> (<code>#3CC</code> → <code>#33cccc</code>).</p>
+<h2>Angular</h2>
+<p>The generated value accessors connect <code>ngModel</code> and reactive forms: text accessor for most fields, number accessor for <code>kern-rating</code> and <code>kern-step-input</code>, boolean accessor for <code>kern-switch</code> and <code>kern-checkbox</code>. <code>kern-file-input</code> has none; use <code>(kernChange)</code>.</p>

@@ -1,0 +1,19 @@
+<!-- title: Overlays -->
+<header class="page-head">
+  <span class="overline">Fundamentals</span>
+  <h1>Overlays</h1>
+  <p class="lead">Lists, menus, pickers, tooltips and toasts open in the top layer (Popover API), so cards, tables and scroll containers never clip them.</p>
+</header>
+<h2>Placement</h2>
+<ul>
+  <li>Below the trigger, or above when there is not enough room; kept inside the viewport.</li>
+  <li>Menus at the end of a row use <code>align="end"</code>.</li>
+  <li>Overlays reset inherited text styles, so a menu opened in a right-aligned cell stays left-aligned.</li>
+</ul>
+<h2>Closing</h2>
+<ul>
+  <li>Escape and a click outside close (light dismiss); focus returns to the trigger.</li>
+  <li>Picking an item closes lists and menus; <code>kern-select multiple</code> stays open.</li>
+</ul>
+<h2>Modals</h2>
+<p><code>kern-dialog</code> (short confirmations, also via <code>confirm()</code>) and <code>kern-drawer</code> (details, filters, longer forms) are modal: the page behind is inert. <code>kern-toast</code> is not a modal and does not take focus.</p>

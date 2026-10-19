@@ -1,0 +1,19 @@
+<!-- title: Localization -->
+<header class="page-head">
+  <span class="overline">Fundamentals</span>
+  <h1>Localization</h1>
+  <p class="lead">Formats come from <code>Intl</code>; texts are properties. Default texts are German, because Kern started in a German-speaking homelab.</p>
+</header>
+<h2>Locale</h2>
+<p>Components that format dates, times, numbers or sizes take a <code>locale</code> (BCP 47). Without it they use <code>&lt;html lang&gt;</code>, then the browser language.</p>
+<div class="demo" style="border-radius:var(--radius-md)">
+  <kern-date value="2026-10-19T08:15:00Z" time locale="de-CH"></kern-date>
+  <kern-date value="2026-10-19T08:15:00Z" time locale="en-US"></kern-date>
+  <kern-time duration="PT1H23M" locale="en-US"></kern-time>
+  <kern-step-input value="21.5" step="0.5" unit="°C" locale="de-DE" aria-label-text="Temperature" style="width:180px"></kern-step-input>
+</div>
+<h2>Texts</h2>
+<p>Every visible or announced text is a property starting with <code>label</code>, e.g. <code>label-close</code> on <code>kern-dialog</code>, <code>label-invalid</code> on typed fields, <code>label-range</code> on <code>kern-pagination</code>. Placeholders like <code>{n}</code> or <code>{name}</code> are replaced. The property tables on each component page list them.</p>
+<kern-code language="html">
+&lt;kern-pagination total="380" label-range="{from}–{to} of {total}" label-next="Next page"&gt;&lt;/kern-pagination&gt;
+</kern-code>

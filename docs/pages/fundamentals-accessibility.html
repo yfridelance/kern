@@ -1,0 +1,31 @@
+<!-- title: Accessibility -->
+<header class="page-head">
+  <span class="overline">Fundamentals</span>
+  <h1>Accessibility</h1>
+  <p class="lead">Components follow the WAI-ARIA authoring practices: native elements where possible, one tab stop per composite control, visible focus, reduced motion.</p>
+</header>
+<h2>Names</h2>
+<ul>
+  <li>Fields use <code>label</code>. Without a visible label, set <code>aria-label-text</code>.</li>
+  <li>Icon-only buttons need <code>label</code>; <code>kern-tooltip</code> only adds a visible hint.</li>
+  <li><code>kern-icon</code> is decorative unless it has a <code>label</code>.</li>
+</ul>
+<h2>Keyboard</h2>
+<kern-table><table>
+  <thead><tr><th>Pattern</th><th>Components</th><th>Keys</th></tr></thead>
+  <tbody>
+    <tr><td>Listbox / menu</td><td><code>kern-select</code>, <code>kern-menu</code></td><td>Enter, Space, arrows, Home/End, letters, Escape</td></tr>
+    <tr><td>Radio group (one tab stop)</td><td><code>kern-radio-group</code>, <code>kern-segmented</code>, <code>kern-rating</code></td><td>Arrows move and select</td></tr>
+    <tr><td>Grid</td><td><code>kern-calendar</code></td><td>Arrows, Home/End, Page Up/Down, Shift+Page Up/Down</td></tr>
+    <tr><td>Spin button / slider</td><td><code>kern-time-picker</code>, <code>kern-step-input</code>, <code>kern-range</code>, <code>kern-color-picker</code></td><td>Arrows, Page Up/Down, Home/End</td></tr>
+    <tr><td>Dialog</td><td><code>kern-dialog</code>, <code>kern-drawer</code></td><td>Focus stays inside, Escape closes, focus returns</td></tr>
+  </tbody>
+</table></kern-table>
+<h2>Announcements</h2>
+<ul>
+  <li><code>kern-alert tone="danger"</code> and <code>kern-toast tone="danger"</code> are alerts; the others are polite.</li>
+  <li><code>kern-skeleton</code> is hidden from assistive technology: set <code>aria-busy="true"</code> on the loading container.</li>
+  <li>While a modal dialog is open everything outside is inert. Toasts shown then are neither clickable nor announced; close the dialog first.</li>
+</ul>
+<h2>Motion</h2>
+<p>Animations (drawer, toasts, skeleton shimmer, chevrons) stop under <code>prefers-reduced-motion</code>.</p>

@@ -1,0 +1,29 @@
+<!-- title: Theming -->
+<header class="page-head">
+  <span class="overline">Fundamentals</span>
+  <h1>Theming</h1>
+  <p class="lead">Dark is the default; light overrides colours and shadows only. The theme is a <code>data-theme</code> attribute on <code>&lt;html&gt;</code>.</p>
+</header>
+<h2>Switching</h2>
+<div class="demo" style="border-radius:var(--radius-md)">
+  <kern-theme-toggle label-light="Switch to light theme" label-dark="Switch to dark theme"></kern-theme-toggle>
+  <span style="color:var(--text-muted)">The toggle remembers the choice in <code>localStorage['kern-theme']</code>.</span>
+</div>
+<kern-code language="ts">
+import { setTheme, getTheme, initTheme } from '@yfridelance/kern';
+
+initTheme({ default: 'system' });   // 'dark' | 'light' | 'system'
+setTheme('light');
+document.addEventListener('kernThemeChange', (e) =&gt; console.log(e.detail.theme));
+</kern-code>
+<h2>Before the first paint</h2>
+<p>Set the attribute in an inline script in <code>&lt;head&gt;</code>, before the stylesheet, so the page never flashes in the wrong theme:</p>
+<kern-code language="html">
+&lt;script&gt;try{document.documentElement.dataset.theme=localStorage.getItem('kern-theme')==='light'?'light':'dark'}catch(e){document.documentElement.dataset.theme='dark'}&lt;/script&gt;
+</kern-code>
+<h2>Rules</h2>
+<ul>
+  <li>Use tokens (<code>var(--surface)</code>, <code>var(--text-muted)</code>) instead of hex values. They switch with the theme.</li>
+  <li>Status colours (<code>--ok</code>, <code>--warn</code>, <code>--danger</code>) carry meaning: use them only for that meaning, and always together with text or a shape.</li>
+  <li>Parts of a page can use another theme: <code>data-theme="light"</code> on any element applies to its subtree.</li>
+</ul>

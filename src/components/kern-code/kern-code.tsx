@@ -4,7 +4,7 @@ import { dedent, tokenLines, type KernCodeLanguage } from '../../utils/highlight
 
 /**
  * Code and commands: a block with copy button, optional heading (file name), line numbers, wrapping and a maximum
- * height, highlighted for shell, yaml, json, js/ts and ini; or `inline` in running text. The code comes from `code`
+ * height, highlighted for shell, yaml, json, js/ts, ini and html; or `inline` in running text. The code comes from `code`
  * or the text content; common indentation is removed, so it can be written indented in HTML.
  *
  * @slot - The code as text (instead of `code`)

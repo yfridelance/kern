@@ -14,7 +14,7 @@ dort und hier sind dieselben (`tokens/tokens.json`).
 | Layout | `kern-topbar`, `kern-page-header`, `kern-card`, `kern-toolbar`, `kern-accordion` + `kern-accordion-item` |
 | Navigation | `kern-tabs` + `kern-tab-panel`, `kern-link`, `kern-breadcrumb`, `kern-pagination`, `kern-theme-toggle` |
 | Aktionen | `kern-button`, `kern-menu` + `kern-menu-item` |
-| Formulare | `kern-input`, `kern-ip-input`, `kern-textarea`, `kern-select`, `kern-switch`, `kern-checkbox`, `kern-radio-group` + `kern-radio`, `kern-segmented`, `kern-date-picker`, `kern-date-range-picker`, `kern-time-picker`, `kern-step-input`, `kern-rating` |
+| Formulare | `kern-input`, `kern-ip-input`, `kern-textarea`, `kern-select`, `kern-switch`, `kern-checkbox`, `kern-radio-group` + `kern-radio`, `kern-segmented`, `kern-date-picker`, `kern-date-range-picker`, `kern-time-picker`, `kern-step-input`, `kern-range`, `kern-rating` |
 | Status | `kern-badge`, `kern-status`, `kern-icon` |
 | Rückmeldung | `kern-alert`, `kern-toast` (+ `toast()`), `kern-tooltip`, `kern-drawer`, `kern-progress`, `kern-spinner`, `kern-dialog` (+ `confirm()`) |
 | Daten | `kern-table`, `kern-list` + `kern-list-item`, `kern-kv` + `kern-kv-item`, `kern-stat`, `kern-sparkline`, `kern-meter`, `kern-signal`, `kern-copy`, `kern-json` |
@@ -30,7 +30,7 @@ verschieden sind. Der Name sagt die Rolle:
 | Rolle | Name | Beispiele |
 | --- | --- | --- |
 | Anzeige | Nomen | `kern-date`, `kern-time`, `kern-status`, `kern-meter`, `kern-list`, `kern-link`, `kern-icon`, `kern-tooltip`, `kern-toast`, `kern-pagination`, `kern-breadcrumb` |
-| Bedienelement ohne Feldbox | Nomen | `kern-switch`, `kern-checkbox`, `kern-segmented`, `kern-radio-group`, `kern-calendar`, `kern-rating`, `kern-tabs`, `kern-menu`, `kern-drawer`, `kern-accordion` |
+| Bedienelement ohne Feldbox | Nomen | `kern-switch`, `kern-checkbox`, `kern-segmented`, `kern-radio-group`, `kern-calendar`, `kern-rating`, `kern-range`, `kern-tabs`, `kern-menu`, `kern-drawer`, `kern-accordion` |
 | Tippfeld mit eigenem Wertmodell | `-input` | `kern-ip-input`, `kern-step-input` |
 | Feld, das ein Auswahl-Popover anbietet | `-picker` | `kern-date-picker`, `kern-date-range-picker`, `kern-time-picker` |
 
@@ -140,6 +140,9 @@ zusätzlich Standalone-Wrapper mit `ControlValueAccessor` für `ngModel` und Rea
   Verlassen übernommen, begrenzt und auf die Nachkommastellen von `step` gerundet (Dezimalkomma nach Locale). Pfeil↑/↓
   ± `step`, Bild↑/↓ ± 10 × `step`, Home/End = `min`/`max`, Buttons wiederholen beim Halten. `value` ist eine Zahl oder
   `''`, `kernChange` liefert `null` für leer.
+- **Schieberegler:** `kern-range` mit `min`, `max`, `step`, `unit` und optional `marks="0,50,100"`; Ziehen oder Klick auf
+  die Spur, Tastatur wie nativ (Pfeile, Bild↑/↓ = ein Zehntel, Home/End). `range` gibt zwei Griffe, Wert `"von/bis"`.
+  `kernInput` beim Ziehen, `kernChange` beim Loslassen.
 - **Bewertung:** `kern-rating` ist eine Radiogruppe aus `max` Sternen (Standard 5) mit einem Tab-Stopp; Pfeile,
   Home/End und Ziffern setzen den Wert, `clearable` erlaubt 0 (0/Backspace oder Klick auf den aktuellen Stern).
   `readonly` zeigt nur an («4 von 5 Sternen»). Wert ist eine Zahl, im Formular leer bei 0.

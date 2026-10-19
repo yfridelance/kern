@@ -1,0 +1,17 @@
+@import '../../utils/field.css';
+
+/* min-width: 0 so the native minimum width of the input never pushes the field out of its column. */
+.box { display: flex; align-items: center; gap: var(--space-2); min-width: 0; cursor: text; }
+.box:focus-within { outline: 2px solid var(--focus); outline-offset: -1px; border-color: var(--focus); }
+:host([invalid]) .box:focus-within { outline-color: var(--danger); }
+.box.disabled { opacity: .5; cursor: not-allowed; }
+
+.text {
+  all: unset; flex: 1; width: 0; min-width: 0; height: 100%;
+  font: 400 13px/18px var(--font-mono); color: inherit;
+}
+.text::placeholder { color: var(--text-faint); }
+.text:disabled { cursor: not-allowed; }
+
+.count { flex: none; font-size: 12px; line-height: 16px; color: var(--text-muted); font-variant-numeric: tabular-nums; white-space: nowrap; }
+:host([size="sm"]) .count { font-size: 11px; }

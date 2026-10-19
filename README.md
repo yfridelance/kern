@@ -14,7 +14,7 @@ dort und hier sind dieselben (`tokens/tokens.json`).
 | Layout | `kern-topbar`, `kern-page-header`, `kern-card`, `kern-toolbar` |
 | Navigation | `kern-tabs` + `kern-tab-panel`, `kern-theme-toggle` |
 | Aktionen | `kern-button` |
-| Formulare | `kern-input`, `kern-textarea`, `kern-select`, `kern-switch`, `kern-checkbox`, `kern-segmented`, `kern-date-picker`, `kern-date-range-picker`, `kern-time-picker` |
+| Formulare | `kern-input`, `kern-ip`, `kern-textarea`, `kern-select`, `kern-switch`, `kern-checkbox`, `kern-segmented`, `kern-date-picker`, `kern-date-range-picker`, `kern-time-picker` |
 | Status | `kern-badge`, `kern-status` |
 | Rückmeldung | `kern-alert`, `kern-progress`, `kern-spinner`, `kern-dialog` (+ `confirm()`) |
 | Daten | `kern-table`, `kern-kv` + `kern-kv-item`, `kern-stat`, `kern-sparkline`, `kern-meter`, `kern-signal`, `kern-copy`, `kern-json` |
@@ -60,11 +60,16 @@ zusätzlich Standalone-Wrapper mit `ControlValueAccessor` für `ngModel` und Rea
 
 ## Wichtige Verhaltensregeln
 
-- **Formulare:** `kern-input`, `kern-textarea`, `kern-select`, `kern-switch`, `kern-checkbox`, `kern-segmented`,
-  `kern-date-picker`, `kern-date-range-picker` und `kern-time-picker` sind formularfähig (ElementInternals): `name`,
-  `FormData`, `form.reset()` und `required` funktionieren wie bei nativen Feldern. `kern-button type="submit"`
-  sendet das umgebende Formular. Ein Feld mit `error` gilt als ungültig und **blockiert das Absenden**, bis der
-  Fehler entfernt ist.
+- **Formulare:** `kern-input`, `kern-ip`, `kern-textarea`, `kern-select`, `kern-switch`, `kern-checkbox`,
+  `kern-segmented`, `kern-date-picker`, `kern-date-range-picker` und `kern-time-picker` sind formularfähig
+  (ElementInternals): `name`, `FormData`, `form.reset()` und `required` funktionieren wie bei nativen Feldern.
+  `kern-button type="submit"` sendet das umgebende Formular. Ein Feld mit `error` gilt als ungültig und **blockiert
+  das Absenden**, bis der Fehler entfernt ist.
+- **IPv4:** `kern-ip` nimmt eine Adresse (`192.168.1.10`), einen Bereich (`192.168.1.10-192.168.1.50`, auch
+  `192.168.1.10-50`) oder CIDR (`192.168.1.0/24`) und normalisiert beim Verlassen (Host-Adresse in CIDR → Netz,
+  umgekehrter Bereich → getauscht). `allow="single range cidr"` und `max-addresses` begrenzen; Bereiche zeigen ihre
+  Grösse im Feld. `kernChange` liefert `{ value, kind, first, last, count }`. `parseIpv4()`, `ipv4ToInt()` und
+  `intToIpv4()` sind exportiert.
 - **Optionen** für `kern-select` und `kern-segmented` kommen aus der Property `options` oder aus Kind-`<option>`;
   Änderungen an den Kindern werden übernommen (`@for` funktioniert).
 - **Auswahlliste:** `kern-select` öffnet eine eigene Liste (Popover über allem, nicht abgeschnitten von Karten oder

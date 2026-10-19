@@ -6,9 +6,11 @@
  */
 import { HTMLStencilElement, JSXBase } from "@stencil/core/internal";
 import { KernDateFormat } from "./utils/datetime";
+import { KernIpKind } from "./utils/ip";
 import { KernOption } from "./components/kern-select/kern-select";
 import { KernOption as KernOption1 } from "./components/kern-select/kern-select";
 export { KernDateFormat } from "./utils/datetime";
+export { KernIpKind } from "./utils/ip";
 export { KernOption } from "./components/kern-select/kern-select";
 export { KernOption as KernOption1 } from "./components/kern-select/kern-select";
 export namespace Components {
@@ -588,6 +590,88 @@ export namespace Components {
         "value": string;
     }
     /**
+     * IPv4 field for a single address (`192.168.1.10`), a range (`192.168.1.10-192.168.1.50`, also `192.168.1.10-50`)
+     * or a CIDR block (`192.168.1.0/24`), form-associated. Typed text is applied on Enter or when leaving the field and
+     * normalised; `value` and the form value are the normalised form. Ranges and blocks show their size in the field.
+     */
+    interface KernIp {
+        /**
+          * Allowed forms, space-separated: `single`, `range`, `cidr`.
+          * @default 'single range cidr'
+         */
+        "allow": string;
+        /**
+          * Accessible name when there is no visible label.
+         */
+        "ariaLabelText"?: string;
+        /**
+          * @default false
+         */
+        "disabled": boolean;
+        "error"?: string;
+        /**
+          * Hide the number of addresses in the field.
+          * @default false
+         */
+        "hideCount": boolean;
+        "hint"?: string;
+        "label"?: string;
+        /**
+          * Size of a range or block; `{n}` is replaced by the number.
+          * @default '{n} Adressen'
+         */
+        "labelCount": string;
+        /**
+          * Shown for text that is no IPv4 address, range or CIDR block.
+          * @default 'Keine gültige IPv4-Adresse'
+         */
+        "labelInvalid": string;
+        /**
+          * Shown for a form excluded by `allow`.
+          * @default 'Diese Form ist hier nicht erlaubt'
+         */
+        "labelNotAllowed": string;
+        /**
+          * Shown above `max-addresses`; `{n}` is replaced by it.
+          * @default 'Höchstens {n} Adressen'
+         */
+        "labelTooMany": string;
+        /**
+          * BCP 47 locale for the number of addresses; defaults to `<html lang>`, then the browser language.
+         */
+        "locale"?: string;
+        /**
+          * Largest allowed number of addresses.
+         */
+        "maxAddresses"?: number;
+        "name"?: string;
+        /**
+          * Defaults to an example of the first allowed form.
+         */
+        "placeholder"?: string;
+        /**
+          * @default false
+         */
+        "readonly": boolean;
+        /**
+          * @default false
+         */
+        "required": boolean;
+        /**
+          * Focuses the native input.
+         */
+        "setFocus": () => Promise<void>;
+        /**
+          * @default 'md'
+         */
+        "size": 'md' | 'sm';
+        /**
+          * Normalised address, range or CIDR block; empty when none.
+          * @default ''
+         */
+        "value": string;
+    }
+    /**
      * Collapsible JSON tree for configs, status and device info (native `<details>`, keyboard accessible).
      * Closed nodes show their size ({4}, [2]).
      */
@@ -1162,6 +1246,10 @@ export interface KernInputCustomEvent<T> extends CustomEvent<T> {
     detail: T;
     target: HTMLKernInputElement;
 }
+export interface KernIpCustomEvent<T> extends CustomEvent<T> {
+    detail: T;
+    target: HTMLKernIpElement;
+}
 export interface KernSegmentedCustomEvent<T> extends CustomEvent<T> {
     detail: T;
     target: HTMLKernSegmentedElement;
@@ -1393,6 +1481,29 @@ declare global {
     var HTMLKernInputElement: {
         prototype: HTMLKernInputElement;
         new (): HTMLKernInputElement;
+    };
+    interface HTMLKernIpElementEventMap {
+        "kernInput": { value: string };
+        "kernChange": { value: string; kind?: KernIpKind; first?: string; last?: string; count?: number };
+    }
+    /**
+     * IPv4 field for a single address (`192.168.1.10`), a range (`192.168.1.10-192.168.1.50`, also `192.168.1.10-50`)
+     * or a CIDR block (`192.168.1.0/24`), form-associated. Typed text is applied on Enter or when leaving the field and
+     * normalised; `value` and the form value are the normalised form. Ranges and blocks show their size in the field.
+     */
+    interface HTMLKernIpElement extends Components.KernIp, HTMLStencilElement {
+        addEventListener<K extends keyof HTMLKernIpElementEventMap>(type: K, listener: (this: HTMLKernIpElement, ev: KernIpCustomEvent<HTMLKernIpElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLKernIpElementEventMap>(type: K, listener: (this: HTMLKernIpElement, ev: KernIpCustomEvent<HTMLKernIpElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
+    }
+    var HTMLKernIpElement: {
+        prototype: HTMLKernIpElement;
+        new (): HTMLKernIpElement;
     };
     /**
      * Collapsible JSON tree for configs, status and device info (native `<details>`, keyboard accessible).
@@ -1709,6 +1820,7 @@ declare global {
         "kern-date-range-picker": HTMLKernDateRangePickerElement;
         "kern-dialog": HTMLKernDialogElement;
         "kern-input": HTMLKernInputElement;
+        "kern-ip": HTMLKernIpElement;
         "kern-json": HTMLKernJsonElement;
         "kern-kv": HTMLKernKvElement;
         "kern-kv-item": HTMLKernKvItemElement;
@@ -2323,6 +2435,96 @@ declare namespace LocalJSX {
          */
         "type"?: 'text' | 'password' | 'search' | 'email' | 'url' | 'number' | 'tel';
         /**
+          * @default ''
+         */
+        "value"?: string;
+    }
+    /**
+     * IPv4 field for a single address (`192.168.1.10`), a range (`192.168.1.10-192.168.1.50`, also `192.168.1.10-50`)
+     * or a CIDR block (`192.168.1.0/24`), form-associated. Typed text is applied on Enter or when leaving the field and
+     * normalised; `value` and the form value are the normalised form. Ranges and blocks show their size in the field.
+     */
+    interface KernIp {
+        /**
+          * Allowed forms, space-separated: `single`, `range`, `cidr`.
+          * @default 'single range cidr'
+         */
+        "allow"?: string;
+        /**
+          * Accessible name when there is no visible label.
+         */
+        "ariaLabelText"?: string;
+        /**
+          * @default false
+         */
+        "disabled"?: boolean;
+        "error"?: string;
+        /**
+          * The `id` of a `<form>` element to associate this element with.
+         */
+        "form"?: string;
+        /**
+          * Hide the number of addresses in the field.
+          * @default false
+         */
+        "hideCount"?: boolean;
+        "hint"?: string;
+        "label"?: string;
+        /**
+          * Size of a range or block; `{n}` is replaced by the number.
+          * @default '{n} Adressen'
+         */
+        "labelCount"?: string;
+        /**
+          * Shown for text that is no IPv4 address, range or CIDR block.
+          * @default 'Keine gültige IPv4-Adresse'
+         */
+        "labelInvalid"?: string;
+        /**
+          * Shown for a form excluded by `allow`.
+          * @default 'Diese Form ist hier nicht erlaubt'
+         */
+        "labelNotAllowed"?: string;
+        /**
+          * Shown above `max-addresses`; `{n}` is replaced by it.
+          * @default 'Höchstens {n} Adressen'
+         */
+        "labelTooMany"?: string;
+        /**
+          * BCP 47 locale for the number of addresses; defaults to `<html lang>`, then the browser language.
+         */
+        "locale"?: string;
+        /**
+          * Largest allowed number of addresses.
+         */
+        "maxAddresses"?: number;
+        "name"?: string;
+        /**
+          * When typed text is applied: the normalised value and what it covers (empty value when cleared).
+         */
+        "onKernChange"?: (event: KernIpCustomEvent<{ value: string; kind?: KernIpKind; first?: string; last?: string; count?: number }>) => void;
+        /**
+          * On every keystroke, with the raw text.
+         */
+        "onKernInput"?: (event: KernIpCustomEvent<{ value: string }>) => void;
+        /**
+          * Defaults to an example of the first allowed form.
+         */
+        "placeholder"?: string;
+        /**
+          * @default false
+         */
+        "readonly"?: boolean;
+        /**
+          * @default false
+         */
+        "required"?: boolean;
+        /**
+          * @default 'md'
+         */
+        "size"?: 'md' | 'sm';
+        /**
+          * Normalised address, range or CIDR block; empty when none.
           * @default ''
          */
         "value"?: string;
@@ -3030,6 +3232,27 @@ declare namespace LocalJSX {
         "required": boolean;
         "ariaLabelText": string;
     }
+    interface KernIpAttributes {
+        "label": string;
+        "hint": string;
+        "error": string;
+        "value": string;
+        "name": string;
+        "allow": string;
+        "maxAddresses": number;
+        "placeholder": string;
+        "hideCount": boolean;
+        "locale": string;
+        "size": 'md' | 'sm';
+        "disabled": boolean;
+        "readonly": boolean;
+        "required": boolean;
+        "ariaLabelText": string;
+        "labelInvalid": string;
+        "labelNotAllowed": string;
+        "labelTooMany": string;
+        "labelCount": string;
+    }
     interface KernJsonAttributes {
         "openDepth": number;
     }
@@ -3197,6 +3420,7 @@ declare namespace LocalJSX {
         "kern-date-range-picker": Omit<KernDateRangePicker, keyof KernDateRangePickerAttributes> & { [K in keyof KernDateRangePicker & keyof KernDateRangePickerAttributes]?: KernDateRangePicker[K] } & { [K in keyof KernDateRangePicker & keyof KernDateRangePickerAttributes as `attr:${K}`]?: KernDateRangePickerAttributes[K] } & { [K in keyof KernDateRangePicker & keyof KernDateRangePickerAttributes as `prop:${K}`]?: KernDateRangePicker[K] };
         "kern-dialog": Omit<KernDialog, keyof KernDialogAttributes> & { [K in keyof KernDialog & keyof KernDialogAttributes]?: KernDialog[K] } & { [K in keyof KernDialog & keyof KernDialogAttributes as `attr:${K}`]?: KernDialogAttributes[K] } & { [K in keyof KernDialog & keyof KernDialogAttributes as `prop:${K}`]?: KernDialog[K] };
         "kern-input": Omit<KernInput, keyof KernInputAttributes> & { [K in keyof KernInput & keyof KernInputAttributes]?: KernInput[K] } & { [K in keyof KernInput & keyof KernInputAttributes as `attr:${K}`]?: KernInputAttributes[K] } & { [K in keyof KernInput & keyof KernInputAttributes as `prop:${K}`]?: KernInput[K] };
+        "kern-ip": Omit<KernIp, keyof KernIpAttributes> & { [K in keyof KernIp & keyof KernIpAttributes]?: KernIp[K] } & { [K in keyof KernIp & keyof KernIpAttributes as `attr:${K}`]?: KernIpAttributes[K] } & { [K in keyof KernIp & keyof KernIpAttributes as `prop:${K}`]?: KernIp[K] };
         "kern-json": Omit<KernJson, keyof KernJsonAttributes> & { [K in keyof KernJson & keyof KernJsonAttributes]?: KernJson[K] } & { [K in keyof KernJson & keyof KernJsonAttributes as `attr:${K}`]?: KernJsonAttributes[K] } & { [K in keyof KernJson & keyof KernJsonAttributes as `prop:${K}`]?: KernJson[K] };
         "kern-kv": KernKv;
         "kern-kv-item": Omit<KernKvItem, keyof KernKvItemAttributes> & { [K in keyof KernKvItem & keyof KernKvItemAttributes]?: KernKvItem[K] } & { [K in keyof KernKvItem & keyof KernKvItemAttributes as `attr:${K}`]?: KernKvItemAttributes[K] } & { [K in keyof KernKvItem & keyof KernKvItemAttributes as `prop:${K}`]?: KernKvItem[K] } & OneOf<"label", KernKvItem["label"], KernKvItemAttributes["label"]>;
@@ -3294,6 +3518,12 @@ declare module "@stencil/core" {
              * Use `mono` for IP, MAC, CIDR and IDs.
              */
             "kern-input": LocalJSX.IntrinsicElements["kern-input"] & JSXBase.HTMLAttributes<HTMLKernInputElement>;
+            /**
+             * IPv4 field for a single address (`192.168.1.10`), a range (`192.168.1.10-192.168.1.50`, also `192.168.1.10-50`)
+             * or a CIDR block (`192.168.1.0/24`), form-associated. Typed text is applied on Enter or when leaving the field and
+             * normalised; `value` and the form value are the normalised form. Ranges and blocks show their size in the field.
+             */
+            "kern-ip": LocalJSX.IntrinsicElements["kern-ip"] & JSXBase.HTMLAttributes<HTMLKernIpElement>;
             /**
              * Collapsible JSON tree for configs, status and device info (native `<details>`, keyboard accessible).
              * Closed nodes show their size ({4}, [2]).

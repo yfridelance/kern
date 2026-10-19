@@ -10,6 +10,40 @@
 Time of day („06:30“) or duration („1 Std., 23 Min.“) as `<time>`. Set either `value` or `duration`.
 Invalid values are shown as given.
 
+## Usage
+
+### 01-time-of-day
+
+# Time of day
+
+`value` takes `HH:mm[:ss]`, or a point in time whose time is shown. `seconds` adds seconds, `hour12` forces the 12-hour clock, and `mono` uses monospace digits.
+
+```html
+<kern-kv>
+  <kern-kv-item label="Schedule">daily at <kern-time value="06:30"></kern-time></kern-kv-item>
+  <kern-kv-item label="12-hour"><kern-time value="18:45" hour12></kern-time></kern-kv-item>
+  <kern-kv-item label="Last ping"><kern-time value="2026-10-19T09:41:27Z" seconds mono time-zone="Europe/Zurich"></kern-time></kern-kv-item>
+</kern-kv>
+```
+
+
+### 02-duration
+
+# Durations
+
+`duration` takes an ISO 8601 duration (`PT1H23M`) or a number of seconds, e.g. a device's `sys.uptime`. It takes precedence over `value`.
+
+```html
+<kern-kv>
+  <kern-kv-item label="Uptime"><kern-time duration="356420"></kern-time></kern-kv-item>
+  <kern-kv-item label="Auto-off"><kern-time duration="PT15M"></kern-time></kern-kv-item>
+  <kern-kv-item label="Firmware update"><kern-time duration="PT1M30S"></kern-time></kern-kv-item>
+  <kern-kv-item label="Maintenance window"><kern-time duration="PT2H"></kern-time></kern-kv-item>
+</kern-kv>
+```
+
+
+
 ## Properties
 
 | Property   | Attribute   | Description                                                                                             | Type                                    | Default     |

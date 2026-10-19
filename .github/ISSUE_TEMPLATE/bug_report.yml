@@ -23,6 +23,7 @@ body:
         - kern-copy
         - kern-date
         - kern-date-picker
+        - kern-date-range-picker
         - kern-dialog
         - kern-input
         - kern-json

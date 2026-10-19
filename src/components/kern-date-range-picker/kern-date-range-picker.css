@@ -1,0 +1,25 @@
+@import '../../utils/picker.css';
+
+/* Both dates as wide as their content, the buttons at the right end. */
+.text { flex: 0 1 11ch; }
+.dash { flex: none; padding: 0 var(--space-2); color: var(--text-muted); }
+.text.end + .icon { margin-left: auto; }
+
+.body { display: flex; flex-wrap: wrap; gap: var(--space-3); align-items: flex-start; }
+.presets { display: flex; flex-direction: column; gap: 2px; min-width: 140px; padding-right: var(--space-3); border-right: 1px solid var(--line); }
+.presets[hidden] { display: none; }
+.presets ::slotted(*) { width: 100%; }
+
+@media (max-width: 639px) {
+  .presets { flex-direction: row; flex-wrap: wrap; min-width: 0; width: 100%; padding: 0 0 var(--space-2); border-right: 0; border-bottom: 1px solid var(--line); }
+  .presets ::slotted(*) { width: auto; }
+}
+
+/* Narrow columns (two dates need ~250px): tighter type and buttons, down to ~220px. */
+:host { container-type: inline-size; }
+@container (max-width: 259px) {
+  .box { padding-left: var(--space-2); }
+  .text { font-size: 13px; }
+  .dash { padding: 0 var(--space-1); }
+  .icon { width: 22px; height: 22px; }
+}

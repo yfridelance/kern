@@ -250,6 +250,21 @@ export function addMonths(iso: string, n: number): string {
   return isoDate(new Date(d.getFullYear(), d.getMonth() + n, Math.min(d.getDate(), last)));
 }
 
+/** Whole days from `a` to `b` (negative when `b` is earlier). */
+export function daysBetween(a: string, b: string): number {
+  return Math.round((fromIsoDate(b)!.getTime() - fromIsoDate(a)!.getTime()) / 86_400_000);
+}
+
+/** The range of an ISO 8601 duration ending today (inclusive): P7D → the last 7 days. */
+export function rangeUntil(duration: string, today = todayIso()): { start: string; end: string } | null {
+  const d = parseDuration(duration);
+  if (!d || /^\d/.test(duration.trim())) return null;
+  const months = (d.years ?? 0) * 12 + (d.months ?? 0);
+  const days = (d.weeks ?? 0) * 7 + (d.days ?? 0);
+  if (!months && !days) return null;
+  return { start: addDays(addDays(addMonths(today, -months), -days), 1), end: today };
+}
+
 /** Clamp an ISO date to optional bounds. */
 export function clampIso(iso: string, min?: string, max?: string): string {
   if (min && iso < min) return min;

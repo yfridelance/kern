@@ -4,6 +4,7 @@ import {
   clampIso,
   datePlaceholder,
   dayPeriods,
+  daysBetween,
   durationToIso,
   firstDayOfWeek,
   formatDate,
@@ -19,6 +20,7 @@ import {
   parseDuration,
   parseInputDate,
   parseTime,
+  rangeUntil,
   relativeParts,
   relativeRefresh,
   timeSteps,
@@ -184,5 +186,18 @@ describe('picker input', () => {
   it('writes ISO times and step lists', () => {
     expect([isoTime(23400), isoTime(23405, true)]).toEqual(['06:30', '06:30:05']);
     expect(timeSteps(1800, parseTime('08:00')!, parseTime('09:15')!).map((t) => isoTime(t))).toEqual(['08:00', '08:30', '09:00']);
+  });
+});
+
+describe('ranges', () => {
+  it('counts days between dates', () => {
+    expect([daysBetween('2026-10-01', '2026-10-15'), daysBetween('2026-10-15', '2026-10-01'), daysBetween('2026-03-28', '2026-03-30')]).toEqual([14, -14, 2]);
+  });
+  it('builds ranges ending today from durations', () => {
+    expect(rangeUntil('P7D', '2026-10-19')).toEqual({ start: '2026-10-13', end: '2026-10-19' });
+    expect(rangeUntil('P1D', '2026-10-19')).toEqual({ start: '2026-10-19', end: '2026-10-19' });
+    expect(rangeUntil('P1M', '2026-10-19')).toEqual({ start: '2026-09-20', end: '2026-10-19' });
+    expect(rangeUntil('P1W', '2026-10-19')).toEqual({ start: '2026-10-13', end: '2026-10-19' });
+    expect([rangeUntil('PT1H', '2026-10-19'), rangeUntil('86400', '2026-10-19'), rangeUntil('x', '2026-10-19')]).toEqual([null, null, null]);
   });
 });

@@ -111,4 +111,18 @@ describe('kern-calendar', () => {
     const { root } = await setup(`value="2026-10-19" months="2" max="2026-10-31"`);
     expect(Array.from(root.querySelectorAll('.title')).map((t) => t.textContent)).toEqual(['September 2026', 'Oktober 2026']);
   });
+
+  it('locks days beyond maxDays once the start is picked', async () => {
+    const { page, events, day } = await setup(`range max-days="7" value="2026-10-19"`);
+    expect(day('2026-10-25').hasAttribute('aria-disabled')).toBe(false);
+    day('2026-10-10').click();
+    await page.waitForChanges();
+    expect(day('2026-10-16').hasAttribute('aria-disabled')).toBe(false);
+    expect(day('2026-10-17').getAttribute('aria-disabled')).toBe('true');
+    expect(day('2026-10-03').hasAttribute('aria-disabled')).toBe(true);
+    day('2026-10-17').click();
+    day('2026-10-16').click();
+    await page.waitForChanges();
+    expect(events).toEqual([{ start: '2026-10-10', end: '2026-10-16' }]);
+  });
 });

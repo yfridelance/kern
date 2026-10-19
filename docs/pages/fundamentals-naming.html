@@ -1,0 +1,21 @@
+<!-- title: Naming -->
+<header class="page-head">
+  <span class="overline">Fundamentals</span>
+  <h1>Naming</h1>
+  <p class="lead">Every component has its own tag instead of a shared <code>kern-input type="…"</code>, because values, events, properties and popovers differ per type. The name tells the role.</p>
+</header>
+<kern-table><table>
+  <thead><tr><th>Role</th><th>Name</th><th>Examples</th></tr></thead>
+  <tbody>
+    <tr><td>Display</td><td>noun</td><td><code>kern-date</code>, <code>kern-time</code>, <code>kern-status</code>, <code>kern-meter</code>, <code>kern-code</code></td></tr>
+    <tr><td>Control without a field box</td><td>noun</td><td><code>kern-switch</code>, <code>kern-checkbox</code>, <code>kern-calendar</code>, <code>kern-rating</code>, <code>kern-range</code></td></tr>
+    <tr><td>Typed field with its own value model</td><td><code>-input</code></td><td><code>kern-ip-input</code>, <code>kern-mac-input</code>, <code>kern-step-input</code>, <code>kern-file-input</code></td></tr>
+    <tr><td>Field that offers a picker popover</td><td><code>-picker</code></td><td><code>kern-date-picker</code>, <code>kern-time-picker</code>, <code>kern-color-picker</code></td></tr>
+  </tbody>
+</table></kern-table>
+<p>Native counterparts keep their names: <code>kern-input</code> (the general text field), <code>kern-textarea</code>, <code>kern-select</code>. Display and input can live side by side, e.g. <code>kern-date</code> and <code>kern-date-picker</code>.</p>
+<h2>Events and properties</h2>
+<ul>
+  <li>Events start with <code>kern</code>: <code>kernChange</code> (value applied), <code>kernInput</code> (while typing or dragging), <code>kernClose</code>, <code>kernSelect</code>, …</li>
+  <li>Texts the user sees are properties starting with <code>label</code> (<code>label-close</code>, <code>label-invalid</code>). See <a href="localization.html">Localization</a>.</li>
+</ul>

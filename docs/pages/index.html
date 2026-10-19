@@ -1,0 +1,37 @@
+<!-- title: Kern -->
+<section class="hero">
+  <span class="overline">Version <!--@version--></span>
+  <h1>Kern</h1>
+  <p class="lead">Dark-first web components for self-hosted tools around device management, monitoring, networks and smart homes. Built with Stencil and Shadow DOM, without runtime dependencies. Light is a complete second theme.</p>
+  <div class="cta">
+    <kern-button variant="primary" href="getting-started.html">Get started</kern-button>
+    <kern-button href="fundamentals/theming.html">Fundamentals</kern-button>
+    <kern-button variant="ghost" href="https://github.com/yfridelance/kern" target="_blank">GitHub</kern-button>
+  </div>
+</section>
+
+<div class="demo" style="border-radius:var(--radius-md)">
+  <div class="stack" style="width:100%">
+    <kern-page-header heading="Bad Lüftung" description="Shelly Plus 1PM · 192.168.1.21">
+      <kern-status tone="ok">Online</kern-status>
+      <kern-button slot="actions" variant="ghost">Snapshot</kern-button>
+      <kern-button slot="actions" variant="primary">Update firmware</kern-button>
+    </kern-page-header>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px">
+      <kern-stat label="Power" value="128" unit="W"><kern-sparkline values="90,110,100,140,135,128" fill></kern-sparkline></kern-stat>
+      <kern-stat label="Uptime" value="4" unit="days" meta="since the last update"></kern-stat>
+      <kern-card heading="Signal"><kern-signal rssi="-63"></kern-signal></kern-card>
+    </div>
+  </div>
+</div>
+
+<h2>What you get</h2>
+<ul>
+  <li><strong>59 elements</strong>: layout, navigation, forms (form-associated, with validation), date and time, feedback, data display.</li>
+  <li><strong>One set of tokens</strong> for colours, type and spacing. Dark and light come from the same tokens.</li>
+  <li><strong>Accessible by default</strong>: keyboard patterns after WAI-ARIA, labels, focus rings, reduced motion.</li>
+  <li><strong>Framework-free</strong>, with generated Angular wrappers and value accessors.</li>
+</ul>
+
+<h2>Components</h2>
+<!--@components-->

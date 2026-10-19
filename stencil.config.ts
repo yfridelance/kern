@@ -45,5 +45,8 @@ export const config: Config = {
   ],
   testing: {
     browserHeadless: 'shell',
+    // Agent worktrees live in .claude/worktrees inside the repo; their copies must not run with ours.
+    testPathIgnorePatterns: ['/node_modules/', '/\\.claude/'],
+    modulePathIgnorePatterns: ['/\\.claude/'],
   },
 };

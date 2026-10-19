@@ -38,6 +38,18 @@ describe('highlight', () => {
     expect(typed(`const ifx = await fetch('/rpc'); // x`, 'ts')).toEqual(['keyword:const', 'keyword:await', "string:'/rpc'", 'comment:// x']);
   });
 
+  it('highlights html tags, attributes and values', () => {
+    expect(typed(`<kern-button variant="primary" disabled>Save</kern-button><!-- x -->`, 'html')).toEqual([
+      'keyword:<kern-button',
+      'key:variant',
+      'string:"primary"',
+      'keyword:>',
+      'keyword:</kern-button',
+      'keyword:>',
+      'comment:<!-- x -->',
+    ]);
+  });
+
   it('highlights ini sections and keys', () => {
     expect(typed(`[wifi]\nssid = Haus ; Kommentar`, 'ini')).toEqual(['section:[wifi]', 'key:ssid', 'comment:; Kommentar']);
   });

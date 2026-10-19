@@ -4,6 +4,9 @@ Dark-first Web Components für selbst gehostete Werkzeuge rund um Geräteverwalt
 Smarthome. Gebaut mit [Stencil](https://stenciljs.com), Shadow DOM, ohne Laufzeit-Abhängigkeiten. Light ist ein
 vollwertiges zweites Theme und lässt sich umschalten.
 
+**Dokumentation:** https://yfridelance.github.io/kern/ – eine Seite pro Komponente mit Beispielen, Properties,
+Events und Methoden, dazu «Getting started» und «Fundamentals» (englisch).
+
 Die Gestaltungsregeln (Farben, Typografie, Ton, wann welche Komponente) stehen im Kern-Design-System; die Tokens
 dort und hier sind dieselben (`tokens/tokens.json`).
 
@@ -195,6 +198,8 @@ npm install
 npm start        # Demo mit Watch unter http://localhost:3333
 npm test         # Spec-Tests (Jest)
 npm run build    # dist/, loader/, www/, Angular-Wrapper, readme.md pro Komponente
+npm run docs     # Dokumentation nach site/ (Beispiele: src/components/<tag>/usage/*.md)
+npm run docs:serve  # http://localhost:4321/kern/
 ```
 
 - Node 24 (`.nvmrc`), Stencil 4.45.

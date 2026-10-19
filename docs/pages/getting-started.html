@@ -1,0 +1,97 @@
+<!-- title: Getting started -->
+<header class="page-head">
+  <span class="overline">Guide</span>
+  <h1>Getting started</h1>
+  <p class="lead">Install the package, load the stylesheet once and register the elements. Everything else is HTML.</p>
+</header>
+
+<h2>Install</h2>
+<kern-code language="shell">
+npm install @yfridelance/kern
+</kern-code>
+
+<h2>Without a framework</h2>
+<p>Load <code>kern.css</code> (tokens, theme and base styles) once per page and the loader module. Elements load themselves on first use (lazy loading per component). The inline script sets the theme before the first paint, so there is no flash.</p>
+<kern-code language="html">
+&lt;script&gt;try{document.documentElement.dataset.theme=localStorage.getItem('kern-theme')==='light'?'light':'dark'}catch(e){document.documentElement.dataset.theme='dark'}&lt;/script&gt;
+&lt;link rel="stylesheet" href="node_modules/@yfridelance/kern/dist/kern/kern.css"&gt;
+&lt;script type="module" src="node_modules/@yfridelance/kern/dist/kern/kern.esm.js"&gt;&lt;/script&gt;
+</kern-code>
+<p>From a CDN without a build step:</p>
+<kern-code language="html">
+&lt;link rel="stylesheet" href="https://unpkg.com/@yfridelance/kern/dist/kern/kern.css"&gt;
+&lt;script type="module" src="https://unpkg.com/@yfridelance/kern/dist/kern/kern.esm.js"&gt;&lt;/script&gt;
+</kern-code>
+
+<h2>With a bundler</h2>
+<kern-code language="ts">
+import { defineCustomElements } from '@yfridelance/kern/loader';
+import { initTheme } from '@yfridelance/kern';
+
+initTheme();             // saved theme, otherwise dark
+defineCustomElements();  // registers all kern-* elements
+</kern-code>
+<p>Add <code>@yfridelance/kern/kern.css</code> to your global styles. Helpers such as <code>confirm()</code>, <code>toast()</code>, <code>parseIpv4()</code> and <code>parseMac()</code> are imported from <code>@yfridelance/kern</code>.</p>
+
+<h2>Angular</h2>
+<p>The simplest way works with every Angular version: register the elements once and allow custom elements in your components. Bind properties and listen to the <code>kern…</code> events.</p>
+<kern-code language="ts">
+// main.ts
+import { defineCustomElements } from '@yfridelance/kern/loader';
+import { initTheme } from '@yfridelance/kern';
+initTheme();
+defineCustomElements();
+
+// device-form.component.ts
+@Component({
+  standalone: true,
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
+  template: `
+    &lt;kern-input label="Name" [value]="name" (kernChange)="name = $event.detail.value"&gt;&lt;/kern-input&gt;
+    &lt;kern-select label="Site" [options]="sites" [value]="site" (kernChange)="site = $event.detail.value"&gt;&lt;/kern-select&gt;
+  `,
+})
+export class DeviceFormComponent { … }
+</kern-code>
+<p>For <code>ngModel</code> and reactive forms the package also ships generated standalone wrappers with <code>ControlValueAccessor</code>s as source in <code>angular/src/directives/</code> (<code>proxies.ts</code>, <code>text-value-accessor.ts</code>, <code>number-value-accessor.ts</code>, <code>boolean-value-accessor.ts</code>). They are not a package entry point; point a TypeScript path alias at the folder and import from there:</p>
+<kern-code language="json">
+// tsconfig.json
+{ "compilerOptions": { "paths": { "@kern/angular/*": ["node_modules/@yfridelance/kern/angular/src/directives/*"] } } }
+</kern-code>
+<kern-code language="ts">
+import { KernInput } from '@kern/angular/proxies';
+import { TextValueAccessor } from '@kern/angular/text-value-accessor';
+
+@Component({
+  standalone: true,
+  imports: [ReactiveFormsModule, KernInput, TextValueAccessor],
+  template: `&lt;kern-input label="Name" [formControl]="name"&gt;&lt;/kern-input&gt;`,
+})
+export class DeviceNameComponent { name = new FormControl(''); }
+</kern-code>
+<kern-alert tone="info" class="callout">Angular collapses whitespace in templates. Bind <code>[code]</code> on <code>kern-code</code> (or use <code>ngPreserveWhitespaces</code>) when you show multi-line code.</kern-alert>
+
+<h2>A first page</h2>
+<div class="demo" style="border-radius:var(--radius-md)">
+  <form class="stack" style="width:100%;max-width:420px" onsubmit="event.preventDefault(); this.querySelector('output').textContent = JSON.stringify(Object.fromEntries(new FormData(this)))">
+    <kern-input name="name" label="Device name" value="Bad Lüftung" required></kern-input>
+    <kern-ip-input name="ip" label="IP address" allow="single" value="192.168.1.21"></kern-ip-input>
+    <kern-switch name="cloud" checked>Cloud connection</kern-switch>
+    <div style="display:flex;gap:8px"><kern-button type="submit" variant="primary">Save</kern-button><kern-button type="reset" variant="ghost">Reset</kern-button></div>
+    <output style="font:12px var(--font-mono);color:var(--text-muted)"></output>
+  </form>
+</div>
+<kern-code language="html">
+&lt;form&gt;
+  &lt;kern-input name="name" label="Device name" required&gt;&lt;/kern-input&gt;
+  &lt;kern-ip-input name="ip" label="IP address" allow="single"&gt;&lt;/kern-ip-input&gt;
+  &lt;kern-switch name="cloud" checked&gt;Cloud connection&lt;/kern-switch&gt;
+  &lt;kern-button type="submit" variant="primary"&gt;Save&lt;/kern-button&gt;
+&lt;/form&gt;
+</kern-code>
+
+<h2>Styling from outside</h2>
+<p>Components use Shadow DOM. Change their look only through the tokens (CSS custom properties, see <a href="fundamentals/tokens.html">Colour tokens</a>) and the documented <code>::part()</code> names listed on each component page. Do not invent colours in apps.</p>
+<kern-code>
+kern-select::part(listbox) { max-height: 240px; }
+</kern-code>

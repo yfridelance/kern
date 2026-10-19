@@ -50,7 +50,9 @@
     "build": "npm run tokens && stencil build",
     "start": "npm run tokens && stencil build --dev --watch --serve",
     "test": "npm run tokens && stencil test --spec",
-    "generate": "stencil generate"
+    "generate": "stencil generate",
+    "docs": "npm run build && node scripts/build-docs.mjs",
+    "docs:serve": "node scripts/serve-docs.mjs"
   },
   "devDependencies": {
     "@stencil/angular-output-target": "1.5.0",

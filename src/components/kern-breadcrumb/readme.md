@@ -11,6 +11,43 @@ Path back through a hierarchy (Standort › Raum › Gerät › Einstellungen): 
 child is the current page (`aria-current="page"`). With `max-items` the middle entries collapse into a „…“ menu;
 picking one clicks the original link, so app routers still handle it.
 
+## Usage
+
+### 01-basic
+
+# Path to the current page
+
+Children are links (kern-link or `<a>`); the last child is the current page and gets `aria-current="page"`. A plain text element works for the last entry. `label` names the navigation.
+
+```html
+<kern-breadcrumb label="Path">
+  <kern-link href="#">Haus Seeblick</kern-link>
+  <kern-link href="#">Ground floor</kern-link>
+  <kern-link href="#">Bath</kern-link>
+  <span>Bad Lüftung</span>
+</kern-breadcrumb>
+```
+
+
+### 02-max-items
+
+# Collapsing long paths
+
+With `max-items` the middle entries fold into a „…“ menu that keeps the first and the last entries visible. Picking an entry clicks the original link, so app routers still handle it. `label-more` names the menu button.
+
+```html
+<kern-breadcrumb max-items="4" label="Path" label-more="More levels">
+  <kern-link href="#">Haus Seeblick</kern-link>
+  <kern-link href="#">Ground floor</kern-link>
+  <kern-link href="#">Bath</kern-link>
+  <kern-link href="#">Bad Lüftung</kern-link>
+  <kern-link href="#">Settings</kern-link>
+  <span>Wi-Fi</span>
+</kern-breadcrumb>
+```
+
+
+
 ## Properties
 
 | Property    | Attribute    | Description                                                                 | Type     | Default            |

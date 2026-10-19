@@ -14,7 +14,7 @@ dort und hier sind dieselben (`tokens/tokens.json`).
 | Layout | `kern-topbar`, `kern-page-header`, `kern-card`, `kern-toolbar` |
 | Navigation | `kern-tabs` + `kern-tab-panel`, `kern-link`, `kern-theme-toggle` |
 | Aktionen | `kern-button` |
-| Formulare | `kern-input`, `kern-ip-input`, `kern-textarea`, `kern-select`, `kern-switch`, `kern-checkbox`, `kern-segmented`, `kern-date-picker`, `kern-date-range-picker`, `kern-time-picker`, `kern-rating` |
+| Formulare | `kern-input`, `kern-ip-input`, `kern-textarea`, `kern-select`, `kern-switch`, `kern-checkbox`, `kern-segmented`, `kern-date-picker`, `kern-date-range-picker`, `kern-time-picker`, `kern-step-input`, `kern-rating` |
 | Status | `kern-badge`, `kern-status` |
 | Rückmeldung | `kern-alert`, `kern-progress`, `kern-spinner`, `kern-dialog` (+ `confirm()`) |
 | Daten | `kern-table`, `kern-list` + `kern-list-item`, `kern-kv` + `kern-kv-item`, `kern-stat`, `kern-sparkline`, `kern-meter`, `kern-signal`, `kern-copy`, `kern-json` |
@@ -29,9 +29,9 @@ verschieden sind. Der Name sagt die Rolle:
 
 | Rolle | Name | Beispiele |
 | --- | --- | --- |
-| Anzeige | Nomen | `kern-date`, `kern-time`, `kern-status`, `kern-meter` |
-| Bedienelement ohne Feldbox | Nomen | `kern-switch`, `kern-checkbox`, `kern-segmented`, `kern-calendar`, `kern-tabs` |
-| Tippfeld mit eigenem Wertmodell | `-input` | `kern-ip-input` |
+| Anzeige | Nomen | `kern-date`, `kern-time`, `kern-status`, `kern-meter`, `kern-list`, `kern-link` |
+| Bedienelement ohne Feldbox | Nomen | `kern-switch`, `kern-checkbox`, `kern-segmented`, `kern-calendar`, `kern-rating`, `kern-tabs` |
+| Tippfeld mit eigenem Wertmodell | `-input` | `kern-ip-input`, `kern-step-input` |
 | Feld, das ein Auswahl-Popover anbietet | `-picker` | `kern-date-picker`, `kern-date-range-picker`, `kern-time-picker` |
 
 Native Gegenstücke behalten ihren Namen: `kern-input` (allgemeines Tippfeld), `kern-textarea`, `kern-select`. So
@@ -77,10 +77,10 @@ zusätzlich Standalone-Wrapper mit `ControlValueAccessor` für `ngModel` und Rea
 ## Wichtige Verhaltensregeln
 
 - **Formulare:** `kern-input`, `kern-ip-input`, `kern-textarea`, `kern-select`, `kern-switch`, `kern-checkbox`,
-  `kern-segmented`, `kern-date-picker`, `kern-date-range-picker`, `kern-time-picker` und `kern-rating` sind
-  formularfähig (ElementInternals): `name`, `FormData`, `form.reset()` und `required` funktionieren wie bei nativen
-  Feldern. `kern-button type="submit"` sendet das umgebende Formular. Ein Feld mit `error` gilt als ungültig und
-  **blockiert das Absenden**, bis der Fehler entfernt ist.
+  `kern-segmented`, `kern-date-picker`, `kern-date-range-picker`, `kern-time-picker`, `kern-step-input` und
+  `kern-rating` sind formularfähig (ElementInternals): `name`, `FormData`, `form.reset()` und `required`
+  funktionieren wie bei nativen Feldern. `kern-button type="submit"` sendet das umgebende Formular. Ein Feld mit
+  `error` gilt als ungültig und **blockiert das Absenden**, bis der Fehler entfernt ist.
 - **IPv4:** `kern-ip-input` nimmt eine Adresse (`192.168.1.10`), einen Bereich (`192.168.1.10-192.168.1.50`, auch
   `192.168.1.10-50`) oder CIDR (`192.168.1.0/24`) und normalisiert beim Verlassen (Host-Adresse in CIDR → Netz,
   umgekehrter Bereich → getauscht). `allow="single range cidr"` und `max-addresses` begrenzen; Bereiche zeigen ihre
@@ -115,6 +115,10 @@ zusätzlich Standalone-Wrapper mit `ControlValueAccessor` für `ngModel` und Rea
   Bereiche. Ein Ende vor dem Start wird getauscht, `max-days` begrenzt die Länge. Im Popover zwei Monate (schmal: einer).
   Schnellauswahl über Slot `presets`: Elemente mit `data-range="P7D"` (Dauer bis heute, inkl. heute) oder
   `data-start`/`data-end`.
+- **Zahlen mit − / +:** `kern-step-input` hat `min`, `max`, `step` und `unit`; Getipptes wird mit Enter oder beim
+  Verlassen übernommen, begrenzt und auf die Nachkommastellen von `step` gerundet (Dezimalkomma nach Locale). Pfeil↑/↓
+  ± `step`, Bild↑/↓ ± 10 × `step`, Home/End = `min`/`max`, Buttons wiederholen beim Halten. `value` ist eine Zahl oder
+  `''`, `kernChange` liefert `null` für leer.
 - **Bewertung:** `kern-rating` ist eine Radiogruppe aus `max` Sternen (Standard 5) mit einem Tab-Stopp; Pfeile,
   Home/End und Ziffern setzen den Wert, `clearable` erlaubt 0 (0/Backspace oder Klick auf den aktuellen Stern).
   `readonly` zeigt nur an («4 von 5 Sternen»). Wert ist eine Zahl, im Formular leer bei 0.

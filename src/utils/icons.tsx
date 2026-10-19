@@ -14,6 +14,8 @@ const PATHS = {
   chevron: () => [<path d="m4.5 6.5 3.5 3.5 3.5-3.5" />],
   calendar: () => [<rect x="2.5" y="3.5" width="11" height="10" rx="1.5" />, <path d="M2.5 6.5h11M5.5 2v3M10.5 2v3" />],
   clock: () => [<circle cx="8" cy="8" r="5.75" />, <path d="M8 5v3l2 1.5" />],
+  minus: () => [<path d="M3.5 8h9" />],
+  plus: () => [<path d="M3.5 8h9M8 3.5v9" />],
   star: () => [<path d="M8 1.9 9.9 5.8l4.2.6-3 3 .7 4.2L8 11.6l-3.8 2 .7-4.2-3-3 4.2-.6z" />],
   external: () => [<path d="M9.5 2.5h4v4M13.5 2.5 7.5 8.5M11.5 9.5v3c0 .6-.4 1-1 1h-7c-.6 0-1-.4-1-1v-7c0-.6.4-1 1-1h3" />],
 };

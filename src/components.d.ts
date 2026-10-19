@@ -1077,6 +1077,76 @@ export namespace Components {
         "tone": 'neutral' | 'ok' | 'warn' | 'danger' | 'busy';
     }
     /**
+     * Number field with − and + buttons, form-associated. `value` is a number (`''` when empty); typed text is applied on
+     * Enter or when leaving the field, limited to `min`/`max` and rounded to the decimals of `step`. Accepts the locale's
+     * decimal comma. Keyboard: Arrow Up/Down ± `step`, Page Up/Down ± 10 × `step`, Home/End = `min`/`max`; holding a
+     * button repeats.
+     */
+    interface KernStepInput {
+        /**
+          * Accessible name when there is no visible label.
+         */
+        "ariaLabelText"?: string;
+        /**
+          * @default false
+         */
+        "disabled": boolean;
+        "error"?: string;
+        "hint"?: string;
+        "label"?: string;
+        /**
+          * @default 'Verringern'
+         */
+        "labelDecrease": string;
+        /**
+          * @default 'Erhöhen'
+         */
+        "labelIncrease": string;
+        /**
+          * Shown for text that is not a number.
+          * @default 'Keine gültige Zahl'
+         */
+        "labelInvalid": string;
+        /**
+          * BCP 47 locale for the decimal separator; defaults to `<html lang>`, then the browser language.
+         */
+        "locale"?: string;
+        "max"?: number;
+        "min"?: number;
+        "name"?: string;
+        "placeholder"?: string;
+        /**
+          * @default false
+         */
+        "readonly": boolean;
+        /**
+          * @default false
+         */
+        "required": boolean;
+        /**
+          * Focuses the field.
+         */
+        "setFocus": () => Promise<void>;
+        /**
+          * @default 'md'
+         */
+        "size": 'md' | 'sm';
+        /**
+          * Step for buttons and keys; its decimals set the precision (0.5 → one decimal).
+          * @default 1
+         */
+        "step": number;
+        /**
+          * Unit after the number, e.g. „°C“, „%“, „s“.
+         */
+        "unit"?: string;
+        /**
+          * The number, or `''` when empty.
+          * @default ''
+         */
+        "value": number | '';
+    }
+    /**
      * On/off switch for settings (Cloud, Bluetooth, MQTT), form-associated.
      * The label names the thing ("Cloud"), not the action.
      */
@@ -1415,6 +1485,10 @@ export interface KernSegmentedCustomEvent<T> extends CustomEvent<T> {
 export interface KernSelectCustomEvent<T> extends CustomEvent<T> {
     detail: T;
     target: HTMLKernSelectElement;
+}
+export interface KernStepInputCustomEvent<T> extends CustomEvent<T> {
+    detail: T;
+    target: HTMLKernStepInputElement;
 }
 export interface KernSwitchCustomEvent<T> extends CustomEvent<T> {
     detail: T;
@@ -1879,6 +1953,29 @@ declare global {
         prototype: HTMLKernStatusElement;
         new (): HTMLKernStatusElement;
     };
+    interface HTMLKernStepInputElementEventMap {
+        "kernChange": { value: number | null };
+    }
+    /**
+     * Number field with − and + buttons, form-associated. `value` is a number (`''` when empty); typed text is applied on
+     * Enter or when leaving the field, limited to `min`/`max` and rounded to the decimals of `step`. Accepts the locale's
+     * decimal comma. Keyboard: Arrow Up/Down ± `step`, Page Up/Down ± 10 × `step`, Home/End = `min`/`max`; holding a
+     * button repeats.
+     */
+    interface HTMLKernStepInputElement extends Components.KernStepInput, HTMLStencilElement {
+        addEventListener<K extends keyof HTMLKernStepInputElementEventMap>(type: K, listener: (this: HTMLKernStepInputElement, ev: KernStepInputCustomEvent<HTMLKernStepInputElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLKernStepInputElementEventMap>(type: K, listener: (this: HTMLKernStepInputElement, ev: KernStepInputCustomEvent<HTMLKernStepInputElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
+    }
+    var HTMLKernStepInputElement: {
+        prototype: HTMLKernStepInputElement;
+        new (): HTMLKernStepInputElement;
+    };
     interface HTMLKernSwitchElementEventMap {
         "kernChange": { checked: boolean };
     }
@@ -2061,6 +2158,7 @@ declare global {
         "kern-spinner": HTMLKernSpinnerElement;
         "kern-stat": HTMLKernStatElement;
         "kern-status": HTMLKernStatusElement;
+        "kern-step-input": HTMLKernStepInputElement;
         "kern-switch": HTMLKernSwitchElement;
         "kern-tab-panel": HTMLKernTabPanelElement;
         "kern-table": HTMLKernTableElement;
@@ -3174,6 +3272,80 @@ declare namespace LocalJSX {
         "tone"?: 'neutral' | 'ok' | 'warn' | 'danger' | 'busy';
     }
     /**
+     * Number field with − and + buttons, form-associated. `value` is a number (`''` when empty); typed text is applied on
+     * Enter or when leaving the field, limited to `min`/`max` and rounded to the decimals of `step`. Accepts the locale's
+     * decimal comma. Keyboard: Arrow Up/Down ± `step`, Page Up/Down ± 10 × `step`, Home/End = `min`/`max`; holding a
+     * button repeats.
+     */
+    interface KernStepInput {
+        /**
+          * Accessible name when there is no visible label.
+         */
+        "ariaLabelText"?: string;
+        /**
+          * @default false
+         */
+        "disabled"?: boolean;
+        "error"?: string;
+        /**
+          * The `id` of a `<form>` element to associate this element with.
+         */
+        "form"?: string;
+        "hint"?: string;
+        "label"?: string;
+        /**
+          * @default 'Verringern'
+         */
+        "labelDecrease"?: string;
+        /**
+          * @default 'Erhöhen'
+         */
+        "labelIncrease"?: string;
+        /**
+          * Shown for text that is not a number.
+          * @default 'Keine gültige Zahl'
+         */
+        "labelInvalid"?: string;
+        /**
+          * BCP 47 locale for the decimal separator; defaults to `<html lang>`, then the browser language.
+         */
+        "locale"?: string;
+        "max"?: number;
+        "min"?: number;
+        "name"?: string;
+        /**
+          * When the number changes (`null` when emptied).
+         */
+        "onKernChange"?: (event: KernStepInputCustomEvent<{ value: number | null }>) => void;
+        "placeholder"?: string;
+        /**
+          * @default false
+         */
+        "readonly"?: boolean;
+        /**
+          * @default false
+         */
+        "required"?: boolean;
+        /**
+          * @default 'md'
+         */
+        "size"?: 'md' | 'sm';
+        /**
+          * Step for buttons and keys; its decimals set the precision (0.5 → one decimal).
+          * @default 1
+         */
+        "step"?: number;
+        /**
+          * Unit after the number, e.g. „°C“, „%“, „s“.
+         */
+        "unit"?: string;
+        /**
+          * The number, or `''` when empty.
+          * @default ''
+         */
+        "value"?: number | '';
+    }
+    /**
      * On/off switch for settings (Cloud, Bluetooth, MQTT), form-associated.
      * The label names the thing ("Cloud"), not the action.
      */
@@ -3752,6 +3924,27 @@ declare namespace LocalJSX {
     interface KernStatusAttributes {
         "tone": 'neutral' | 'ok' | 'warn' | 'danger' | 'busy';
     }
+    interface KernStepInputAttributes {
+        "label": string;
+        "hint": string;
+        "error": string;
+        "value": string;
+        "name": string;
+        "min": number;
+        "max": number;
+        "step": number;
+        "unit": string;
+        "placeholder": string;
+        "locale": string;
+        "size": 'md' | 'sm';
+        "disabled": boolean;
+        "readonly": boolean;
+        "required": boolean;
+        "ariaLabelText": string;
+        "labelDecrease": string;
+        "labelIncrease": string;
+        "labelInvalid": string;
+    }
     interface KernSwitchAttributes {
         "checked": boolean;
         "disabled": boolean;
@@ -3864,6 +4057,7 @@ declare namespace LocalJSX {
         "kern-spinner": Omit<KernSpinner, keyof KernSpinnerAttributes> & { [K in keyof KernSpinner & keyof KernSpinnerAttributes]?: KernSpinner[K] } & { [K in keyof KernSpinner & keyof KernSpinnerAttributes as `attr:${K}`]?: KernSpinnerAttributes[K] } & { [K in keyof KernSpinner & keyof KernSpinnerAttributes as `prop:${K}`]?: KernSpinner[K] };
         "kern-stat": Omit<KernStat, keyof KernStatAttributes> & { [K in keyof KernStat & keyof KernStatAttributes]?: KernStat[K] } & { [K in keyof KernStat & keyof KernStatAttributes as `attr:${K}`]?: KernStatAttributes[K] } & { [K in keyof KernStat & keyof KernStatAttributes as `prop:${K}`]?: KernStat[K] } & OneOf<"label", KernStat["label"], KernStatAttributes["label"]> & OneOf<"value", KernStat["value"], KernStatAttributes["value"]>;
         "kern-status": Omit<KernStatus, keyof KernStatusAttributes> & { [K in keyof KernStatus & keyof KernStatusAttributes]?: KernStatus[K] } & { [K in keyof KernStatus & keyof KernStatusAttributes as `attr:${K}`]?: KernStatusAttributes[K] } & { [K in keyof KernStatus & keyof KernStatusAttributes as `prop:${K}`]?: KernStatus[K] };
+        "kern-step-input": Omit<KernStepInput, keyof KernStepInputAttributes> & { [K in keyof KernStepInput & keyof KernStepInputAttributes]?: KernStepInput[K] } & { [K in keyof KernStepInput & keyof KernStepInputAttributes as `attr:${K}`]?: KernStepInputAttributes[K] } & { [K in keyof KernStepInput & keyof KernStepInputAttributes as `prop:${K}`]?: KernStepInput[K] };
         "kern-switch": Omit<KernSwitch, keyof KernSwitchAttributes> & { [K in keyof KernSwitch & keyof KernSwitchAttributes]?: KernSwitch[K] } & { [K in keyof KernSwitch & keyof KernSwitchAttributes as `attr:${K}`]?: KernSwitchAttributes[K] } & { [K in keyof KernSwitch & keyof KernSwitchAttributes as `prop:${K}`]?: KernSwitch[K] };
         "kern-tab-panel": Omit<KernTabPanel, keyof KernTabPanelAttributes> & { [K in keyof KernTabPanel & keyof KernTabPanelAttributes]?: KernTabPanel[K] } & { [K in keyof KernTabPanel & keyof KernTabPanelAttributes as `attr:${K}`]?: KernTabPanelAttributes[K] } & { [K in keyof KernTabPanel & keyof KernTabPanelAttributes as `prop:${K}`]?: KernTabPanel[K] } & OneOf<"label", KernTabPanel["label"], KernTabPanelAttributes["label"]>;
         "kern-table": Omit<KernTable, keyof KernTableAttributes> & { [K in keyof KernTable & keyof KernTableAttributes]?: KernTable[K] } & { [K in keyof KernTable & keyof KernTableAttributes as `attr:${K}`]?: KernTableAttributes[K] } & { [K in keyof KernTable & keyof KernTableAttributes as `prop:${K}`]?: KernTable[K] };
@@ -4041,6 +4235,13 @@ declare module "@stencil/core" {
              * ok = circle, warn = diamond, danger = square, busy = pulsing circle, neutral = hollow circle.
              */
             "kern-status": LocalJSX.IntrinsicElements["kern-status"] & JSXBase.HTMLAttributes<HTMLKernStatusElement>;
+            /**
+             * Number field with − and + buttons, form-associated. `value` is a number (`''` when empty); typed text is applied on
+             * Enter or when leaving the field, limited to `min`/`max` and rounded to the decimals of `step`. Accepts the locale's
+             * decimal comma. Keyboard: Arrow Up/Down ± `step`, Page Up/Down ± 10 × `step`, Home/End = `min`/`max`; holding a
+             * button repeats.
+             */
+            "kern-step-input": LocalJSX.IntrinsicElements["kern-step-input"] & JSXBase.HTMLAttributes<HTMLKernStepInputElement>;
             /**
              * On/off switch for settings (Cloud, Bluetooth, MQTT), form-associated.
              * The label names the thing ("Cloud"), not the action.

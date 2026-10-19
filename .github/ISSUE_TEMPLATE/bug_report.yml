@@ -44,6 +44,7 @@ body:
         - kern-spinner
         - kern-stat
         - kern-status
+        - kern-step-input
         - kern-switch
         - kern-tab-panel
         - kern-table

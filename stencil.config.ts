@@ -26,7 +26,7 @@ export const config: Config = {
           type: 'text',
         },
         {
-          elementSelectors: ['kern-rating'],
+          elementSelectors: ['kern-rating', 'kern-step-input'],
           event: 'kernChange',
           targetAttr: 'value',
           type: 'number',

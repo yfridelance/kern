@@ -1876,6 +1876,9 @@ export namespace Components {
      * Empty state: `<td colspan="…" class="empty">`.
      * Data mode: with `columns` (and `rows`) the table builds its own `<table>`; don't combine it with own markup.
      * Assign new arrays to update it.
+     * Pagination: `page-size` adds a `kern-pagination` below the rows. `internal` pages the rows itself (back to page 1
+     * after sorting); `external` shows the rows it gets and the app loads a page on `kernPageChange` (bubbles from the
+     * embedded pagination) and sets `total`. Labels: set them on `table.querySelector('kern-pagination')`.
      */
     interface KernTable {
         /**
@@ -1920,6 +1923,20 @@ export namespace Components {
          */
         "loadingRows": number;
         /**
+          * Current page, from 1.
+          * @default 1
+         */
+        "page": number;
+        /**
+          * Rows per page; turns the pagination on.
+         */
+        "pageSize"?: number;
+        /**
+          * Offered page sizes, e.g. `10,25,50`; empty hides the choice.
+          * @default ''
+         */
+        "pageSizes": number[] | string;
+        /**
           * Data mode: one object per row; each column reads `row[column.key]`.
          */
         "rows"?: any[];
@@ -1927,6 +1944,10 @@ export namespace Components {
           * Sorts by a column (`data-key` or index); without `direction` it toggles, starting with `asc`. With `controlled="external"` it only emits `kernSort`.
          */
         "sortBy": (column: string | number, direction?: KernSortDirection) => Promise<void>;
+        /**
+          * `controlled="external"`: number of all rows (the table only gets the current page).
+         */
+        "total"?: number;
     }
     /**
      * Switches between views of the same object (Config / Status / Snapshots). Tabs are built from the
@@ -3173,6 +3194,9 @@ declare global {
      * Empty state: `<td colspan="…" class="empty">`.
      * Data mode: with `columns` (and `rows`) the table builds its own `<table>`; don't combine it with own markup.
      * Assign new arrays to update it.
+     * Pagination: `page-size` adds a `kern-pagination` below the rows. `internal` pages the rows itself (back to page 1
+     * after sorting); `external` shows the rows it gets and the app loads a page on `kernPageChange` (bubbles from the
+     * embedded pagination) and sets `total`. Labels: set them on `table.querySelector('kern-pagination')`.
      */
     interface HTMLKernTableElement extends Components.KernTable, HTMLStencilElement {
         addEventListener<K extends keyof HTMLKernTableElementEventMap>(type: K, listener: (this: HTMLKernTableElement, ev: KernTableCustomEvent<HTMLKernTableElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
@@ -5327,6 +5351,9 @@ declare namespace LocalJSX {
      * Empty state: `<td colspan="…" class="empty">`.
      * Data mode: with `columns` (and `rows`) the table builds its own `<table>`; don't combine it with own markup.
      * Assign new arrays to update it.
+     * Pagination: `page-size` adds a `kern-pagination` below the rows. `internal` pages the rows itself (back to page 1
+     * after sorting); `external` shows the rows it gets and the app loads a page on `kernPageChange` (bubbles from the
+     * embedded pagination) and sets `total`. Labels: set them on `table.querySelector('kern-pagination')`.
      */
     interface KernTable {
         /**
@@ -5379,9 +5406,27 @@ declare namespace LocalJSX {
          */
         "onKernSort"?: (event: KernTableCustomEvent<{ key: string; column: number; direction: KernSortDirection }>) => void;
         /**
+          * Current page, from 1.
+          * @default 1
+         */
+        "page"?: number;
+        /**
+          * Rows per page; turns the pagination on.
+         */
+        "pageSize"?: number;
+        /**
+          * Offered page sizes, e.g. `10,25,50`; empty hides the choice.
+          * @default ''
+         */
+        "pageSizes"?: number[] | string;
+        /**
           * Data mode: one object per row; each column reads `row[column.key]`.
          */
         "rows"?: any[];
+        /**
+          * `controlled="external"`: number of all rows (the table only gets the current page).
+         */
+        "total"?: number;
     }
     /**
      * Switches between views of the same object (Config / Status / Snapshots). Tabs are built from the
@@ -6177,6 +6222,10 @@ declare namespace LocalJSX {
         "loading": boolean;
         "loadingRows": number;
         "labelEmpty": string;
+        "pageSize": number;
+        "page": number;
+        "pageSizes": number[] | string;
+        "total": number;
     }
     interface KernTabsAttributes {
         "value": string;
@@ -6603,6 +6652,9 @@ declare module "@stencil/core" {
              * Empty state: `<td colspan="…" class="empty">`.
              * Data mode: with `columns` (and `rows`) the table builds its own `<table>`; don't combine it with own markup.
              * Assign new arrays to update it.
+             * Pagination: `page-size` adds a `kern-pagination` below the rows. `internal` pages the rows itself (back to page 1
+             * after sorting); `external` shows the rows it gets and the app loads a page on `kernPageChange` (bubbles from the
+             * embedded pagination) and sets `total`. Labels: set them on `table.querySelector('kern-pagination')`.
              */
             "kern-table": LocalJSX.IntrinsicElements["kern-table"] & JSXBase.HTMLAttributes<HTMLKernTableElement>;
             /**

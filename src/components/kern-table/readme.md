@@ -17,6 +17,10 @@ Empty state: `<td colspan="…" class="empty">`.
 Data mode: with `columns` (and `rows`) the table builds its own `<table>`; don't combine it with own markup.
 Assign new arrays to update it.
 
+Pagination: `page-size` adds a `kern-pagination` below the rows. `internal` pages the rows itself (back to page 1
+after sorting); `external` shows the rows it gets and the app loads a page on `kernPageChange` (bubbles from the
+embedded pagination) and sets `total`. Labels: set them on `table.querySelector('kern-pagination')`.
+
 ## Usage
 
 ### 01-device-table
@@ -245,6 +249,78 @@ load();
 ```
 
 
+### 07-pagination
+
+# Pagination
+
+`page-size` adds a `kern-pagination` below the rows; `page-sizes` offers other sizes. The table pages its rows itself, with data or with own markup, and goes back to page 1 after sorting. `kernPageChange` bubbles from the embedded pagination; set its labels on `table.querySelector('kern-pagination')`.
+
+```html
+<kern-table compact page-size="5" page-sizes="5,10,25"></kern-table>
+```
+
+```js
+const table = root.querySelector('kern-table');
+const rooms = ['Kitchen', 'Bathroom', 'Garage', 'Office', 'Bedroom', 'Hallway', 'Garden', 'Attic'];
+const kinds = ['light', 'fan', 'shutter'];
+table.columns = [
+  { key: 'name', label: 'Name', sortable: true, sorted: 'asc' },
+  { key: 'ip', label: 'IP', sortable: true, mono: true },
+  { key: 'power', label: 'Power (W)', sortable: true, align: 'end' },
+];
+table.rows = Array.from({ length: 23 }, (_, i) => ({
+  name: `${rooms[i % rooms.length]} ${kinds[i % kinds.length]}`,
+  ip: `192.168.1.${20 + i}`,
+  power: (i * 37) % 120,
+}));
+```
+
+
+### 08-pagination-external
+
+# Paging on the server
+
+With `controlled="external"` the table shows the rows it gets and only reports `kernPageChange` and `kernSort`. Your code loads the page and sets `rows`, `total` and `page` (usually back to 1 after sorting). Here a timeout stands in for the server.
+
+```html
+<kern-table controlled="external" page-size="5" page-sizes="5,10"></kern-table>
+```
+
+```js
+const table = root.querySelector('kern-table');
+const all = Array.from({ length: 42 }, (_, i) => ({ id: `SH-${String(i + 1).padStart(3, '0')}`, uptime: (i * 53) % 900 }));
+const state = { page: 1, pageSize: 5, key: 'id', direction: 'asc' };
+const columns = () => [
+  { key: 'id', label: 'Device ID', sortable: true, mono: true },
+  { key: 'uptime', label: 'Uptime (h)', sortable: true, align: 'end' },
+].map((c) => ({ ...c, sorted: c.key === state.key ? state.direction : undefined }));
+
+const load = () => {
+  table.loading = true;
+  setTimeout(() => {
+    // “Server”: sort, then cut the page
+    const sign = state.direction === 'asc' ? 1 : -1;
+    const sorted = [...all].sort((a, b) => (a[state.key] > b[state.key] ? 1 : a[state.key] < b[state.key] ? -1 : 0) * sign);
+    const start = (state.page - 1) * state.pageSize;
+    table.columns = columns();
+    table.total = all.length;
+    table.page = state.page;
+    table.rows = sorted.slice(start, start + state.pageSize);
+    table.loading = false;
+  }, 400);
+};
+table.addEventListener('kernPageChange', (ev) => {
+  Object.assign(state, ev.detail);
+  load();
+});
+table.addEventListener('kernSort', (ev) => {
+  Object.assign(state, { key: ev.detail.key, direction: ev.detail.direction, page: 1 });
+  load();
+});
+load();
+```
+
+
 
 ## Properties
 
@@ -259,7 +335,11 @@ load();
 | `labelEmpty`         | `label-empty`  | Data mode: shown when `rows` is empty.                                                                                                                                                        | `string`                                                                                        | `'Keine Einträge'` |
 | `loading`            | `loading`      | Loading: content dimmed, a bar under the header, `aria-busy`; in data mode without rows, skeleton rows.                                                                                       | `boolean`                                                                                       | `false`            |
 | `loadingRows`        | `loading-rows` | Data mode: number of skeleton rows while loading without rows.                                                                                                                                | `number`                                                                                        | `3`                |
+| `page`               | `page`         | Current page, from 1.                                                                                                                                                                         | `number`                                                                                        | `1`                |
+| `pageSize`           | `page-size`    | Rows per page; turns the pagination on.                                                                                                                                                       | `number \| undefined`                                                                           | `undefined`        |
+| `pageSizes`          | `page-sizes`   | Offered page sizes, e.g. `10,25,50`; empty hides the choice.                                                                                                                                  | `number[] \| string`                                                                            | `''`               |
 | `rows`               | --             | Data mode: one object per row; each column reads `row[column.key]`.                                                                                                                           | `any[] \| undefined`                                                                            | `undefined`        |
+| `total`              | `total`        | `controlled="external"`: number of all rows (the table only gets the current page).                                                                                                           | `number \| undefined`                                                                           | `undefined`        |
 
 
 ## Events
@@ -301,12 +381,15 @@ Type: `Promise<void>`
 
 ### Depends on
 
+- [kern-pagination](../kern-pagination)
 - [kern-skeleton](../kern-skeleton)
 
 ### Graph
 ```mermaid
 graph TD;
+  kern-table --> kern-pagination
   kern-table --> kern-skeleton
+  kern-pagination --> kern-select
   style kern-table fill:#f9f,stroke:#333,stroke-width:4px
 ```
 

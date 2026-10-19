@@ -76,6 +76,10 @@ root.querySelector('kern-pagination').addEventListener('kernPageChange', (e) => 
 
 ## Dependencies
 
+### Used by
+
+ - [kern-table](../kern-table)
+
 ### Depends on
 
 - [kern-select](../kern-select)
@@ -84,6 +88,7 @@ root.querySelector('kern-pagination').addEventListener('kernPageChange', (e) => 
 ```mermaid
 graph TD;
   kern-pagination --> kern-select
+  kern-table --> kern-pagination
   style kern-pagination fill:#f9f,stroke:#333,stroke-width:4px
 ```
 

@@ -1,0 +1,53 @@
+import { Component, Host, Prop, h } from '@stencil/core';
+import { Icon } from '../../utils/icons';
+
+/**
+ * Text link for running text, table cells and cards. `external` opens a new tab (with `rel="noopener noreferrer"`)
+ * and marks the link with ↗; `tone="muted"` for secondary links; `disabled` keeps the text but removes the link.
+ * For actions use kern-button, also when it navigates.
+ *
+ * @slot - Link text
+ * @part link - The native link
+ */
+@Component({
+  tag: 'kern-link',
+  styleUrl: 'kern-link.css',
+  shadow: { delegatesFocus: true },
+})
+export class KernLink {
+  @Prop() href?: string;
+  @Prop() target?: string;
+  /** Defaults to `noopener noreferrer` for `external` or `target="_blank"`. */
+  @Prop() rel?: string;
+  /** Download instead of navigate (optionally with this file name). */
+  @Prop() download?: string | boolean;
+  /** Opens in a new tab and shows ↗. */
+  @Prop({ reflect: true }) external = false;
+  /** `muted` for secondary links. */
+  @Prop({ reflect: true }) tone: 'accent' | 'muted' = 'accent';
+  /** Shown as text, not a link. */
+  @Prop({ reflect: true }) disabled = false;
+  /** Read after the text of `external` links. */
+  @Prop() labelExternal = 'öffnet in neuem Tab';
+
+  render() {
+    const target = this.external ? '_blank' : this.target;
+    const rel = this.rel ?? (target === '_blank' ? 'noopener noreferrer' : undefined);
+    return (
+      <Host>
+        <a
+          part="link"
+          href={this.disabled ? undefined : this.href}
+          target={this.disabled ? undefined : target}
+          rel={this.disabled ? undefined : rel}
+          download={this.disabled ? undefined : this.download === true || this.download === '' ? '' : this.download || undefined}
+          aria-disabled={this.disabled ? 'true' : undefined}
+          role={this.disabled ? 'link' : undefined}
+        >
+          <slot />
+          {this.external && [<Icon name="external" class="external" />, <span class="sr">({this.labelExternal})</span>]}
+        </a>
+      </Host>
+    );
+  }
+}

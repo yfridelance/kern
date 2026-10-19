@@ -1,0 +1,18 @@
+:host { display: inline; color: var(--accent-text); }
+:host([hidden]) { display: none; }
+:host([tone="muted"]) { color: var(--text-muted); }
+
+a {
+  color: inherit; font: inherit; text-decoration: underline; text-decoration-color: transparent;
+  text-underline-offset: 3px; text-decoration-thickness: 1px; border-radius: 2px;
+  transition: text-decoration-color .15s;
+}
+a[href]:hover, a[href]:focus-visible { text-decoration-color: currentColor; }
+:host([tone="muted"]) a[href]:hover { color: var(--text); }
+a:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+a[aria-disabled="true"] { color: var(--text-faint); cursor: not-allowed; }
+
+.external { display: inline-block; width: .85em; height: .85em; margin-left: .2em; vertical-align: -.05em; }
+.sr { position: absolute; width: 1px; height: 1px; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+@media (prefers-reduced-motion: reduce) { a { transition: none; } }

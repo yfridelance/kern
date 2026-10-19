@@ -30,6 +30,7 @@ body:
         - kern-json
         - kern-kv
         - kern-kv-item
+        - kern-link
         - kern-meter
         - kern-page-header
         - kern-progress

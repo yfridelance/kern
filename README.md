@@ -12,7 +12,7 @@ dort und hier sind dieselben (`tokens/tokens.json`).
 | Bereich | Elemente |
 | --- | --- |
 | Layout | `kern-topbar`, `kern-page-header`, `kern-card`, `kern-toolbar` |
-| Navigation | `kern-tabs` + `kern-tab-panel`, `kern-theme-toggle` |
+| Navigation | `kern-tabs` + `kern-tab-panel`, `kern-link`, `kern-theme-toggle` |
 | Aktionen | `kern-button` |
 | Formulare | `kern-input`, `kern-ip-input`, `kern-textarea`, `kern-select`, `kern-switch`, `kern-checkbox`, `kern-segmented`, `kern-date-picker`, `kern-date-range-picker`, `kern-time-picker` |
 | Status | `kern-badge`, `kern-status` |
@@ -115,6 +115,9 @@ zusätzlich Standalone-Wrapper mit `ControlValueAccessor` für `ngModel` und Rea
   Bereiche. Ein Ende vor dem Start wird getauscht, `max-days` begrenzt die Länge. Im Popover zwei Monate (schmal: einer).
   Schnellauswahl über Slot `presets`: Elemente mit `data-range="P7D"` (Dauer bis heute, inkl. heute) oder
   `data-start`/`data-end`.
+- **Links:** `kern-link` für Links im Text, in Tabellen und Karten; `external` öffnet einen neuen Tab (mit
+  `rel="noopener noreferrer"`, ↗ und Hinweis für Screenreader), `tone="muted"` für Nebensächliches. Aktionen bleiben
+  `kern-button` (auch mit `href`).
 - **Theming von aussen:** nur über Tokens (CSS-Variablen) und die dokumentierten `::part()`; keine Farben in Apps
   erfinden.
 - **Texte:** Standardtexte (Aria-Labels, «Abbrechen») sind deutsch und über Props übersetzbar.

@@ -14,6 +14,7 @@ const PATHS = {
   chevron: () => [<path d="m4.5 6.5 3.5 3.5 3.5-3.5" />],
   calendar: () => [<rect x="2.5" y="3.5" width="11" height="10" rx="1.5" />, <path d="M2.5 6.5h11M5.5 2v3M10.5 2v3" />],
   clock: () => [<circle cx="8" cy="8" r="5.75" />, <path d="M8 5v3l2 1.5" />],
+  external: () => [<path d="M9.5 2.5h4v4M13.5 2.5 7.5 8.5M11.5 9.5v3c0 .6-.4 1-1 1h-7c-.6 0-1-.4-1-1v-7c0-.6.4-1 1-1h3" />],
 };
 
 export type IconName = keyof typeof PATHS;

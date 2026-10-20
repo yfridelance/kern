@@ -2,6 +2,13 @@ import { AttachInternals, Component, Element, Event, EventEmitter, Host, Method,
 import { Icon } from '../../utils/icons';
 import { resolveLocale } from '../../utils/datetime';
 import { accepts, formatSize, parseSize } from '../../utils/files';
+import { kernTexts } from '../../utils/i18n';
+
+interface Rejected {
+  reason: 'labelWrongType' | 'labelTooLarge';
+  name: string;
+  max: number;
+}
 
 let nextId = 0;
 
@@ -37,22 +44,23 @@ export class KernFileInput {
   @Prop() required = false;
   /** BCP 47 locale for sizes; defaults to `<html lang>`, then the browser language. */
   @Prop() locale?: string;
-  @Prop() labelChoose = 'Datei wählen';
-  @Prop() labelChooseMultiple = 'Dateien wählen';
-  @Prop() labelDrop = 'oder hierher ziehen';
+  @Prop() labelChoose?: string;
+  @Prop() labelChooseMultiple?: string;
+  @Prop() labelDrop?: string;
   /** `{name}` is replaced. */
-  @Prop() labelRemove = '{name} entfernen';
+  @Prop() labelRemove?: string;
   /** `{name}` and `{max}` are replaced. */
-  @Prop() labelTooLarge = '«{name}» ist grösser als {max}.';
+  @Prop() labelTooLarge?: string;
   /** `{name}` is replaced. */
-  @Prop() labelWrongType = '«{name}» hat keinen erlaubten Dateityp.';
+  @Prop() labelWrongType?: string;
+  private t = kernTexts(this, 'kern-file-input', 'sync');
 
   /** When files were added or removed. */
   @Event() kernChange!: EventEmitter<{ files: File[] }>;
 
   @State() over = false;
-  /** Messages about rejected files, until the next change. */
-  @State() problems: string[] = [];
+  /** Rejected files with the reason, until the next change; turned into messages in the current language. */
+  @State() problems: Rejected[] = [];
 
   private input?: HTMLInputElement;
   private chooser?: HTMLButtonElement;
@@ -74,7 +82,7 @@ export class KernFileInput {
       this.files.forEach((f) => data!.append(this.name!, f));
     }
     this.internals?.setFormValue?.(data);
-    const message = this.error ?? this.problems[0];
+    const message = this.error ?? this.messages()[0];
     if (message) this.internals?.setValidity?.({ customError: true }, message, this.chooser);
     else if (this.required && !this.files.length) this.internals?.setValidity?.({ valueMissing: true }, 'required', this.chooser);
     else this.internals?.setValidity?.({});
@@ -99,12 +107,11 @@ export class KernFileInput {
   @Method()
   async addFiles(list: FileList | File[]) {
     const max = parseSize(this.maxSize);
-    const loc = resolveLocale(this.locale);
-    const problems: string[] = [];
+    const problems: Rejected[] = [];
     const ok: File[] = [];
     for (const f of Array.from(list)) {
-      if (!accepts(f, this.accept)) problems.push(this.labelWrongType.replace('{name}', f.name));
-      else if (max !== null && f.size > max) problems.push(this.labelTooLarge.replace('{name}', f.name).replace('{max}', formatSize(max, loc)));
+      if (!accepts(f, this.accept)) problems.push({ reason: 'labelWrongType', name: f.name, max: 0 });
+      else if (max !== null && f.size > max) problems.push({ reason: 'labelTooLarge', name: f.name, max });
       else ok.push(f);
     }
     this.problems = problems;
@@ -112,6 +119,12 @@ export class KernFileInput {
     const same = (a: File, b: File) => a.name === b.name && a.size === b.size && a.lastModified === b.lastModified;
     this.files = this.multiple ? [...this.files, ...ok.filter((f) => !this.files.some((g) => same(f, g)))] : [ok[0]];
     this.kernChange.emit({ files: this.files });
+  }
+
+  /** Messages for the rejected files in the current language. */
+  private messages(): string[] {
+    const loc = resolveLocale(this.locale);
+    return this.problems.map((p) => this.t(p.reason).replace('{name}', p.name).replace('{max}', formatSize(p.max, loc)));
   }
 
   private removeFile(i: number) {
@@ -154,7 +167,7 @@ export class KernFileInput {
   };
 
   render() {
-    const message = this.error ?? this.problems.join(' ');
+    const message = this.error ?? this.messages().join(' ');
     const describedBy = message ? `${this.uid}-error` : this.hint ? `${this.uid}-hint` : undefined;
     const loc = resolveLocale(this.locale);
     return (
@@ -184,9 +197,9 @@ export class KernFileInput {
               onClick={() => this.open()}
               aria-describedby={describedBy}
             >
-              {this.multiple ? this.labelChooseMultiple : this.labelChoose}
+              {this.multiple ? this.t('labelChooseMultiple') : this.t('labelChoose')}
             </button>{' '}
-            <span class="drop">{this.labelDrop}</span>
+            <span class="drop">{this.t('labelDrop')}</span>
           </span>
           {(this.accept || this.maxSize) && (
             <span class="limits">{[this.accept?.split(',').map((a) => a.trim()).join(', '), parseSize(this.maxSize) ? `max. ${formatSize(parseSize(this.maxSize)!, loc)}` : ''].filter(Boolean).join(' · ')}</span>
@@ -212,8 +225,8 @@ export class KernFileInput {
                 <button
                   type="button"
                   class="remove"
-                  aria-label={this.labelRemove.replace('{name}', f.name)}
-                  title={this.labelRemove.replace('{name}', f.name)}
+                  aria-label={this.t('labelRemove').replace('{name}', f.name)}
+                  title={this.t('labelRemove').replace('{name}', f.name)}
                   disabled={this.disabled}
                   onClick={() => this.removeFile(i)}
                 >

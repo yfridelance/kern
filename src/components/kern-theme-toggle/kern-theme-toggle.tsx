@@ -1,6 +1,7 @@
 import { Component, Host, Prop, State, h } from '@stencil/core';
 import { Icon } from '../../utils/icons';
 import { getTheme, setTheme, type KernTheme } from '../../utils/theme';
+import { kernTexts } from '../../utils/i18n';
 
 /**
  * Icon button switching between dark (default) and light; remembers the choice (localStorage `kern-theme`).
@@ -16,9 +17,10 @@ export class KernThemeToggle {
   /** 28px instead of 34px. */
   @Prop() small = false;
   /** Accessible label while dark. */
-  @Prop() labelLight = 'Zu hellem Design wechseln';
+  @Prop() labelLight?: string;
   /** Accessible label while light. */
-  @Prop() labelDark = 'Zu dunklem Design wechseln';
+  @Prop() labelDark?: string;
+  private t = kernTexts(this, 'kern-theme-toggle');
 
   @State() theme: KernTheme = 'dark';
 
@@ -39,7 +41,7 @@ export class KernThemeToggle {
     const dark = this.theme === 'dark';
     return (
       <Host>
-        <kern-button variant="ghost" size={this.small ? 'sm' : 'md'} icon-only label={dark ? this.labelLight : this.labelDark} onClick={() => setTheme(dark ? 'light' : 'dark')}>
+        <kern-button variant="ghost" size={this.small ? 'sm' : 'md'} icon-only label={dark ? this.t('labelLight') : this.t('labelDark')} onClick={() => setTheme(dark ? 'light' : 'dark')}>
           <Icon name={dark ? 'moon' : 'sun'} />
         </kern-button>
       </Host>

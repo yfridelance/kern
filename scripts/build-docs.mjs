@@ -203,6 +203,18 @@ ${esc(ex.html)}
 </section>`;
 }
 
+/** Built-in Kern texts per language, read from the sources: `{ en: { key: text }, de: … }`. */
+const TEXTS = Object.fromEntries(
+  ['en', 'de'].map((l) => [l, Object.fromEntries([...readFileSync(join(root, `src/i18n/${l}.ts`), 'utf8').matchAll(/^  '([\w.-]+)': '(.*)',$/gm)].map((m) => [m[1], m[2]]))]),
+);
+
+/** Default of a text property: the Kern text in English, and in German. */
+function textDefault(tag, prop) {
+  const key = `${tag}.${prop}`;
+  if (!(key in TEXTS.en)) return '';
+  return `default <code>${esc(TEXTS.en[key])}</code> · de <code>${esc(TEXTS.de[key])}</code>`;
+}
+
 function componentPage(c) {
   const parent = PARENT[c.tag];
   const children = Object.entries(PARENT)
@@ -215,7 +227,7 @@ function componentPage(c) {
   const props = c.props.map((p) =>
     apiItem(
       p.name,
-      [p.attr && p.attr !== p.name ? `attribute <code>${esc(p.attr)}</code>` : '', p.default !== undefined ? `default <code>${esc(p.default)}</code>` : ''],
+      [p.attr && p.attr !== p.name ? `attribute <code>${esc(p.attr)}</code>` : '', p.default !== undefined ? `default <code>${esc(p.default)}</code>` : textDefault(c.tag, p.name)],
       flags(p),
       p.type,
       desc(p.docs),
@@ -302,6 +314,14 @@ function brandGrid() {
     .join('')}</div>`;
 }
 
+/** All Kern texts with key, English and German, for `setKernStrings()`. */
+function stringsTable() {
+  return table(
+    ['Key', 'en', 'de'],
+    Object.keys(TEXTS.en).map((k) => [`<code>${esc(k)}</code>`, esc(TEXTS.en[k]), esc(TEXTS.de[k])]),
+  );
+}
+
 function componentGrid() {
   return GROUPS.map(
     ([title, tags]) =>
@@ -325,6 +345,7 @@ const PLACEHOLDERS = {
   sizes: () => scaleTable('size'),
   icons: iconGrid,
   brands: brandGrid,
+  strings: stringsTable,
   components: componentGrid,
   version: () => esc(pkg.version),
 };

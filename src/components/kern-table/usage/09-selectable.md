@@ -3,7 +3,7 @@
 `selectable` adds a first column with a checkbox per row. The header checkbox selects or clears the visible rows of the current page and shows a mixed state when only some of them are selected. Rows are identified by `data-key` on the `<tr>`; `selected` holds the keys and survives sorting, paging and new rows, and selected rows get `aria-selected="true"`. `kernSelectionChange` reports the new keys (cancel it to keep `selected` as it is). A click on a checkbox is no row click. `label-select-all` and `label-select-row` name the checkboxes for screen readers.
 
 ```html
-<kern-table selectable compact page-size="3" label-select-all="Select all" label-select-row="Select row">
+<kern-table selectable compact page-size="3">
   <table>
     <thead>
       <tr><th sortable sorted="asc">Name</th><th sortable>IP</th><th sortable class="num">Power (W)</th></tr>

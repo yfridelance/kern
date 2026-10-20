@@ -1,4 +1,5 @@
 import { Component, Host, Prop, h } from '@stencil/core';
+import { kernTexts } from '../../utils/i18n';
 
 /**
  * App header: brand on the left, main navigation, tools on the right (site switch, server status,
@@ -22,7 +23,8 @@ export class KernTopbar {
   /** Link of the brand. */
   @Prop() homeHref = '/';
   /** Accessible name of the navigation. */
-  @Prop() navLabel = 'Hauptnavigation';
+  @Prop() navLabel?: string;
+  private t = kernTexts(this, 'kern-topbar');
 
   render() {
     return (
@@ -35,7 +37,7 @@ export class KernTopbar {
               {this.appName}
             </a>
           </slot>
-          <nav aria-label={this.navLabel}>
+          <nav aria-label={this.t('navLabel')}>
             <slot name="nav" />
           </nav>
           <div class="end">

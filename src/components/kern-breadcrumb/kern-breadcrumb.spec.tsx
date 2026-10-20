@@ -8,7 +8,7 @@ describe('kern-breadcrumb', () => {
   it('puts each child in its own list item with separators and marks the last as current', async () => {
     const page = await newSpecPage({ components: [KernBreadcrumb], html: `<kern-breadcrumb>${links(3)}</kern-breadcrumb>` });
     const root = page.root!.shadowRoot!;
-    expect(root.querySelector('nav')!.getAttribute('aria-label')).toBe('Pfad');
+    expect(root.querySelector('nav')!.getAttribute('aria-label')).toBe('Path');
     expect(Array.from(page.root!.children).map((c) => c.getAttribute('slot'))).toEqual(['item-0', 'item-1', 'item-2']);
     expect(Array.from(page.root!.children).map((c) => c.getAttribute('aria-current'))).toEqual([null, null, 'page']);
     expect(root.querySelectorAll('li').length).toBe(3);

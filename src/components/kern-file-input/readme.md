@@ -21,7 +21,7 @@ A drop zone with a button. `accept` and `max-size` are checked; rejected files a
 
 ```html
 <div style="display:grid;gap:16px;max-width:420px">
-  <kern-file-input name="firmware" label="Firmware file" accept=".zip,.bin" max-size="16MB" hint=".zip or .bin, max. 16 MB" required label-choose="Choose file" label-drop="or drop it here" label-too-large="“{name}” is larger than {max}." label-wrong-type="“{name}” is not an allowed file type." locale="en"></kern-file-input>
+  <kern-file-input name="firmware" label="Firmware file" accept=".zip,.bin" max-size="16MB" hint=".zip or .bin, max. 16 MB" required label-drop="or drop it here" locale="en"></kern-file-input>
   <output style="font:12px var(--font-mono);color:var(--text-muted)">kernChange → …</output>
 </div>
 ```
@@ -41,7 +41,7 @@ With `multiple`, new files are added to the list instead of replacing it. Set `f
 
 ```html
 <div style="display:grid;gap:12px;max-width:420px">
-  <kern-file-input label="Configuration backups" accept=".json" multiple max-size="500KB" label-choose-multiple="Choose files" label-drop="or drop them here"></kern-file-input>
+  <kern-file-input label="Configuration backups" accept=".json" multiple max-size="500KB" label-drop="or drop them here"></kern-file-input>
   <kern-file-input label="Certificate" accept=".pem,.crt" disabled hint="Only with MQTT over TLS"></kern-file-input>
   <kern-button size="sm" variant="ghost" style="justify-self:start">Clear backups</kern-button>
 </div>
@@ -56,25 +56,25 @@ root.querySelector('kern-button').addEventListener('click', () => (input.files =
 
 ## Properties
 
-| Property              | Attribute               | Description                                                                    | Type                            | Default                                     |
-| --------------------- | ----------------------- | ------------------------------------------------------------------------------ | ------------------------------- | ------------------------------------------- |
-| `accept`              | `accept`                | Like the native attribute: `.bin,.json`, `image/*`, `application/pdf`.         | `string \| undefined`           | `undefined`                                 |
-| `disabled`            | `disabled`              |                                                                                | `boolean`                       | `false`                                     |
-| `error`               | `error`                 |                                                                                | `string \| undefined`           | `undefined`                                 |
-| `files`               | --                      | The chosen files; set `[]` to clear.                                           | `File[]`                        | `[]`                                        |
-| `hint`                | `hint`                  |                                                                                | `string \| undefined`           | `undefined`                                 |
-| `label`               | `label`                 |                                                                                | `string \| undefined`           | `undefined`                                 |
-| `labelChoose`         | `label-choose`          |                                                                                | `string`                        | `'Datei wählen'`                            |
-| `labelChooseMultiple` | `label-choose-multiple` |                                                                                | `string`                        | `'Dateien wählen'`                          |
-| `labelDrop`           | `label-drop`            |                                                                                | `string`                        | `'oder hierher ziehen'`                     |
-| `labelRemove`         | `label-remove`          | `{name}` is replaced.                                                          | `string`                        | `'{name} entfernen'`                        |
-| `labelTooLarge`       | `label-too-large`       | `{name}` and `{max}` are replaced.                                             | `string`                        | `'«{name}» ist grösser als {max}.'`         |
-| `labelWrongType`      | `label-wrong-type`      | `{name}` is replaced.                                                          | `string`                        | `'«{name}» hat keinen erlaubten Dateityp.'` |
-| `locale`              | `locale`                | BCP 47 locale for sizes; defaults to `<html lang>`, then the browser language. | `string \| undefined`           | `undefined`                                 |
-| `maxSize`             | `max-size`              | Largest file, in bytes or as `"16MB"`, `"500KB"`.                              | `number \| string \| undefined` | `undefined`                                 |
-| `multiple`            | `multiple`              |                                                                                | `boolean`                       | `false`                                     |
-| `name`                | `name`                  |                                                                                | `string \| undefined`           | `undefined`                                 |
-| `required`            | `required`              |                                                                                | `boolean`                       | `false`                                     |
+| Property              | Attribute               | Description                                                                    | Type                            | Default     |
+| --------------------- | ----------------------- | ------------------------------------------------------------------------------ | ------------------------------- | ----------- |
+| `accept`              | `accept`                | Like the native attribute: `.bin,.json`, `image/*`, `application/pdf`.         | `string \| undefined`           | `undefined` |
+| `disabled`            | `disabled`              |                                                                                | `boolean`                       | `false`     |
+| `error`               | `error`                 |                                                                                | `string \| undefined`           | `undefined` |
+| `files`               | --                      | The chosen files; set `[]` to clear.                                           | `File[]`                        | `[]`        |
+| `hint`                | `hint`                  |                                                                                | `string \| undefined`           | `undefined` |
+| `label`               | `label`                 |                                                                                | `string \| undefined`           | `undefined` |
+| `labelChoose`         | `label-choose`          |                                                                                | `string \| undefined`           | `undefined` |
+| `labelChooseMultiple` | `label-choose-multiple` |                                                                                | `string \| undefined`           | `undefined` |
+| `labelDrop`           | `label-drop`            |                                                                                | `string \| undefined`           | `undefined` |
+| `labelRemove`         | `label-remove`          | `{name}` is replaced.                                                          | `string \| undefined`           | `undefined` |
+| `labelTooLarge`       | `label-too-large`       | `{name}` and `{max}` are replaced.                                             | `string \| undefined`           | `undefined` |
+| `labelWrongType`      | `label-wrong-type`      | `{name}` is replaced.                                                          | `string \| undefined`           | `undefined` |
+| `locale`              | `locale`                | BCP 47 locale for sizes; defaults to `<html lang>`, then the browser language. | `string \| undefined`           | `undefined` |
+| `maxSize`             | `max-size`              | Largest file, in bytes or as `"16MB"`, `"500KB"`.                              | `number \| string \| undefined` | `undefined` |
+| `multiple`            | `multiple`              |                                                                                | `boolean`                       | `false`     |
+| `name`                | `name`                  |                                                                                | `string \| undefined`           | `undefined` |
+| `required`            | `required`              |                                                                                | `boolean`                       | `false`     |
 
 
 ## Events

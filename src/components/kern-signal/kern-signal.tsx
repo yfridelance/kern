@@ -1,5 +1,6 @@
 import { Component, Host, Prop, h } from '@stencil/core';
 import { rssiLevel } from '../../utils/signal';
+import { kernTexts } from '../../utils/i18n';
 
 /**
  * WLAN signal strength: four bars plus dBm. ≥ −55: 4 · ≥ −67: 3 · ≥ −75: 2 · ≥ −85: 1 (warn) · below: 0 (danger).
@@ -14,12 +15,13 @@ export class KernSignal {
   @Prop() rssi?: number;
   /** Hide the dBm number (narrow table columns). */
   @Prop() hideValue = false;
-  @Prop() label = 'WLAN-Signal';
+  @Prop() label?: string;
+  private t = kernTexts(this, 'kern-signal');
 
   render() {
     const rssi = this.rssi === undefined || this.rssi === null ? NaN : Number(this.rssi);
     const level = rssiLevel(rssi);
-    const text = `${this.label} ${level}/4${Number.isNaN(rssi) ? '' : `, ${rssi} dBm`}`;
+    const text = `${this.t('label')} ${level}/4${Number.isNaN(rssi) ? '' : `, ${rssi} dBm`}`;
     return (
       <Host role="img" aria-label={text} data-level={level}>
         <span class="bars" aria-hidden="true">

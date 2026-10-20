@@ -1,6 +1,7 @@
 import { Component, Event, EventEmitter, Host, Prop, h } from '@stencil/core';
 import { Icon } from '../../utils/icons';
 import { KernNavigateDetail, isPlainNavigation } from '../../utils/navigate';
+import { kernTexts } from '../../utils/i18n';
 
 /**
  * Text link for running text, table cells and cards. `external` opens a new tab (with `rel="noopener noreferrer"`)
@@ -29,7 +30,8 @@ export class KernLink {
   /** Shown as text, not a link. */
   @Prop({ reflect: true }) disabled = false;
   /** Read after the text of `external` links. */
-  @Prop() labelExternal = 'öffnet in neuem Tab';
+  @Prop() labelExternal?: string;
+  private t = kernTexts(this, 'kern-link');
 
   /**
    * Plain left click (no modifier keys, `target`, `download`, `external`) before the browser navigates.
@@ -59,7 +61,7 @@ export class KernLink {
           onClick={this.onClick}
         >
           <slot />
-          {this.external && [<Icon name="external" class="external" />, <span class="sr">({this.labelExternal})</span>]}
+          {this.external && [<Icon name="external" class="external" />, <span class="sr">({this.t('labelExternal')})</span>]}
         </a>
       </Host>
     );

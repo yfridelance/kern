@@ -4,7 +4,7 @@ Elements in the `presets` slot set the range on click: `data-range` is an ISO 86
 
 ```html
 <div style="max-width:360px">
-  <kern-date-range-picker label="Energy statistics" max-days="90" hint="At most 90 days" locale="en-GB" label-too-long="At most {n} days" label-incomplete="Enter a start and an end">
+  <kern-date-range-picker label="Energy statistics" max-days="90" hint="At most 90 days" locale="en-GB" label-incomplete="Enter a start and an end">
     <kern-button slot="presets" variant="ghost" size="sm" data-range="P1D">Today</kern-button>
     <kern-button slot="presets" variant="ghost" size="sm" data-range="P7D">Last 7 days</kern-button>
     <kern-button slot="presets" variant="ghost" size="sm" data-range="P30D">Last 30 days</kern-button>

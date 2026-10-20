@@ -1,4 +1,5 @@
 import type { KernToastReason } from '../components/kern-toast/kern-toast';
+import { kernText, onKernLocale } from './i18n';
 
 export interface ToastOptions {
   message: string;
@@ -14,15 +15,19 @@ export interface ToastOptions {
 /** At most this many toasts at once; the oldest closes first. */
 const MAX = 4;
 let region: HTMLElement | undefined;
-let regionLabel = 'Benachrichtigungen';
+let following = false;
+let regionLabel: string | undefined;
+
+const label = () => regionLabel ?? kernText('toast.regionLabel');
 
 /**
- * Accessible name of the toast region (default „Benachrichtigungen“). Global, because all toasts share one region:
- * call it once at start and again when the language changes; an existing region is updated at once.
+ * Accessible name of the toast region (default: the Kern text `toast.regionLabel`, «Notifications»). Global,
+ * because all toasts share one region; an existing region is updated at once. Without a call the name follows the
+ * Kern language (`setKernLocale()`, `<html lang>`).
  */
-export function setToastRegionLabel(label: string): void {
-  regionLabel = label;
-  if (region?.isConnected) region.setAttribute('aria-label', label);
+export function setToastRegionLabel(text: string): void {
+  regionLabel = text;
+  if (region?.isConnected) region.setAttribute('aria-label', text);
 }
 
 /** The stack at the bottom right: a live region in the top layer, created on first use. */
@@ -31,7 +36,11 @@ function getRegion(): HTMLElement {
   region = document.createElement('div');
   region.className = 'kern-toasts';
   region.setAttribute('role', 'region');
-  region.setAttribute('aria-label', regionLabel);
+  region.setAttribute('aria-label', label());
+  if (!following) {
+    following = true;
+    onKernLocale(() => region?.setAttribute('aria-label', label()));
+  }
   region.setAttribute('aria-live', 'polite');
   region.setAttribute('popover', 'manual');
   Object.assign(region.style, {

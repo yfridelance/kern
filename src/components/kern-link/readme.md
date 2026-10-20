@@ -36,7 +36,7 @@ Use kern-link for navigation in running text, table cells and cards. `tone="mute
 
 ```html
 <p style="margin:0;display:grid;gap:8px">
-  <span>Web UI: <kern-link href="http://192.168.1.21" external label-external="opens in a new tab">192.168.1.21</kern-link></span>
+  <span>Web UI: <kern-link href="http://192.168.1.21" external>192.168.1.21</kern-link></span>
   <span>Backup: <kern-link href="data:application/json,%7B%22name%22%3A%22Bad%20L%C3%BCftung%22%7D" download="bad-lueftung.json">bad-lueftung.json</kern-link></span>
 </p>
 ```
@@ -81,16 +81,16 @@ root.addEventListener('kernNavigate', (e) => {
 
 ## Properties
 
-| Property        | Attribute        | Description                                                            | Type                             | Default                 |
-| --------------- | ---------------- | ---------------------------------------------------------------------- | -------------------------------- | ----------------------- |
-| `disabled`      | `disabled`       | Shown as text, not a link.                                             | `boolean`                        | `false`                 |
-| `download`      | `download`       | Download instead of navigate (optionally with this file name).         | `boolean \| string \| undefined` | `undefined`             |
-| `external`      | `external`       | Opens in a new tab and shows ↗.                                        | `boolean`                        | `false`                 |
-| `href`          | `href`           |                                                                        | `string \| undefined`            | `undefined`             |
-| `labelExternal` | `label-external` | Read after the text of `external` links.                               | `string`                         | `'öffnet in neuem Tab'` |
-| `rel`           | `rel`            | Defaults to `noopener noreferrer` for `external` or `target="_blank"`. | `string \| undefined`            | `undefined`             |
-| `target`        | `target`         |                                                                        | `string \| undefined`            | `undefined`             |
-| `tone`          | `tone`           | `muted` for secondary links.                                           | `"accent" \| "muted"`            | `'accent'`              |
+| Property        | Attribute        | Description                                                            | Type                             | Default     |
+| --------------- | ---------------- | ---------------------------------------------------------------------- | -------------------------------- | ----------- |
+| `disabled`      | `disabled`       | Shown as text, not a link.                                             | `boolean`                        | `false`     |
+| `download`      | `download`       | Download instead of navigate (optionally with this file name).         | `boolean \| string \| undefined` | `undefined` |
+| `external`      | `external`       | Opens in a new tab and shows ↗.                                        | `boolean`                        | `false`     |
+| `href`          | `href`           |                                                                        | `string \| undefined`            | `undefined` |
+| `labelExternal` | `label-external` | Read after the text of `external` links.                               | `string \| undefined`            | `undefined` |
+| `rel`           | `rel`            | Defaults to `noopener noreferrer` for `external` or `target="_blank"`. | `string \| undefined`            | `undefined` |
+| `target`        | `target`         |                                                                        | `string \| undefined`            | `undefined` |
+| `tone`          | `tone`           | `muted` for secondary links.                                           | `"accent" \| "muted"`            | `'accent'`  |
 
 
 ## Events

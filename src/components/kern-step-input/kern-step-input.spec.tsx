@@ -78,7 +78,7 @@ describe('kern-step-input', () => {
     const { page, root, el, type } = await setup(`value="3"`);
     await type('drei');
     expect(el.value).toBe(3);
-    expect(root.querySelector('.error')!.textContent).toBe('Keine gültige Zahl');
+    expect(root.querySelector('.error')!.textContent).toBe('Not a valid number');
     expect(page.root!.hasAttribute('invalid')).toBe(true);
   });
 

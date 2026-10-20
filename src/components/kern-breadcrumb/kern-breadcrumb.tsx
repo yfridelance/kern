@@ -1,5 +1,6 @@
 import { Component, Element, Host, Prop, State, Watch, h } from '@stencil/core';
 import { Icon } from '../../utils/icons';
+import { kernTexts } from '../../utils/i18n';
 
 /**
  * Path back through a hierarchy (Standort › Raum › Gerät › Einstellungen): child links (kern-link or `<a>`), the last
@@ -17,10 +18,11 @@ export class KernBreadcrumb {
   @Element() el!: HTMLElement;
 
   /** Accessible name of the navigation. */
-  @Prop() label = 'Pfad';
+  @Prop() label?: string;
   /** Show at most this many entries (first, „…“ and the last ones); 0 shows all. */
   @Prop() maxItems = 0;
-  @Prop() labelMore = 'Weitere Ebenen';
+  @Prop() labelMore?: string;
+  private t = kernTexts(this, 'kern-breadcrumb');
 
   @State() count = 0;
 
@@ -86,8 +88,8 @@ export class KernBreadcrumb {
           lis.push(
             <li class="more">
               {sep()}
-              <kern-menu label={this.labelMore} onKernSelect={this.onMore}>
-                <button slot="trigger" type="button" class="more-button" aria-label={this.labelMore} title={this.labelMore}>
+              <kern-menu label={this.t('labelMore')} onKernSelect={this.onMore}>
+                <button slot="trigger" type="button" class="more-button" aria-label={this.t('labelMore')} title={this.t('labelMore')}>
                   …
                 </button>
                 {[...hidden].map((idx) => (
@@ -114,7 +116,7 @@ export class KernBreadcrumb {
     }
     return (
       <Host>
-        <nav aria-label={this.label}>
+        <nav aria-label={this.t('label')}>
           <ol>{lis}</ol>
         </nav>
       </Host>

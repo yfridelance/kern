@@ -4,7 +4,7 @@ Accepts `C82B961A3F00`, `c8:2b:…`, `c8-2b-…` or `c82b.961a.3f00` and normali
 
 ```html
 <div style="display:grid;gap:16px;max-width:360px">
-  <kern-mac-input label="MAC address" value="c82b961a3f00" hint="Any notation, e.g. c82b.961a.3f00" label-invalid="Not a valid MAC address"></kern-mac-input>
+  <kern-mac-input label="MAC address" value="c82b961a3f00" hint="Any notation, e.g. c82b.961a.3f00"></kern-mac-input>
   <kern-mac-input label="MAC (dash, lower case)" value="C8:2B:96:1A:3F:00" format="dash" letter-case="lower"></kern-mac-input>
   <output style="font:12px var(--font-mono);color:var(--text-muted)">kernChange → …</output>
 </div>

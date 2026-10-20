@@ -17,7 +17,7 @@ describe('kern-link', () => {
     const a = await link(`href="https://example.org" external`);
     expect([a.getAttribute('target'), a.getAttribute('rel')]).toEqual(['_blank', 'noopener noreferrer']);
     expect(a.querySelector('.external')).not.toBeNull();
-    expect(a.querySelector('.sr')!.textContent).toBe('(öffnet in neuem Tab)');
+    expect(a.querySelector('.sr')!.textContent).toBe('(opens in a new tab)');
   });
 
   it('keeps an explicit rel and supports download', async () => {

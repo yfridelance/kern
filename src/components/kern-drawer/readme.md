@@ -22,7 +22,7 @@ A modal side panel for details and longer forms. Open it with `show()`, close it
 ```html
 <kern-button class="open">Details</kern-button>
 <p class="out" style="font-size:13px;color:var(--text-muted)"></p>
-<kern-drawer heading="Bad Lüftung" close-label="Close">
+<kern-drawer heading="Bad Lüftung">
   <kern-kv>
     <kern-kv-item label="Model">Shelly Plus 1PM</kern-kv-item>
     <kern-kv-item label="IP"><kern-copy>192.168.1.21</kern-copy></kern-kv-item>
@@ -75,14 +75,14 @@ root.querySelector('.apply').addEventListener('click', () => drawer.close('apply
 
 ## Properties
 
-| Property      | Attribute     | Description                                                             | Type                  | Default        |
-| ------------- | ------------- | ----------------------------------------------------------------------- | --------------------- | -------------- |
-| `closeLabel`  | `close-label` | Accessible label of the close button.                                   | `string`              | `'Schliessen'` |
-| `dismissible` | `dismissible` | Close button, Escape and backdrop click close the panel.                | `boolean`             | `true`         |
-| `heading`     | `heading`     |                                                                         | `string \| undefined` | `undefined`    |
-| `open`        | `open`        |                                                                         | `boolean`             | `false`        |
-| `side`        | `side`        | Edge the panel slides in from (`end` = right in left-to-right layouts). | `"end" \| "start"`    | `'end'`        |
-| `width`       | `width`       | Panel width in px (at most the viewport minus 32px).                    | `number`              | `420`          |
+| Property      | Attribute     | Description                                                             | Type                  | Default     |
+| ------------- | ------------- | ----------------------------------------------------------------------- | --------------------- | ----------- |
+| `closeLabel`  | `close-label` | Accessible label of the close button.                                   | `string \| undefined` | `undefined` |
+| `dismissible` | `dismissible` | Close button, Escape and backdrop click close the panel.                | `boolean`             | `true`      |
+| `heading`     | `heading`     |                                                                         | `string \| undefined` | `undefined` |
+| `open`        | `open`        |                                                                         | `boolean`             | `false`     |
+| `side`        | `side`        | Edge the panel slides in from (`end` = right in left-to-right layouts). | `"end" \| "start"`    | `'end'`     |
+| `width`       | `width`       | Panel width in px (at most the viewport minus 32px).                    | `number`              | `420`       |
 
 
 ## Events

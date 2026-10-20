@@ -1,6 +1,7 @@
 import { Component, Element, Event, EventEmitter, Listen, Method, Prop, Watch } from '@stencil/core';
 import { resolveLocale } from '../../utils/datetime';
 import { isBlank, sortByValue, type KernSortDirection, type KernTableColumn } from './sort';
+import { kernTexts } from '../../utils/i18n';
 
 /** Interactive elements inside a row: clicks on them are no row clicks. */
 const INTERACTIVE = 'a, button, input, select, textarea, label, summary, [role="button"], [tabindex]';
@@ -67,7 +68,7 @@ export class KernTable {
   /** Data mode: number of skeleton rows while loading without rows. */
   @Prop() loadingRows = 3;
   /** Data mode: shown when `rows` is empty. */
-  @Prop() labelEmpty = 'Keine Einträge';
+  @Prop() labelEmpty?: string;
   /** Rows per page; turns the pagination on. */
   @Prop({ mutable: true }) pageSize?: number;
   /** Current page, from 1. */
@@ -83,15 +84,16 @@ export class KernTable {
   /** Data mode: key of a row for `selected`. Default: `row.id`, else the index in `rows`. */
   @Prop() rowKey?: (row: any, index: number) => string;
   /** Accessible name of the header checkbox. */
-  @Prop() labelSelectAll = 'Alle auswählen';
+  @Prop() labelSelectAll?: string;
   /** Accessible name of a row checkbox. */
-  @Prop() labelSelectRow = 'Zeile auswählen';
+  @Prop() labelSelectRow?: string;
   /** Keys of the expanded rows (see `selected` for keys). */
   @Prop({ mutable: true }) expanded: string[] = [];
   /** Data mode: content of a row's detail row; adds a first column with a toggle. Called when the row is first opened. */
   @Prop() detail?: (row: any, index: number) => Node | string;
   /** Data mode: accessible name of the toggle button of a row. */
-  @Prop() labelExpandRow = 'Details anzeigen';
+  @Prop() labelExpandRow?: string;
+  private t = kernTexts(this, 'kern-table', 'relabel');
 
   /** A sortable header was activated (or `sortBy()` called), with the requested direction. Cancelable: `preventDefault()` skips the built-in sort. */
   @Event({ cancelable: true }) kernSort!: EventEmitter<{ key: string; column: number; direction: KernSortDirection }>;
@@ -164,6 +166,13 @@ export class KernTable {
   onRows() {
     this.buildBody();
     this.busy();
+  }
+
+  /** Language changed: rebuild the generated cells and checkboxes that carry Kern texts. */
+  relabel() {
+    if (!this.table()) return;
+    this.onRows();
+    this.syncSelection();
   }
 
   @Watch('page')
@@ -466,7 +475,7 @@ export class KernTable {
       if (data.has(tr)) {
         const box = this.selectCell(tr, on, 'td', true)?.firstElementChild as any;
         const selected = on && keys.has(this.keyOf(tr));
-        if (box) Object.assign(box, { checked: selected, label: this.labelSelectRow });
+        if (box) Object.assign(box, { checked: selected, label: this.t('labelSelectRow') });
         if (selected) {
           if (tr.getAttribute('aria-selected') !== 'true') tr.setAttribute('aria-selected', 'true');
         } else if (on && tr.hasAttribute('aria-selected')) tr.removeAttribute('aria-selected');
@@ -484,7 +493,7 @@ export class KernTable {
         checked: count > 0 && count === visible.length,
         indeterminate: count > 0 && count < visible.length,
         disabled: !visible.length,
-        label: this.labelSelectAll,
+        label: this.t('labelSelectAll'),
       });
     }
   }
@@ -693,7 +702,7 @@ export class KernTable {
       const td = document.createElement('td');
       td.className = 'empty';
       td.setAttribute('colspan', String(columns.length + (this.detail ? 1 : 0)));
-      td.textContent = this.labelEmpty;
+      td.textContent = this.t('labelEmpty');
       tr.append(td);
       trs.push(tr);
     }
@@ -713,7 +722,7 @@ export class KernTable {
       const b = document.createElement('button');
       b.type = 'button';
       b.setAttribute('kern-expand', '');
-      b.setAttribute('aria-label', this.labelExpandRow);
+      b.setAttribute('aria-label', this.t('labelExpandRow'));
       const icon = document.createElement('kern-icon');
       icon.setAttribute('name', 'chevron-right');
       b.append(icon);

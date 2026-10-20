@@ -27,7 +27,7 @@ describe('kern-date-range-picker', () => {
     const { from, to, picker } = await setup(`start="2026-10-01" end="2026-10-15"`);
     expect([from.value, to.value]).toEqual(['01.10.2026', '15.10.2026']);
     expect(picker.value).toBe('2026-10-01/2026-10-15');
-    expect(from.getAttribute('aria-label')).toBe('Zeitraum, Von');
+    expect(from.getAttribute('aria-label')).toBe('Zeitraum, From');
   });
 
   it('accepts an interval as value (Angular forms)', async () => {
@@ -41,7 +41,7 @@ describe('kern-date-range-picker', () => {
     const { from, to, picker, events, type, error } = await setup(``);
     await type(from, '15.10.2026');
     expect(events).toEqual([]);
-    expect(error()).toBe('Start und Ende angeben');
+    expect(error()).toBe('Enter start and end');
     await type(to, '1.10.');
     expect([picker.start, picker.end]).toEqual(['2026-10-01', '2026-10-15']);
     expect(events).toEqual([{ start: '2026-10-01', end: '2026-10-15', value: '2026-10-01/2026-10-15' }]);
@@ -51,11 +51,11 @@ describe('kern-date-range-picker', () => {
   it('flags invalid, out-of-range and too long ranges', async () => {
     const { from, to, type, error } = await setup(`start="2026-10-01" end="2026-10-05" min="2026-09-01" max-days="7"`);
     await type(to, 'morgen');
-    expect(error()).toBe('Kein gültiges Datum');
+    expect(error()).toBe('Not a valid date');
     await type(to, '20.10.2026');
-    expect(error()).toBe('Höchstens 7 Tage');
+    expect(error()).toBe('At most 7 days');
     await type(from, '1.8.2026');
-    expect(error()).toBe('Datum nicht erlaubt');
+    expect(error()).toBe('Date not allowed');
   });
 
   it('takes a range from the calendar', async () => {

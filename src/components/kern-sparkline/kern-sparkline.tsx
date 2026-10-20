@@ -1,5 +1,6 @@
 import { Component, Host, Prop, h } from '@stencil/core';
 import { parseNumbers, sparklinePoints } from '../../utils/signal';
+import { kernTexts } from '../../utils/i18n';
 
 const W = 100;
 const H = 32;
@@ -18,12 +19,13 @@ export class KernSparkline {
   /** Light area under the line. */
   @Prop() fill = false;
   @Prop({ reflect: true }) tone: 'chart-1' | 'chart-2' | 'chart-3' | 'chart-4' | 'ok' | 'warn' | 'danger' = 'chart-1';
-  @Prop() label = 'Verlauf';
+  @Prop() label?: string;
+  private t = kernTexts(this, 'kern-sparkline');
 
   render() {
     const pts = sparklinePoints(parseNumbers(this.values), W, H, this.min, this.max);
     return (
-      <Host role="img" aria-label={this.label}>
+      <Host role="img" aria-label={this.t('label')}>
         {pts && (
           <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" aria-hidden="true">
             {this.fill && <polygon points={`0,${H} ${pts} ${W},${H}`} fill="currentColor" fill-opacity="0.14" stroke="none" />}

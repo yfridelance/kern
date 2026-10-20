@@ -4,6 +4,6 @@
 
 ```html
 <kern-tooltip text="−58 dBm · good">
-  <kern-signal rssi="-58" hide-value label="Wi-Fi signal" tabindex="0"></kern-signal>
+  <kern-signal rssi="-58" hide-value tabindex="0"></kern-signal>
 </kern-tooltip>
 ```

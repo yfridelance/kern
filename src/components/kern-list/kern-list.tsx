@@ -1,4 +1,5 @@
 import { Component, Element, Host, Prop, State, h } from '@stencil/core';
+import { kernTexts } from '../../utils/i18n';
 
 /**
  * List of rows (devices, settings, events): kern-list-item children, separated by lines, in a bordered box.
@@ -21,7 +22,8 @@ export class KernList {
   /** `sm` = denser rows. */
   @Prop({ reflect: true }) size: 'md' | 'sm' = 'md';
   /** Shown when there are no items; empty string shows nothing. */
-  @Prop() empty = 'Keine Einträge';
+  @Prop() empty?: string;
+  private t = kernTexts(this, 'kern-list');
   /** Accessible name of the list. */
   @Prop() label?: string;
 
@@ -37,9 +39,9 @@ export class KernList {
         <div class="list" part="list" role="list" aria-label={this.label} hidden={!this.count}>
           <slot onSlotchange={(e) => (this.count = (e.target as HTMLSlotElement).assignedElements().length)} />
         </div>
-        {!this.count && this.empty && (
+        {!this.count && this.t('empty') && (
           <div class="empty" part="empty">
-            {this.empty}
+            {this.t('empty')}
           </div>
         )}
       </Host>

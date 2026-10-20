@@ -2,7 +2,7 @@
 <header class="page-head">
   <span class="overline">Fundamentals</span>
   <h1>Localization</h1>
-  <p class="lead">Formats come from <code>Intl</code>; texts are properties. Default texts are German, because Kern started in a German-speaking homelab.</p>
+  <p class="lead">Formats come from <code>Intl</code>; texts come from Kern in English or German, and every one can be replaced.</p>
 </header>
 <h2>Locale</h2>
 <p>Components that format dates, times, numbers or sizes take a <code>locale</code> (BCP 47). Without it they use <code>&lt;html lang&gt;</code>, then the browser language.</p>
@@ -13,12 +13,42 @@
   <kern-step-input value="21.5" step="0.5" unit="°C" locale="de-DE" aria-label-text="Temperature" style="width:180px"></kern-step-input>
 </div>
 <h2>Texts</h2>
-<p>Every visible or announced text is a property starting with <code>label</code>, e.g. <code>label-close</code> on <code>kern-dialog</code>, <code>label-invalid</code> on typed fields, <code>label-range</code> on <code>kern-pagination</code>. Placeholders like <code>{n}</code> or <code>{name}</code> are replaced. The property tables on each component page list them.</p>
-<kern-code language="html">
-&lt;kern-pagination total="380" label-range="{from}–{to} of {total}" label-next="Next page"&gt;&lt;/kern-pagination&gt;
-</kern-code>
-<p>Functions take their texts as options (<code>confirmLabel</code>, <code>cancelLabel</code> for <code>confirm()</code>, <code>closeLabel</code> for <code>toast()</code>). The region all toasts share is named once with <code>setToastRegionLabel()</code>; call it again when the language changes.</p>
+<p>Buttons, hints, validation messages and names for screen readers are Kern texts. Kern ships them in English and German and picks the language in this order:</p>
+<ol>
+  <li>the language set with <code>setKernLocale()</code>,</li>
+  <li><code>&lt;html lang&gt;</code>, also when it changes later,</li>
+  <li>English.</li>
+</ol>
+<p>The browser language is not used for texts, so they match the language of the app. A change re-renders all components at once, including validation messages already shown.</p>
 <kern-code language="js">
-import { setToastRegionLabel } from '@yfridelance/kern';
-setToastRegionLabel('Notifications');
+import { setKernLocale } from '@yfridelance/kern';
+
+setKernLocale('de');      // German texts
+setKernLocale();          // follow &lt;html lang&gt; again
 </kern-code>
+<p>Up to version 0.8 the texts were German by default. An app that relies on this sets <code>&lt;html lang="de"&gt;</code> or calls <code>setKernLocale('de')</code>.</p>
+<h3>More languages and own wording</h3>
+<p><code>setKernStrings()</code> adds texts for a language or replaces single ones; missing texts fall back to the built-in ones of the base language, then English. Texts for a region (<code>de-CH</code>) win over those for the language (<code>de</code>).</p>
+<kern-code language="js">
+import { setKernLocale, setKernStrings } from '@yfridelance/kern';
+
+setKernStrings('fr', {
+  'kern-pagination.labelNext': 'Page suivante',
+  'kern-pagination.labelRange': '{from}–{to} sur {total}',
+});
+setKernStrings('de-CH', { 'kern-table.labelEmpty': 'Nüt da' });
+setKernLocale('fr');
+</kern-code>
+<p>Apps with their own i18n call <code>setKernLocale()</code> where they switch the language:</p>
+<kern-code language="ts" heading="Angular">
+translate.onLangChange.subscribe(({ lang }) =&gt; setKernLocale(lang));
+</kern-code>
+<h3>Single components</h3>
+<p>Every text is also a property, mostly starting with <code>label</code>, e.g. <code>close-label</code> on <code>kern-dialog</code>, <code>label-invalid</code> on typed fields, <code>label-range</code> on <code>kern-pagination</code>. A property set on a component wins over the Kern text. Placeholders like <code>{n}</code> or <code>{name}</code> are replaced. The property tables on each component page list them with their English and German default.</p>
+<kern-code language="html">
+&lt;kern-pagination total="380" label-range="{from}–{to} of {total} devices"&gt;&lt;/kern-pagination&gt;
+</kern-code>
+<p>Functions take their texts as options (<code>confirmLabel</code>, <code>cancelLabel</code> for <code>confirm()</code>, <code>closeLabel</code> for <code>toast()</code>) and otherwise use the Kern texts too. <code>setToastRegionLabel()</code> fixes the name of the region all toasts share; without it the name follows the language.</p>
+<h3>All texts</h3>
+<p>Keys are <code>&lt;tag&gt;.&lt;property&gt;</code>, plus <code>confirm.…</code> and <code>toast.…</code> for the functions.</p>
+<!--@strings-->

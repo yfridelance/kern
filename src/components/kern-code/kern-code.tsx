@@ -1,6 +1,7 @@
 import { Component, Element, Event, EventEmitter, Host, Prop, State, h } from '@stencil/core';
 import { Icon } from '../../utils/icons';
 import { dedent, tokenLines, type KernCodeLanguage } from '../../utils/highlight';
+import { kernTexts } from '../../utils/i18n';
 
 /**
  * Code and commands: a block with copy button, optional heading (file name), line numbers, wrapping and a maximum
@@ -33,8 +34,9 @@ export class KernCode {
   @Prop({ reflect: true }) inline = false;
   /** Hide the copy button. */
   @Prop() noCopy = false;
-  @Prop() labelCopy = 'Kopieren';
-  @Prop() labelCopied = 'Kopiert';
+  @Prop() labelCopy?: string;
+  @Prop() labelCopied?: string;
+  private t = kernTexts(this, 'kern-code');
 
   /** After a successful copy. */
   @Event() kernCopy!: EventEmitter<{ value: string }>;
@@ -104,10 +106,10 @@ export class KernCode {
           <div class={{ head: true, titled: !!this.heading }}>
             {this.heading && <span class="heading">{this.heading}</span>}
             {!this.noCopy && (
-              <button type="button" class={{ copy: true, done: this.copied }} part="copy" aria-label={this.labelCopy} title={this.copied ? this.labelCopied : this.labelCopy} onClick={this.copy}>
+              <button type="button" class={{ copy: true, done: this.copied }} part="copy" aria-label={this.t('labelCopy')} title={this.copied ? this.t('labelCopied') : this.t('labelCopy')} onClick={this.copy}>
                 <Icon name={this.copied ? 'check' : 'copy'} />
                 <span class="copy-text" aria-live="polite">
-                  {this.copied ? this.labelCopied : ''}
+                  {this.copied ? this.t('labelCopied') : ''}
                 </span>
               </button>
             )}

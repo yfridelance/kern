@@ -4,7 +4,7 @@
 
 ```html
 <div style="display:grid;gap:16px;max-width:280px">
-  <kern-color-picker name="color" label="Light colour" value="#3cc8cc" swatches="#ff8a3c,#ffd23c,#3cc8cc,#7fa8ff,#e58bbf,#ffffff" label-invalid="Not a valid colour"></kern-color-picker>
+  <kern-color-picker name="color" label="Light colour" value="#3cc8cc" swatches="#ff8a3c,#ffd23c,#3cc8cc,#7fa8ff,#e58bbf,#ffffff"></kern-color-picker>
   <kern-color-picker label="Status LED" value="#ff8a3c" size="sm" disabled></kern-color-picker>
   <output style="font:12px var(--font-mono);color:var(--text-muted)">kernChange → …</output>
 </div>

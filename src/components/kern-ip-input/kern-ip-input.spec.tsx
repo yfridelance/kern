@@ -32,7 +32,7 @@ describe('kern-ip-input', () => {
   it('shows the value with the size of a block', async () => {
     const { input, count } = await setup(`value="192.168.1.0/24"`);
     expect(input.value).toBe('192.168.1.0/24');
-    expect(count()!.textContent).toBe('256 Adressen');
+    expect(count()!.textContent).toBe('256 addresses');
     expect(count()!.getAttribute('title')).toBe('192.168.1.0 – 192.168.1.255');
   });
 
@@ -41,7 +41,7 @@ describe('kern-ip-input', () => {
     await type('192.168.1.10 - 50');
     expect(ip.value).toBe('192.168.1.10-192.168.1.50');
     expect(input.value).toBe('192.168.1.10-192.168.1.50');
-    expect(count()!.textContent).toBe('41 Adressen');
+    expect(count()!.textContent).toBe('41 addresses');
     expect(inputs).toEqual(['192.168.1.10 - 50']);
     expect(changes).toEqual([{ value: '192.168.1.10-192.168.1.50', kind: 'range', first: '192.168.1.10', last: '192.168.1.50', count: 41 }]);
     await type('');
@@ -53,7 +53,7 @@ describe('kern-ip-input', () => {
     const { page, ip, type, error } = await setup(`value="10.0.0.1"`);
     await type('10.0.0.256');
     expect(ip.value).toBe('10.0.0.1');
-    expect(error()).toBe('Keine gültige IPv4-Adresse');
+    expect(error()).toBe('Not a valid IPv4 address');
     expect(page.root!.hasAttribute('invalid')).toBe(true);
     await type('10.0.0.2', false);
     expect(error()).toBeUndefined();
@@ -63,9 +63,9 @@ describe('kern-ip-input', () => {
     const { type, error, ip } = await setup(`allow="single range" max-addresses="1024"`);
     await type('192.168.0.0/16');
     expect(ip.value).toBe('192.168.0.0/16');
-    expect(error()).toBe('Diese Form ist hier nicht erlaubt');
+    expect(error()).toBe('This form is not allowed here');
     await type('10.0.0.0-10.0.8.0');
-    expect(error()).toBe(`Höchstens ${new Intl.NumberFormat('de-CH').format(1024)} Adressen`);
+    expect(error()).toBe(`At most ${new Intl.NumberFormat('de-CH').format(1024)} addresses`);
     await type('10.0.0.0-10.0.3.255');
     expect(error()).toBeUndefined();
   });
@@ -85,7 +85,7 @@ describe('kern-ip-input', () => {
       expect(ip.value).toBe('255.255.252.0');
       expect(input.value).toBe('255.255.252.0');
       expect(error()).toBeUndefined();
-      expect(count()!.textContent).toBe(`/22 · ${new Intl.NumberFormat('de-CH').format(1022)} Hosts`);
+      expect(count()!.textContent).toBe(`/22 · ${new Intl.NumberFormat('de-CH').format(1022)} hosts`);
       expect(changes).toEqual([{ value: '255.255.252.0', kind: 'mask', mask: '255.255.252.0', prefix: 22, hosts: 1022 }]);
       await type('24');
       expect(ip.value).toBe('255.255.255.0');
@@ -95,10 +95,10 @@ describe('kern-ip-input', () => {
       const { page, ip, type, error } = await setup(`allow="mask" value="255.255.255.0"`);
       await type('255.0.255.0');
       expect(ip.value).toBe('255.255.255.0');
-      expect(error()).toBe('Keine gültige Subnetzmaske');
+      expect(error()).toBe('Not a valid subnet mask');
       expect(page.root!.hasAttribute('invalid')).toBe(true);
       await type('192.168.1.1');
-      expect(error()).toBe('Keine gültige Subnetzmaske');
+      expect(error()).toBe('Not a valid subnet mask');
       await type('255.255.0.0', false);
       expect(error()).toBeUndefined();
     });
@@ -124,9 +124,9 @@ describe('kern-ip-input', () => {
       await type('192.168.1.1');
       expect(error()).toBeUndefined();
       await type('192.168.1.0/24');
-      expect(error()).toBe('Diese Form ist hier nicht erlaubt');
+      expect(error()).toBe('This form is not allowed here');
       await type('10.0.0.256');
-      expect(error()).toBe('Keine gültige IPv4-Adresse');
+      expect(error()).toBe('Not a valid IPv4 address');
       expect(changes.map((c) => (c as { kind: string }).kind)).toEqual(['mask', 'single', 'cidr']);
     });
 
@@ -134,7 +134,7 @@ describe('kern-ip-input', () => {
       const { type, error, changes } = await setup(`allow="single"`);
       await type('255.255.255.0');
       await type('24');
-      expect(error()).toBe('Keine gültige IPv4-Adresse');
+      expect(error()).toBe('Not a valid IPv4 address');
       expect(changes).toEqual([{ value: '255.255.255.0', kind: 'single', first: '255.255.255.0', last: '255.255.255.0', count: 1 }]);
     });
   });

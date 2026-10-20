@@ -3,7 +3,7 @@
 Brand on the left, the main navigation in the `nav` slot and tools in the `end` slot. Mark the current link with `aria-current="page"`; keep the navigation to at most six links.
 
 ```html
-<kern-topbar app-name="Shelly Manager" suite="Homelab" nav-label="Main navigation">
+<kern-topbar app-name="Shelly Manager" suite="Homelab">
   <a slot="nav" href="#">Scan</a>
   <a slot="nav" href="#" aria-current="page">Inventory</a>
   <a slot="nav" href="#">Templates</a>

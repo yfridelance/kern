@@ -143,8 +143,8 @@ zusätzlich Standalone-Wrapper mit `ControlValueAccessor` für `ngModel` und Rea
   (pausiert bei Hover/Fokus), `duration: 0` bleibt. Für Meldungen, die stehen bleiben müssen: `kern-alert`.
   Während ein modaler Dialog offen ist, ist alles ausserhalb inert: Toasts sind dann sichtbar, aber weder bedienbar
   noch angesagt. Darum erst den Dialog schliessen, dann den Toast zeigen. Die Region heisst für Screenreader
-  «Benachrichtigungen»; `setToastRegionLabel('Notifications')` übersetzt sie (einmal beim Start und bei jedem
-  Sprachwechsel, wirkt auch auf eine bestehende Region).
+  wie der Kern-Text `toast.regionLabel` («Notifications», deutsch «Benachrichtigungen») und folgt der Sprache;
+  `setToastRegionLabel()` legt einen eigenen Namen fest (wirkt auch auf eine bestehende Region).
 - **Seitenpanel:** `kern-drawer` (rechts, `side="start"` links, `width`) für Details, Filter und längere Formulare;
   modal auf `<dialog>`, Kopf und Fuss stehen, der Inhalt scrollt. Escape, × und Klick auf den Hintergrund schliessen
   (`dismissible="false"` verhindert das). Kurze Bestätigungen bleiben `kern-dialog`/`confirm()`.
@@ -221,7 +221,11 @@ zusätzlich Standalone-Wrapper mit `ControlValueAccessor` für `ngModel` und Rea
   `target="_blank"` und `download` bleiben beim Browser, «In neuem Tab öffnen» geht weiter.
 - **Theming von aussen:** nur über Tokens (CSS-Variablen) und die dokumentierten `::part()`; keine Farben in Apps
   erfinden.
-- **Texte:** Standardtexte (Aria-Labels, «Abbrechen») sind deutsch und über Props übersetzbar.
+- **Texte:** Standardtexte (Aria-Labels, Fehlermeldungen, «Cancel») liefert Kern englisch und deutsch. Die Sprache
+  kommt aus `setKernLocale()`, sonst aus `<html lang>` (auch bei späteren Wechseln), sonst Englisch;
+  `setKernStrings(locale, { 'kern-pagination.labelNext': '…' })` ergänzt Sprachen oder ersetzt einzelne Texte.
+  Eine Prop an der Komponente (`label-next`, `close-label` …) hat immer Vorrang. Bis 0.8 waren die Defaults deutsch:
+  Apps, die das brauchen, setzen `<html lang="de">` oder `setKernLocale('de')`.
 
 ## Entwicklung
 

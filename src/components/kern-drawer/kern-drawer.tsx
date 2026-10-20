@@ -1,5 +1,6 @@
 import { Component, Element, Event, EventEmitter, Host, Method, Prop, State, Watch, h } from '@stencil/core';
 import { Icon } from '../../utils/icons';
+import { kernTexts } from '../../utils/i18n';
 
 /**
  * Side panel over the page for details, filters and longer forms, on the native modal `<dialog>` (focus stays inside
@@ -27,7 +28,8 @@ export class KernDrawer {
   /** Close button, Escape and backdrop click close the panel. */
   @Prop() dismissible = true;
   /** Accessible label of the close button. */
-  @Prop() closeLabel = 'Schliessen';
+  @Prop() closeLabel?: string;
+  private t = kernTexts(this, 'kern-drawer');
 
   /** After the panel closed; `detail.returnValue` as given to `close()` (`cancel` for Escape/backdrop/close button). */
   @Event() kernClose!: EventEmitter<{ returnValue: string }>;
@@ -100,7 +102,7 @@ export class KernDrawer {
               <header>
                 {this.heading && <h2>{this.heading}</h2>}
                 {this.dismissible && (
-                  <kern-button variant="ghost" size="sm" icon-only label={this.closeLabel} onClick={() => this.close('cancel')}>
+                  <kern-button variant="ghost" size="sm" icon-only label={this.t('closeLabel')} onClick={() => this.close('cancel')}>
                     <Icon name="close" />
                   </kern-button>
                 )}

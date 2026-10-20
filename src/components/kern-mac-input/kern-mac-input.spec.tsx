@@ -37,7 +37,7 @@ describe('kern-mac-input', () => {
     const { page, el, type, error } = await setup(`value="C8:2B:96:1A:3F:00"`);
     await type('C8:2B:96:1A:3F');
     expect(el.value).toBe('C8:2B:96:1A:3F:00');
-    expect(error()).toBe('Keine gültige MAC-Adresse');
+    expect(error()).toBe('Not a valid MAC address');
     expect(page.root!.hasAttribute('invalid')).toBe(true);
   });
 });

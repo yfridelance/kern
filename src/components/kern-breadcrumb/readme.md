@@ -20,7 +20,7 @@ picking one clicks the original link, so app routers still handle it.
 Children are links (kern-link or `<a>`); the last child is the current page and gets `aria-current="page"`. A plain text element works for the last entry. `label` names the navigation.
 
 ```html
-<kern-breadcrumb label="Path">
+<kern-breadcrumb>
   <kern-link href="#">Haus Seeblick</kern-link>
   <kern-link href="#">Ground floor</kern-link>
   <kern-link href="#">Bath</kern-link>
@@ -36,7 +36,7 @@ Children are links (kern-link or `<a>`); the last child is the current page and 
 With `max-items` the middle entries fold into a „…“ menu that keeps the first and the last entries visible. Picking an entry clicks the original link, so app routers still handle it. `label-more` names the menu button.
 
 ```html
-<kern-breadcrumb max-items="4" label="Path" label-more="More levels">
+<kern-breadcrumb max-items="4">
   <kern-link href="#">Haus Seeblick</kern-link>
   <kern-link href="#">Ground floor</kern-link>
   <kern-link href="#">Bath</kern-link>
@@ -50,11 +50,11 @@ With `max-items` the middle entries fold into a „…“ menu that keeps the fi
 
 ## Properties
 
-| Property    | Attribute    | Description                                                                 | Type     | Default            |
-| ----------- | ------------ | --------------------------------------------------------------------------- | -------- | ------------------ |
-| `label`     | `label`      | Accessible name of the navigation.                                          | `string` | `'Pfad'`           |
-| `labelMore` | `label-more` |                                                                             | `string` | `'Weitere Ebenen'` |
-| `maxItems`  | `max-items`  | Show at most this many entries (first, „…“ and the last ones); 0 shows all. | `number` | `0`                |
+| Property    | Attribute    | Description                                                                 | Type                  | Default     |
+| ----------- | ------------ | --------------------------------------------------------------------------- | --------------------- | ----------- |
+| `label`     | `label`      | Accessible name of the navigation.                                          | `string \| undefined` | `undefined` |
+| `labelMore` | `label-more` |                                                                             | `string \| undefined` | `undefined` |
+| `maxItems`  | `max-items`  | Show at most this many entries (first, „…“ and the last ones); 0 shows all. | `number`              | `0`         |
 
 
 ## Slots

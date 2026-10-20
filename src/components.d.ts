@@ -97,13 +97,9 @@ export namespace Components {
     interface KernBreadcrumb {
         /**
           * Accessible name of the navigation.
-          * @default 'Pfad'
          */
-        "label": string;
-        /**
-          * @default 'Weitere Ebenen'
-         */
-        "labelMore": string;
+        "label"?: string;
+        "labelMore"?: string;
         /**
           * Show at most this many entries (first, „…“ and the last ones); 0 shows all.
           * @default 0
@@ -182,22 +178,14 @@ export namespace Components {
         "isDateDisabled"?: (iso: string) => boolean;
         /**
           * Accessible name of the calendar.
-          * @default 'Kalender'
          */
-        "label": string;
-        /**
-          * @default 'Nächster Monat'
-         */
-        "labelNext": string;
-        /**
-          * @default 'Vorheriger Monat'
-         */
-        "labelPrev": string;
+        "label"?: string;
+        "labelNext"?: string;
+        "labelPrev"?: string;
         /**
           * Column header of the week numbers.
-          * @default 'KW'
          */
-        "labelWeek": string;
+        "labelWeek"?: string;
         /**
           * BCP 47 locale; defaults to `<html lang>`, then the browser language.
          */
@@ -304,14 +292,8 @@ export namespace Components {
           * @default false
          */
         "inline": boolean;
-        /**
-          * @default 'Kopiert'
-         */
-        "labelCopied": string;
-        /**
-          * @default 'Kopieren'
-         */
-        "labelCopy": string;
+        "labelCopied"?: string;
+        "labelCopy"?: string;
         /**
           * @default 'text'
          */
@@ -361,26 +343,11 @@ export namespace Components {
          */
         "kelvinStep": number;
         "label"?: string;
-        /**
-          * @default 'Sättigung und Helligkeit'
-         */
-        "labelArea": string;
-        /**
-          * @default 'Farbton'
-         */
-        "labelHue": string;
-        /**
-          * @default 'Keine gültige Farbe'
-         */
-        "labelInvalid": string;
-        /**
-          * @default 'Farbe wählen'
-         */
-        "labelOpen": string;
-        /**
-          * @default 'Farbtemperatur'
-         */
-        "labelTemperature": string;
+        "labelArea"?: string;
+        "labelHue"?: string;
+        "labelInvalid"?: string;
+        "labelOpen"?: string;
+        "labelTemperature"?: string;
         /**
           * @default 6500
          */
@@ -428,9 +395,8 @@ export namespace Components {
     interface KernCopy {
         /**
           * Tooltip and accessible label of the button.
-          * @default 'Kopieren'
          */
-        "label": string;
+        "label"?: string;
         /**
           * Copied text; defaults to the text content.
          */
@@ -505,24 +471,16 @@ export namespace Components {
          */
         "isDateDisabled"?: (iso: string) => boolean;
         "label"?: string;
-        /**
-          * @default 'Leeren'
-         */
-        "labelClear": string;
+        "labelClear"?: string;
         /**
           * Shown for text that is not a date.
-          * @default 'Kein gültiges Datum'
          */
-        "labelInvalid": string;
-        /**
-          * @default 'Kalender öffnen'
-         */
-        "labelOpen": string;
+        "labelInvalid"?: string;
+        "labelOpen"?: string;
         /**
           * Shown for a date outside min/max or disabled.
-          * @default 'Datum nicht erlaubt'
          */
-        "labelOutOfRange": string;
+        "labelOutOfRange"?: string;
         /**
           * BCP 47 locale; defaults to `<html lang>`, then the browser language.
          */
@@ -610,40 +568,20 @@ export namespace Components {
          */
         "isDateDisabled"?: (iso: string) => boolean;
         "label"?: string;
-        /**
-          * @default 'Leeren'
-         */
-        "labelClear": string;
-        /**
-          * @default 'Bis'
-         */
-        "labelEnd": string;
+        "labelClear"?: string;
+        "labelEnd"?: string;
         /**
           * Shown when only one date is set.
-          * @default 'Start und Ende angeben'
          */
-        "labelIncomplete": string;
-        /**
-          * @default 'Kein gültiges Datum'
-         */
-        "labelInvalid": string;
-        /**
-          * @default 'Kalender öffnen'
-         */
-        "labelOpen": string;
-        /**
-          * @default 'Datum nicht erlaubt'
-         */
-        "labelOutOfRange": string;
-        /**
-          * @default 'Von'
-         */
-        "labelStart": string;
+        "labelIncomplete"?: string;
+        "labelInvalid"?: string;
+        "labelOpen"?: string;
+        "labelOutOfRange"?: string;
+        "labelStart"?: string;
         /**
           * Shown when the range is longer than `maxDays`; `{n}` is replaced by it.
-          * @default 'Höchstens {n} Tage'
          */
-        "labelTooLong": string;
+        "labelTooLong"?: string;
         /**
           * BCP 47 locale; defaults to `<html lang>`, then the browser language.
          */
@@ -706,9 +644,8 @@ export namespace Components {
         "close": (returnValue?: string) => Promise<void>;
         /**
           * Accessible label of the close button.
-          * @default 'Schliessen'
          */
-        "closeLabel": string;
+        "closeLabel"?: string;
         /**
           * Shows the close button and allows Escape.
           * @default true
@@ -741,9 +678,8 @@ export namespace Components {
         "close": (returnValue?: string) => Promise<void>;
         /**
           * Accessible label of the close button.
-          * @default 'Schliessen'
          */
-        "closeLabel": string;
+        "closeLabel"?: string;
         /**
           * Close button, Escape and backdrop click close the panel.
           * @default true
@@ -795,33 +731,21 @@ export namespace Components {
         "files": File[];
         "hint"?: string;
         "label"?: string;
-        /**
-          * @default 'Datei wählen'
-         */
-        "labelChoose": string;
-        /**
-          * @default 'Dateien wählen'
-         */
-        "labelChooseMultiple": string;
-        /**
-          * @default 'oder hierher ziehen'
-         */
-        "labelDrop": string;
+        "labelChoose"?: string;
+        "labelChooseMultiple"?: string;
+        "labelDrop"?: string;
         /**
           * `{name}` is replaced.
-          * @default '{name} entfernen'
          */
-        "labelRemove": string;
+        "labelRemove"?: string;
         /**
           * `{name}` and `{max}` are replaced.
-          * @default '«{name}» ist grösser als {max}.'
          */
-        "labelTooLarge": string;
+        "labelTooLarge"?: string;
         /**
           * `{name}` is replaced.
-          * @default '«{name}» hat keinen erlaubten Dateityp.'
          */
-        "labelWrongType": string;
+        "labelWrongType"?: string;
         /**
           * BCP 47 locale for sizes; defaults to `<html lang>`, then the browser language.
          */
@@ -964,34 +888,28 @@ export namespace Components {
         "label"?: string;
         /**
           * Size of a range or block; `{n}` is replaced by the number.
-          * @default '{n} Adressen'
          */
-        "labelCount": string;
+        "labelCount"?: string;
         /**
           * Shown for text that is no IPv4 address, range or CIDR block.
-          * @default 'Keine gültige IPv4-Adresse'
          */
-        "labelInvalid": string;
+        "labelInvalid"?: string;
         /**
           * Shown for text that is no subnet mask when only `mask` is allowed.
-          * @default 'Keine gültige Subnetzmaske'
          */
-        "labelInvalidMask": string;
+        "labelInvalidMask"?: string;
         /**
           * Size of a mask; `{prefix}` is replaced by the prefix length, `{n}` by the number of hosts.
-          * @default '/{prefix} · {n} Hosts'
          */
-        "labelMaskCount": string;
+        "labelMaskCount"?: string;
         /**
           * Shown for a form excluded by `allow`.
-          * @default 'Diese Form ist hier nicht erlaubt'
          */
-        "labelNotAllowed": string;
+        "labelNotAllowed"?: string;
         /**
           * Shown above `max-addresses`; `{n}` is replaced by it.
-          * @default 'Höchstens {n} Adressen'
          */
-        "labelTooMany": string;
+        "labelTooMany"?: string;
         /**
           * BCP 47 locale for the number of addresses; defaults to `<html lang>`, then the browser language.
          */
@@ -1061,44 +979,21 @@ export namespace Components {
           * @default []
          */
         "ignore": string[] | string;
-        /**
-          * @default 'neu'
-         */
-        "labelAdded": string;
-        /**
-          * @default 'Nachher'
-         */
-        "labelAfter": string;
+        "labelAdded"?: string;
+        "labelAfter"?: string;
         /**
           * Header of the column with the earlier value, e.g. the time of the snapshot.
-          * @default 'Vorher'
          */
-        "labelBefore": string;
-        /**
-          * @default 'geändert'
-         */
-        "labelChanged": string;
-        /**
-          * @default 'Art'
-         */
-        "labelKind": string;
-        /**
-          * @default 'Keine Unterschiede'
-         */
-        "labelNone": string;
-        /**
-          * @default 'Pfad'
-         */
-        "labelPath": string;
-        /**
-          * @default 'entfernt'
-         */
-        "labelRemoved": string;
+        "labelBefore"?: string;
+        "labelChanged"?: string;
+        "labelKind"?: string;
+        "labelNone"?: string;
+        "labelPath"?: string;
+        "labelRemoved"?: string;
         /**
           * `{n}`, `{changed}`, `{added}` and `{removed}` are replaced.
-          * @default '{n} Unterschiede: {changed} geändert, {added} neu, {removed} entfernt'
          */
-        "labelSummary": string;
+        "labelSummary"?: string;
         /**
           * Longer values are cut with „…“; the whole value is in the tooltip.
           * @default 80
@@ -1147,9 +1042,8 @@ export namespace Components {
         "href"?: string;
         /**
           * Read after the text of `external` links.
-          * @default 'öffnet in neuem Tab'
          */
-        "labelExternal": string;
+        "labelExternal"?: string;
         /**
           * Defaults to `noopener noreferrer` for `external` or `target="_blank"`.
          */
@@ -1168,9 +1062,8 @@ export namespace Components {
     interface KernList {
         /**
           * Shown when there are no items; empty string shows nothing.
-          * @default 'Keine Einträge'
          */
-        "empty": string;
+        "empty"?: string;
         /**
           * Without border and background, e.g. inside kern-card.
           * @default false
@@ -1240,10 +1133,7 @@ export namespace Components {
         "format": KernMacFormat;
         "hint"?: string;
         "label"?: string;
-        /**
-          * @default 'Keine gültige MAC-Adresse'
-         */
-        "labelInvalid": string;
+        "labelInvalid"?: string;
         /**
           * @default 'upper'
          */
@@ -1368,40 +1258,20 @@ export namespace Components {
      * item on screen.
      */
     interface KernPagination {
-        /**
-          * @default 'Seiten'
-         */
-        "label": string;
-        /**
-          * @default 'Erste Seite'
-         */
-        "labelFirst": string;
-        /**
-          * @default 'Letzte Seite'
-         */
-        "labelLast": string;
-        /**
-          * @default 'Nächste Seite'
-         */
-        "labelNext": string;
+        "label"?: string;
+        "labelFirst"?: string;
+        "labelLast"?: string;
+        "labelNext"?: string;
         /**
           * `{n}` is replaced.
-          * @default 'Seite {n}'
          */
-        "labelPage": string;
-        /**
-          * @default 'Pro Seite'
-         */
-        "labelPageSize": string;
-        /**
-          * @default 'Vorherige Seite'
-         */
-        "labelPrevious": string;
+        "labelPage"?: string;
+        "labelPageSize"?: string;
+        "labelPrevious"?: string;
         /**
           * `{from}`, `{to}` and `{total}` are replaced.
-          * @default '{from}–{to} von {total}'
          */
-        "labelRange": string;
+        "labelRange"?: string;
         /**
           * BCP 47 locale for numbers; defaults to `<html lang>`, then the browser language.
          */
@@ -1524,14 +1394,8 @@ export namespace Components {
         "error"?: string;
         "hint"?: string;
         "label"?: string;
-        /**
-          * @default 'Von'
-         */
-        "labelFrom": string;
-        /**
-          * @default 'Bis'
-         */
-        "labelTo": string;
+        "labelFrom"?: string;
+        "labelTo"?: string;
         /**
           * BCP 47 locale for numbers; defaults to `<html lang>`, then the browser language.
          */
@@ -1602,9 +1466,8 @@ export namespace Components {
         "label"?: string;
         /**
           * Name of each star and the read-only rating; `{n}` and `{max}` are replaced.
-          * @default '{n} von {max} Sternen'
          */
-        "labelValue": string;
+        "labelValue"?: string;
         /**
           * Number of stars.
           * @default 5
@@ -1681,19 +1544,12 @@ export namespace Components {
         "hide": () => Promise<void>;
         "hint"?: string;
         "label"?: string;
-        /**
-          * @default 'Keine Treffer'
-         */
-        "labelNoResults": string;
+        "labelNoResults"?: string;
         /**
           * Accessible name of a chip's ×; `{label}` is replaced.
-          * @default '{label} entfernen'
          */
-        "labelRemove": string;
-        /**
-          * @default 'Suchen …'
-         */
-        "labelSearch": string;
+        "labelRemove"?: string;
+        "labelSearch"?: string;
         /**
           * Several values; `value` becomes a `string[]`.
           * @default false
@@ -1741,10 +1597,7 @@ export namespace Components {
           * @default false
          */
         "hideValue": boolean;
-        /**
-          * @default 'WLAN-Signal'
-         */
-        "label": string;
+        "label"?: string;
         /**
           * RSSI in dBm (Gen2+ `wifi.rssi`, Gen1 `wifi_sta.rssi`).
          */
@@ -1788,10 +1641,7 @@ export namespace Components {
           * @default false
          */
         "fill": boolean;
-        /**
-          * @default 'Verlauf'
-         */
-        "label": string;
+        "label"?: string;
         "max"?: number;
         "min"?: number;
         /**
@@ -1872,19 +1722,12 @@ export namespace Components {
         "error"?: string;
         "hint"?: string;
         "label"?: string;
-        /**
-          * @default 'Verringern'
-         */
-        "labelDecrease": string;
-        /**
-          * @default 'Erhöhen'
-         */
-        "labelIncrease": string;
+        "labelDecrease"?: string;
+        "labelIncrease"?: string;
         /**
           * Shown for text that is not a number.
-          * @default 'Keine gültige Zahl'
          */
-        "labelInvalid": string;
+        "labelInvalid"?: string;
         /**
           * BCP 47 locale for the decimal separator; defaults to `<html lang>`, then the browser language.
          */
@@ -2020,24 +1863,20 @@ export namespace Components {
         "getRowClass"?: (row: any, index: number) => string | undefined;
         /**
           * Data mode: shown when `rows` is empty.
-          * @default 'Keine Einträge'
          */
-        "labelEmpty": string;
+        "labelEmpty"?: string;
         /**
           * Data mode: accessible name of the toggle button of a row.
-          * @default 'Details anzeigen'
          */
-        "labelExpandRow": string;
+        "labelExpandRow"?: string;
         /**
           * Accessible name of the header checkbox.
-          * @default 'Alle auswählen'
          */
-        "labelSelectAll": string;
+        "labelSelectAll"?: string;
         /**
           * Accessible name of a row checkbox.
-          * @default 'Zeile auswählen'
          */
-        "labelSelectRow": string;
+        "labelSelectRow"?: string;
         /**
           * Loading: content dimmed, a bar under the header, `aria-busy`; in data mode without rows, skeleton rows.
           * @default false
@@ -2152,14 +1991,12 @@ export namespace Components {
     interface KernThemeToggle {
         /**
           * Accessible label while light.
-          * @default 'Zu dunklem Design wechseln'
          */
-        "labelDark": string;
+        "labelDark"?: string;
         /**
           * Accessible label while dark.
-          * @default 'Zu hellem Design wechseln'
          */
-        "labelLight": string;
+        "labelLight"?: string;
         /**
           * 28px instead of 34px.
           * @default false
@@ -2229,31 +2066,15 @@ export namespace Components {
          */
         "hour12"?: boolean;
         "label"?: string;
-        /**
-          * @default 'Stunden'
-         */
-        "labelHour": string;
-        /**
-          * @default 'Zeit wählen'
-         */
-        "labelList": string;
-        /**
-          * @default 'Minuten'
-         */
-        "labelMinute": string;
+        "labelHour"?: string;
+        "labelList"?: string;
+        "labelMinute"?: string;
         /**
           * Shown for a time outside min/max.
-          * @default 'Zeit nicht erlaubt'
          */
-        "labelOutOfRange": string;
-        /**
-          * @default 'Vormittag/Nachmittag'
-         */
-        "labelPeriod": string;
-        /**
-          * @default 'Sekunden'
-         */
-        "labelSecond": string;
+        "labelOutOfRange"?: string;
+        "labelPeriod"?: string;
+        "labelSecond"?: string;
         /**
           * Button with a list of times.
           * @default false
@@ -2319,10 +2140,7 @@ export namespace Components {
           * Closes the toast.
          */
         "close": (reason?: KernToastReason) => Promise<void>;
-        /**
-          * @default 'Schliessen'
-         */
-        "closeLabel": string;
+        "closeLabel"?: string;
         /**
           * Milliseconds until it closes itself; 0 keeps it until closed.
           * @default 5000
@@ -2383,9 +2201,8 @@ export namespace Components {
         "homeHref": string;
         /**
           * Accessible name of the navigation.
-          * @default 'Hauptnavigation'
          */
-        "navLabel": string;
+        "navLabel"?: string;
         /**
           * Muted product family before the app name, e.g. "Homelab".
          */
@@ -3702,12 +3519,8 @@ declare namespace LocalJSX {
     interface KernBreadcrumb {
         /**
           * Accessible name of the navigation.
-          * @default 'Pfad'
          */
         "label"?: string;
-        /**
-          * @default 'Weitere Ebenen'
-         */
         "labelMore"?: string;
         /**
           * Show at most this many entries (first, „…“ and the last ones); 0 shows all.
@@ -3795,20 +3608,12 @@ declare namespace LocalJSX {
         "isDateDisabled"?: (iso: string) => boolean;
         /**
           * Accessible name of the calendar.
-          * @default 'Kalender'
          */
         "label"?: string;
-        /**
-          * @default 'Nächster Monat'
-         */
         "labelNext"?: string;
-        /**
-          * @default 'Vorheriger Monat'
-         */
         "labelPrev"?: string;
         /**
           * Column header of the week numbers.
-          * @default 'KW'
          */
         "labelWeek"?: string;
         /**
@@ -3926,13 +3731,7 @@ declare namespace LocalJSX {
           * @default false
          */
         "inline"?: boolean;
-        /**
-          * @default 'Kopiert'
-         */
         "labelCopied"?: string;
-        /**
-          * @default 'Kopieren'
-         */
         "labelCopy"?: string;
         /**
           * @default 'text'
@@ -3987,25 +3786,10 @@ declare namespace LocalJSX {
          */
         "kelvinStep"?: number;
         "label"?: string;
-        /**
-          * @default 'Sättigung und Helligkeit'
-         */
         "labelArea"?: string;
-        /**
-          * @default 'Farbton'
-         */
         "labelHue"?: string;
-        /**
-          * @default 'Keine gültige Farbe'
-         */
         "labelInvalid"?: string;
-        /**
-          * @default 'Farbe wählen'
-         */
         "labelOpen"?: string;
-        /**
-          * @default 'Farbtemperatur'
-         */
         "labelTemperature"?: string;
         /**
           * @default 6500
@@ -4058,7 +3842,6 @@ declare namespace LocalJSX {
     interface KernCopy {
         /**
           * Tooltip and accessible label of the button.
-          * @default 'Kopieren'
          */
         "label"?: string;
         /**
@@ -4139,22 +3922,14 @@ declare namespace LocalJSX {
          */
         "isDateDisabled"?: (iso: string) => boolean;
         "label"?: string;
-        /**
-          * @default 'Leeren'
-         */
         "labelClear"?: string;
         /**
           * Shown for text that is not a date.
-          * @default 'Kein gültiges Datum'
          */
         "labelInvalid"?: string;
-        /**
-          * @default 'Kalender öffnen'
-         */
         "labelOpen"?: string;
         /**
           * Shown for a date outside min/max or disabled.
-          * @default 'Datum nicht erlaubt'
          */
         "labelOutOfRange"?: string;
         /**
@@ -4243,38 +4018,18 @@ declare namespace LocalJSX {
          */
         "isDateDisabled"?: (iso: string) => boolean;
         "label"?: string;
-        /**
-          * @default 'Leeren'
-         */
         "labelClear"?: string;
-        /**
-          * @default 'Bis'
-         */
         "labelEnd"?: string;
         /**
           * Shown when only one date is set.
-          * @default 'Start und Ende angeben'
          */
         "labelIncomplete"?: string;
-        /**
-          * @default 'Kein gültiges Datum'
-         */
         "labelInvalid"?: string;
-        /**
-          * @default 'Kalender öffnen'
-         */
         "labelOpen"?: string;
-        /**
-          * @default 'Datum nicht erlaubt'
-         */
         "labelOutOfRange"?: string;
-        /**
-          * @default 'Von'
-         */
         "labelStart"?: string;
         /**
           * Shown when the range is longer than `maxDays`; `{n}` is replaced by it.
-          * @default 'Höchstens {n} Tage'
          */
         "labelTooLong"?: string;
         /**
@@ -4334,7 +4089,6 @@ declare namespace LocalJSX {
     interface KernDialog {
         /**
           * Accessible label of the close button.
-          * @default 'Schliessen'
          */
         "closeLabel"?: string;
         /**
@@ -4365,7 +4119,6 @@ declare namespace LocalJSX {
     interface KernDrawer {
         /**
           * Accessible label of the close button.
-          * @default 'Schliessen'
          */
         "closeLabel"?: string;
         /**
@@ -4419,31 +4172,19 @@ declare namespace LocalJSX {
         "form"?: string;
         "hint"?: string;
         "label"?: string;
-        /**
-          * @default 'Datei wählen'
-         */
         "labelChoose"?: string;
-        /**
-          * @default 'Dateien wählen'
-         */
         "labelChooseMultiple"?: string;
-        /**
-          * @default 'oder hierher ziehen'
-         */
         "labelDrop"?: string;
         /**
           * `{name}` is replaced.
-          * @default '{name} entfernen'
          */
         "labelRemove"?: string;
         /**
           * `{name}` and `{max}` are replaced.
-          * @default '«{name}» ist grösser als {max}.'
          */
         "labelTooLarge"?: string;
         /**
           * `{name}` is replaced.
-          * @default '«{name}» hat keinen erlaubten Dateityp.'
          */
         "labelWrongType"?: string;
         /**
@@ -4596,32 +4337,26 @@ declare namespace LocalJSX {
         "label"?: string;
         /**
           * Size of a range or block; `{n}` is replaced by the number.
-          * @default '{n} Adressen'
          */
         "labelCount"?: string;
         /**
           * Shown for text that is no IPv4 address, range or CIDR block.
-          * @default 'Keine gültige IPv4-Adresse'
          */
         "labelInvalid"?: string;
         /**
           * Shown for text that is no subnet mask when only `mask` is allowed.
-          * @default 'Keine gültige Subnetzmaske'
          */
         "labelInvalidMask"?: string;
         /**
           * Size of a mask; `{prefix}` is replaced by the prefix length, `{n}` by the number of hosts.
-          * @default '/{prefix} · {n} Hosts'
          */
         "labelMaskCount"?: string;
         /**
           * Shown for a form excluded by `allow`.
-          * @default 'Diese Form ist hier nicht erlaubt'
          */
         "labelNotAllowed"?: string;
         /**
           * Shown above `max-addresses`; `{n}` is replaced by it.
-          * @default 'Höchstens {n} Adressen'
          */
         "labelTooMany"?: string;
         /**
@@ -4707,42 +4442,19 @@ declare namespace LocalJSX {
           * @default []
          */
         "ignore"?: string[] | string;
-        /**
-          * @default 'neu'
-         */
         "labelAdded"?: string;
-        /**
-          * @default 'Nachher'
-         */
         "labelAfter"?: string;
         /**
           * Header of the column with the earlier value, e.g. the time of the snapshot.
-          * @default 'Vorher'
          */
         "labelBefore"?: string;
-        /**
-          * @default 'geändert'
-         */
         "labelChanged"?: string;
-        /**
-          * @default 'Art'
-         */
         "labelKind"?: string;
-        /**
-          * @default 'Keine Unterschiede'
-         */
         "labelNone"?: string;
-        /**
-          * @default 'Pfad'
-         */
         "labelPath"?: string;
-        /**
-          * @default 'entfernt'
-         */
         "labelRemoved"?: string;
         /**
           * `{n}`, `{changed}`, `{added}` and `{removed}` are replaced.
-          * @default '{n} Unterschiede: {changed} geändert, {added} neu, {removed} entfernt'
          */
         "labelSummary"?: string;
         /**
@@ -4793,7 +4505,6 @@ declare namespace LocalJSX {
         "href"?: string;
         /**
           * Read after the text of `external` links.
-          * @default 'öffnet in neuem Tab'
          */
         "labelExternal"?: string;
         /**
@@ -4818,7 +4529,6 @@ declare namespace LocalJSX {
     interface KernList {
         /**
           * Shown when there are no items; empty string shows nothing.
-          * @default 'Keine Einträge'
          */
         "empty"?: string;
         /**
@@ -4902,9 +4612,6 @@ declare namespace LocalJSX {
         "format"?: KernMacFormat;
         "hint"?: string;
         "label"?: string;
-        /**
-          * @default 'Keine gültige MAC-Adresse'
-         */
         "labelInvalid"?: string;
         /**
           * @default 'upper'
@@ -5034,38 +4741,18 @@ declare namespace LocalJSX {
      * item on screen.
      */
     interface KernPagination {
-        /**
-          * @default 'Seiten'
-         */
         "label"?: string;
-        /**
-          * @default 'Erste Seite'
-         */
         "labelFirst"?: string;
-        /**
-          * @default 'Letzte Seite'
-         */
         "labelLast"?: string;
-        /**
-          * @default 'Nächste Seite'
-         */
         "labelNext"?: string;
         /**
           * `{n}` is replaced.
-          * @default 'Seite {n}'
          */
         "labelPage"?: string;
-        /**
-          * @default 'Pro Seite'
-         */
         "labelPageSize"?: string;
-        /**
-          * @default 'Vorherige Seite'
-         */
         "labelPrevious"?: string;
         /**
           * `{from}`, `{to}` and `{total}` are replaced.
-          * @default '{from}–{to} von {total}'
          */
         "labelRange"?: string;
         /**
@@ -5206,13 +4893,7 @@ declare namespace LocalJSX {
         "form"?: string;
         "hint"?: string;
         "label"?: string;
-        /**
-          * @default 'Von'
-         */
         "labelFrom"?: string;
-        /**
-          * @default 'Bis'
-         */
         "labelTo"?: string;
         /**
           * BCP 47 locale for numbers; defaults to `<html lang>`, then the browser language.
@@ -5292,7 +4973,6 @@ declare namespace LocalJSX {
         "label"?: string;
         /**
           * Name of each star and the read-only rating; `{n}` and `{max}` are replaced.
-          * @default '{n} von {max} Sternen'
          */
         "labelValue"?: string;
         /**
@@ -5376,18 +5056,11 @@ declare namespace LocalJSX {
         "form"?: string;
         "hint"?: string;
         "label"?: string;
-        /**
-          * @default 'Keine Treffer'
-         */
         "labelNoResults"?: string;
         /**
           * Accessible name of a chip's ×; `{label}` is replaced.
-          * @default '{label} entfernen'
          */
         "labelRemove"?: string;
-        /**
-          * @default 'Suchen …'
-         */
         "labelSearch"?: string;
         /**
           * Several values; `value` becomes a `string[]`.
@@ -5435,9 +5108,6 @@ declare namespace LocalJSX {
           * @default false
          */
         "hideValue"?: boolean;
-        /**
-          * @default 'WLAN-Signal'
-         */
         "label"?: string;
         /**
           * RSSI in dBm (Gen2+ `wifi.rssi`, Gen1 `wifi_sta.rssi`).
@@ -5482,9 +5152,6 @@ declare namespace LocalJSX {
           * @default false
          */
         "fill"?: boolean;
-        /**
-          * @default 'Verlauf'
-         */
         "label"?: string;
         "max"?: number;
         "min"?: number;
@@ -5570,17 +5237,10 @@ declare namespace LocalJSX {
         "form"?: string;
         "hint"?: string;
         "label"?: string;
-        /**
-          * @default 'Verringern'
-         */
         "labelDecrease"?: string;
-        /**
-          * @default 'Erhöhen'
-         */
         "labelIncrease"?: string;
         /**
           * Shown for text that is not a number.
-          * @default 'Keine gültige Zahl'
          */
         "labelInvalid"?: string;
         /**
@@ -5723,22 +5383,18 @@ declare namespace LocalJSX {
         "getRowClass"?: (row: any, index: number) => string | undefined;
         /**
           * Data mode: shown when `rows` is empty.
-          * @default 'Keine Einträge'
          */
         "labelEmpty"?: string;
         /**
           * Data mode: accessible name of the toggle button of a row.
-          * @default 'Details anzeigen'
          */
         "labelExpandRow"?: string;
         /**
           * Accessible name of the header checkbox.
-          * @default 'Alle auswählen'
          */
         "labelSelectAll"?: string;
         /**
           * Accessible name of a row checkbox.
-          * @default 'Zeile auswählen'
          */
         "labelSelectRow"?: string;
         /**
@@ -5869,12 +5525,10 @@ declare namespace LocalJSX {
     interface KernThemeToggle {
         /**
           * Accessible label while light.
-          * @default 'Zu dunklem Design wechseln'
          */
         "labelDark"?: string;
         /**
           * Accessible label while dark.
-          * @default 'Zu hellem Design wechseln'
          */
         "labelLight"?: string;
         /**
@@ -5946,30 +5600,14 @@ declare namespace LocalJSX {
          */
         "hour12"?: boolean;
         "label"?: string;
-        /**
-          * @default 'Stunden'
-         */
         "labelHour"?: string;
-        /**
-          * @default 'Zeit wählen'
-         */
         "labelList"?: string;
-        /**
-          * @default 'Minuten'
-         */
         "labelMinute"?: string;
         /**
           * Shown for a time outside min/max.
-          * @default 'Zeit nicht erlaubt'
          */
         "labelOutOfRange"?: string;
-        /**
-          * @default 'Vormittag/Nachmittag'
-         */
         "labelPeriod"?: string;
-        /**
-          * @default 'Sekunden'
-         */
         "labelSecond"?: string;
         /**
           * Button with a list of times.
@@ -6031,9 +5669,6 @@ declare namespace LocalJSX {
           * Text of an optional action, e.g. „Rückgängig“.
          */
         "actionLabel"?: string;
-        /**
-          * @default 'Schliessen'
-         */
         "closeLabel"?: string;
         /**
           * Milliseconds until it closes itself; 0 keeps it until closed.
@@ -6103,7 +5738,6 @@ declare namespace LocalJSX {
         "homeHref"?: string;
         /**
           * Accessible name of the navigation.
-          * @default 'Hauptnavigation'
          */
         "navLabel"?: string;
         /**

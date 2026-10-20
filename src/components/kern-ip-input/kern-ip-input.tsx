@@ -1,6 +1,7 @@
 import { AttachInternals, Component, Element, Event, EventEmitter, Host, Method, Prop, State, Watch, h } from '@stencil/core';
 import { resolveLocale } from '../../utils/datetime';
 import { parseIpv4, parseMask, type KernIpKind, type KernIpv4, type KernMask } from '../../utils/ip';
+import { kernTexts } from '../../utils/i18n';
 
 type Kind = KernIpKind | 'mask';
 /** A parsed address, range or block, or a subnet mask with its normalised text. */
@@ -52,17 +53,18 @@ export class KernIpInput {
   /** Accessible name when there is no visible label. */
   @Prop() ariaLabelText?: string;
   /** Shown for text that is no IPv4 address, range or CIDR block. */
-  @Prop() labelInvalid = 'Keine gültige IPv4-Adresse';
+  @Prop() labelInvalid?: string;
   /** Shown for a form excluded by `allow`. */
-  @Prop() labelNotAllowed = 'Diese Form ist hier nicht erlaubt';
+  @Prop() labelNotAllowed?: string;
   /** Shown above `max-addresses`; `{n}` is replaced by it. */
-  @Prop() labelTooMany = 'Höchstens {n} Adressen';
+  @Prop() labelTooMany?: string;
   /** Size of a range or block; `{n}` is replaced by the number. */
-  @Prop() labelCount = '{n} Adressen';
+  @Prop() labelCount?: string;
   /** Shown for text that is no subnet mask when only `mask` is allowed. */
-  @Prop() labelInvalidMask = 'Keine gültige Subnetzmaske';
+  @Prop() labelInvalidMask?: string;
   /** Size of a mask; `{prefix}` is replaced by the prefix length, `{n}` by the number of hosts. */
-  @Prop() labelMaskCount = '/{prefix} · {n} Hosts';
+  @Prop() labelMaskCount?: string;
+  private t = kernTexts(this, 'kern-ip-input', 'sync');
 
   /** On every keystroke, with the raw text. */
   @Event() kernInput!: EventEmitter<{ value: string }>;
@@ -80,7 +82,7 @@ export class KernIpInput {
   }>;
 
   @State() text = '';
-  /** Own validation message, shown when `error` is not set. */
+  /** Name of the text property of the own validation message, shown when `error` is not set. */
   @State() problem?: string;
 
   private input?: HTMLInputElement;
@@ -119,7 +121,7 @@ export class KernIpInput {
   @Watch('problem')
   sync() {
     this.internals?.setFormValue?.(this.value ?? '');
-    const message = this.error ?? this.problem;
+    const message = this.error ?? this.problemText();
     if (message) this.internals?.setValidity?.({ customError: true }, message, this.input);
     else if (this.required && !this.value) this.internals?.setValidity?.({ valueMissing: true }, 'required', this.input);
     else this.internals?.setValidity?.({});
@@ -151,7 +153,7 @@ export class KernIpInput {
   }
 
   private get invalid(): string {
-    return this.onlyMask ? this.labelInvalidMask : this.labelInvalid;
+    return this.onlyMask ? 'labelInvalidMask' : 'labelInvalid';
   }
 
   /** A mask when `mask` is allowed and the text is one, else an address, range or block. */
@@ -166,10 +168,15 @@ export class KernIpInput {
 
   private check(ip: Parsed | null): string | undefined {
     if (!ip) return undefined;
-    if (!this.allowed.includes(ip.kind)) return this.labelNotAllowed;
+    if (!this.allowed.includes(ip.kind)) return 'labelNotAllowed';
     if (ip.kind === 'mask') return undefined;
-    if (this.maxAddresses && ip.count > this.maxAddresses) return this.labelTooMany.replace('{n}', this.number(this.maxAddresses));
+    if (this.maxAddresses && ip.count > this.maxAddresses) return 'labelTooMany';
     return undefined;
+  }
+
+  /** The own validation message in the current language; `problem` holds the text property's name. */
+  private problemText(): string | undefined {
+    return this.problem && this.t(this.problem).replace('{n}', this.number(this.maxAddresses ?? 0));
   }
 
   private number(n: number): string {
@@ -210,7 +217,7 @@ export class KernIpInput {
   };
 
   render() {
-    const message = this.error ?? this.problem;
+    const message = this.error ?? this.problemText();
     const describedBy = message ? `${this.uid}-error` : this.hint ? `${this.uid}-hint` : undefined;
     const ip = this.parse(this.value ?? '');
     const showCount = !this.hideCount && ip && ip.kind !== 'single' && ip.value === this.text.trim();
@@ -249,8 +256,8 @@ export class KernIpInput {
           {showCount && (
             <span class="count" id={`${this.uid}-count`} title={ip.kind === 'mask' ? ip.mask : `${ip.first} – ${ip.last}`}>
               {ip.kind === 'mask'
-                ? this.labelMaskCount.replace('{prefix}', String(ip.prefix)).replace('{n}', this.number(ip.hosts))
-                : this.labelCount.replace('{n}', this.number(ip.count))}
+                ? this.t('labelMaskCount').replace('{prefix}', String(ip.prefix)).replace('{n}', this.number(ip.hosts))
+                : this.t('labelCount').replace('{n}', this.number(ip.count))}
             </span>
           )}
         </div>

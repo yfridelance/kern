@@ -30,7 +30,7 @@ describe('kern-calendar', () => {
 
   it('honours first-day-of-week and week numbers', async () => {
     const { root } = await setup(`value="2026-10-19" first-day-of-week="0" show-week-numbers`);
-    expect(Array.from(root.querySelectorAll('thead th')).map((th) => th.textContent)).toEqual(['KW', 'So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa']);
+    expect(Array.from(root.querySelectorAll('thead th')).map((th) => th.textContent)).toEqual(['Wk', 'So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa']);
     expect(root.querySelector('tbody td.week')!.textContent).toBe('39');
   });
 

@@ -42,7 +42,7 @@ With `range`, `value` is `"from/to"` and the handles cannot cross. `label-from` 
 
 ```html
 <div style="max-width:360px">
-  <kern-range name="window" label="Active between" range value="8/18" min="0" max="24" unit="h" marks="0,6,12,18,24" hint="No notifications outside this window" label-from="From" label-to="To"></kern-range>
+  <kern-range name="window" label="Active between" range value="8/18" min="0" max="24" unit="h" marks="0,6,12,18,24" hint="No notifications outside this window"></kern-range>
 </div>
 ```
 
@@ -57,8 +57,8 @@ With `range`, `value` is `"from/to"` and the handles cannot cross. `label-from` 
 | `error`         | `error`           |                                                                                  | `string \| undefined` | `undefined` |
 | `hint`          | `hint`            |                                                                                  | `string \| undefined` | `undefined` |
 | `label`         | `label`           |                                                                                  | `string \| undefined` | `undefined` |
-| `labelFrom`     | `label-from`      |                                                                                  | `string`              | `'Von'`     |
-| `labelTo`       | `label-to`        |                                                                                  | `string`              | `'Bis'`     |
+| `labelFrom`     | `label-from`      |                                                                                  | `string \| undefined` | `undefined` |
+| `labelTo`       | `label-to`        |                                                                                  | `string \| undefined` | `undefined` |
 | `locale`        | `locale`          | BCP 47 locale for numbers; defaults to `<html lang>`, then the browser language. | `string \| undefined` | `undefined` |
 | `marks`         | `marks`           | Ticks with labels, e.g. `0,25,50,75,100`.                                        | `number[] \| string`  | `''`        |
 | `max`           | `max`             |                                                                                  | `number`              | `100`       |

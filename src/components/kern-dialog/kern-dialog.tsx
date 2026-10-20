@@ -1,5 +1,6 @@
 import { Component, Element, Event, EventEmitter, Host, Method, Prop, State, Watch, h } from '@stencil/core';
 import { Icon } from '../../utils/icons';
+import { kernTexts } from '../../utils/i18n';
 
 /**
  * Modal dialog for confirmations and short forms, on the native `<dialog>`.
@@ -23,7 +24,8 @@ export class KernDialog {
   /** Shows the close button and allows Escape. */
   @Prop() dismissible = true;
   /** Accessible label of the close button. */
-  @Prop() closeLabel = 'Schliessen';
+  @Prop() closeLabel?: string;
+  private t = kernTexts(this, 'kern-dialog');
   /** Panel width in px. */
   @Prop() width = 520;
 
@@ -91,7 +93,7 @@ export class KernDialog {
             <header>
               {this.heading && <h2>{this.heading}</h2>}
               {this.dismissible && (
-                <kern-button variant="ghost" size="sm" icon-only label={this.closeLabel} onClick={() => this.close('cancel')}>
+                <kern-button variant="ghost" size="sm" icon-only label={this.t('closeLabel')} onClick={() => this.close('cancel')}>
                   <Icon name="close" />
                 </kern-button>
               )}

@@ -2,6 +2,7 @@ import { AttachInternals, Component, Element, Event, EventEmitter, Host, Method,
 import { Icon } from '../../utils/icons';
 import { positionPopup } from '../../utils/popover';
 import { dayPeriods, isoTime, parseTime, resolveLocale, timeSteps, uses12h } from '../../utils/datetime';
+import { kernTexts } from '../../utils/i18n';
 
 let nextId = 0;
 
@@ -54,13 +55,14 @@ export class KernTimePicker {
   @Prop() required = false;
   /** Accessible name when there is no visible label. */
   @Prop() ariaLabelText?: string;
-  @Prop() labelHour = 'Stunden';
-  @Prop() labelMinute = 'Minuten';
-  @Prop() labelSecond = 'Sekunden';
-  @Prop() labelPeriod = 'Vormittag/Nachmittag';
-  @Prop() labelList = 'Zeit wählen';
+  @Prop() labelHour?: string;
+  @Prop() labelMinute?: string;
+  @Prop() labelSecond?: string;
+  @Prop() labelPeriod?: string;
+  @Prop() labelList?: string;
   /** Shown for a time outside min/max. */
-  @Prop() labelOutOfRange = 'Zeit nicht erlaubt';
+  @Prop() labelOutOfRange?: string;
+  private t = kernTexts(this, 'kern-time-picker', 'sync');
 
   /** When the time changes (complete, or cleared). */
   @Event() kernChange!: EventEmitter<{ value: string }>;
@@ -70,6 +72,7 @@ export class KernTimePicker {
   @State() second: number | null = null;
   @State() open = false;
   @State() active = -1;
+  /** Name of the text property of the own validation message, shown when `error` is not set. */
   @State() problem?: string;
 
   private segs: Partial<Record<Segment, HTMLElement>> = {};
@@ -125,7 +128,7 @@ export class KernTimePicker {
   @Watch('problem')
   sync() {
     this.internals?.setFormValue?.(this.value ?? '');
-    const message = this.error ?? this.problem;
+    const message = this.error ?? this.problemText();
     const anchor = this.segs.hour;
     if (message) this.internals?.setValidity?.({ customError: true }, message, anchor);
     else if (this.required && !this.value) this.internals?.setValidity?.({ valueMissing: true }, 'required', anchor);
@@ -176,7 +179,7 @@ export class KernTimePicker {
     if (s === null) return undefined;
     const lo = parseTime(this.min);
     const hi = parseTime(this.max);
-    return (lo !== null && s < lo) || (hi !== null && s > hi) ? this.labelOutOfRange : undefined;
+    return (lo !== null && s < lo) || (hi !== null && s > hi) ? 'labelOutOfRange' : undefined;
   }
 
   /** Segments → value; emits when it changed. */
@@ -399,7 +402,7 @@ export class KernTimePicker {
 
   private renderSegment(seg: Segment) {
     const text = this.display(seg);
-    const labels = { hour: this.labelHour, minute: this.labelMinute, second: this.labelSecond, period: this.labelPeriod };
+    const labels = { hour: this.t('labelHour'), minute: this.t('labelMinute'), second: this.t('labelSecond'), period: this.t('labelPeriod') };
     const range = seg === 'hour' ? (this.twelve ? [1, 12] : [0, 23]) : seg === 'period' ? undefined : [0, 59];
     return (
       <span
@@ -423,8 +426,13 @@ export class KernTimePicker {
     );
   }
 
+  /** The own validation message in the current language; `problem` holds the text property's name. */
+  private problemText(): string | undefined {
+    return this.problem && this.t(this.problem);
+  }
+
   render() {
-    const message = this.error ?? this.problem;
+    const message = this.error ?? this.problemText();
     const describedBy = message ? `${this.uid}-error` : this.hint ? `${this.uid}-hint` : undefined;
     const labelId = this.label ? `${this.uid}-label` : undefined;
     const opts = this.list ? this.options : [];
@@ -460,8 +468,8 @@ export class KernTimePicker {
             <button
               type="button"
               class="icon open"
-              aria-label={this.labelList}
-              title={this.labelList}
+              aria-label={this.t('labelList')}
+              title={this.t('labelList')}
               aria-haspopup="listbox"
               aria-expanded={this.open ? 'true' : 'false'}
               disabled={this.disabled || this.readonly}

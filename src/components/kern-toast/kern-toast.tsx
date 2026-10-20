@@ -1,5 +1,6 @@
 import { Component, Element, Event, EventEmitter, Host, Method, Prop, h } from '@stencil/core';
 import { Icon } from '../../utils/icons';
+import { kernTexts } from '../../utils/i18n';
 
 const GLYPH = { neutral: 'i', info: 'i', ok: '✓', warn: '!', danger: '×' } as const;
 
@@ -27,7 +28,8 @@ export class KernToast {
   @Prop() actionLabel?: string;
   /** Milliseconds until it closes itself; 0 keeps it until closed. */
   @Prop() duration = 5000;
-  @Prop() closeLabel = 'Schliessen';
+  @Prop() closeLabel?: string;
+  private t = kernTexts(this, 'kern-toast');
 
   /** The action was clicked (the toast then closes). */
   @Event() kernAction!: EventEmitter<void>;
@@ -107,7 +109,7 @@ export class KernToast {
             {this.actionLabel}
           </button>
         )}
-        <button type="button" class="close" aria-label={this.closeLabel} title={this.closeLabel} onClick={() => this.close('close')}>
+        <button type="button" class="close" aria-label={this.t('closeLabel')} title={this.t('closeLabel')} onClick={() => this.close('close')}>
           <Icon name="close" />
         </button>
       </Host>

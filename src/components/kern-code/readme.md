@@ -90,18 +90,18 @@ A code block with copy button, highlighted for `shell`, `yaml`, `json`, `js`/`ts
 
 ## Properties
 
-| Property      | Attribute      | Description                                    | Type                                                                       | Default      |
-| ------------- | -------------- | ---------------------------------------------- | -------------------------------------------------------------------------- | ------------ |
-| `code`        | `code`         | The code; defaults to the text content.        | `string \| undefined`                                                      | `undefined`  |
-| `heading`     | `heading`      | Title above the block, e.g. a file name.       | `string \| undefined`                                                      | `undefined`  |
-| `inline`      | `inline`       | In running text, without copy button.          | `boolean`                                                                  | `false`      |
-| `labelCopied` | `label-copied` |                                                | `string`                                                                   | `'Kopiert'`  |
-| `labelCopy`   | `label-copy`   |                                                | `string`                                                                   | `'Kopieren'` |
-| `language`    | `language`     |                                                | `"html" \| "ini" \| "js" \| "json" \| "shell" \| "text" \| "ts" \| "yaml"` | `'text'`     |
-| `lineNumbers` | `line-numbers` |                                                | `boolean`                                                                  | `false`      |
-| `maxHeight`   | `max-height`   | Scroll beyond this height, e.g. `240px`.       | `string \| undefined`                                                      | `undefined`  |
-| `noCopy`      | `no-copy`      | Hide the copy button.                          | `boolean`                                                                  | `false`      |
-| `wrap`        | `wrap`         | Wrap long lines instead of scrolling sideways. | `boolean`                                                                  | `false`      |
+| Property      | Attribute      | Description                                    | Type                                                                       | Default     |
+| ------------- | -------------- | ---------------------------------------------- | -------------------------------------------------------------------------- | ----------- |
+| `code`        | `code`         | The code; defaults to the text content.        | `string \| undefined`                                                      | `undefined` |
+| `heading`     | `heading`      | Title above the block, e.g. a file name.       | `string \| undefined`                                                      | `undefined` |
+| `inline`      | `inline`       | In running text, without copy button.          | `boolean`                                                                  | `false`     |
+| `labelCopied` | `label-copied` |                                                | `string \| undefined`                                                      | `undefined` |
+| `labelCopy`   | `label-copy`   |                                                | `string \| undefined`                                                      | `undefined` |
+| `language`    | `language`     |                                                | `"html" \| "ini" \| "js" \| "json" \| "shell" \| "text" \| "ts" \| "yaml"` | `'text'`    |
+| `lineNumbers` | `line-numbers` |                                                | `boolean`                                                                  | `false`     |
+| `maxHeight`   | `max-height`   | Scroll beyond this height, e.g. `240px`.       | `string \| undefined`                                                      | `undefined` |
+| `noCopy`      | `no-copy`      | Hide the copy button.                          | `boolean`                                                                  | `false`     |
+| `wrap`        | `wrap`         | Wrap long lines instead of scrolling sideways. | `boolean`                                                                  | `false`     |
 
 
 ## Events

@@ -4,7 +4,7 @@
 
 ```html
 <div style="max-width:280px">
-  <kern-date-picker name="due" label="Maintenance on" required hint="Weekdays only" min="2026-10-01" max="2026-12-31" show-week-numbers locale="en-GB" label-out-of-range="Date not allowed">
+  <kern-date-picker name="due" label="Maintenance on" required hint="Weekdays only" min="2026-10-01" max="2026-12-31" show-week-numbers locale="en-GB">
     <kern-button slot="footer" size="sm" variant="ghost">Today</kern-button>
   </kern-date-picker>
 </div>

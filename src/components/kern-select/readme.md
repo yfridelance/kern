@@ -111,24 +111,24 @@ select.value = '192.168.1.1';
 
 ## Properties
 
-| Property         | Attribute          | Description                                                                               | Type                        | Default               |
-| ---------------- | ------------------ | ----------------------------------------------------------------------------------------- | --------------------------- | --------------------- |
-| `ariaLabelText`  | `aria-label-text`  | Accessible name when there is no visible label.                                           | `string \| undefined`       | `undefined`           |
-| `disabled`       | `disabled`         |                                                                                           | `boolean`                   | `false`               |
-| `error`          | `error`            |                                                                                           | `string \| undefined`       | `undefined`           |
-| `hint`           | `hint`             |                                                                                           | `string \| undefined`       | `undefined`           |
-| `label`          | `label`            |                                                                                           | `string \| undefined`       | `undefined`           |
-| `labelNoResults` | `label-no-results` |                                                                                           | `string`                    | `'Keine Treffer'`     |
-| `labelRemove`    | `label-remove`     | Accessible name of a chip's ×; `{label}` is replaced.                                     | `string`                    | `'{label} entfernen'` |
-| `labelSearch`    | `label-search`     |                                                                                           | `string`                    | `'Suchen …'`          |
-| `multiple`       | `multiple`         | Several values; `value` becomes a `string[]`.                                             | `boolean`                   | `false`               |
-| `name`           | `name`             |                                                                                           | `string \| undefined`       | `undefined`           |
-| `options`        | --                 | Takes precedence over child `<option>` elements.                                          | `KernOption[] \| undefined` | `undefined`           |
-| `placeholder`    | `placeholder`      | Shown when no option is selected.                                                         | `string \| undefined`       | `undefined`           |
-| `required`       | `required`         |                                                                                           | `boolean`                   | `false`               |
-| `searchable`     | `searchable`       | Search field in the list; filters options by label.                                       | `boolean`                   | `false`               |
-| `size`           | `size`             |                                                                                           | `"md" \| "sm"`              | `'md'`                |
-| `value`          | `value`            | The picked value; with `multiple` a `string[]` (a comma-separated attribute is accepted). | `string \| string[]`        | `''`                  |
+| Property         | Attribute          | Description                                                                               | Type                        | Default     |
+| ---------------- | ------------------ | ----------------------------------------------------------------------------------------- | --------------------------- | ----------- |
+| `ariaLabelText`  | `aria-label-text`  | Accessible name when there is no visible label.                                           | `string \| undefined`       | `undefined` |
+| `disabled`       | `disabled`         |                                                                                           | `boolean`                   | `false`     |
+| `error`          | `error`            |                                                                                           | `string \| undefined`       | `undefined` |
+| `hint`           | `hint`             |                                                                                           | `string \| undefined`       | `undefined` |
+| `label`          | `label`            |                                                                                           | `string \| undefined`       | `undefined` |
+| `labelNoResults` | `label-no-results` |                                                                                           | `string \| undefined`       | `undefined` |
+| `labelRemove`    | `label-remove`     | Accessible name of a chip's ×; `{label}` is replaced.                                     | `string \| undefined`       | `undefined` |
+| `labelSearch`    | `label-search`     |                                                                                           | `string \| undefined`       | `undefined` |
+| `multiple`       | `multiple`         | Several values; `value` becomes a `string[]`.                                             | `boolean`                   | `false`     |
+| `name`           | `name`             |                                                                                           | `string \| undefined`       | `undefined` |
+| `options`        | --                 | Takes precedence over child `<option>` elements.                                          | `KernOption[] \| undefined` | `undefined` |
+| `placeholder`    | `placeholder`      | Shown when no option is selected.                                                         | `string \| undefined`       | `undefined` |
+| `required`       | `required`         |                                                                                           | `boolean`                   | `false`     |
+| `searchable`     | `searchable`       | Search field in the list; filters options by label.                                       | `boolean`                   | `false`     |
+| `size`           | `size`             |                                                                                           | `"md" \| "sm"`              | `'md'`      |
+| `value`          | `value`            | The picked value; with `multiple` a `string[]` (a comma-separated attribute is accepted). | `string \| string[]`        | `''`        |
 
 
 ## Events

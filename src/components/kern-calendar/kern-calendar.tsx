@@ -1,5 +1,6 @@
 import { Component, Element, Event, EventEmitter, Host, Method, Prop, State, Watch, h } from '@stencil/core';
 import { Icon } from '../../utils/icons';
+import { kernTexts } from '../../utils/i18n';
 import {
   addDays,
   addMonths,
@@ -56,11 +57,12 @@ export class KernCalendar {
   /** BCP 47 locale; defaults to `<html lang>`, then the browser language. */
   @Prop() locale?: string;
   /** Accessible name of the calendar. */
-  @Prop() label = 'Kalender';
-  @Prop() labelPrev = 'Vorheriger Monat';
-  @Prop() labelNext = 'Nächster Monat';
+  @Prop() label?: string;
+  @Prop() labelPrev?: string;
+  @Prop() labelNext?: string;
   /** Column header of the week numbers. */
-  @Prop() labelWeek = 'KW';
+  @Prop() labelWeek?: string;
+  private t = kernTexts(this, 'kern-calendar');
 
   /** A date was picked (`{ value }`), or a range completed (`{ start, end }`). */
   @Event() kernChange!: EventEmitter<{ value: string } | { start: string; end: string }>;
@@ -233,7 +235,7 @@ export class KernCalendar {
       <div class="month">
         <div class="header">
           {isFirst ? (
-            <button type="button" class="nav prev" aria-label={this.labelPrev} title={this.labelPrev} disabled={prevDisabled} onClick={() => this.step(-1)}>
+            <button type="button" class="nav prev" aria-label={this.t('labelPrev')} title={this.t('labelPrev')} disabled={prevDisabled} onClick={() => this.step(-1)}>
               <Icon name="chevron-left" />
             </button>
           ) : (
@@ -243,7 +245,7 @@ export class KernCalendar {
             {new Intl.DateTimeFormat(loc, { month: 'long', year: 'numeric' }).format(first)}
           </span>
           {isLast ? (
-            <button type="button" class="nav next" aria-label={this.labelNext} title={this.labelNext} disabled={nextDisabled} onClick={() => this.step(1)}>
+            <button type="button" class="nav next" aria-label={this.t('labelNext')} title={this.t('labelNext')} disabled={nextDisabled} onClick={() => this.step(1)}>
               <Icon name="chevron-right" />
             </button>
           ) : (
@@ -254,8 +256,8 @@ export class KernCalendar {
           <thead>
             <tr>
               {this.showWeekNumbers && (
-                <th scope="col" class="week" abbr={this.labelWeek}>
-                  {this.labelWeek}
+                <th scope="col" class="week" abbr={this.t('labelWeek')}>
+                  {this.t('labelWeek')}
                 </th>
               )}
               {days.slice(0, 7).map((iso) => {
@@ -316,7 +318,7 @@ export class KernCalendar {
     const loc = resolveLocale(this.locale);
     const today = todayIso();
     return (
-      <Host role="group" aria-label={this.label}>
+      <Host role="group" aria-label={this.t('label')}>
         <div class="months" onKeyDown={this.onKey}>
           {Array.from({ length: this.months }, (_, i) => this.renderMonth(i, today, loc))}
         </div>

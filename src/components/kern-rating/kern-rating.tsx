@@ -1,5 +1,6 @@
 import { AttachInternals, Component, Element, Event, EventEmitter, Host, Method, Prop, State, Watch, h } from '@stencil/core';
 import { Icon } from '../../utils/icons';
+import { kernTexts } from '../../utils/i18n';
 
 let nextId = 0;
 
@@ -38,7 +39,8 @@ export class KernRating {
   /** Accessible name when there is no visible label. */
   @Prop() ariaLabelText?: string;
   /** Name of each star and the read-only rating; `{n}` and `{max}` are replaced. */
-  @Prop() labelValue = '{n} von {max} Sternen';
+  @Prop() labelValue?: string;
+  private t = kernTexts(this, 'kern-rating');
 
   /** When the rating changes. */
   @Event() kernChange!: EventEmitter<{ value: number }>;
@@ -90,7 +92,7 @@ export class KernRating {
   }
 
   private text(n: number): string {
-    return this.labelValue.replace('{n}', String(n)).replace('{max}', String(this.max));
+    return this.t('labelValue').replace('{n}', String(n)).replace('{max}', String(this.max));
   }
 
   private set(n: number, focus = false) {

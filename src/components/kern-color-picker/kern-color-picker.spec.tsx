@@ -34,7 +34,7 @@ describe('kern-color-picker', () => {
     expect(el.value).toBe('#3cc8cc');
     await type('türkis');
     expect(el.value).toBe('#3cc8cc');
-    expect(root.querySelector('.error')!.textContent).toBe('Keine gültige Farbe');
+    expect(root.querySelector('.error')!.textContent).toBe('Not a valid color');
     expect(changes).toEqual(['#3cc8cc']);
   });
 

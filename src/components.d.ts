@@ -769,6 +769,75 @@ export namespace Components {
         "required": boolean;
     }
     /**
+     * Lays out cards, tiles and form groups in columns. Without `columns` it fits as many columns of at least `min` as
+     * there is room for, without breakpoints. With `columns` it has a fixed number of equal columns; `columns-sm`,
+     * `columns-md` and `columns-lg` change it from 640, 960 and 1280 px, and `kern-grid-item` children span several.
+     * Breakpoints are measured on the grid itself (container queries), not on the window, so a grid in a sidebar, a
+     * drawer or half a page switches by the room it really has.
+     */
+    interface KernGrid {
+        /**
+          * `stretch` makes items in a row equally high (cards); `start` keeps their own height.
+          * @default 'stretch'
+         */
+        "align": 'stretch' | 'start';
+        /**
+          * Fixed number of columns; switches from auto mode to columns.
+         */
+        "columns"?: number;
+        /**
+          * Columns from 1280 px grid width.
+         */
+        "columnsLg"?: number;
+        /**
+          * Columns from 960 px grid width.
+         */
+        "columnsMd"?: number;
+        /**
+          * Columns from 640 px grid width.
+         */
+        "columnsSm"?: number;
+        /**
+          * Auto mode: stretch few items over the whole width instead of keeping empty columns.
+          * @default false
+         */
+        "fit": boolean;
+        /**
+          * Space between items: `sm` 12 px, `md` 16 px, `lg` 24 px.
+          * @default 'md'
+         */
+        "gap": 'sm' | 'md' | 'lg';
+        /**
+          * Smallest column width in auto mode (without `columns`), e.g. `240px` or `16rem`.
+          * @default '240px'
+         */
+        "min": string;
+    }
+    /**
+     * An item of a `kern-grid` with `columns` that spans several columns. `span-sm`, `span-md` and `span-lg` change the
+     * span from 640, 960 and 1280 px grid width, e.g. `span="12" span-md="8"`: full width on small grids, two thirds
+     * from 960 px. A span larger than the columns is cut to the row.
+     */
+    interface KernGridItem {
+        /**
+          * Columns spanned.
+          * @default 1
+         */
+        "span": number;
+        /**
+          * Columns spanned from 1280 px grid width.
+         */
+        "spanLg"?: number;
+        /**
+          * Columns spanned from 960 px grid width.
+         */
+        "spanMd"?: number;
+        /**
+          * Columns spanned from 640 px grid width.
+         */
+        "spanSm"?: number;
+    }
+    /**
      * One of Kern's glyphs (Lucide style), a brand icon (`brand-github`, `brand-home-assistant` …, from Simple Icons) or a
      * country flag (`flag-ch`, `flag-gb` …, from flag-icons). Sized by `font-size` (1em high) and coloured by
      * `currentColor`, so it fits text and buttons; `brand-color` shows a brand icon in its official colour, flags are
@@ -2728,6 +2797,30 @@ declare global {
         new (): HTMLKernFileInputElement;
     };
     /**
+     * Lays out cards, tiles and form groups in columns. Without `columns` it fits as many columns of at least `min` as
+     * there is room for, without breakpoints. With `columns` it has a fixed number of equal columns; `columns-sm`,
+     * `columns-md` and `columns-lg` change it from 640, 960 and 1280 px, and `kern-grid-item` children span several.
+     * Breakpoints are measured on the grid itself (container queries), not on the window, so a grid in a sidebar, a
+     * drawer or half a page switches by the room it really has.
+     */
+    interface HTMLKernGridElement extends Components.KernGrid, HTMLStencilElement {
+    }
+    var HTMLKernGridElement: {
+        prototype: HTMLKernGridElement;
+        new (): HTMLKernGridElement;
+    };
+    /**
+     * An item of a `kern-grid` with `columns` that spans several columns. `span-sm`, `span-md` and `span-lg` change the
+     * span from 640, 960 and 1280 px grid width, e.g. `span="12" span-md="8"`: full width on small grids, two thirds
+     * from 960 px. A span larger than the columns is cut to the row.
+     */
+    interface HTMLKernGridItemElement extends Components.KernGridItem, HTMLStencilElement {
+    }
+    var HTMLKernGridItemElement: {
+        prototype: HTMLKernGridItemElement;
+        new (): HTMLKernGridItemElement;
+    };
+    /**
      * One of Kern's glyphs (Lucide style), a brand icon (`brand-github`, `brand-home-assistant` …, from Simple Icons) or a
      * country flag (`flag-ch`, `flag-gb` …, from flag-icons). Sized by `font-size` (1em high) and coloured by
      * `currentColor`, so it fits text and buttons; `brand-color` shows a brand icon in its official colour, flags are
@@ -3483,6 +3576,8 @@ declare global {
         "kern-dialog": HTMLKernDialogElement;
         "kern-drawer": HTMLKernDrawerElement;
         "kern-file-input": HTMLKernFileInputElement;
+        "kern-grid": HTMLKernGridElement;
+        "kern-grid-item": HTMLKernGridItemElement;
         "kern-icon": HTMLKernIconElement;
         "kern-input": HTMLKernInputElement;
         "kern-ip-input": HTMLKernIpInputElement;
@@ -4293,6 +4388,75 @@ declare namespace LocalJSX {
           * @default false
          */
         "required"?: boolean;
+    }
+    /**
+     * Lays out cards, tiles and form groups in columns. Without `columns` it fits as many columns of at least `min` as
+     * there is room for, without breakpoints. With `columns` it has a fixed number of equal columns; `columns-sm`,
+     * `columns-md` and `columns-lg` change it from 640, 960 and 1280 px, and `kern-grid-item` children span several.
+     * Breakpoints are measured on the grid itself (container queries), not on the window, so a grid in a sidebar, a
+     * drawer or half a page switches by the room it really has.
+     */
+    interface KernGrid {
+        /**
+          * `stretch` makes items in a row equally high (cards); `start` keeps their own height.
+          * @default 'stretch'
+         */
+        "align"?: 'stretch' | 'start';
+        /**
+          * Fixed number of columns; switches from auto mode to columns.
+         */
+        "columns"?: number;
+        /**
+          * Columns from 1280 px grid width.
+         */
+        "columnsLg"?: number;
+        /**
+          * Columns from 960 px grid width.
+         */
+        "columnsMd"?: number;
+        /**
+          * Columns from 640 px grid width.
+         */
+        "columnsSm"?: number;
+        /**
+          * Auto mode: stretch few items over the whole width instead of keeping empty columns.
+          * @default false
+         */
+        "fit"?: boolean;
+        /**
+          * Space between items: `sm` 12 px, `md` 16 px, `lg` 24 px.
+          * @default 'md'
+         */
+        "gap"?: 'sm' | 'md' | 'lg';
+        /**
+          * Smallest column width in auto mode (without `columns`), e.g. `240px` or `16rem`.
+          * @default '240px'
+         */
+        "min"?: string;
+    }
+    /**
+     * An item of a `kern-grid` with `columns` that spans several columns. `span-sm`, `span-md` and `span-lg` change the
+     * span from 640, 960 and 1280 px grid width, e.g. `span="12" span-md="8"`: full width on small grids, two thirds
+     * from 960 px. A span larger than the columns is cut to the row.
+     */
+    interface KernGridItem {
+        /**
+          * Columns spanned.
+          * @default 1
+         */
+        "span"?: number;
+        /**
+          * Columns spanned from 1280 px grid width.
+         */
+        "spanLg"?: number;
+        /**
+          * Columns spanned from 960 px grid width.
+         */
+        "spanMd"?: number;
+        /**
+          * Columns spanned from 640 px grid width.
+         */
+        "spanSm"?: number;
     }
     /**
      * One of Kern's glyphs (Lucide style), a brand icon (`brand-github`, `brand-home-assistant` …, from Simple Icons) or a
@@ -6083,6 +6247,22 @@ declare namespace LocalJSX {
         "labelTooLarge": string;
         "labelWrongType": string;
     }
+    interface KernGridAttributes {
+        "min": string;
+        "fit": boolean;
+        "columns": number;
+        "columnsSm": number;
+        "columnsMd": number;
+        "columnsLg": number;
+        "gap": 'sm' | 'md' | 'lg';
+        "align": 'stretch' | 'start';
+    }
+    interface KernGridItemAttributes {
+        "span": number;
+        "spanSm": number;
+        "spanMd": number;
+        "spanLg": number;
+    }
     interface KernIconAttributes {
         "name": IconName;
         "label": string;
@@ -6510,6 +6690,8 @@ declare namespace LocalJSX {
         "kern-dialog": Omit<KernDialog, keyof KernDialogAttributes> & { [K in keyof KernDialog & keyof KernDialogAttributes]?: KernDialog[K] } & { [K in keyof KernDialog & keyof KernDialogAttributes as `attr:${K}`]?: KernDialogAttributes[K] } & { [K in keyof KernDialog & keyof KernDialogAttributes as `prop:${K}`]?: KernDialog[K] };
         "kern-drawer": Omit<KernDrawer, keyof KernDrawerAttributes> & { [K in keyof KernDrawer & keyof KernDrawerAttributes]?: KernDrawer[K] } & { [K in keyof KernDrawer & keyof KernDrawerAttributes as `attr:${K}`]?: KernDrawerAttributes[K] } & { [K in keyof KernDrawer & keyof KernDrawerAttributes as `prop:${K}`]?: KernDrawer[K] };
         "kern-file-input": Omit<KernFileInput, keyof KernFileInputAttributes> & { [K in keyof KernFileInput & keyof KernFileInputAttributes]?: KernFileInput[K] } & { [K in keyof KernFileInput & keyof KernFileInputAttributes as `attr:${K}`]?: KernFileInputAttributes[K] } & { [K in keyof KernFileInput & keyof KernFileInputAttributes as `prop:${K}`]?: KernFileInput[K] };
+        "kern-grid": Omit<KernGrid, keyof KernGridAttributes> & { [K in keyof KernGrid & keyof KernGridAttributes]?: KernGrid[K] } & { [K in keyof KernGrid & keyof KernGridAttributes as `attr:${K}`]?: KernGridAttributes[K] } & { [K in keyof KernGrid & keyof KernGridAttributes as `prop:${K}`]?: KernGrid[K] };
+        "kern-grid-item": Omit<KernGridItem, keyof KernGridItemAttributes> & { [K in keyof KernGridItem & keyof KernGridItemAttributes]?: KernGridItem[K] } & { [K in keyof KernGridItem & keyof KernGridItemAttributes as `attr:${K}`]?: KernGridItemAttributes[K] } & { [K in keyof KernGridItem & keyof KernGridItemAttributes as `prop:${K}`]?: KernGridItem[K] };
         "kern-icon": Omit<KernIcon, keyof KernIconAttributes> & { [K in keyof KernIcon & keyof KernIconAttributes]?: KernIcon[K] } & { [K in keyof KernIcon & keyof KernIconAttributes as `attr:${K}`]?: KernIconAttributes[K] } & { [K in keyof KernIcon & keyof KernIconAttributes as `prop:${K}`]?: KernIcon[K] } & OneOf<"name", KernIcon["name"], KernIconAttributes["name"]>;
         "kern-input": Omit<KernInput, keyof KernInputAttributes> & { [K in keyof KernInput & keyof KernInputAttributes]?: KernInput[K] } & { [K in keyof KernInput & keyof KernInputAttributes as `attr:${K}`]?: KernInputAttributes[K] } & { [K in keyof KernInput & keyof KernInputAttributes as `prop:${K}`]?: KernInput[K] };
         "kern-ip-input": Omit<KernIpInput, keyof KernIpInputAttributes> & { [K in keyof KernIpInput & keyof KernIpInputAttributes]?: KernIpInput[K] } & { [K in keyof KernIpInput & keyof KernIpInputAttributes as `attr:${K}`]?: KernIpInputAttributes[K] } & { [K in keyof KernIpInput & keyof KernIpInputAttributes as `prop:${K}`]?: KernIpInput[K] };
@@ -6663,6 +6845,20 @@ declare module "@stencil/core" {
              * new files are added, otherwise they replace the previous one. The form gets the files under `name`.
              */
             "kern-file-input": LocalJSX.IntrinsicElements["kern-file-input"] & JSXBase.HTMLAttributes<HTMLKernFileInputElement>;
+            /**
+             * Lays out cards, tiles and form groups in columns. Without `columns` it fits as many columns of at least `min` as
+             * there is room for, without breakpoints. With `columns` it has a fixed number of equal columns; `columns-sm`,
+             * `columns-md` and `columns-lg` change it from 640, 960 and 1280 px, and `kern-grid-item` children span several.
+             * Breakpoints are measured on the grid itself (container queries), not on the window, so a grid in a sidebar, a
+             * drawer or half a page switches by the room it really has.
+             */
+            "kern-grid": LocalJSX.IntrinsicElements["kern-grid"] & JSXBase.HTMLAttributes<HTMLKernGridElement>;
+            /**
+             * An item of a `kern-grid` with `columns` that spans several columns. `span-sm`, `span-md` and `span-lg` change the
+             * span from 640, 960 and 1280 px grid width, e.g. `span="12" span-md="8"`: full width on small grids, two thirds
+             * from 960 px. A span larger than the columns is cut to the row.
+             */
+            "kern-grid-item": LocalJSX.IntrinsicElements["kern-grid-item"] & JSXBase.HTMLAttributes<HTMLKernGridItemElement>;
             /**
              * One of Kern's glyphs (Lucide style), a brand icon (`brand-github`, `brand-home-assistant` …, from Simple Icons) or a
              * country flag (`flag-ch`, `flag-gb` …, from flag-icons). Sized by `font-size` (1em high) and coloured by

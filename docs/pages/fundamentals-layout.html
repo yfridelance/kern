@@ -1,0 +1,33 @@
+<!-- title: Layout -->
+<header class="page-head">
+  <span class="overline">Fundamentals</span>
+  <h1>Layout</h1>
+  <p class="lead">Content has a maximum width, cards and tiles sit in a <code>kern-grid</code>, and breakpoints are measured on the container, not on the window.</p>
+</header>
+<h2>Tokens</h2>
+<p>Widths for the page and the sidebar, and three breakpoints. Custom properties do not work in <code>@media</code> or <code>@container</code> conditions, so the breakpoint values are written literally there; the tokens are for documentation and for JavaScript (<code>getComputedStyle(document.documentElement).getPropertyValue('--breakpoint-md')</code>).</p>
+<!--@layout-->
+<h2>Breakpoints</h2>
+<p>Kern components switch by the room they really have: <code>kern-grid</code> is a size container, and its columns and the spans of <code>kern-grid-item</code> change at 640, 960 and 1280 px of <em>grid</em> width. A grid in a sidebar, a drawer or half a page therefore behaves like on a small screen, without any extra configuration. Use the same values for your own container queries.</p>
+<kern-code language="css">
+.panel { container-type: inline-size; }
+@container (min-width: 640px) { .panel .fields { grid-template-columns: 1fr 1fr; } }
+</kern-code>
+<h2>Grid</h2>
+<p><a href="../components/kern-grid.html"><code>kern-grid</code></a> has two modes:</p>
+<ul>
+  <li><strong>Auto</strong> (default): as many columns of at least <code>min</code> as fit, e.g. for key figures or device cards. No breakpoints needed.</li>
+  <li><strong>Columns</strong>: <code>columns="12"</code> with <code>kern-grid-item span="12" span-md="8"</code> for layouts like list and details side by side.</li>
+</ul>
+<kern-code language="html">
+&lt;kern-grid min="220px"&gt;
+  &lt;kern-stat label="Devices online" value="36"&gt;&lt;/kern-stat&gt;
+  &lt;kern-stat label="Updates" value="3"&gt;&lt;/kern-stat&gt;
+&lt;/kern-grid&gt;
+
+&lt;kern-grid columns="12"&gt;
+  &lt;kern-grid-item span="12" span-md="8"&gt;&lt;kern-card heading="Devices"&gt;…&lt;/kern-card&gt;&lt;/kern-grid-item&gt;
+  &lt;kern-grid-item span="12" span-md="4"&gt;&lt;kern-card heading="Details"&gt;…&lt;/kern-card&gt;&lt;/kern-grid-item&gt;
+&lt;/kern-grid&gt;
+</kern-code>
+<p>Gaps come from the spacing scale (<code>gap="sm|md|lg"</code>); inside a card, use <code>kern-grid</code> too, not nested cards.</p>

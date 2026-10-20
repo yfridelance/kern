@@ -1,0 +1,8 @@
+/* Spans by the width of the surrounding kern-grid (its container); 640 / 960 / 1280 = --breakpoint-sm/md/lg.
+   --_cols (the grid's current column count, inherited through the slot) caps the span, so it never adds columns. */
+:host { display: block; min-width: 0; --_span: var(--_s); grid-column: span min(var(--_span), var(--_cols, 999)); }
+:host([hidden]) { display: none; }
+
+@container kern-grid (min-width: 640px) { :host { --_span: var(--_s-sm, var(--_s)); } }
+@container kern-grid (min-width: 960px) { :host { --_span: var(--_s-md, var(--_s-sm, var(--_s))); } }
+@container kern-grid (min-width: 1280px) { :host { --_span: var(--_s-lg, var(--_s-md, var(--_s-sm, var(--_s)))); } }

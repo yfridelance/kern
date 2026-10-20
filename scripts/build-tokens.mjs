@@ -16,7 +16,7 @@ out.push(`:root, [data-theme="${themes[0]}"] {`, ...perTheme[themes[0]], '}');
 for (const id of themes.slice(1)) out.push(`[data-theme="${id}"] {`, ...perTheme[id], '}');
 
 out.push(':root {');
-for (const family of ['spacing', 'radius', 'size']) {
+for (const family of ['spacing', 'radius', 'size', 'layout']) {
   for (const t of tokens[family]?.tokens ?? []) out.push(`  --${t.name}: ${t.value};`);
 }
 for (const [key, stack] of Object.entries(tokens.type.families)) out.push(`  --font-${key}: ${stack};`);

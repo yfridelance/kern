@@ -89,6 +89,12 @@
   --control-md: 34px;
   --topbar-height: 48px;
   --row-height: 36px;
+  --content-max: 1280px;
+  --content-wide: 1600px;
+  --sidebar-width: 240px;
+  --breakpoint-sm: 640px;
+  --breakpoint-md: 960px;
+  --breakpoint-lg: 1280px;
   --font-sans: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
   --font-mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
 }

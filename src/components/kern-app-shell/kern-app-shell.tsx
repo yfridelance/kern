@@ -78,9 +78,18 @@ export class KernAppShell {
     this.resize?.disconnect();
   }
 
+  // The observer only reports on rendered frames (not in background tabs), so the first layout is decided here: before
+  // the first render, so a phone never shows the wide layout first, and again once the shell has its own width.
+  componentWillLoad() {
+    this.measureNow();
+  }
+
   componentDidLoad() {
-    // First layout without waiting for the observer (it only reports on rendered frames).
-    const width = this.el.getBoundingClientRect().width;
+    this.measureNow();
+  }
+
+  private measureNow() {
+    const width = this.el.getBoundingClientRect().width || this.el.parentElement?.getBoundingClientRect().width || (typeof window !== 'undefined' ? window.innerWidth : 0);
     if (width) this.measure(width);
   }
 

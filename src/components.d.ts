@@ -1021,6 +1021,58 @@ export namespace Components {
         "mono": boolean;
     }
     /**
+     * Language switcher: a dropdown with the language names («Deutsch», «English») or short codes («DE», «EN»), optionally
+     * with flags, or the languages side by side as links or buttons (`variant="inline"`, good for two or three).
+     * Names are shown in their own language and marked with `lang`; codes are announced with the full name.
+     * Languages come from `languages` (`de,en,fr`) or from child `<option>` elements, which may set their own name and
+     * flag: `<option value="de-CH" data-flag="ch">Schweizerdeutsch</option>`. With `href` (`/{locale}/`) every language
+     * is a real link. `kernChange` reports the choice; `preventDefault()` on it stops the navigation, so an app router can
+     * take over.
+     */
+    interface KernLanguageSelect {
+        /**
+          * @default false
+         */
+        "disabled": boolean;
+        /**
+          * `name` shows «Deutsch», `code` shows «DE».
+          * @default 'name'
+         */
+        "display": 'name' | 'code';
+        /**
+          * A flag before each language. A flag names a country, not a language: keep the name or code next to it.
+          * @default false
+         */
+        "flags": boolean;
+        /**
+          * Link per language; `{locale}` is replaced by the code, e.g. `/{locale}/`.
+         */
+        "href"?: string;
+        /**
+          * Accessible name of the switcher.
+         */
+        "label"?: string;
+        /**
+          * Available languages, e.g. `de,en,fr`; child `<option>` elements win.
+          * @default ''
+         */
+        "languages": string | string[];
+        /**
+          * @default 'md'
+         */
+        "size": 'md' | 'sm';
+        /**
+          * Current language (BCP 47), e.g. `de` or `de-CH`.
+          * @default ''
+         */
+        "value": string;
+        /**
+          * `dropdown`, or `inline` for the languages side by side.
+          * @default 'dropdown'
+         */
+        "variant": 'dropdown' | 'inline';
+    }
+    /**
      * Text link for running text, table cells and cards. `external` opens a new tab (with `rel="noopener noreferrer"`)
      * and marks the link with ↗; `tone="muted"` for secondary links; `disabled` keeps the text but removes the link.
      * For actions use kern-button, also when it navigates.
@@ -2266,6 +2318,10 @@ export interface KernIpInputCustomEvent<T> extends CustomEvent<T> {
     detail: T;
     target: HTMLKernIpInputElement;
 }
+export interface KernLanguageSelectCustomEvent<T> extends CustomEvent<T> {
+    detail: T;
+    target: HTMLKernLanguageSelectElement;
+}
 export interface KernLinkCustomEvent<T> extends CustomEvent<T> {
     detail: T;
     target: HTMLKernLinkElement;
@@ -2779,6 +2835,32 @@ declare global {
     var HTMLKernKvItemElement: {
         prototype: HTMLKernKvItemElement;
         new (): HTMLKernKvItemElement;
+    };
+    interface HTMLKernLanguageSelectElementEventMap {
+        "kernChange": { value: string; href?: string };
+    }
+    /**
+     * Language switcher: a dropdown with the language names («Deutsch», «English») or short codes («DE», «EN»), optionally
+     * with flags, or the languages side by side as links or buttons (`variant="inline"`, good for two or three).
+     * Names are shown in their own language and marked with `lang`; codes are announced with the full name.
+     * Languages come from `languages` (`de,en,fr`) or from child `<option>` elements, which may set their own name and
+     * flag: `<option value="de-CH" data-flag="ch">Schweizerdeutsch</option>`. With `href` (`/{locale}/`) every language
+     * is a real link. `kernChange` reports the choice; `preventDefault()` on it stops the navigation, so an app router can
+     * take over.
+     */
+    interface HTMLKernLanguageSelectElement extends Components.KernLanguageSelect, HTMLStencilElement {
+        addEventListener<K extends keyof HTMLKernLanguageSelectElementEventMap>(type: K, listener: (this: HTMLKernLanguageSelectElement, ev: KernLanguageSelectCustomEvent<HTMLKernLanguageSelectElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLKernLanguageSelectElementEventMap>(type: K, listener: (this: HTMLKernLanguageSelectElement, ev: KernLanguageSelectCustomEvent<HTMLKernLanguageSelectElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
+    }
+    var HTMLKernLanguageSelectElement: {
+        prototype: HTMLKernLanguageSelectElement;
+        new (): HTMLKernLanguageSelectElement;
     };
     interface HTMLKernLinkElementEventMap {
         "kernNavigate": KernNavigateDetail;
@@ -3408,6 +3490,7 @@ declare global {
         "kern-json-diff": HTMLKernJsonDiffElement;
         "kern-kv": HTMLKernKvElement;
         "kern-kv-item": HTMLKernKvItemElement;
+        "kern-language-select": HTMLKernLanguageSelectElement;
         "kern-link": HTMLKernLinkElement;
         "kern-list": HTMLKernListElement;
         "kern-list-item": HTMLKernListItemElement;
@@ -4484,6 +4567,62 @@ declare namespace LocalJSX {
           * @default false
          */
         "mono"?: boolean;
+    }
+    /**
+     * Language switcher: a dropdown with the language names («Deutsch», «English») or short codes («DE», «EN»), optionally
+     * with flags, or the languages side by side as links or buttons (`variant="inline"`, good for two or three).
+     * Names are shown in their own language and marked with `lang`; codes are announced with the full name.
+     * Languages come from `languages` (`de,en,fr`) or from child `<option>` elements, which may set their own name and
+     * flag: `<option value="de-CH" data-flag="ch">Schweizerdeutsch</option>`. With `href` (`/{locale}/`) every language
+     * is a real link. `kernChange` reports the choice; `preventDefault()` on it stops the navigation, so an app router can
+     * take over.
+     */
+    interface KernLanguageSelect {
+        /**
+          * @default false
+         */
+        "disabled"?: boolean;
+        /**
+          * `name` shows «Deutsch», `code` shows «DE».
+          * @default 'name'
+         */
+        "display"?: 'name' | 'code';
+        /**
+          * A flag before each language. A flag names a country, not a language: keep the name or code next to it.
+          * @default false
+         */
+        "flags"?: boolean;
+        /**
+          * Link per language; `{locale}` is replaced by the code, e.g. `/{locale}/`.
+         */
+        "href"?: string;
+        /**
+          * Accessible name of the switcher.
+         */
+        "label"?: string;
+        /**
+          * Available languages, e.g. `de,en,fr`; child `<option>` elements win.
+          * @default ''
+         */
+        "languages"?: string | string[];
+        /**
+          * A language was chosen. With `href`, `preventDefault()` keeps the page (e.g. to route in the app).
+         */
+        "onKernChange"?: (event: KernLanguageSelectCustomEvent<{ value: string; href?: string }>) => void;
+        /**
+          * @default 'md'
+         */
+        "size"?: 'md' | 'sm';
+        /**
+          * Current language (BCP 47), e.g. `de` or `de-CH`.
+          * @default ''
+         */
+        "value"?: string;
+        /**
+          * `dropdown`, or `inline` for the languages side by side.
+          * @default 'dropdown'
+         */
+        "variant"?: 'dropdown' | 'inline';
     }
     /**
      * Text link for running text, table cells and cards. `external` opens a new tab (with `rel="noopener noreferrer"`)
@@ -6015,6 +6154,17 @@ declare namespace LocalJSX {
         "label": string;
         "mono": boolean;
     }
+    interface KernLanguageSelectAttributes {
+        "value": string;
+        "languages": string | string[];
+        "variant": 'dropdown' | 'inline';
+        "display": 'name' | 'code';
+        "flags": boolean;
+        "size": 'md' | 'sm';
+        "href": string;
+        "label": string;
+        "disabled": boolean;
+    }
     interface KernLinkAttributes {
         "href": string;
         "target": string;
@@ -6367,6 +6517,7 @@ declare namespace LocalJSX {
         "kern-json-diff": Omit<KernJsonDiff, keyof KernJsonDiffAttributes> & { [K in keyof KernJsonDiff & keyof KernJsonDiffAttributes]?: KernJsonDiff[K] } & { [K in keyof KernJsonDiff & keyof KernJsonDiffAttributes as `attr:${K}`]?: KernJsonDiffAttributes[K] } & { [K in keyof KernJsonDiff & keyof KernJsonDiffAttributes as `prop:${K}`]?: KernJsonDiff[K] };
         "kern-kv": KernKv;
         "kern-kv-item": Omit<KernKvItem, keyof KernKvItemAttributes> & { [K in keyof KernKvItem & keyof KernKvItemAttributes]?: KernKvItem[K] } & { [K in keyof KernKvItem & keyof KernKvItemAttributes as `attr:${K}`]?: KernKvItemAttributes[K] } & { [K in keyof KernKvItem & keyof KernKvItemAttributes as `prop:${K}`]?: KernKvItem[K] } & OneOf<"label", KernKvItem["label"], KernKvItemAttributes["label"]>;
+        "kern-language-select": Omit<KernLanguageSelect, keyof KernLanguageSelectAttributes> & { [K in keyof KernLanguageSelect & keyof KernLanguageSelectAttributes]?: KernLanguageSelect[K] } & { [K in keyof KernLanguageSelect & keyof KernLanguageSelectAttributes as `attr:${K}`]?: KernLanguageSelectAttributes[K] } & { [K in keyof KernLanguageSelect & keyof KernLanguageSelectAttributes as `prop:${K}`]?: KernLanguageSelect[K] };
         "kern-link": Omit<KernLink, keyof KernLinkAttributes> & { [K in keyof KernLink & keyof KernLinkAttributes]?: KernLink[K] } & { [K in keyof KernLink & keyof KernLinkAttributes as `attr:${K}`]?: KernLinkAttributes[K] } & { [K in keyof KernLink & keyof KernLinkAttributes as `prop:${K}`]?: KernLink[K] };
         "kern-list": Omit<KernList, keyof KernListAttributes> & { [K in keyof KernList & keyof KernListAttributes]?: KernList[K] } & { [K in keyof KernList & keyof KernListAttributes as `attr:${K}`]?: KernListAttributes[K] } & { [K in keyof KernList & keyof KernListAttributes as `prop:${K}`]?: KernList[K] };
         "kern-list-item": Omit<KernListItem, keyof KernListItemAttributes> & { [K in keyof KernListItem & keyof KernListItemAttributes]?: KernListItem[K] } & { [K in keyof KernListItem & keyof KernListItemAttributes as `attr:${K}`]?: KernListItemAttributes[K] } & { [K in keyof KernListItem & keyof KernListItemAttributes as `prop:${K}`]?: KernListItem[K] };
@@ -6552,6 +6703,16 @@ declare module "@stencil/core" {
              * One row of kern-kv. Technical values in `mono`; copyable ones as kern-copy. Unknown: "–", never empty.
              */
             "kern-kv-item": LocalJSX.IntrinsicElements["kern-kv-item"] & JSXBase.HTMLAttributes<HTMLKernKvItemElement>;
+            /**
+             * Language switcher: a dropdown with the language names («Deutsch», «English») or short codes («DE», «EN»), optionally
+             * with flags, or the languages side by side as links or buttons (`variant="inline"`, good for two or three).
+             * Names are shown in their own language and marked with `lang`; codes are announced with the full name.
+             * Languages come from `languages` (`de,en,fr`) or from child `<option>` elements, which may set their own name and
+             * flag: `<option value="de-CH" data-flag="ch">Schweizerdeutsch</option>`. With `href` (`/{locale}/`) every language
+             * is a real link. `kernChange` reports the choice; `preventDefault()` on it stops the navigation, so an app router can
+             * take over.
+             */
+            "kern-language-select": LocalJSX.IntrinsicElements["kern-language-select"] & JSXBase.HTMLAttributes<HTMLKernLanguageSelectElement>;
             /**
              * Text link for running text, table cells and cards. `external` opens a new tab (with `rel="noopener noreferrer"`)
              * and marks the link with ↗; `tone="muted"` for secondary links; `disabled` keeps the text but removes the link.

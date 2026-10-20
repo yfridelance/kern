@@ -84,6 +84,7 @@ root.querySelector('kern-pagination').addEventListener('kernPageChange', (e) => 
 ```mermaid
 graph TD;
   kern-pagination --> kern-select
+  kern-select --> kern-icon
   kern-table --> kern-pagination
   style kern-pagination fill:#f9f,stroke:#333,stroke-width:4px
 ```

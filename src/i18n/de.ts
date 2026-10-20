@@ -51,6 +51,7 @@ export const de: KernStrings = {
   'kern-json-diff.labelChanged': 'geändert',
   'kern-json-diff.labelNone': 'Keine Unterschiede',
   'kern-json-diff.labelSummary': '{n} Unterschiede: {changed} geändert, {added} neu, {removed} entfernt',
+  'kern-language-select.label': 'Sprache',
   'kern-link.labelExternal': 'öffnet in neuem Tab',
   'kern-list.empty': 'Keine Einträge',
   'kern-mac-input.labelInvalid': 'Keine gültige MAC-Adresse',

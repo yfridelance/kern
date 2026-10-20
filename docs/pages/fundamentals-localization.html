@@ -43,6 +43,11 @@ setKernLocale('fr');
 <kern-code language="ts" heading="Angular">
 translate.onLangChange.subscribe(({ lang }) =&gt; setKernLocale(lang));
 </kern-code>
+<h3>Language switcher</h3>
+<p><code>kern-language-select</code> lets people pick the language: as a dropdown with names or codes, with or without flags, or side by side. It reports the choice with <code>kernChange</code>; the app switches its own texts and Kern's.</p>
+<kern-code language="js">
+switcher.addEventListener('kernChange', (e) =&gt; setKernLocale(e.detail.value));
+</kern-code>
 <h3>Single components</h3>
 <p>Every text is also a property, mostly starting with <code>label</code>, e.g. <code>close-label</code> on <code>kern-dialog</code>, <code>label-invalid</code> on typed fields, <code>label-range</code> on <code>kern-pagination</code>. A property set on a component wins over the Kern text. Placeholders like <code>{n}</code> or <code>{name}</code> are replaced. The property tables on each component page list them with their English and German default.</p>
 <kern-code language="html">

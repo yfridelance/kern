@@ -35,7 +35,7 @@ Brand on the left, the main navigation in the `nav` slot and tools in the `end` 
 
 # Custom brand and site switch
 
-The `brand` slot replaces the default mark and app name. A small kern-select in the `end` slot switches between sites.
+The `brand` slot replaces the default mark and app name. A small kern-select in the `end` slot switches between sites, a kern-language-select between languages.
 
 ```html
 <kern-topbar home-href="#">
@@ -49,6 +49,7 @@ The `brand` slot replaces the default mark and app name. A small kern-select in 
     <option value="2">Holiday flat</option>
     <option value="3">Office Bern</option>
   </kern-select>
+  <kern-language-select slot="end" size="sm" value="de" languages="de,en,fr" display="code" flags></kern-language-select>
   <kern-status slot="end" tone="warn">2 updates</kern-status>
 </kern-topbar>
 ```

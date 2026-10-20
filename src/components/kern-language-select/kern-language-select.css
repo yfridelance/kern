@@ -1,0 +1,22 @@
+:host { display: inline-block; vertical-align: middle; }
+:host([hidden]) { display: none; }
+
+/* Dropdown: kern-select, narrow with codes */
+kern-select { display: block; --_field-min: 140px; }
+kern-select.compact { --_field-min: 80px; }
+
+/* Inline: the languages side by side, separated by a slash */
+ul { display: flex; align-items: center; flex-wrap: wrap; gap: 2px; margin: 0; padding: 0; list-style: none; }
+li { display: flex; align-items: center; }
+li + li::before { content: '/'; margin: 0 2px; color: var(--text-faint); }
+.item {
+  all: unset; display: inline-flex; align-items: center; gap: var(--space-2); box-sizing: border-box;
+  height: var(--control-sm); padding: 0 var(--space-2); border-radius: var(--radius-sm);
+  font: inherit; font-size: 13px; color: var(--text-muted); text-decoration: none; cursor: pointer; white-space: nowrap;
+}
+:host([size="md"]) .item { height: var(--control-md); font-size: 14px; }
+a.item:hover, button.item:hover:not(:disabled) { color: var(--text); background: var(--hover); }
+.item:focus-visible { outline: 2px solid var(--focus); outline-offset: 1px; }
+.item.active { color: var(--text); font-weight: 600; cursor: default; }
+button.item:disabled, a.item[aria-disabled="true"] { opacity: .5; cursor: not-allowed; }
+.sr { position: absolute; width: 1px; height: 1px; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }

@@ -586,6 +586,7 @@ graph TD;
   kern-table --> kern-skeleton
   kern-table --> kern-icon
   kern-pagination --> kern-select
+  kern-select --> kern-icon
   style kern-table fill:#f9f,stroke:#333,stroke-width:4px
 ```
 

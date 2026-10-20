@@ -1,7 +1,12 @@
-import { Component, Host, Prop, h } from '@stencil/core';
-import { BRANDS } from '../../utils/brands';
+import { Component, Host, Prop, State, Watch, h } from '@stencil/core';
+import type { BrandName } from '../../utils/brand-names';
 import { Icon, type GlyphName } from '../../utils/icons';
 import type { IconName } from '../../utils/icon-names';
+
+type Brand = { hex: string; path: string };
+let brands: Promise<Record<BrandName, Brand>> | undefined;
+/** The brand paths (~60 KB) load once, the first time a brand icon is shown; glyphs never need them. */
+const loadBrands = () => (brands ??= import('../../utils/brands').then((m) => m.BRANDS));
 
 /**
  * One of Kern's glyphs (Lucide style) or a brand icon (`brand-github`, `brand-home-assistant` …, from Simple Icons).
@@ -21,9 +26,28 @@ export class KernIcon {
   /** Brand icons in their official colour instead of `currentColor` (check the contrast: some are near-black or white). */
   @Prop({ reflect: true }) brandColor = false;
 
+  @State() brand?: Brand;
+
+  componentWillLoad() {
+    return this.load();
+  }
+
+  @Watch('name')
+  load(): Promise<void> | void {
+    const name = this.name;
+    if (!name?.startsWith('brand-')) {
+      this.brand = undefined;
+      return;
+    }
+    return loadBrands().then((all) => {
+      if (this.name === name) this.brand = all[name as BrandName];
+    });
+  }
+
   private glyph() {
-    const brand = BRANDS[this.name as keyof typeof BRANDS];
-    if (!brand) return <Icon name={this.name as GlyphName} />;
+    const brand = this.brand;
+    if (!this.name.startsWith('brand-')) return <Icon name={this.name as GlyphName} />;
+    if (!brand) return <svg viewBox="0 0 24 24" aria-hidden="true" />;
     return (
       <svg viewBox="0 0 24 24" fill={this.brandColor ? brand.hex : 'currentColor'} aria-hidden="true">
         <path d={brand.path} />

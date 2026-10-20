@@ -1,4 +1,4 @@
-import { BRAND_NAMES, type BrandName } from './brands';
+import { BRAND_NAMES, type BrandName } from './brand-names';
 import { GLYPH_NAMES, type GlyphName } from './icons';
 
 /** Everything kern-icon draws: Kern's glyphs and the brand icons (`brand-…`). */

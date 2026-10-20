@@ -1,6 +1,7 @@
 import { newSpecPage } from '@stencil/core/testing';
 import { ICON_NAMES } from '../../utils/icon-names';
-import { BRANDS, BRAND_NAMES } from '../../utils/brands';
+import { BRANDS } from '../../utils/brands';
+import { BRAND_NAMES } from '../../utils/brand-names';
 import { KernIcon } from './kern-icon';
 
 describe('kern-icon', () => {
@@ -37,5 +38,18 @@ describe('kern-icon', () => {
   it('lists every brand in ICON_NAMES and BRAND_NAMES', () => {
     expect(BRAND_NAMES.length).toBeGreaterThan(30);
     expect(BRAND_NAMES.every((n) => n.startsWith('brand-') && ICON_NAMES.includes(n))).toBe(true);
+  });
+
+  it('draws an unknown brand name as an empty icon', async () => {
+    const page = await newSpecPage({ components: [KernIcon], html: `<kern-icon name="brand-nope"></kern-icon>` });
+    expect(page.root!.shadowRoot!.querySelector('svg')!.children.length).toBe(0);
+  });
+
+  it('loads the brand data when the name changes to a brand', async () => {
+    const page = await newSpecPage({ components: [KernIcon], html: `<kern-icon name="lock"></kern-icon>` });
+    page.root!.setAttribute('name', 'brand-zigbee');
+    await new Promise((r) => setTimeout(r, 0));
+    await page.waitForChanges();
+    expect(page.root!.shadowRoot!.querySelector('svg path')!.getAttribute('d')).toBe(BRANDS['brand-zigbee'].path);
   });
 });

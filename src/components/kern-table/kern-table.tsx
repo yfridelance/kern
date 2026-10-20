@@ -4,8 +4,10 @@ import { isBlank, sortByValue, type KernSortDirection, type KernTableColumn } fr
 
 /** Interactive elements inside a row: clicks on them are no row clicks. */
 const INTERACTIVE = 'a, button, input, select, textarea, label, summary, [role="button"], [tabindex]';
-/** Cells the table adds itself (selection column): no column of the app's table, skipped for sorting and `column`. */
+/** Cells the table adds itself (selection, expand column): no column of the app's table, skipped for sorting and `column`. */
 const GENERATED = 'data-kern-generated';
+/** For the `id` of detail rows (`aria-controls` of their toggle). */
+let detailsCount = 0;
 
 /**
  * Dense data table: wraps a native `<table>` (light DOM, so cells can hold any markup and Angular bindings).
@@ -25,6 +27,11 @@ const GENERATED = 'data-kern-generated';
  * Selection: `selectable` adds a first column with a `kern-checkbox` per row and one in the header for the visible rows
  * of the current page. Rows are identified by `data-key` on the `<tr>` (data mode: `rowKey`, default `row.id` or the
  * index). `selected` holds the keys and survives sorting, paging and new rows; selected rows get `aria-selected="true"`.
+ *
+ * Detail rows: a `<tr kern-details>` right after its row is hidden until the row is expanded; it spans all columns,
+ * moves with its row when sorting and is no row for paging or sorting. A `<button kern-expand>` in the row toggles it
+ * (the table sets `aria-expanded` and `aria-controls`). Data mode: `detail` adds a chevron column and the detail rows.
+ * `expanded` holds the keys of the open rows.
  *
  * @slot - A native `<table>` (not in data mode)
  */
@@ -79,6 +86,12 @@ export class KernTable {
   @Prop() labelSelectAll = 'Alle auswählen';
   /** Accessible name of a row checkbox. */
   @Prop() labelSelectRow = 'Zeile auswählen';
+  /** Keys of the expanded rows (see `selected` for keys). */
+  @Prop({ mutable: true }) expanded: string[] = [];
+  /** Data mode: content of a row's detail row; adds a first column with a toggle. Called when the row is first opened. */
+  @Prop() detail?: (row: any, index: number) => Node | string;
+  /** Data mode: accessible name of the toggle button of a row. */
+  @Prop() labelExpandRow = 'Details anzeigen';
 
   /** A sortable header was activated (or `sortBy()` called), with the requested direction. Cancelable: `preventDefault()` skips the built-in sort. */
   @Event({ cancelable: true }) kernSort!: EventEmitter<{ key: string; column: number; direction: KernSortDirection }>;
@@ -86,6 +99,8 @@ export class KernTable {
   @Event() kernRowClick!: EventEmitter<{ row: any; index: number }>;
   /** The selection was changed with a checkbox. Cancelable: `preventDefault()` keeps `selected` as it is. */
   @Event({ cancelable: true }) kernSelectionChange!: EventEmitter<{ selected: string[] }>;
+  /** A row's details were opened or closed (button or `toggleRow()`). Cancelable: `preventDefault()` keeps `expanded` as it is. */
+  @Event({ cancelable: true }) kernRowToggle!: EventEmitter<{ key: string; open: boolean }>;
 
   private observer?: MutationObserver;
   /** Data mode: current sort and the data behind each rendered row. */
@@ -95,6 +110,8 @@ export class KernTable {
   /** Row keys: data mode from `rowKey`; markup rows without `data-key` get their first position. */
   private rowKeys = new WeakMap<Element, string>();
   private nextKey = 0;
+  /** Data mode: detail rows whose content is built (on first opening). */
+  private filled = new WeakSet<Element>();
 
   connectedCallback() {
     this.el.addEventListener('click', this.onClick);
@@ -105,9 +122,9 @@ export class KernTable {
       // Rows added or replaced by the app: page them again (moving rows only, no attributes it watches).
       if (records.some((r) => r.type === 'childList' && /^(TBODY|TABLE)$/.test((r.target as Element).nodeName))) this.applyPaging();
       // New cells or keys: selection cells and states follow (changes nothing when they are in place).
-      else if (this.selectable) this.syncSelection();
+      else this.syncRows();
     });
-    this.observer.observe(this.el, { childList: true, subtree: true, attributes: true, attributeFilter: ['sortable', 'sorted', 'data-key'] });
+    this.observer.observe(this.el, { childList: true, subtree: true, attributes: true, attributeFilter: ['sortable', 'sorted', 'data-key', 'kern-details'] });
   }
 
   disconnectedCallback() {
@@ -127,6 +144,7 @@ export class KernTable {
   /** New columns: header rebuilt, sort taken from `columns[].sorted`. */
   @Watch('columns')
   @Watch('getHeaderCellClass')
+  @Watch('detail')
   onColumns() {
     const sorted = this.columns?.find((c) => c.sortable && c.sorted);
     this.sortKey = sorted?.key;
@@ -142,6 +160,7 @@ export class KernTable {
   @Watch('getRowClass')
   @Watch('getCellClass')
   @Watch('rowKey')
+  @Watch('labelExpandRow')
   onRows() {
     this.buildBody();
     this.busy();
@@ -160,8 +179,9 @@ export class KernTable {
   @Watch('selected')
   @Watch('labelSelectAll')
   @Watch('labelSelectRow')
+  @Watch('expanded')
   onSelected() {
-    this.syncSelection();
+    this.syncRows();
   }
 
   /** A checkbox of the selection column changed: the table reports the new selection, not the checkbox. */
@@ -188,9 +208,20 @@ export class KernTable {
     if (th && this.sortable(th)) this.request(th, direction);
   }
 
+  /** Opens or closes a row's details (`open` omitted: toggles). Emits `kernRowToggle`. */
+  @Method()
+  async toggleRow(key: string, open?: boolean) {
+    this.setOpen(String(key), open);
+  }
+
   private onClick = (ev: Event) => {
     // A click beside the checkbox in its cell toggles it, too.
     const target = ev.target as Element | null;
+    const expand = target?.closest?.('[kern-expand]');
+    const row = expand?.closest('tr');
+    if (row && row.closest('kern-table') === this.el && !this.isDetails(row) && this.dataRows().includes(row)) {
+      return this.setOpen(this.keyOf(row), undefined);
+    }
     if (target?.matches?.('[data-kern-select]')) {
       const box = target.querySelector('kern-checkbox') as any;
       if (box && !box.disabled) this.choose(target, !box.checked);
@@ -281,7 +312,7 @@ export class KernTable {
       }
     });
     this.pager(rows.length);
-    this.syncSelection();
+    this.syncRows();
   }
 
   /** Header cells of the last header row (the one that names the columns). */
@@ -332,12 +363,23 @@ export class KernTable {
     return new Intl.Collator(resolveLocale(), { numeric: true, sensitivity: 'base' });
   }
 
+  /** Detail rows move with the row before them; filler rows (and details after them) stay at the end. */
   private sortRows(column: number, direction: KernSortDirection) {
     for (const tbody of this.childrenOf(this.table(), 'tbody')) {
-      const rows = this.childrenOf(tbody, 'tr');
-      const filler = rows.filter((r) => this.isFiller(r));
-      const sorted = sortByValue(rows.filter((r) => !this.isFiller(r)), (row) => this.value(this.cellsOf(row)[column]), direction, this.collator());
-      tbody.append(...sorted, ...filler);
+      const filler: Element[] = [];
+      const data: Element[] = [];
+      const details = new Map<Element, Element[]>();
+      let group = filler;
+      for (const r of this.childrenOf(tbody, 'tr')) {
+        if (this.isDetails(r)) group.push(r);
+        else if (this.isFiller(r)) (group = filler).push(r);
+        else {
+          data.push(r);
+          details.set(r, (group = []));
+        }
+      }
+      const sorted = sortByValue(data, (row) => this.value(this.cellsOf(row)[column]), direction, this.collator());
+      tbody.append(...sorted.flatMap((r) => [r, ...details.get(r)!]), ...filler);
     }
   }
 
@@ -348,6 +390,7 @@ export class KernTable {
 
   /** Empty state or a cell spanning the row: stays at the end, unsorted. */
   private isFiller(row: Element) {
+    if (this.isDetails(row)) return false;
     const cells = this.cellsOf(row);
     return cells.some((c) => c.classList.contains('empty')) || (cells.length === 1 && Number(cells[0].getAttribute('colspan') ?? 1) > 1);
   }
@@ -357,11 +400,21 @@ export class KernTable {
     return this.childrenOf(row, 'td', 'th').filter((c) => !c.hasAttribute(GENERATED));
   }
 
-  /** Body rows that hold data: no filler, empty or skeleton rows. */
+  private isDetails(row: Element) {
+    return row.hasAttribute('kern-details');
+  }
+
+  /** Body rows that hold data: no filler, empty, skeleton or detail rows. */
   private dataRows(): Element[] {
     return this.childrenOf(this.table(), 'tbody')
       .flatMap((tb) => this.childrenOf(tb, 'tr'))
-      .filter((r) => !this.isFiller(r) && !r.classList.contains('skeleton'));
+      .filter((r) => !this.isDetails(r) && !this.isFiller(r) && !r.classList.contains('skeleton'));
+  }
+
+  /** Generated cells follow the app's state: selection column, detail rows. */
+  private syncRows() {
+    this.syncSelection();
+    this.syncDetails();
   }
 
   /** Data rows the user sees now: not hidden by the app, on the current page. */
@@ -394,7 +447,7 @@ export class KernTable {
     }
     const next = Array.from(keys);
     if (!this.kernSelectionChange.emit({ selected: next }).defaultPrevented) this.selected = next;
-    this.syncSelection(); // also resets the checkbox when cancelled
+    this.syncRows(); // also resets the checkbox when cancelled
   }
 
   /** Selection column: added to or removed from every row; checkbox states and `aria-selected` from `selected`. */
@@ -417,7 +470,8 @@ export class KernTable {
         if (selected) {
           if (tr.getAttribute('aria-selected') !== 'true') tr.setAttribute('aria-selected', 'true');
         } else if (on && tr.hasAttribute('aria-selected')) tr.removeAttribute('aria-selected');
-      } else if (this.isFiller(tr)) this.widen(tr, on ? 1 : 0);
+      } else if (this.isDetails(tr)) continue; // spans all columns, see syncDetails
+      else if (this.isFiller(tr)) this.widen(tr, on ? 1 : 0);
       else this.selectCell(tr, on, 'td', false); // skeleton row
     }
     for (const tr of this.childrenOf(this.childrenOf(table, 'tfoot')[0], 'tr')) this.selectCell(tr, on, 'td', false);
@@ -432,6 +486,70 @@ export class KernTable {
         disabled: !visible.length,
         label: this.labelSelectAll,
       });
+    }
+  }
+
+  // ---- detail rows ----
+
+  private openKeys(): Set<string> {
+    return new Set(Array.isArray(this.expanded) ? this.expanded.map(String) : []);
+  }
+
+  /** Opens (`true`), closes (`false`) or toggles (`undefined`) the details of a row. */
+  private setOpen(key: string, open: boolean | undefined) {
+    const keys = this.openKeys();
+    const next = open ?? !keys.has(key);
+    if (keys.has(key) === next) return;
+    if (next) keys.add(key);
+    else keys.delete(key);
+    if (!this.kernRowToggle.emit({ key, open: next }).defaultPrevented) this.expanded = Array.from(keys);
+  }
+
+  /** Columns of the table, generated ones included: what a detail row spans. */
+  private columnCount(): number {
+    const head = this.childrenOf(this.childrenOf(this.table(), 'thead')[0], 'tr');
+    const cells = this.cellsOf(head.length ? head[head.length - 1] : this.dataRows()[0]);
+    const own = cells.reduce((n, c) => n + Math.max(1, Number(c.getAttribute('colspan')) || 1), 0);
+    return own + (this.selectable ? 1 : 0) + (this.columns && this.detail ? 1 : 0);
+  }
+
+  /** Detail rows: shown when their row is expanded and shown, spanning all columns; toggles get aria-expanded/-controls. */
+  private syncDetails() {
+    const table = this.table();
+    if (!table) return;
+    const open = this.openKeys();
+    let span: string | undefined;
+    for (const tbody of this.childrenOf(table, 'tbody')) {
+      let parent: Element | undefined;
+      for (const tr of this.childrenOf(tbody, 'tr')) {
+        if (!this.isDetails(tr)) {
+          parent = this.isFiller(tr) || tr.classList.contains('skeleton') ? undefined : tr;
+          continue;
+        }
+        if (!parent) continue; // no row of its own: stays hidden
+        const key = this.keyOf(parent);
+        const isOpen = open.has(key);
+        const shown = isOpen && !parent.hasAttribute('hidden') && !parent.hasAttribute('data-kern-paged-out');
+        if (shown !== tr.hasAttribute('data-kern-open')) {
+          if (shown) tr.setAttribute('data-kern-open', '');
+          else tr.removeAttribute('data-kern-open');
+        }
+        const cells = this.childrenOf(tr, 'td', 'th');
+        span ??= String(this.columnCount());
+        if (cells.length === 1 && cells[0].getAttribute('colspan') !== span) cells[0].setAttribute('colspan', span);
+        if (!tr.id) tr.id = `kern-details-${++detailsCount}`;
+        for (const button of Array.from(parent.querySelectorAll('[kern-expand]')).filter((b) => b.closest('tr') === parent)) {
+          if (button.getAttribute('aria-expanded') !== String(isOpen)) button.setAttribute('aria-expanded', String(isOpen));
+          if (button.getAttribute('aria-controls') !== tr.id) button.setAttribute('aria-controls', tr.id);
+        }
+        const data = this.rowData.get(parent);
+        if (shown && data && this.detail && cells[0] && !this.filled.has(tr)) {
+          this.filled.add(tr);
+          const content = this.detail(data.row, data.index);
+          if (content && typeof content === 'object' && 'nodeType' in content) cells[0].append(content);
+          else cells[0].textContent = String(content ?? '');
+        }
+      }
     }
   }
 
@@ -510,6 +628,7 @@ export class KernTable {
       }
       tr.append(th);
     }
+    if (this.detail) tr.prepend(this.expandCell('th'));
     this.replace(thead, [tr]);
     this.sync();
     if (focusKey) (Array.from(tr.children).find((th) => th.getAttribute('data-key') === focusKey)?.querySelector('button') as HTMLElement | null)?.focus();
@@ -527,11 +646,13 @@ export class KernTable {
         ? sortByValue(items, ({ row }) => (col.sortValue ? col.sortValue(row) : row?.[col.key]), this.sortDir, this.collator())
         : items;
     const visible = this.paged() ? ordered.slice(...this.range(ordered.length)) : ordered;
-    // Rebuilt rows (new `rows`, page, sort): a focused row checkbox keeps focus.
+    // Rebuilt rows (new `rows`, page, sort): a focused row checkbox or toggle keeps focus.
     const active = document.activeElement;
-    const focusKey = active && tbody.contains(active) && active.closest('[data-kern-select]') ? this.keyOf(active.closest('tr')!) : undefined;
+    const focusCell = active && tbody.contains(active) ? active.closest(`[${GENERATED}]`) : null;
+    const focusKey = focusCell ? this.keyOf(focusCell.closest('tr')!) : undefined;
+    const focusKind = focusCell?.hasAttribute('data-kern-expand') ? 'data-kern-expand' : 'data-kern-select';
 
-    const trs = visible.map(({ row, index }) => {
+    const trs = visible.flatMap(({ row, index }) => {
       const tr = document.createElement('tr');
       const rowCls = this.getRowClass?.(row, index);
       if (rowCls) tr.className = rowCls;
@@ -546,13 +667,19 @@ export class KernTable {
         else td.textContent = isBlank(content) ? '–' : String(content);
         tr.append(td);
       }
-      return tr;
+      if (!this.detail) return [tr];
+      tr.prepend(this.expandCell('td'));
+      const details = document.createElement('tr');
+      details.setAttribute('kern-details', '');
+      details.append(document.createElement('td'));
+      return [tr, details];
     });
 
     if (!trs.length && this.loading) {
       for (let i = 0; i < this.loadingRows; i++) {
         const tr = document.createElement('tr');
         tr.className = 'skeleton';
+        if (this.detail) tr.append(this.expandCell('td', false));
         for (const c of columns) {
           const td = document.createElement('td');
           if (c.align === 'end') td.className = 'num';
@@ -565,7 +692,7 @@ export class KernTable {
       const tr = document.createElement('tr');
       const td = document.createElement('td');
       td.className = 'empty';
-      td.setAttribute('colspan', String(columns.length));
+      td.setAttribute('colspan', String(columns.length + (this.detail ? 1 : 0)));
       td.textContent = this.labelEmpty;
       tr.append(td);
       trs.push(tr);
@@ -573,8 +700,26 @@ export class KernTable {
     this.replace(tbody, trs);
     this.busy();
     this.pager(ordered.length);
-    this.syncSelection();
-    if (focusKey !== undefined) this.focusLater(trs.find((tr) => this.rowKeys.get(tr) === focusKey)?.querySelector('[data-kern-select] > *'));
+    this.syncRows();
+    if (focusKey !== undefined) this.focusLater(trs.find((tr) => this.rowKeys.get(tr) === focusKey)?.querySelector(`[${focusKind}] > *`));
+  }
+
+  /** Data mode: the generated toggle cell of a row (empty in the header and skeleton rows). */
+  private expandCell(tag: 'td' | 'th', button = tag === 'td') {
+    const cell = document.createElement(tag);
+    cell.setAttribute(GENERATED, '');
+    cell.setAttribute('data-kern-expand', '');
+    if (button) {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.setAttribute('kern-expand', '');
+      b.setAttribute('aria-label', this.labelExpandRow);
+      const icon = document.createElement('kern-icon');
+      icon.setAttribute('name', 'chevron-right');
+      b.append(icon);
+      cell.append(b);
+    }
+    return cell;
   }
 
   /** Focuses a new component once it has rendered (before, a host delegating focus has nothing to focus). */

@@ -497,4 +497,161 @@ describe('kern-table', () => {
       });
     });
   });
+
+  describe('detail rows', () => {
+    const body = `<table><thead><tr><th sortable data-key="name">Name</th><th sortable>N</th></tr></thead><tbody>
+      <tr data-key="a"><td><button kern-expand>Alpha</button></td><td>3</td></tr><tr kern-details><td>Details A</td></tr>
+      <tr data-key="b"><td>Bravo</td><td>1</td></tr>
+      <tr data-key="c"><td><button kern-expand>Charlie</button></td><td>2</td></tr><tr kern-details><td>Details C</td></tr>
+      <tr><td colspan="2" class="empty">More</td></tr></tbody></table>`;
+    async function markup(attrs = '') {
+      const page = await newSpecPage({ components: [KernTable], html: `<kern-table${attrs}>${body}</kern-table>` });
+      const el = page.root as any;
+      const order = () => Array.from(el.querySelectorAll('tbody tr')).map((r: any) => r.dataset.key ?? (r.hasAttribute('kern-details') ? r.textContent.trim() : 'filler'));
+      const open = () => Array.from(el.querySelectorAll('tr[kern-details][data-kern-open]')).map((r: any) => r.textContent.trim());
+      const button = (key: string) => el.querySelector(`tr[data-key="${key}"] [kern-expand]`) as HTMLElement;
+      const toggles: unknown[] = [];
+      el.addEventListener('kernRowToggle', (e: CustomEvent) => toggles.push(e.detail));
+      return { page, el, order, open, button, toggles };
+    }
+
+    it('hides detail rows, spans all columns and wires the toggle', async () => {
+      const { page, el, open, button, toggles } = await markup();
+      expect(open()).toEqual([]);
+      const details = el.querySelector('tr[kern-details]');
+      expect(details.firstElementChild.getAttribute('colspan')).toBe('2');
+      expect(button('a').getAttribute('aria-expanded')).toBe('false');
+      expect(button('a').getAttribute('aria-controls')).toBe(details.id);
+      expect(details.id).toBeTruthy();
+      button('a').click();
+      await page.waitForChanges();
+      expect(open()).toEqual(['Details A']);
+      expect(el.expanded).toEqual(['a']);
+      expect(toggles).toEqual([{ key: 'a', open: true }]);
+      expect(button('a').getAttribute('aria-expanded')).toBe('true');
+      button('a').click();
+      await page.waitForChanges();
+      expect(open()).toEqual([]);
+      expect(toggles[1]).toEqual({ key: 'a', open: false });
+    });
+
+    it('moves detail rows with their row when sorting, not counted as rows', async () => {
+      const { page, el, order } = await markup();
+      el.querySelectorAll('th button')[1].click();
+      await page.waitForChanges();
+      expect(order()).toEqual(['b', 'c', 'Details C', 'a', 'Details A', 'filler']);
+      await el.sortBy('name', 'desc');
+      await page.waitForChanges();
+      expect(order()).toEqual(['c', 'Details C', 'b', 'a', 'Details A', 'filler']);
+    });
+
+    it('pages without counting detail rows and hides them with their row', async () => {
+      const { page, el, open } = await markup(' page-size="2"');
+      expect(el.querySelector('kern-pagination').total).toBe(3);
+      await el.toggleRow('a');
+      await el.toggleRow('c', true);
+      await page.waitForChanges();
+      expect(el.expanded).toEqual(['a', 'c']);
+      expect(open()).toEqual(['Details A']);
+      expect(el.querySelector('tr[data-key="b"]').hasAttribute('data-kern-paged-out')).toBe(false);
+      el.page = 2;
+      await page.waitForChanges();
+      expect(open()).toEqual(['Details C']);
+      await el.toggleRow('c', true); // no change, no event
+      await el.toggleRow('c', false);
+      await page.waitForChanges();
+      expect(open()).toEqual([]);
+    });
+
+    it('keeps expanded when kernRowToggle is cancelled', async () => {
+      const { page, el, button, open } = await markup();
+      el.addEventListener('kernRowToggle', (e: Event) => e.preventDefault());
+      button('c').click();
+      await page.waitForChanges();
+      expect(el.expanded).toEqual([]);
+      expect(open()).toEqual([]);
+    });
+
+    it('spans the selection column and gets no checkbox', async () => {
+      const { page, el, button, open } = await markup(' selectable controlled="external"');
+      expect(el.querySelectorAll('tbody [data-kern-select] kern-checkbox').length).toBe(3);
+      expect(el.querySelector('tr[kern-details]').querySelector('[data-kern-select]')).toBeNull();
+      expect(el.querySelector('tr[kern-details] td').getAttribute('colspan')).toBe('3');
+      button('a').click();
+      await page.waitForChanges();
+      expect(open()).toEqual(['Details A']);
+      const head = el.querySelector('thead kern-checkbox');
+      head.dispatchEvent(new CustomEvent('kernChange', { detail: { checked: true }, bubbles: true }));
+      await page.waitForChanges();
+      expect(el.selected).toEqual(['a', 'b', 'c']);
+    });
+
+    describe('data mode', () => {
+      const devices = [
+        { id: 'k', name: 'Kitchen light' },
+        { id: 'b', name: 'Bathroom fan' },
+        { id: 's', name: 'Shutter south' },
+      ];
+      async function data(props: Record<string, unknown> = {}) {
+        const page = await newSpecPage({ components: [KernTable], html: `<kern-table></kern-table>` });
+        const el = page.root as any;
+        const detail = jest.fn((r: any) => `Details ${r.name}`);
+        el.columns = [{ key: 'name', label: 'Name', sortable: true }];
+        el.rows = devices;
+        el.detail = detail;
+        Object.assign(el, props);
+        await page.waitForChanges();
+        const order = () => Array.from(el.querySelectorAll('tbody tr')).map((r: any) => (r.hasAttribute('kern-details') ? `[${r.hasAttribute('data-kern-open') ? r.textContent : ''}]` : r.textContent));
+        const toggle = async (i: number) => {
+          (el.querySelectorAll('tbody tr:not([kern-details]) [kern-expand]')[i] as HTMLElement).click();
+          await page.waitForChanges();
+        };
+        return { page, el, detail, order, toggle };
+      }
+
+      it('adds a toggle column and builds details on first opening', async () => {
+        const { page, el, detail, order, toggle } = await data();
+        expect(el.querySelectorAll('thead th').length).toBe(2);
+        expect(el.querySelector('th[data-kern-expand]')).not.toBeNull();
+        expect(el.querySelector('tbody [kern-expand]').getAttribute('aria-label')).toBe('Details anzeigen');
+        expect(detail).not.toHaveBeenCalled();
+        const spy = jest.fn();
+        el.addEventListener('kernRowClick', spy);
+        await toggle(1);
+        expect(spy).not.toHaveBeenCalled();
+        expect(el.expanded).toEqual(['b']);
+        expect(detail).toHaveBeenCalledTimes(1);
+        expect(order()).toEqual(['Kitchen light', '[]', 'Bathroom fan', '[Details Bathroom fan]', 'Shutter south', '[]']);
+        expect(el.querySelector('tr[kern-details] td').getAttribute('colspan')).toBe('2');
+        el.querySelector('th:not([data-kern-generated]) button').click();
+        await page.waitForChanges();
+        expect(order()).toEqual(['Bathroom fan', '[Details Bathroom fan]', 'Kitchen light', '[]', 'Shutter south', '[]']);
+        expect(el.querySelector('tbody [kern-expand]').getAttribute('aria-expanded')).toBe('true');
+      });
+
+      it('keeps expanded with paging, selection and new rows', async () => {
+        const { page, el, order, toggle } = await data({ pageSize: 2, selectable: true });
+        expect(el.querySelector('tr[kern-details] td').getAttribute('colspan')).toBe('3');
+        await toggle(0);
+        el.page = 2;
+        await page.waitForChanges();
+        expect(order()).toEqual(['Shutter south', '[]']);
+        expect(el.querySelector('kern-pagination').total).toBe(3);
+        el.page = 1;
+        el.rows = [...devices];
+        await page.waitForChanges();
+        expect(order()[1]).toBe('[Details Kitchen light]');
+        await el.toggleRow('k');
+        await page.waitForChanges();
+        expect(order()[1]).toBe('[]');
+      });
+
+      it('widens the empty row by the toggle column', async () => {
+        const { el, page } = await data();
+        el.rows = [];
+        await page.waitForChanges();
+        expect(el.querySelector('td.empty').getAttribute('colspan')).toBe('2');
+      });
+    });
+  });
 });

@@ -1890,6 +1890,10 @@ export namespace Components {
      * Selection: `selectable` adds a first column with a `kern-checkbox` per row and one in the header for the visible rows
      * of the current page. Rows are identified by `data-key` on the `<tr>` (data mode: `rowKey`, default `row.id` or the
      * index). `selected` holds the keys and survives sorting, paging and new rows; selected rows get `aria-selected="true"`.
+     * Detail rows: a `<tr kern-details>` right after its row is hidden until the row is expanded; it spans all columns,
+     * moves with its row when sorting and is no row for paging or sorting. A `<button kern-expand>` in the row toggles it
+     * (the table sets `aria-expanded` and `aria-controls`). Data mode: `detail` adds a chevron column and the detail rows.
+     * `expanded` holds the keys of the open rows.
      */
     interface KernTable {
         /**
@@ -1907,6 +1911,15 @@ export namespace Components {
          */
         "controlled": 'internal' | 'external';
         /**
+          * Data mode: content of a row's detail row; adds a first column with a toggle. Called when the row is first opened.
+         */
+        "detail"?: (row: any, index: number) => Node | string;
+        /**
+          * Keys of the expanded rows (see `selected` for keys).
+          * @default []
+         */
+        "expanded": string[];
+        /**
           * Data mode: classes for a cell.
          */
         "getCellClass"?: (row: any, column: KernTableColumn, index: number) => string | undefined;
@@ -1923,6 +1936,11 @@ export namespace Components {
           * @default 'Keine Einträge'
          */
         "labelEmpty": string;
+        /**
+          * Data mode: accessible name of the toggle button of a row.
+          * @default 'Details anzeigen'
+         */
+        "labelExpandRow": string;
         /**
           * Accessible name of the header checkbox.
           * @default 'Alle auswählen'
@@ -1979,6 +1997,10 @@ export namespace Components {
           * Sorts by a column (`data-key` or index); without `direction` it toggles, starting with `asc`. With `controlled="external"` it only emits `kernSort`.
          */
         "sortBy": (column: string | number, direction?: KernSortDirection) => Promise<void>;
+        /**
+          * Opens or closes a row's details (`open` omitted: toggles). Emits `kernRowToggle`.
+         */
+        "toggleRow": (key: string, open?: boolean) => Promise<void>;
         /**
           * `controlled="external"`: number of all rows (the table only gets the current page).
          */
@@ -3221,6 +3243,7 @@ declare global {
         "kernSort": { key: string; column: number; direction: KernSortDirection };
         "kernRowClick": { row: any; index: number };
         "kernSelectionChange": { selected: string[] };
+        "kernRowToggle": { key: string; open: boolean };
     }
     /**
      * Dense data table: wraps a native `<table>` (light DOM, so cells can hold any markup and Angular bindings).
@@ -3237,6 +3260,10 @@ declare global {
      * Selection: `selectable` adds a first column with a `kern-checkbox` per row and one in the header for the visible rows
      * of the current page. Rows are identified by `data-key` on the `<tr>` (data mode: `rowKey`, default `row.id` or the
      * index). `selected` holds the keys and survives sorting, paging and new rows; selected rows get `aria-selected="true"`.
+     * Detail rows: a `<tr kern-details>` right after its row is hidden until the row is expanded; it spans all columns,
+     * moves with its row when sorting and is no row for paging or sorting. A `<button kern-expand>` in the row toggles it
+     * (the table sets `aria-expanded` and `aria-controls`). Data mode: `detail` adds a chevron column and the detail rows.
+     * `expanded` holds the keys of the open rows.
      */
     interface HTMLKernTableElement extends Components.KernTable, HTMLStencilElement {
         addEventListener<K extends keyof HTMLKernTableElementEventMap>(type: K, listener: (this: HTMLKernTableElement, ev: KernTableCustomEvent<HTMLKernTableElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
@@ -5403,6 +5430,10 @@ declare namespace LocalJSX {
      * Selection: `selectable` adds a first column with a `kern-checkbox` per row and one in the header for the visible rows
      * of the current page. Rows are identified by `data-key` on the `<tr>` (data mode: `rowKey`, default `row.id` or the
      * index). `selected` holds the keys and survives sorting, paging and new rows; selected rows get `aria-selected="true"`.
+     * Detail rows: a `<tr kern-details>` right after its row is hidden until the row is expanded; it spans all columns,
+     * moves with its row when sorting and is no row for paging or sorting. A `<button kern-expand>` in the row toggles it
+     * (the table sets `aria-expanded` and `aria-controls`). Data mode: `detail` adds a chevron column and the detail rows.
+     * `expanded` holds the keys of the open rows.
      */
     interface KernTable {
         /**
@@ -5420,6 +5451,15 @@ declare namespace LocalJSX {
          */
         "controlled"?: 'internal' | 'external';
         /**
+          * Data mode: content of a row's detail row; adds a first column with a toggle. Called when the row is first opened.
+         */
+        "detail"?: (row: any, index: number) => Node | string;
+        /**
+          * Keys of the expanded rows (see `selected` for keys).
+          * @default []
+         */
+        "expanded"?: string[];
+        /**
           * Data mode: classes for a cell.
          */
         "getCellClass"?: (row: any, column: KernTableColumn, index: number) => string | undefined;
@@ -5436,6 +5476,11 @@ declare namespace LocalJSX {
           * @default 'Keine Einträge'
          */
         "labelEmpty"?: string;
+        /**
+          * Data mode: accessible name of the toggle button of a row.
+          * @default 'Details anzeigen'
+         */
+        "labelExpandRow"?: string;
         /**
           * Accessible name of the header checkbox.
           * @default 'Alle auswählen'
@@ -5460,6 +5505,10 @@ declare namespace LocalJSX {
           * Data mode: a row was clicked (not on a button, link or field in it). `index` is the position in `rows`.
          */
         "onKernRowClick"?: (event: KernTableCustomEvent<{ row: any; index: number }>) => void;
+        /**
+          * A row's details were opened or closed (button or `toggleRow()`). Cancelable: `preventDefault()` keeps `expanded` as it is.
+         */
+        "onKernRowToggle"?: (event: KernTableCustomEvent<{ key: string; open: boolean }>) => void;
         /**
           * The selection was changed with a checkbox. Cancelable: `preventDefault()` keeps `selected` as it is.
          */
@@ -6307,6 +6356,7 @@ declare namespace LocalJSX {
         "selectable": boolean;
         "labelSelectAll": string;
         "labelSelectRow": string;
+        "labelExpandRow": string;
     }
     interface KernTabsAttributes {
         "value": string;
@@ -6740,6 +6790,10 @@ declare module "@stencil/core" {
              * Selection: `selectable` adds a first column with a `kern-checkbox` per row and one in the header for the visible rows
              * of the current page. Rows are identified by `data-key` on the `<tr>` (data mode: `rowKey`, default `row.id` or the
              * index). `selected` holds the keys and survives sorting, paging and new rows; selected rows get `aria-selected="true"`.
+             * Detail rows: a `<tr kern-details>` right after its row is hidden until the row is expanded; it spans all columns,
+             * moves with its row when sorting and is no row for paging or sorting. A `<button kern-expand>` in the row toggles it
+             * (the table sets `aria-expanded` and `aria-controls`). Data mode: `detail` adds a chevron column and the detail rows.
+             * `expanded` holds the keys of the open rows.
              */
             "kern-table": LocalJSX.IntrinsicElements["kern-table"] & JSXBase.HTMLAttributes<HTMLKernTableElement>;
             /**

@@ -59,6 +59,7 @@ describe('kern-language-select', () => {
     expect(root.querySelector('nav')!.getAttribute('aria-label')).toBe('Language');
     const active = root.querySelector('[aria-current="true"]')!;
     expect([active.tagName, active.getAttribute('lang'), active.querySelector('.sr')!.textContent]).toEqual(['SPAN', 'de', 'Deutsch']);
+    expect(Array.from(root.querySelectorAll('.item .text')).map((t) => t.getAttribute('data-text'))).toEqual(['DE', 'EN']);
     root.querySelector<HTMLButtonElement>('button[lang="en"]')!.click();
     await page.waitForChanges();
     expect(events).toEqual([{ value: 'en', href: undefined }]);
@@ -70,6 +71,7 @@ describe('kern-language-select', () => {
     const { page, root, events } = await setup(`<kern-language-select variant="inline" value="de" languages="de,en" href="/{locale}/settings"></kern-language-select>`);
     const link = root.querySelector('a')!;
     expect([link.getAttribute('href'), link.getAttribute('hreflang'), link.textContent]).toEqual(['/en/settings', 'en', 'English']);
+    expect(link.querySelector('.text')!.getAttribute('data-text')).toBe('English');
     page.root!.addEventListener('kernChange', (e) => e.preventDefault());
     const click = new MouseEvent('click', { bubbles: true, cancelable: true, button: 0 });
     link.dispatchEvent(click);

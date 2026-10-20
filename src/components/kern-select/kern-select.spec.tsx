@@ -12,7 +12,7 @@ describe('kern-select', () => {
     expect(Array.from(opts).map((o) => o.textContent)).toEqual(['Haus', 'Ferienwohnung']);
     expect(opts[1].getAttribute('aria-selected')).toBe('true');
     expect(page.root!.value).toBe('2');
-    expect(sr.querySelector('[role="combobox"] .value')!.textContent).toBe('Ferienwohnung');
+    expect(sr.querySelector('[role="combobox"] .current')!.textContent).toBe('Ferienwohnung');
     expect(sr.querySelector('label')!.textContent).toBe('Standort');
     expect(sr.querySelector('select')).toBeNull();
   });
@@ -33,7 +33,7 @@ describe('kern-select', () => {
       html: `<kern-select placeholder="Bitte wählen"><option value="a" disabled>A</option><option value="b">B</option></kern-select>`,
     });
     const sr = page.root!.shadowRoot!;
-    expect(sr.querySelector('[role="combobox"] .value')!.textContent).toBe('Bitte wählen');
+    expect(sr.querySelector('[role="combobox"] .current')!.textContent).toBe('Bitte wählen');
     (sr.querySelectorAll('[role="option"]')[0] as HTMLElement).click();
     await page.waitForChanges();
     expect(page.root!.value).toBe('');
@@ -101,6 +101,22 @@ describe('kern-select', () => {
     expect(sr.querySelectorAll('[role="option"][aria-selected="true"]').length).toBe(1);
   });
 
+  it('sizes the trigger by hidden copies of all options and the placeholder', async () => {
+    const page = await newSpecPage({
+      components: [KernSelect],
+      html: `<kern-select placeholder="Bitte wählen" value="a"><option value="a">Haus</option><option value="b">Ferienwohnung</option></kern-select>`,
+    });
+    const sizers = Array.from(page.root!.shadowRoot!.querySelectorAll('.trigger .value .sizer'));
+    expect(sizers.map((s) => s.textContent)).toEqual(['Haus', 'Ferienwohnung', 'Bitte wählen']);
+    expect(sizers.every((s) => s.getAttribute('aria-hidden') === 'true')).toBe(true);
+    expect(page.root!.shadowRoot!.querySelector('.trigger .current')!.textContent).toBe('Haus');
+  });
+
+  it('has no sizers with multiple', async () => {
+    const page = await newSpecPage({ components: [KernSelect], html: `<kern-select multiple placeholder="Tags"><option value="a">A</option></kern-select>` });
+    expect(page.root!.shadowRoot!.querySelector('.sizer')).toBeNull();
+  });
+
   it('accepts a comma-separated value attribute with multiple', async () => {
     const page = await newSpecPage({ components: [KernSelect], html: `<kern-select multiple value="a, b"><option value="a">A</option><option value="b">B</option></kern-select>` });
     expect(page.root!.value).toEqual(['a', 'b']);
@@ -114,7 +130,7 @@ describe('kern-select options with icons', () => {
       html: `<kern-select value="de" aria-label-text="Language"><option value="de" data-icon="flag-de" aria-label="Deutsch" lang="de">DE</option><option value="en" data-icon="flag-gb" aria-label="English" lang="en">EN</option></kern-select>`,
     });
     const root = page.root!.shadowRoot!;
-    expect(root.querySelector('.trigger kern-icon')!.getAttribute('name')).toBe('flag-de');
+    expect(root.querySelector('.trigger .current kern-icon')!.getAttribute('name')).toBe('flag-de');
     expect(root.querySelector('.trigger .value .sr')!.textContent).toBe('Deutsch');
     const option = root.querySelectorAll('[role="option"]')[1];
     expect([option.getAttribute('aria-label'), option.getAttribute('lang'), option.querySelector('kern-icon')!.getAttribute('name')]).toEqual(['English', 'en', 'flag-gb']);

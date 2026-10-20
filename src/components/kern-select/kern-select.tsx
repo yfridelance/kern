@@ -6,6 +6,8 @@ import { positionPopup } from '../../utils/popover';
 import { kernTexts } from '../../utils/i18n';
 
 let nextId = 0;
+/** Up to this many options size the trigger by the longest one; beyond that the hidden copies would bloat the DOM of long searchable lists. */
+const SIZER_MAX = 100;
 
 export interface KernOption {
   value: string;
@@ -454,11 +456,29 @@ export class KernSelect {
         <Icon name="chevron-down" class="chevron" />,
       ];
     }
-    const selected = this.list.find((o) => o.value === this.value);
+    const list = this.list;
+    const selected = list.find((o) => o.value === this.value);
+    // Hidden copies of every option in the same grid cell keep the trigger as wide as the longest one.
+    const sizers = list.length <= SIZER_MAX && [
+      ...list.map((o) => (
+        <span class="sizer" aria-hidden="true" lang={o.lang}>
+          {o.icon && <kern-icon name={o.icon} class="option-icon" />}
+          <span class="text">{o.label}</span>
+        </span>
+      )),
+      this.placeholder && (
+        <span class="sizer" aria-hidden="true">
+          <span class="text">{this.placeholder}</span>
+        </span>
+      ),
+    ];
     return [
-      selected?.icon && <kern-icon name={selected.icon} class="option-icon" />,
-      <span class="value" lang={selected?.lang}>
-        {selected ? this.optionText(selected) : (this.placeholder ?? '')}
+      <span class="value">
+        {sizers}
+        <span class="current" lang={selected?.lang}>
+          {selected?.icon && <kern-icon name={selected.icon} class="option-icon" />}
+          <span class="text">{selected ? this.optionText(selected) : (this.placeholder ?? '')}</span>
+        </span>
       </span>,
       <Icon name="chevron-down" class="chevron" />,
     ];

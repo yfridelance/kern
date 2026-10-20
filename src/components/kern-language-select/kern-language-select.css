@@ -18,5 +18,8 @@ li + li::before { content: '/'; margin: 0 2px; color: var(--text-faint); }
 a.item:hover, button.item:hover:not(:disabled) { color: var(--text); background: var(--hover); }
 .item:focus-visible { outline: 2px solid var(--focus); outline-offset: 1px; }
 .item.active { color: var(--text); font-weight: 600; cursor: default; }
+/* The label stacked on a hidden bold copy: as wide active as inactive */
+.text { display: inline-grid; }
+.text::after { content: attr(data-text); font-weight: 600; visibility: hidden; height: 0; overflow: hidden; }
 button.item:disabled, a.item[aria-disabled="true"] { opacity: .5; cursor: not-allowed; }
 .sr { position: absolute; width: 1px; height: 1px; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }

@@ -1,3 +1,8 @@
 :host { display: inline-flex; flex: none; width: 1em; height: 1em; vertical-align: -0.125em; color: inherit; }
 :host([hidden]) { display: none; }
 svg { width: 100%; height: 100%; }
+/* Flags: 4:3, slightly rounded, with a hairline so white parts stay visible on light and dark surfaces. */
+:host([name^='flag-']) { width: 1.3333em; }
+.flag { position: relative; display: block; width: 100%; height: 100%; overflow: hidden; border-radius: 2px; }
+.flag svg { display: block; }
+.flag::after { content: ''; position: absolute; inset: 0; border-radius: inherit; box-shadow: inset 0 0 0 1px var(--line); }

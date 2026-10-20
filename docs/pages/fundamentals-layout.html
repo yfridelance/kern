@@ -31,3 +31,14 @@
 &lt;/kern-grid&gt;
 </kern-code>
 <p>Gaps come from the spacing scale (<code>gap="sm|md|lg"</code>); inside a card, use <code>kern-grid</code> too, not nested cards.</p>
+<h2>App shell</h2>
+<p><a href="../components/kern-app-shell.html"><code>kern-app-shell</code></a> is the frame around the pages: a topbar that stays at the top, the content with <code>--content-max</code> and page padding, and an optional footer. With a <code>sidebar</code> slot it adds a side navigation that stands on the left from 960 px and becomes a drawer below, opened by the menu button of <code>kern-topbar</code>. A skip link and the landmarks <code>header</code>, <code>nav</code> and <code>main</code> come with it.</p>
+<kern-code language="html">
+&lt;kern-app-shell&gt;
+  &lt;kern-topbar slot="topbar" app-name="Shelly Manager"&gt;&lt;/kern-topbar&gt;
+  &lt;kern-list slot="sidebar" flush&gt;…&lt;/kern-list&gt;   &lt;!-- optional --&gt;
+  &lt;kern-page-header heading="Devices"&gt;&lt;/kern-page-header&gt;
+  &lt;kern-grid min="240px"&gt;…&lt;/kern-grid&gt;
+&lt;/kern-app-shell&gt;
+</kern-code>
+<p>Unlike the grid, the shell decides by its own width with a <code>breakpoint</code> property (default 960), because the side navigation is about the whole window, not one container.</p>

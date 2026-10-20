@@ -44,7 +44,7 @@ describe('kern-app-shell', () => {
     const { page, root, shell, events, narrow } = await setup(`${TOPBAR}${SIDEBAR}`);
     await narrow();
     const drawer = root.querySelector('kern-drawer') as HTMLElement & { open: boolean };
-    expect(drawer.querySelector('slot[name="sidebar"]')).not.toBeNull();
+    expect(drawer.querySelector('nav[aria-label="Navigation"] slot[name="sidebar"]')).not.toBeNull();
     const bar = page.root!.querySelector('kern-topbar') as HTMLElement & { menu: boolean; menuExpanded: boolean };
     expect(bar.menu).toBe(true);
     bar.shadowRoot!.querySelector<HTMLButtonElement>('.menu')!.click();
@@ -63,6 +63,38 @@ describe('kern-app-shell', () => {
     await page.waitForChanges();
     expect(shell.sidebarOpen).toBe(false);
     expect(events).toEqual([true, false]);
+  });
+
+  it('focuses the main content after a link click once the drawer has closed', async () => {
+    const { page, root, shell, narrow } = await setup(`${TOPBAR}${SIDEBAR}`);
+    await narrow();
+    await shell.toggleSidebar(true);
+    await page.waitForChanges();
+    const main = root.querySelector('main')!;
+    const focus = jest.fn();
+    main.focus = focus;
+    const drawer = root.querySelector('kern-drawer')!;
+    drawer.dispatchEvent(Object.assign(new MouseEvent('click', { bubbles: true }), { composedPath: () => [page.root!.querySelector('a')] }));
+    await page.waitForChanges();
+    expect(focus).not.toHaveBeenCalled(); // the modal dialog is still open
+    drawer.dispatchEvent(new CustomEvent('kernClose', { detail: { returnValue: '' } }));
+    expect(focus).toHaveBeenCalledTimes(1);
+  });
+
+  it('focusMain() focuses the main content, after the drawer when it is open', async () => {
+    const { page, root, shell, narrow } = await setup(`${TOPBAR}${SIDEBAR}`);
+    const main = root.querySelector('main')!;
+    const focus = jest.fn();
+    main.focus = focus;
+    await (shell as unknown as KernAppShell).focusMain();
+    expect(focus).toHaveBeenCalledTimes(1);
+    await narrow();
+    await shell.toggleSidebar(true);
+    await page.waitForChanges();
+    await (shell as unknown as KernAppShell).focusMain();
+    expect(focus).toHaveBeenCalledTimes(1);
+    root.querySelector('kern-drawer')!.dispatchEvent(new CustomEvent('kernClose', { detail: { returnValue: '' } }));
+    expect(focus).toHaveBeenCalledTimes(2);
   });
 
   it('does not open a drawer when wide or without a sidebar', async () => {

@@ -1,11 +1,14 @@
-:host { display: flex; align-items: center; min-width: 0; position: relative; color: var(--text); font: 400 14px/20px var(--font-sans); }
+:host {
+  display: flex; align-items: center; min-width: 0; position: relative; color: var(--text);
+  font: 400 var(--kern-list-item-font, 14px/20px var(--font-sans)); border-radius: var(--kern-list-item-radius, 0);
+}
 :host([hidden]) { display: none; }
 :host([disabled]) { opacity: .5; }
 * { box-sizing: border-box; }
 
 .row {
-  all: unset; box-sizing: border-box; flex: 1; min-width: 0; display: flex; align-items: center; gap: var(--space-3);
-  padding: var(--kern-list-pad-y, 10px) var(--kern-list-pad-x, 16px);
+  all: unset; box-sizing: border-box; flex: 1; min-width: 0; display: flex; align-items: center; gap: var(--kern-list-item-gap, var(--space-3));
+  padding: var(--kern-list-pad-y, 10px) var(--kern-list-pad-x, 16px); border-radius: inherit;
 }
 :host(.has-end) .row { padding-right: var(--space-2); }
 .interactive { cursor: pointer; }
@@ -14,15 +17,18 @@
 button.row:disabled { cursor: not-allowed; }
 button.row:disabled:hover { background: none; }
 
-/* Selected: soft accent with a bar at the start. */
-:host([selected]) { background: var(--accent-soft); }
-:host([selected])::before { content: ''; position: absolute; inset: 0 auto 0 0; width: 2px; background: var(--accent); }
-:host([selected]) .interactive:hover { background: none; }
+/* Selected and current: soft accent with a bar at the start (none in a nav list); current also in accent text. */
+:host([selected]), :host([current]) { background: var(--accent-soft); }
+:host([selected])::before, :host([current])::before { content: ''; position: absolute; inset: 0 auto 0 0; width: var(--kern-list-item-bar, 2px); background: var(--accent); }
+:host([selected]) .interactive:hover, :host([current]) .interactive:hover { background: none; }
+:host([current]) { color: var(--accent-text); }
+:host([current]) .heading { font-weight: 600; }
+:host([current]) .start { color: inherit; }
 
 .start { flex: none; display: inline-flex; align-items: center; color: var(--text-muted); }
 .start[hidden], .description[hidden], .meta[hidden], .end[hidden] { display: none; }
 .text { flex: 1; min-width: 0; display: grid; }
-.heading { font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.heading { font-weight: var(--kern-list-item-weight, 500); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .description { font-size: 13px; line-height: 18px; color: var(--text-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .meta { flex: none; font-size: 12px; line-height: 16px; color: var(--text-muted); font-variant-numeric: tabular-nums; white-space: nowrap; }
 

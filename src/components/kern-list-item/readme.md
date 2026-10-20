@@ -13,16 +13,17 @@ actions at the end. With `href` the row is a link, with `clickable` a button (`k
 
 ## Properties
 
-| Property      | Attribute     | Description                                             | Type                  | Default     |
-| ------------- | ------------- | ------------------------------------------------------- | --------------------- | ----------- |
-| `clickable`   | `clickable`   | Turns the row into a button that emits `kernItemClick`. | `boolean`             | `false`     |
-| `description` | `description` |                                                         | `string \| undefined` | `undefined` |
-| `disabled`    | `disabled`    |                                                         | `boolean`             | `false`     |
-| `heading`     | `heading`     |                                                         | `string \| undefined` | `undefined` |
-| `href`        | `href`        | Turns the row into a link.                              | `string \| undefined` | `undefined` |
-| `meta`        | `meta`        | Right-aligned, muted (time, count, size).               | `string \| undefined` | `undefined` |
-| `selected`    | `selected`    | Marks the current row (`aria-current`).                 | `boolean`             | `false`     |
-| `target`      | `target`      |                                                         | `string \| undefined` | `undefined` |
+| Property      | Attribute     | Description                                                                              | Type                  | Default     |
+| ------------- | ------------- | ---------------------------------------------------------------------------------------- | --------------------- | ----------- |
+| `clickable`   | `clickable`   | Turns the row into a button that emits `kernItemClick`.                                  | `boolean`             | `false`     |
+| `current`     | `current`     | Marks the link to the open page (`aria-current="page"`), e.g. in a `variant="nav"` list. | `boolean`             | `false`     |
+| `description` | `description` |                                                                                          | `string \| undefined` | `undefined` |
+| `disabled`    | `disabled`    |                                                                                          | `boolean`             | `false`     |
+| `heading`     | `heading`     |                                                                                          | `string \| undefined` | `undefined` |
+| `href`        | `href`        | Turns the row into a link.                                                               | `string \| undefined` | `undefined` |
+| `meta`        | `meta`        | Right-aligned, muted (time, count, size).                                                | `string \| undefined` | `undefined` |
+| `selected`    | `selected`    | Marks the selected row (`aria-current="true"`).                                          | `boolean`             | `false`     |
+| `target`      | `target`      |                                                                                          | `string \| undefined` | `undefined` |
 
 
 ## Events

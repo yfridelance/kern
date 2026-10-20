@@ -36,9 +36,41 @@
 <kern-code language="html">
 &lt;kern-app-shell&gt;
   &lt;kern-topbar slot="topbar" app-name="Shelly Manager"&gt;&lt;/kern-topbar&gt;
-  &lt;kern-list slot="sidebar" flush&gt;…&lt;/kern-list&gt;   &lt;!-- optional --&gt;
+  &lt;div slot="sidebar"&gt;…&lt;/div&gt;   &lt;!-- optional, see Navigation --&gt;
   &lt;kern-page-header heading="Devices"&gt;&lt;/kern-page-header&gt;
   &lt;kern-grid min="240px"&gt;…&lt;/kern-grid&gt;
 &lt;/kern-app-shell&gt;
 </kern-code>
 <p>Unlike the grid, the shell decides by its own width with a <code>breakpoint</code> property (default 960), because the side navigation is about the whole window, not one container.</p>
+<h2 id="navigation">Navigation</h2>
+<p>Build the side navigation from <a href="../components/kern-list.html"><code>kern-list variant="nav"</code></a>: one list per group with a <code>heading</code>, links as <code>kern-list-item href</code> with an icon in <code>start</code> and a counter as <code>kern-badge mono</code> in <code>meta</code>. <code>current</code> marks the open page (<code>aria-current="page"</code>).</p>
+<kern-code language="html">
+&lt;div slot="sidebar"&gt;
+  &lt;kern-list variant="nav" heading="Home"&gt;
+    &lt;kern-list-item heading="Overview" href="/" current&gt;&lt;kern-icon slot="start" name="home"&gt;&lt;/kern-icon&gt;&lt;/kern-list-item&gt;
+    &lt;kern-list-item heading="Devices" href="/devices"&gt;
+      &lt;kern-icon slot="start" name="power"&gt;&lt;/kern-icon&gt;
+      &lt;kern-badge slot="meta" mono&gt;38&lt;/kern-badge&gt;
+    &lt;/kern-list-item&gt;
+  &lt;/kern-list&gt;
+  &lt;kern-list variant="nav" heading="System"&gt;…&lt;/kern-list&gt;
+&lt;/div&gt;
+</kern-code>
+<ul>
+  <li><strong>Routing:</strong> the links are real <code>href</code>s, so the navigation works without JavaScript. In a single-page app, listen for <code>kernNavigate</code> (it bubbles) and call <code>preventDefault()</code> to route yourself; <code>detail.href</code> is the target.</li>
+  <li><strong>New tabs stay with the browser:</strong> <code>kernNavigate</code> only fires for a plain left click. Ctrl/Cmd, Shift or middle click and links with <code>target</code> open as the browser does.</li>
+  <li><strong>Drawer:</strong> below the breakpoint the navigation is a drawer; a link click closes it and moves focus to the main content, also when your router took over.</li>
+  <li><strong>Current page:</strong> after routing, move <code>current</code> to the new item.</li>
+  <li><strong>Focus:</strong> after a navigation without page load, call <code>focusMain()</code> on the shell, so keyboard and screen reader users continue in the new content instead of in the navigation. While the drawer is open it waits until the drawer has closed.</li>
+</ul>
+<kern-code language="js">
+document.addEventListener('kernNavigate', (e) =&gt; {
+  e.preventDefault();
+  router.go(e.detail.href);
+  if (e.target.localName === 'kern-list-item') {
+    for (const el of document.querySelectorAll('kern-list-item[current]')) el.current = false;
+    e.target.current = true;
+  }
+  document.querySelector('kern-app-shell').focusMain();
+});
+</kern-code>

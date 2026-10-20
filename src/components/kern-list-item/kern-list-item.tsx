@@ -33,8 +33,10 @@ export class KernListItem {
   @Prop() target?: string;
   /** Turns the row into a button that emits `kernItemClick`. */
   @Prop() clickable = false;
-  /** Marks the current row (`aria-current`). */
+  /** Marks the selected row (`aria-current="true"`). */
   @Prop({ reflect: true }) selected = false;
+  /** Marks the link to the open page (`aria-current="page"`), e.g. in a `variant="nav"` list. */
+  @Prop({ reflect: true }) current = false;
   @Prop({ reflect: true }) disabled = false;
 
   /** Click or Enter/Space on a `clickable` row. */
@@ -92,7 +94,7 @@ export class KernListItem {
   }
 
   render() {
-    const current = this.selected ? 'true' : undefined;
+    const current = this.current ? 'page' : this.selected ? 'true' : undefined;
     const link = this.href && !this.disabled;
     return (
       <Host role="listitem" class={{ 'has-end': this.slots.end }}>

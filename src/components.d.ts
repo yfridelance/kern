@@ -79,8 +79,10 @@ export namespace Components {
      * an optional footer. Without the `sidebar` slot it is a plain page frame.
      * From `breakpoint` (960 px of shell width) the sidebar stands on the left and scrolls on its own; below it, it opens
      * as a modal drawer from the left. A kern-topbar in the `topbar` slot then gets a menu button (`menu`) that opens it;
-     * with your own header call `toggleSidebar()`. A link click in the drawer closes it. A skip link («Skip to content»)
-     * leads past the navigation, and `<header>`, `<nav>` and `<main>` are landmarks.
+     * with your own header call `toggleSidebar()`. A link click in the drawer closes it and moves focus to the main
+     * content; after routing in `kernNavigate` call `focusMain()` for the same in the wide layout. A skip link («Skip to
+     * content») leads past the navigation, and `<header>`, `<nav>` and `<main>` are landmarks (the navigation also
+     * inside the drawer).
      */
     interface KernAppShell {
         /**
@@ -88,6 +90,10 @@ export namespace Components {
           * @default 960
          */
         "breakpoint": number;
+        /**
+          * Moves focus to the main content, e.g. after a navigation without page load, so keyboard and screen reader users continue there. While the drawer is open (everything else is inert) it waits until the drawer has closed.
+         */
+        "focusMain": () => Promise<void>;
         /**
           * Accessible name of the side navigation and title of the drawer.
          */
@@ -1225,6 +1231,9 @@ export namespace Components {
     /**
      * List of rows (devices, settings, events): kern-list-item children, separated by lines, in a bordered box.
      * `flush` drops the box, e.g. inside kern-card. Shows `empty` when there are no items.
+     * `variant="nav"` is a side navigation: compact rows without lines or box, rounded hover, and `current` on the
+     * item of the open page. With `heading` the list gets a visible group title that also names it; several nav
+     * lists in a row form groups.
      */
     interface KernList {
         /**
@@ -1237,6 +1246,10 @@ export namespace Components {
          */
         "flush": boolean;
         /**
+          * Visible group title above the rows; names the list instead of `label`.
+         */
+        "heading"?: string;
+        /**
           * Accessible name of the list.
          */
         "label"?: string;
@@ -1245,6 +1258,11 @@ export namespace Components {
           * @default 'md'
          */
         "size": 'md' | 'sm';
+        /**
+          * `nav` = side navigation: compact rows without lines and box.
+          * @default 'default'
+         */
+        "variant": 'default' | 'nav';
     }
     /**
      * One row of kern-list: optional icon or status at the start, heading and description, meta text (e.g. a time) and
@@ -1257,6 +1275,11 @@ export namespace Components {
           * @default false
          */
         "clickable": boolean;
+        /**
+          * Marks the link to the open page (`aria-current="page"`), e.g. in a `variant="nav"` list.
+          * @default false
+         */
+        "current": boolean;
         "description"?: string;
         /**
           * @default false
@@ -1272,7 +1295,7 @@ export namespace Components {
          */
         "meta"?: string;
         /**
-          * Marks the current row (`aria-current`).
+          * Marks the selected row (`aria-current="true"`).
           * @default false
          */
         "selected": boolean;
@@ -2587,8 +2610,10 @@ declare global {
      * an optional footer. Without the `sidebar` slot it is a plain page frame.
      * From `breakpoint` (960 px of shell width) the sidebar stands on the left and scrolls on its own; below it, it opens
      * as a modal drawer from the left. A kern-topbar in the `topbar` slot then gets a menu button (`menu`) that opens it;
-     * with your own header call `toggleSidebar()`. A link click in the drawer closes it. A skip link («Skip to content»)
-     * leads past the navigation, and `<header>`, `<nav>` and `<main>` are landmarks.
+     * with your own header call `toggleSidebar()`. A link click in the drawer closes it and moves focus to the main
+     * content; after routing in `kernNavigate` call `focusMain()` for the same in the wide layout. A skip link («Skip to
+     * content») leads past the navigation, and `<header>`, `<nav>` and `<main>` are landmarks (the navigation also
+     * inside the drawer).
      */
     interface HTMLKernAppShellElement extends Components.KernAppShell, HTMLStencilElement {
         addEventListener<K extends keyof HTMLKernAppShellElementEventMap>(type: K, listener: (this: HTMLKernAppShellElement, ev: KernAppShellCustomEvent<HTMLKernAppShellElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
@@ -3078,6 +3103,9 @@ declare global {
     /**
      * List of rows (devices, settings, events): kern-list-item children, separated by lines, in a bordered box.
      * `flush` drops the box, e.g. inside kern-card. Shows `empty` when there are no items.
+     * `variant="nav"` is a side navigation: compact rows without lines or box, rounded hover, and `current` on the
+     * item of the open page. With `heading` the list gets a visible group title that also names it; several nav
+     * lists in a row form groups.
      */
     interface HTMLKernListElement extends Components.KernList, HTMLStencilElement {
     }
@@ -3794,8 +3822,10 @@ declare namespace LocalJSX {
      * an optional footer. Without the `sidebar` slot it is a plain page frame.
      * From `breakpoint` (960 px of shell width) the sidebar stands on the left and scrolls on its own; below it, it opens
      * as a modal drawer from the left. A kern-topbar in the `topbar` slot then gets a menu button (`menu`) that opens it;
-     * with your own header call `toggleSidebar()`. A link click in the drawer closes it. A skip link («Skip to content»)
-     * leads past the navigation, and `<header>`, `<nav>` and `<main>` are landmarks.
+     * with your own header call `toggleSidebar()`. A link click in the drawer closes it and moves focus to the main
+     * content; after routing in `kernNavigate` call `focusMain()` for the same in the wide layout. A skip link («Skip to
+     * content») leads past the navigation, and `<header>`, `<nav>` and `<main>` are landmarks (the navigation also
+     * inside the drawer).
      */
     interface KernAppShell {
         /**
@@ -4989,6 +5019,9 @@ declare namespace LocalJSX {
     /**
      * List of rows (devices, settings, events): kern-list-item children, separated by lines, in a bordered box.
      * `flush` drops the box, e.g. inside kern-card. Shows `empty` when there are no items.
+     * `variant="nav"` is a side navigation: compact rows without lines or box, rounded hover, and `current` on the
+     * item of the open page. With `heading` the list gets a visible group title that also names it; several nav
+     * lists in a row form groups.
      */
     interface KernList {
         /**
@@ -5001,6 +5034,10 @@ declare namespace LocalJSX {
          */
         "flush"?: boolean;
         /**
+          * Visible group title above the rows; names the list instead of `label`.
+         */
+        "heading"?: string;
+        /**
           * Accessible name of the list.
          */
         "label"?: string;
@@ -5009,6 +5046,11 @@ declare namespace LocalJSX {
           * @default 'md'
          */
         "size"?: 'md' | 'sm';
+        /**
+          * `nav` = side navigation: compact rows without lines and box.
+          * @default 'default'
+         */
+        "variant"?: 'default' | 'nav';
     }
     /**
      * One row of kern-list: optional icon or status at the start, heading and description, meta text (e.g. a time) and
@@ -5021,6 +5063,11 @@ declare namespace LocalJSX {
           * @default false
          */
         "clickable"?: boolean;
+        /**
+          * Marks the link to the open page (`aria-current="page"`), e.g. in a `variant="nav"` list.
+          * @default false
+         */
+        "current"?: boolean;
         "description"?: string;
         /**
           * @default false
@@ -5044,7 +5091,7 @@ declare namespace LocalJSX {
          */
         "onKernNavigate"?: (event: KernListItemCustomEvent<KernNavigateDetail>) => void;
         /**
-          * Marks the current row (`aria-current`).
+          * Marks the selected row (`aria-current="true"`).
           * @default false
          */
         "selected"?: boolean;
@@ -6544,9 +6591,11 @@ declare namespace LocalJSX {
     }
     interface KernListAttributes {
         "flush": boolean;
+        "variant": 'default' | 'nav';
         "size": 'md' | 'sm';
         "empty": string;
         "label": string;
+        "heading": string;
     }
     interface KernListItemAttributes {
         "heading": string;
@@ -6556,6 +6605,7 @@ declare namespace LocalJSX {
         "target": string;
         "clickable": boolean;
         "selected": boolean;
+        "current": boolean;
         "disabled": boolean;
     }
     interface KernMacInputAttributes {
@@ -6952,8 +7002,10 @@ declare module "@stencil/core" {
              * an optional footer. Without the `sidebar` slot it is a plain page frame.
              * From `breakpoint` (960 px of shell width) the sidebar stands on the left and scrolls on its own; below it, it opens
              * as a modal drawer from the left. A kern-topbar in the `topbar` slot then gets a menu button (`menu`) that opens it;
-             * with your own header call `toggleSidebar()`. A link click in the drawer closes it. A skip link («Skip to content»)
-             * leads past the navigation, and `<header>`, `<nav>` and `<main>` are landmarks.
+             * with your own header call `toggleSidebar()`. A link click in the drawer closes it and moves focus to the main
+             * content; after routing in `kernNavigate` call `focusMain()` for the same in the wide layout. A skip link («Skip to
+             * content») leads past the navigation, and `<header>`, `<nav>` and `<main>` are landmarks (the navigation also
+             * inside the drawer).
              */
             "kern-app-shell": LocalJSX.IntrinsicElements["kern-app-shell"] & JSXBase.HTMLAttributes<HTMLKernAppShellElement>;
             /**
@@ -7121,6 +7173,9 @@ declare module "@stencil/core" {
             /**
              * List of rows (devices, settings, events): kern-list-item children, separated by lines, in a bordered box.
              * `flush` drops the box, e.g. inside kern-card. Shows `empty` when there are no items.
+             * `variant="nav"` is a side navigation: compact rows without lines or box, rounded hover, and `current` on the
+             * item of the open page. With `heading` the list gets a visible group title that also names it; several nav
+             * lists in a row form groups.
              */
             "kern-list": LocalJSX.IntrinsicElements["kern-list"] & JSXBase.HTMLAttributes<HTMLKernListElement>;
             /**

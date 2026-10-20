@@ -1,4 +1,5 @@
-:host { display: block; }
+/* min-width 0: in flex rows the tab list scrolls instead of widening the row. */
+:host { display: block; min-width: 0; }
 :host([hidden]) { display: none; }
 .tablist { display: flex; gap: var(--space-1); border-bottom: 1px solid var(--line); margin-bottom: var(--space-4); overflow-x: auto; }
 [role="tab"] {

@@ -14,16 +14,25 @@ header {
 .menu:hover { background: var(--hover); color: var(--text); }
 .menu:focus-visible { outline: 2px solid var(--focus); outline-offset: 1px; }
 .menu svg { width: 16px; height: 16px; }
-.brand { display: flex; align-items: center; gap: var(--space-2); color: var(--text); text-decoration: none; font-weight: 600; white-space: nowrap; }
+.brand { flex: none; display: flex; align-items: center; gap: var(--space-2); color: var(--text); text-decoration: none; font-weight: 600; white-space: nowrap; }
 .brand:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; border-radius: var(--radius-sm); }
 .mark { width: 10px; height: 10px; border-radius: 2px; background: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
 .suite { color: var(--text-muted); font-weight: 400; }
 nav { display: flex; align-self: stretch; gap: var(--space-1); }
 ::slotted(a) {
   display: flex !important; align-items: center; padding: 0 var(--space-3);
-  color: var(--text-muted) !important; text-decoration: none !important; font-weight: 500;
+  color: var(--text-muted) !important; text-decoration: none !important; font-weight: 500; white-space: nowrap;
   border-bottom: 2px solid transparent; margin-bottom: -1px;
 }
 ::slotted(a:hover) { color: var(--text) !important; }
 ::slotted(a[aria-current="page"]), ::slotted(a.active) { color: var(--text) !important; border-bottom-color: var(--accent); }
-.end { margin-left: auto; display: flex; align-items: center; gap: var(--space-3); }
+.end { flex: none; margin-left: auto; display: flex; align-items: center; gap: var(--space-3); }
+::slotted([slot="brand"]) { flex: none; }
+
+/* Narrow screens: the bar scrolls sideways instead of widening the page (640 = --breakpoint-sm). */
+@media (max-width: 639px) {
+  /* position: relative keeps absolutely positioned parts of the tools (screen-reader texts) inside the scroll area. */
+  header { position: relative; gap: var(--space-4); padding: 0 var(--space-4); overflow-x: auto; overflow-y: hidden; scrollbar-width: none; }
+  header::-webkit-scrollbar { display: none; }
+  ::slotted(a) { margin-bottom: 0; }
+}

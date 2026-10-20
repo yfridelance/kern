@@ -2,6 +2,7 @@ import { AttachInternals, Component, Element, Event, EventEmitter, Host, Listen,
 import { Icon } from '../../utils/icons';
 import { positionPopup } from '../../utils/popover';
 import { clampIso, datePlaceholder, daysBetween, formatInputDate, fromIsoDate, parseInputDate, rangeUntil } from '../../utils/datetime';
+import { kernTexts } from '../../utils/i18n';
 
 let nextId = 0;
 
@@ -61,16 +62,17 @@ export class KernDateRangePicker {
   @Prop() required = false;
   /** Accessible name when there is no visible label. */
   @Prop() ariaLabelText?: string;
-  @Prop() labelStart = 'Von';
-  @Prop() labelEnd = 'Bis';
-  @Prop() labelOpen = 'Kalender öffnen';
-  @Prop() labelClear = 'Leeren';
-  @Prop() labelInvalid = 'Kein gültiges Datum';
-  @Prop() labelOutOfRange = 'Datum nicht erlaubt';
+  @Prop() labelStart?: string;
+  @Prop() labelEnd?: string;
+  @Prop() labelOpen?: string;
+  @Prop() labelClear?: string;
+  @Prop() labelInvalid?: string;
+  @Prop() labelOutOfRange?: string;
   /** Shown when only one date is set. */
-  @Prop() labelIncomplete = 'Start und Ende angeben';
+  @Prop() labelIncomplete?: string;
   /** Shown when the range is longer than `maxDays`; `{n}` is replaced by it. */
-  @Prop() labelTooLong = 'Höchstens {n} Tage';
+  @Prop() labelTooLong?: string;
+  private t = kernTexts(this, 'kern-date-range-picker', 'sync');
 
   /** When the range is complete or cleared. */
   @Event() kernChange!: EventEmitter<{ start: string; end: string; value: string }>;
@@ -81,7 +83,7 @@ export class KernDateRangePicker {
   @State() months: 1 | 2 = 2;
   @State() hasPresets = false;
   @State() hasFooter = false;
-  /** Own validation message, shown when `error` is not set. */
+  /** Name of the text property of the own validation message, shown when `error` is not set. */
   @State() problem?: string;
   /** New calendar per opening, so a half-picked range does not survive closing. */
   @State() opening = 0;
@@ -149,7 +151,7 @@ export class KernDateRangePicker {
   @Watch('problem')
   sync() {
     this.internals?.setFormValue?.(this.value ?? '');
-    const message = this.error ?? this.problem;
+    const message = this.error ?? this.problemText();
     if (message) this.internals?.setValidity?.({ customError: true }, message, this.inputStart);
     else if (this.required && !this.value) this.internals?.setValidity?.({ valueMissing: true }, 'required', this.inputStart);
     else this.internals?.setValidity?.({});
@@ -191,10 +193,10 @@ export class KernDateRangePicker {
   private check(): string | undefined {
     const { start, end } = this;
     if (!start && !end) return undefined;
-    if ((start && !fromIsoDate(start)) || (end && !fromIsoDate(end))) return this.labelInvalid;
-    if (!start || !end) return this.labelIncomplete;
-    if (this.notAllowed(start) || this.notAllowed(end)) return this.labelOutOfRange;
-    if (this.maxDays && daysBetween(start, end) + 1 > this.maxDays) return this.labelTooLong.replace('{n}', String(this.maxDays));
+    if ((start && !fromIsoDate(start)) || (end && !fromIsoDate(end))) return 'labelInvalid';
+    if (!start || !end) return 'labelIncomplete';
+    if (this.notAllowed(start) || this.notAllowed(end)) return 'labelOutOfRange';
+    if (this.maxDays && daysBetween(start, end) + 1 > this.maxDays) return 'labelTooLong';
     return undefined;
   }
 
@@ -214,7 +216,7 @@ export class KernDateRangePicker {
     const s = parse(this.textStart);
     const e = parse(this.textEnd);
     if (s === null || e === null) {
-      this.problem = this.labelInvalid;
+      this.problem = 'labelInvalid';
       return;
     }
     this.setRange(s, e);
@@ -324,7 +326,7 @@ export class KernDateRangePicker {
 
   private renderInput(which: 'start' | 'end', describedBy?: string, invalid?: boolean) {
     const isStart = which === 'start';
-    const name = isStart ? this.labelStart : this.labelEnd;
+    const name = isStart ? this.t('labelStart') : this.t('labelEnd');
     return (
       <input
         ref={(el) => isStart && (this.inputStart = el)}
@@ -347,7 +349,7 @@ export class KernDateRangePicker {
           const t = (e.target as HTMLInputElement).value;
           if (isStart) this.textStart = t;
           else this.textEnd = t;
-          if (this.problem === this.labelInvalid) this.problem = undefined;
+          if (this.problem === 'labelInvalid') this.problem = undefined;
         }}
         onChange={() => this.commit()}
         onKeyDown={this.onKey}
@@ -355,8 +357,13 @@ export class KernDateRangePicker {
     );
   }
 
+  /** The own validation message in the current language; `problem` holds the text property's name. */
+  private problemText(): string | undefined {
+    return this.problem && this.t(this.problem).replace('{n}', String(this.maxDays));
+  }
+
   render() {
-    const message = this.error ?? this.problem;
+    const message = this.error ?? this.problemText();
     const describedBy = message ? `${this.uid}-error` : this.hint ? `${this.uid}-hint` : undefined;
     const locked = this.disabled || this.readonly;
     return (
@@ -374,15 +381,15 @@ export class KernDateRangePicker {
           </span>
           {this.renderInput('end', describedBy, !!message)}
           {this.clearable && (this.start || this.end) && !locked && (
-            <button type="button" class="icon clear" tabindex={-1} aria-label={this.labelClear} title={this.labelClear} onClick={this.onClear}>
+            <button type="button" class="icon clear" tabindex={-1} aria-label={this.t('labelClear')} title={this.t('labelClear')} onClick={this.onClear}>
               <Icon name="close" />
             </button>
           )}
           <button
             type="button"
             class="icon open"
-            aria-label={this.labelOpen}
-            title={this.labelOpen}
+            aria-label={this.t('labelOpen')}
+            title={this.t('labelOpen')}
             aria-expanded={this.open ? 'true' : 'false'}
             disabled={locked}
             onPointerDown={this.onButtonPointerDown}

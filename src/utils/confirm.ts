@@ -1,3 +1,4 @@
+import { kernText } from './i18n';
 import { formatMac, parseMac } from './mac';
 
 export interface ConfirmOptions {
@@ -18,7 +19,7 @@ export interface ConfirmOptions {
    * default for text that is no MAC; the label then shows MACs as `A8:03:2A:B1:23:45`.
    */
   normalize?: ((text: string) => string) | 'mac';
-  /** Label above the input. Default: «Zur Bestätigung «A», «B» oder «C» eintippen». */
+  /** Label above the input. Default: the Kern text, e.g. «Type “A”, “B” or “C” to confirm». */
   typeToConfirmLabel?: string;
 }
 
@@ -30,14 +31,14 @@ export function confirmNormalizer(normalize: ConfirmOptions['normalize']): (text
   return normalize ?? defaultNormalize;
 }
 
-/** Default label for `typeToConfirm`: «A», «B» oder «C». */
+/** Default label for `typeToConfirm` in the Kern language, e.g. «Type “A”, “B” or “C” to confirm». */
 export function typeToConfirmText(alternatives: string[], normalize?: ConfirmOptions['normalize']): string {
   const shown = alternatives.map((alt) => {
     const hex = normalize === 'mac' ? parseMac(alt) : null;
-    return `«${hex ? formatMac(hex) : alt}»`;
+    return kernText('confirm.quote').replace('{text}', hex ? formatMac(hex) : alt);
   });
-  const list = shown.length > 1 ? `${shown.slice(0, -1).join(', ')} oder ${shown[shown.length - 1]}` : shown[0];
-  return `Zur Bestätigung ${list} eintippen`;
+  const list = shown.length > 1 ? `${shown.slice(0, -1).join(', ')} ${kernText('confirm.or')} ${shown[shown.length - 1]}` : shown[0];
+  return kernText('confirm.typeToConfirmLabel').replace('{list}', list);
 }
 
 /**
@@ -57,11 +58,11 @@ export function confirm(opts: ConfirmOptions): Promise<boolean> {
 
     const ok = document.createElement('kern-button') as HTMLElement & { variant: string; disabled: boolean };
     ok.variant = opts.danger ? 'danger' : 'primary';
-    ok.textContent = opts.confirmLabel ?? 'OK';
+    ok.textContent = opts.confirmLabel ?? kernText('confirm.confirmLabel');
     ok.slot = 'footer';
 
     const cancel = document.createElement('kern-button');
-    cancel.textContent = opts.cancelLabel ?? 'Abbrechen';
+    cancel.textContent = opts.cancelLabel ?? kernText('confirm.cancelLabel');
     cancel.slot = 'footer';
 
     let input: (HTMLElement & { value: string; setFocus(): Promise<void> }) | undefined;

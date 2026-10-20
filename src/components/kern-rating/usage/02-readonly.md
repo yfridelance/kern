@@ -4,7 +4,7 @@
 
 ```html
 <div style="display:grid;gap:16px">
-  <kern-rating value="5" readonly size="sm" aria-label-text="Rating" label-value="{n} of {max} stars"></kern-rating>
+  <kern-rating value="5" readonly size="sm" aria-label-text="Rating"></kern-rating>
   <kern-rating label="Rate this update" required error="Please rate the update"></kern-rating>
   <kern-rating label="Rating" value="3" disabled></kern-rating>
 </div>

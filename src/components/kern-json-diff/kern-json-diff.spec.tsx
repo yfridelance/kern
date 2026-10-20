@@ -9,13 +9,13 @@ describe('kern-json-diff', () => {
     page.root!.ignore = 'time';
     await page.waitForChanges();
     const sr = page.root!.shadowRoot!;
-    expect(sr.querySelector('.summary')!.textContent).toBe('3 Unterschiede: 1 geändert, 1 neu, 1 entfernt');
+    expect(sr.querySelector('.summary')!.textContent).toBe('3 differences: 1 changed, 1 added, 1 removed');
     const rows = [...sr.querySelectorAll('tbody tr')];
     expect(rows.map((r) => r.querySelector('.path')!.textContent)).toEqual(['mqtt', 'sys.debug', 'sys.name']);
     expect([...rows[2].querySelectorAll('.value')].map((td) => td.textContent)).toEqual(['"Fan"', '"Bath fan"']);
     expect(rows[1].querySelectorAll('.none').length).toBe(1);
     expect(rows.map((r) => r.querySelector('kern-badge')!.getAttribute('tone'))).toEqual(['ok', 'danger', 'warn']);
-    expect(rows[0].querySelector('kern-badge')!.textContent).toBe('neu');
+    expect(rows[0].querySelector('kern-badge')!.textContent).toBe('added');
   });
 
   it('parses JSON strings and shows the empty label', async () => {
@@ -46,6 +46,6 @@ describe('kern-json-diff', () => {
     page.root!.to = { a: 2, b: { c: 2 } };
     page.root!.ignore = ['b'];
     await page.waitForChanges();
-    expect(page.root!.shadowRoot!.querySelector('.summary')!.textContent).toBe('1 Unterschiede: 1 geändert, 0 neu, 0 entfernt');
+    expect(page.root!.shadowRoot!.querySelector('.summary')!.textContent).toBe('1 differences: 1 changed, 0 added, 0 removed');
   });
 });

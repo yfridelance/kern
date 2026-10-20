@@ -1,6 +1,7 @@
 import { AttachInternals, Component, Element, Event, EventEmitter, Host, Method, Prop, State, Watch, h } from '@stencil/core';
 import { Icon } from '../../utils/icons';
 import { resolveLocale } from '../../utils/datetime';
+import { kernTexts } from '../../utils/i18n';
 
 let nextId = 0;
 
@@ -49,16 +50,17 @@ export class KernStepInput {
   @Prop() required = false;
   /** Accessible name when there is no visible label. */
   @Prop() ariaLabelText?: string;
-  @Prop() labelDecrease = 'Verringern';
-  @Prop() labelIncrease = 'Erhöhen';
+  @Prop() labelDecrease?: string;
+  @Prop() labelIncrease?: string;
   /** Shown for text that is not a number. */
-  @Prop() labelInvalid = 'Keine gültige Zahl';
+  @Prop() labelInvalid?: string;
+  private t = kernTexts(this, 'kern-step-input', 'sync');
 
   /** When the number changes (`null` when emptied). */
   @Event() kernChange!: EventEmitter<{ value: number | null }>;
 
   @State() text = '';
-  /** Own validation message, shown when `error` is not set. */
+  /** Name of the text property of the own validation message, shown when `error` is not set. */
   @State() problem?: string;
 
   private input?: HTMLInputElement;
@@ -131,7 +133,7 @@ export class KernStepInput {
   sync() {
     const n = this.num;
     this.internals?.setFormValue?.(n === null ? '' : String(n));
-    const message = this.error ?? this.problem;
+    const message = this.error ?? this.problemText();
     if (message) this.internals?.setValidity?.({ customError: true }, message, this.input);
     else if (this.required && n === null) this.internals?.setValidity?.({ valueMissing: true }, 'required', this.input);
     else this.internals?.setValidity?.({});
@@ -171,7 +173,7 @@ export class KernStepInput {
     const n = this.parse(this.text);
     if (n === undefined) return this.setNumber(null);
     if (n === null) {
-      this.problem = this.labelInvalid;
+      this.problem = 'labelInvalid';
       return;
     }
     this.setNumber(n);
@@ -218,8 +220,13 @@ export class KernStepInput {
     this.repeat = undefined;
   };
 
+  /** The own validation message in the current language; `problem` holds the text property's name. */
+  private problemText(): string | undefined {
+    return this.problem && this.t(this.problem);
+  }
+
   render() {
-    const message = this.error ?? this.problem;
+    const message = this.error ?? this.problemText();
     const describedBy = message ? `${this.uid}-error` : this.hint ? `${this.uid}-hint` : undefined;
     const n = this.num;
     const locked = this.disabled || this.readonly;
@@ -230,8 +237,8 @@ export class KernStepInput {
         type="button"
         class={{ icon: true, step: true, [dir > 0 ? 'increase' : 'decrease']: true }}
         tabindex={-1}
-        aria-label={dir > 0 ? this.labelIncrease : this.labelDecrease}
-        title={dir > 0 ? this.labelIncrease : this.labelDecrease}
+        aria-label={dir > 0 ? this.t('labelIncrease') : this.t('labelDecrease')}
+        title={dir > 0 ? this.t('labelIncrease') : this.t('labelDecrease')}
         disabled={locked || (dir > 0 ? atMax : atMin)}
         onPointerDown={this.startRepeat(dir)}
         onPointerUp={this.stopRepeat}

@@ -4,7 +4,7 @@ A radio group with one tab stop: arrow keys change the rating, Home/End jump. Wi
 
 ```html
 <div style="display:grid;gap:16px">
-  <kern-rating name="score" label="Reliability" value="4" clearable hint="How stable does the device run?" label-value="{n} of {max} stars"></kern-rating>
+  <kern-rating name="score" label="Reliability" value="4" clearable hint="How stable does the device run?"></kern-rating>
   <kern-rating label="Signal" max="3" value="2" size="sm" label-value="{n} of {max}"></kern-rating>
   <output style="font:12px var(--font-mono);color:var(--text-muted)">kernChange → …</output>
 </div>

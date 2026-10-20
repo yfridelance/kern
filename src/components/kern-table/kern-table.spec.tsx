@@ -326,7 +326,7 @@ describe('kern-table', () => {
     it('adds a selection column without shifting columns or the empty row', async () => {
       const { page, el, head } = await markup();
       expect(head()).not.toBeNull();
-      expect(head().label).toBe('Alle auswählen');
+      expect(head().label).toBe('Select all');
       expect(el.querySelectorAll('tbody [data-kern-select] kern-checkbox').length).toBe(4);
       expect(el.querySelector('tr[data-key="a"]').firstElementChild.hasAttribute('data-kern-select')).toBe(true);
       expect(el.querySelector('td.empty').getAttribute('colspan')).toBe('3');
@@ -613,7 +613,7 @@ describe('kern-table', () => {
         const { page, el, detail, order, toggle } = await data();
         expect(el.querySelectorAll('thead th').length).toBe(2);
         expect(el.querySelector('th[data-kern-expand]')).not.toBeNull();
-        expect(el.querySelector('tbody [kern-expand]').getAttribute('aria-label')).toBe('Details anzeigen');
+        expect(el.querySelector('tbody [kern-expand]').getAttribute('aria-label')).toBe('Show details');
         expect(detail).not.toHaveBeenCalled();
         const spy = jest.fn();
         el.addEventListener('kernRowClick', spy);

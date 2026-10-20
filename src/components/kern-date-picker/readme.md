@@ -45,7 +45,7 @@ root.querySelector('kern-date-picker').addEventListener('kernChange', (e) => {
 
 ```html
 <div style="max-width:280px">
-  <kern-date-picker name="due" label="Maintenance on" required hint="Weekdays only" min="2026-10-01" max="2026-12-31" show-week-numbers locale="en-GB" label-out-of-range="Date not allowed">
+  <kern-date-picker name="due" label="Maintenance on" required hint="Weekdays only" min="2026-10-01" max="2026-12-31" show-week-numbers locale="en-GB">
     <kern-button slot="footer" size="sm" variant="ghost">Today</kern-button>
   </kern-date-picker>
 </div>
@@ -64,30 +64,30 @@ root.querySelector('kern-button').addEventListener('click', () => {
 
 ## Properties
 
-| Property          | Attribute            | Description                                                          | Type                                      | Default                 |
-| ----------------- | -------------------- | -------------------------------------------------------------------- | ----------------------------------------- | ----------------------- |
-| `ariaLabelText`   | `aria-label-text`    | Accessible name when there is no visible label.                      | `string \| undefined`                     | `undefined`             |
-| `clearable`       | `clearable`          | Show a button that empties the field.                                | `boolean`                                 | `false`                 |
-| `disabled`        | `disabled`           |                                                                      | `boolean`                                 | `false`                 |
-| `error`           | `error`              |                                                                      | `string \| undefined`                     | `undefined`             |
-| `firstDayOfWeek`  | `first-day-of-week`  | 0 = Sunday … 6 = Saturday; defaults to the locale.                   | `number \| undefined`                     | `undefined`             |
-| `hint`            | `hint`               |                                                                      | `string \| undefined`                     | `undefined`             |
-| `isDateDisabled`  | --                   | Additional rule for unselectable days, e.g. weekends.                | `((iso: string) => boolean) \| undefined` | `undefined`             |
-| `label`           | `label`              |                                                                      | `string \| undefined`                     | `undefined`             |
-| `labelClear`      | `label-clear`        |                                                                      | `string`                                  | `'Leeren'`              |
-| `labelInvalid`    | `label-invalid`      | Shown for text that is not a date.                                   | `string`                                  | `'Kein gültiges Datum'` |
-| `labelOpen`       | `label-open`         |                                                                      | `string`                                  | `'Kalender öffnen'`     |
-| `labelOutOfRange` | `label-out-of-range` | Shown for a date outside min/max or disabled.                        | `string`                                  | `'Datum nicht erlaubt'` |
-| `locale`          | `locale`             | BCP 47 locale; defaults to `<html lang>`, then the browser language. | `string \| undefined`                     | `undefined`             |
-| `max`             | `max`                | Latest allowed date.                                                 | `string \| undefined`                     | `undefined`             |
-| `min`             | `min`                | Earliest allowed date.                                               | `string \| undefined`                     | `undefined`             |
-| `name`            | `name`               |                                                                      | `string \| undefined`                     | `undefined`             |
-| `placeholder`     | `placeholder`        | Defaults to the locale's format, e.g. „TT.MM.JJJJ“.                  | `string \| undefined`                     | `undefined`             |
-| `readonly`        | `readonly`           |                                                                      | `boolean`                                 | `false`                 |
-| `required`        | `required`           |                                                                      | `boolean`                                 | `false`                 |
-| `showWeekNumbers` | `show-week-numbers`  | ISO week numbers in the calendar.                                    | `boolean`                                 | `false`                 |
-| `size`            | `size`               |                                                                      | `"md" \| "sm"`                            | `'md'`                  |
-| `value`           | `value`              | ISO date `YYYY-MM-DD`, empty when none.                              | `string`                                  | `''`                    |
+| Property          | Attribute            | Description                                                          | Type                                      | Default     |
+| ----------------- | -------------------- | -------------------------------------------------------------------- | ----------------------------------------- | ----------- |
+| `ariaLabelText`   | `aria-label-text`    | Accessible name when there is no visible label.                      | `string \| undefined`                     | `undefined` |
+| `clearable`       | `clearable`          | Show a button that empties the field.                                | `boolean`                                 | `false`     |
+| `disabled`        | `disabled`           |                                                                      | `boolean`                                 | `false`     |
+| `error`           | `error`              |                                                                      | `string \| undefined`                     | `undefined` |
+| `firstDayOfWeek`  | `first-day-of-week`  | 0 = Sunday … 6 = Saturday; defaults to the locale.                   | `number \| undefined`                     | `undefined` |
+| `hint`            | `hint`               |                                                                      | `string \| undefined`                     | `undefined` |
+| `isDateDisabled`  | --                   | Additional rule for unselectable days, e.g. weekends.                | `((iso: string) => boolean) \| undefined` | `undefined` |
+| `label`           | `label`              |                                                                      | `string \| undefined`                     | `undefined` |
+| `labelClear`      | `label-clear`        |                                                                      | `string \| undefined`                     | `undefined` |
+| `labelInvalid`    | `label-invalid`      | Shown for text that is not a date.                                   | `string \| undefined`                     | `undefined` |
+| `labelOpen`       | `label-open`         |                                                                      | `string \| undefined`                     | `undefined` |
+| `labelOutOfRange` | `label-out-of-range` | Shown for a date outside min/max or disabled.                        | `string \| undefined`                     | `undefined` |
+| `locale`          | `locale`             | BCP 47 locale; defaults to `<html lang>`, then the browser language. | `string \| undefined`                     | `undefined` |
+| `max`             | `max`                | Latest allowed date.                                                 | `string \| undefined`                     | `undefined` |
+| `min`             | `min`                | Earliest allowed date.                                               | `string \| undefined`                     | `undefined` |
+| `name`            | `name`               |                                                                      | `string \| undefined`                     | `undefined` |
+| `placeholder`     | `placeholder`        | Defaults to the locale's format, e.g. „TT.MM.JJJJ“.                  | `string \| undefined`                     | `undefined` |
+| `readonly`        | `readonly`           |                                                                      | `boolean`                                 | `false`     |
+| `required`        | `required`           |                                                                      | `boolean`                                 | `false`     |
+| `showWeekNumbers` | `show-week-numbers`  | ISO week numbers in the calendar.                                    | `boolean`                                 | `false`     |
+| `size`            | `size`               |                                                                      | `"md" \| "sm"`                            | `'md'`      |
+| `value`           | `value`              | ISO date `YYYY-MM-DD`, empty when none.                              | `string`                                  | `''`        |
 
 
 ## Events

@@ -3,7 +3,7 @@
 In data mode `detail` returns the content of a row's detail row (a Node or text) and adds a first column with a chevron toggle. It is called when a row is opened for the first time. `label-expand-row` names the toggle for screen readers.
 
 ```html
-<kern-table compact label-expand-row="Show details"></kern-table>
+<kern-table compact></kern-table>
 ```
 
 ```js

@@ -1,5 +1,6 @@
 import { Component, Element, Event, EventEmitter, Host, Prop, State, h } from '@stencil/core';
 import { Icon } from '../../utils/icons';
+import { kernTexts } from '../../utils/i18n';
 
 /**
  * Technical value in monospace with a copy button (MAC, IP, device ID, commands).
@@ -19,7 +20,8 @@ export class KernCopy {
   /** Copied text; defaults to the text content. */
   @Prop() value?: string;
   /** Tooltip and accessible label of the button. */
-  @Prop() label = 'Kopieren';
+  @Prop() label?: string;
+  private t = kernTexts(this, 'kern-copy');
 
   /** After a successful copy. */
   @Event() kernCopy!: EventEmitter<{ value: string }>;
@@ -56,7 +58,7 @@ export class KernCopy {
         <span class="text">
           <slot>{this.value}</slot>
         </span>
-        <button type="button" part="button" aria-label={`${this.label}: ${this.text}`} title={this.label} onClick={this.onClick}>
+        <button type="button" part="button" aria-label={`${this.t('label')}: ${this.text}`} title={this.t('label')} onClick={this.onClick}>
           <Icon name={this.copied ? 'check' : 'copy'} />
         </button>
       </Host>

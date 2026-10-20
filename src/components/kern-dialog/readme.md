@@ -22,7 +22,7 @@ A modal dialog on the native `<dialog>`: `show()` opens it, `close(returnValue)`
 ```html
 <kern-button class="open">Restart …</kern-button>
 <p class="out" style="font-size:13px;color:var(--text-muted)"></p>
-<kern-dialog heading="Restart Küche Licht?" close-label="Close">
+<kern-dialog heading="Restart Küche Licht?">
   <p>Küche Licht will be unreachable for about 10 seconds.</p>
   <kern-button slot="footer" class="cancel">Cancel</kern-button>
   <kern-button slot="footer" variant="primary" class="ok">Restart</kern-button>
@@ -46,7 +46,7 @@ The heading names the action and the device, a kern-alert with `tone="warn"` sta
 
 ```html
 <kern-button class="open" variant="danger">Factory reset …</kern-button>
-<kern-dialog heading="Factory reset «Küche Licht»" width="440" close-label="Close">
+<kern-dialog heading="Factory reset «Küche Licht»" width="440">
   <kern-alert tone="warn">The device loses its configuration and starts in AP mode.</kern-alert>
   <kern-button slot="footer" class="cancel">Cancel</kern-button>
   <kern-button slot="footer" variant="danger" class="ok">Reset</kern-button>
@@ -115,13 +115,13 @@ root.querySelector('.delete').addEventListener('click', async () => {
 
 ## Properties
 
-| Property      | Attribute     | Description                               | Type                  | Default        |
-| ------------- | ------------- | ----------------------------------------- | --------------------- | -------------- |
-| `closeLabel`  | `close-label` | Accessible label of the close button.     | `string`              | `'Schliessen'` |
-| `dismissible` | `dismissible` | Shows the close button and allows Escape. | `boolean`             | `true`         |
-| `heading`     | `heading`     |                                           | `string \| undefined` | `undefined`    |
-| `open`        | `open`        |                                           | `boolean`             | `false`        |
-| `width`       | `width`       | Panel width in px.                        | `number`              | `520`          |
+| Property      | Attribute     | Description                               | Type                  | Default     |
+| ------------- | ------------- | ----------------------------------------- | --------------------- | ----------- |
+| `closeLabel`  | `close-label` | Accessible label of the close button.     | `string \| undefined` | `undefined` |
+| `dismissible` | `dismissible` | Shows the close button and allows Escape. | `boolean`             | `true`      |
+| `heading`     | `heading`     |                                           | `string \| undefined` | `undefined` |
+| `open`        | `open`        |                                           | `boolean`             | `false`     |
+| `width`       | `width`       | Panel width in px.                        | `number`              | `520`       |
 
 
 ## Events

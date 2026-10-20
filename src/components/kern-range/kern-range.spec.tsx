@@ -45,7 +45,7 @@ describe('kern-range', () => {
 
   it('keeps two handles from crossing in range mode', async () => {
     const { root, el, thumbs, key, changes } = await setup(`range value="20/30" step="5"`);
-    expect(thumbs().map((t) => t.getAttribute('aria-label'))).toEqual(['Helligkeit, Von', 'Helligkeit, Bis']);
+    expect(thumbs().map((t) => t.getAttribute('aria-label'))).toEqual(['Helligkeit, From', 'Helligkeit, To']);
     expect(thumbs()[0].getAttribute('aria-valuemax')).toBe('30');
     await key(0, 'ArrowRight');
     await key(0, 'ArrowRight');

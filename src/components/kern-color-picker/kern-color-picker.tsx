@@ -1,6 +1,7 @@
 import { AttachInternals, Component, Element, Event, EventEmitter, Host, Method, Prop, State, Watch, h } from '@stencil/core';
 import { positionPopup } from '../../utils/popover';
 import { hexToRgb, hsvToRgb, kelvinToRgb, parseHex, rgbToHex, rgbToHsv, type Hsv } from '../../utils/color';
+import { kernTexts } from '../../utils/i18n';
 
 let nextId = 0;
 
@@ -41,11 +42,12 @@ export class KernColorPicker {
   @Prop() required = false;
   /** Accessible name when there is no visible label. */
   @Prop() ariaLabelText?: string;
-  @Prop() labelOpen = 'Farbe wählen';
-  @Prop() labelArea = 'Sättigung und Helligkeit';
-  @Prop() labelHue = 'Farbton';
-  @Prop() labelTemperature = 'Farbtemperatur';
-  @Prop() labelInvalid = 'Keine gültige Farbe';
+  @Prop() labelOpen?: string;
+  @Prop() labelArea?: string;
+  @Prop() labelHue?: string;
+  @Prop() labelTemperature?: string;
+  @Prop() labelInvalid?: string;
+  private t = kernTexts(this, 'kern-color-picker', 'sync');
 
   /** While dragging or stepping. */
   @Event() kernInput!: EventEmitter<{ value: string | number }>;
@@ -55,6 +57,7 @@ export class KernColorPicker {
   @State() hsv: Hsv = { h: 0, s: 0, v: 0 };
   @State() text = '';
   @State() open = false;
+  /** Name of the text property of the own validation message, shown when `error` is not set. */
   @State() problem?: string;
 
   private box?: HTMLElement;
@@ -131,7 +134,7 @@ export class KernColorPicker {
   sync() {
     const v = this.value === '' || this.value === null || this.value === undefined ? '' : String(this.value);
     this.internals?.setFormValue?.(v);
-    const message = this.error ?? this.problem;
+    const message = this.error ?? this.problemText();
     if (message) this.internals?.setValidity?.({ customError: true }, message, this.box);
     else if (this.required && !v) this.internals?.setValidity?.({ valueMissing: true }, 'required', this.box);
     else this.internals?.setValidity?.({});
@@ -269,7 +272,7 @@ export class KernColorPicker {
     if (this.temperature) {
       const n = Number(t.replace(/\s*k$/i, ''));
       if (!Number.isFinite(n)) {
-        this.problem = this.labelInvalid;
+        this.problem = 'labelInvalid';
         return;
       }
       const k = this.clampKelvin(n);
@@ -279,7 +282,7 @@ export class KernColorPicker {
     }
     const hex = parseHex(t);
     if (!hex) {
-      this.problem = this.labelInvalid;
+      this.problem = 'labelInvalid';
       return;
     }
     this.emit(hex, true);
@@ -300,8 +303,13 @@ export class KernColorPicker {
     }
   }
 
+  /** The own validation message in the current language; `problem` holds the text property's name. */
+  private problemText(): string | undefined {
+    return this.problem && this.t(this.problem);
+  }
+
   render() {
-    const message = this.error ?? this.problem;
+    const message = this.error ?? this.problemText();
     const describedBy = message ? `${this.uid}-error` : this.hint ? `${this.uid}-hint` : undefined;
     const hex = this.hex;
     // Not `h`: that name is the JSX factory.
@@ -323,8 +331,8 @@ export class KernColorPicker {
             type="button"
             class={{ swatch: true, empty: !hex }}
             style={{ background: hex ?? 'transparent' }}
-            aria-label={this.labelOpen}
-            title={this.labelOpen}
+            aria-label={this.t('labelOpen')}
+            title={this.t('labelOpen')}
             aria-haspopup="dialog"
             aria-expanded={this.open ? 'true' : 'false'}
             disabled={locked}
@@ -363,7 +371,7 @@ export class KernColorPicker {
           />
           {this.temperature && <span class="unit">K</span>}
         </div>
-        <div ref={(el) => (this.popup = el)} class="popup panel" part="panel" role="dialog" aria-label={this.label ?? this.labelOpen}>
+        <div ref={(el) => (this.popup = el)} class="popup panel" part="panel" role="dialog" aria-label={this.label ?? this.t('labelOpen')}>
           {this.temperature ? (
             <div
               ref={(el) => (this.kelvinBar = el)}
@@ -371,7 +379,7 @@ export class KernColorPicker {
               style={{ background: `linear-gradient(90deg, ${kStops})` }}
               role="slider"
               tabindex={0}
-              aria-label={this.labelTemperature}
+              aria-label={this.t('labelTemperature')}
               aria-valuemin={this.minKelvin}
               aria-valuemax={this.maxKelvin}
               aria-valuenow={k}
@@ -392,7 +400,7 @@ export class KernColorPicker {
                 style={{ background: `linear-gradient(to top, #000, transparent), linear-gradient(to right, #fff, hsl(${hue} 100% 50%))` }}
                 role="slider"
                 tabindex={0}
-                aria-label={this.labelArea}
+                aria-label={this.t('labelArea')}
                 aria-valuemin={0}
                 aria-valuemax={100}
                 aria-valuenow={Math.round(sat * 100)}
@@ -410,7 +418,7 @@ export class KernColorPicker {
                 class="bar hue"
                 role="slider"
                 tabindex={0}
-                aria-label={this.labelHue}
+                aria-label={this.t('labelHue')}
                 aria-valuemin={0}
                 aria-valuemax={359}
                 aria-valuenow={Math.round(hue)}

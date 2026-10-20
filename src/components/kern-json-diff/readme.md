@@ -59,27 +59,19 @@ diff.to = { time: '08:00', unixtime: 1760508000, sys: { uptime: 442820, fw: '1.4
 
 ### 03-long-values
 
-# Long values and English labels
+# Long values and own labels
 
-Values longer than `max-value-length` (default 80) are cut with „…“; hover a cell to see the whole value. The built-in labels are German; this example sets them to English. An empty result shows `label-none`.
+Values longer than `max-value-length` (default 80) are cut with „…“; hover a cell to see the whole value. `label-before` and `label-after` name the columns after what is compared. An empty result shows `label-none`.
 
 ```html
 <kern-json-diff
   max-value-length="40"
   label-before="Target"
   label-after="Actual"
-  label-path="Path"
-  label-kind="Kind"
-  label-added="added"
-  label-removed="removed"
-  label-changed="changed"
-  label-none="No differences"
-  label-summary="{n} differences: {changed} changed, {added} added, {removed} removed"
 ></kern-json-diff>
 <kern-json-diff
   from='{"eco_mode":true}'
   to='{"eco_mode":true}'
-  label-none="No differences"
   style="margin-top: 16px"
 ></kern-json-diff>
 ```
@@ -100,21 +92,21 @@ diff.to = {
 
 ## Properties
 
-| Property         | Attribute          | Description                                                                                                               | Type                 | Default                                                                   |
-| ---------------- | ------------------ | ------------------------------------------------------------------------------------------------------------------------- | -------------------- | ------------------------------------------------------------------------- |
-| `from`           | --                 | The earlier state (object, array or primitive). A string is parsed as JSON when possible.                                 | `unknown`            | `undefined`                                                               |
-| `ignore`         | `ignore`           | Paths that do not count, as an array or comma-separated (`time,unixtime,sys.uptime`). A path ignores everything below it. | `string \| string[]` | `[]`                                                                      |
-| `labelAdded`     | `label-added`      |                                                                                                                           | `string`             | `'neu'`                                                                   |
-| `labelAfter`     | `label-after`      |                                                                                                                           | `string`             | `'Nachher'`                                                               |
-| `labelBefore`    | `label-before`     | Header of the column with the earlier value, e.g. the time of the snapshot.                                               | `string`             | `'Vorher'`                                                                |
-| `labelChanged`   | `label-changed`    |                                                                                                                           | `string`             | `'geändert'`                                                              |
-| `labelKind`      | `label-kind`       |                                                                                                                           | `string`             | `'Art'`                                                                   |
-| `labelNone`      | `label-none`       |                                                                                                                           | `string`             | `'Keine Unterschiede'`                                                    |
-| `labelPath`      | `label-path`       |                                                                                                                           | `string`             | `'Pfad'`                                                                  |
-| `labelRemoved`   | `label-removed`    |                                                                                                                           | `string`             | `'entfernt'`                                                              |
-| `labelSummary`   | `label-summary`    | `{n}`, `{changed}`, `{added}` and `{removed}` are replaced.                                                               | `string`             | `'{n} Unterschiede: {changed} geändert, {added} neu, {removed} entfernt'` |
-| `maxValueLength` | `max-value-length` | Longer values are cut with „…“; the whole value is in the tooltip.                                                        | `number`             | `80`                                                                      |
-| `to`             | --                 | The later state. A string is parsed as JSON when possible.                                                                | `unknown`            | `undefined`                                                               |
+| Property         | Attribute          | Description                                                                                                               | Type                  | Default     |
+| ---------------- | ------------------ | ------------------------------------------------------------------------------------------------------------------------- | --------------------- | ----------- |
+| `from`           | --                 | The earlier state (object, array or primitive). A string is parsed as JSON when possible.                                 | `unknown`             | `undefined` |
+| `ignore`         | `ignore`           | Paths that do not count, as an array or comma-separated (`time,unixtime,sys.uptime`). A path ignores everything below it. | `string \| string[]`  | `[]`        |
+| `labelAdded`     | `label-added`      |                                                                                                                           | `string \| undefined` | `undefined` |
+| `labelAfter`     | `label-after`      |                                                                                                                           | `string \| undefined` | `undefined` |
+| `labelBefore`    | `label-before`     | Header of the column with the earlier value, e.g. the time of the snapshot.                                               | `string \| undefined` | `undefined` |
+| `labelChanged`   | `label-changed`    |                                                                                                                           | `string \| undefined` | `undefined` |
+| `labelKind`      | `label-kind`       |                                                                                                                           | `string \| undefined` | `undefined` |
+| `labelNone`      | `label-none`       |                                                                                                                           | `string \| undefined` | `undefined` |
+| `labelPath`      | `label-path`       |                                                                                                                           | `string \| undefined` | `undefined` |
+| `labelRemoved`   | `label-removed`    |                                                                                                                           | `string \| undefined` | `undefined` |
+| `labelSummary`   | `label-summary`    | `{n}`, `{changed}`, `{added}` and `{removed}` are replaced.                                                               | `string \| undefined` | `undefined` |
+| `maxValueLength` | `max-value-length` | Longer values are cut with „…“; the whole value is in the tooltip.                                                        | `number`              | `80`        |
+| `to`             | --                 | The later state. A string is parsed as JSON when possible.                                                                | `unknown`             | `undefined` |
 
 
 ## Dependencies

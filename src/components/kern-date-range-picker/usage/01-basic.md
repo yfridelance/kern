@@ -4,7 +4,7 @@ Two dates with a calendar popover. `start` and `end` are ISO dates; `value` and 
 
 ```html
 <div style="display:grid;gap:16px;max-width:360px">
-  <kern-date-range-picker name="period" label="Report period" start="2026-10-01" end="2026-10-14" locale="en-GB" clearable label-start="From" label-end="To"></kern-date-range-picker>
+  <kern-date-range-picker name="period" label="Report period" start="2026-10-01" end="2026-10-14" locale="en-GB" clearable></kern-date-range-picker>
   <output style="font:12px var(--font-mono);color:var(--text-muted)">kernChange → …</output>
 </div>
 ```

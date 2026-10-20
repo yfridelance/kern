@@ -2,6 +2,7 @@ import { AttachInternals, Component, Element, Event, EventEmitter, Host, Method,
 import { Icon } from '../../utils/icons';
 import { positionPopup } from '../../utils/popover';
 import { datePlaceholder, formatInputDate, fromIsoDate, parseInputDate } from '../../utils/datetime';
+import { kernTexts } from '../../utils/i18n';
 
 let nextId = 0;
 
@@ -55,12 +56,13 @@ export class KernDatePicker {
   @Prop() required = false;
   /** Accessible name when there is no visible label. */
   @Prop() ariaLabelText?: string;
-  @Prop() labelOpen = 'Kalender öffnen';
-  @Prop() labelClear = 'Leeren';
+  @Prop() labelOpen?: string;
+  @Prop() labelClear?: string;
   /** Shown for text that is not a date. */
-  @Prop() labelInvalid = 'Kein gültiges Datum';
+  @Prop() labelInvalid?: string;
   /** Shown for a date outside min/max or disabled. */
-  @Prop() labelOutOfRange = 'Datum nicht erlaubt';
+  @Prop() labelOutOfRange?: string;
+  private t = kernTexts(this, 'kern-date-picker', 'sync');
 
   /** When the date changes (picked, typed and applied, or cleared). */
   @Event() kernChange!: EventEmitter<{ value: string }>;
@@ -68,7 +70,7 @@ export class KernDatePicker {
   @State() text = '';
   @State() open = false;
   @State() hasFooter = false;
-  /** Own validation message (typed text), shown when `error` is not set. */
+  /** Name of the text property of the own validation message, shown when `error` is not set. */
   @State() problem?: string;
 
   private input?: HTMLInputElement;
@@ -118,7 +120,7 @@ export class KernDatePicker {
   @Watch('problem')
   sync() {
     this.internals?.setFormValue?.(this.value ?? '');
-    const message = this.error ?? this.problem;
+    const message = this.error ?? this.problemText();
     if (message) this.internals?.setValidity?.({ customError: true }, message, this.input);
     else if (this.required && !this.value) this.internals?.setValidity?.({ valueMissing: true }, 'required', this.input);
     else this.internals?.setValidity?.({});
@@ -152,8 +154,8 @@ export class KernDatePicker {
 
   private check(iso: string): string | undefined {
     if (!iso) return undefined;
-    if (!fromIsoDate(iso)) return this.labelInvalid;
-    if ((this.min && iso < this.min) || (this.max && iso > this.max) || this.isDateDisabled?.(iso)) return this.labelOutOfRange;
+    if (!fromIsoDate(iso)) return 'labelInvalid';
+    if ((this.min && iso < this.min) || (this.max && iso > this.max) || this.isDateDisabled?.(iso)) return 'labelOutOfRange';
     return undefined;
   }
 
@@ -172,7 +174,7 @@ export class KernDatePicker {
     if (!t) return this.setValue('');
     const iso = parseInputDate(t, this.locale);
     if (!iso) {
-      this.problem = this.labelInvalid;
+      this.problem = 'labelInvalid';
       return;
     }
     this.setValue(iso);
@@ -228,7 +230,7 @@ export class KernDatePicker {
 
   private onInput = (ev: Event) => {
     this.text = (ev.target as HTMLInputElement).value;
-    if (this.problem === this.labelInvalid) this.problem = undefined;
+    if (this.problem === 'labelInvalid') this.problem = undefined;
   };
 
   private onKey = (ev: KeyboardEvent) => {
@@ -270,8 +272,13 @@ export class KernDatePicker {
     this.closeCalendar(false);
   };
 
+  /** The own validation message in the current language; `problem` holds the text property's name. */
+  private problemText(): string | undefined {
+    return this.problem && this.t(this.problem);
+  }
+
   render() {
-    const message = this.error ?? this.problem;
+    const message = this.error ?? this.problemText();
     const describedBy = message ? `${this.uid}-error` : this.hint ? `${this.uid}-hint` : undefined;
     const locked = this.disabled || this.readonly;
     return (
@@ -306,15 +313,15 @@ export class KernDatePicker {
             onKeyDown={this.onKey}
           />
           {this.clearable && this.value && !locked && (
-            <button type="button" class="icon clear" tabindex={-1} aria-label={this.labelClear} title={this.labelClear} onClick={this.onClear}>
+            <button type="button" class="icon clear" tabindex={-1} aria-label={this.t('labelClear')} title={this.t('labelClear')} onClick={this.onClear}>
               <Icon name="close" />
             </button>
           )}
           <button
             type="button"
             class="icon open"
-            aria-label={this.labelOpen}
-            title={this.labelOpen}
+            aria-label={this.t('labelOpen')}
+            title={this.t('labelOpen')}
             aria-expanded={this.open ? 'true' : 'false'}
             disabled={locked}
             onPointerDown={this.onButtonPointerDown}

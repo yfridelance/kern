@@ -1,4 +1,5 @@
 import { newSpecPage } from '@stencil/core/testing';
+import { setKernLocale } from '../../utils/i18n';
 import { KernPagination } from './kern-pagination';
 import { pageItems } from './pages';
 
@@ -30,8 +31,8 @@ const setup = async (attrs: string) => {
 describe('kern-pagination', () => {
   it('shows the range and the pages', async () => {
     const { root, nums } = await setup(`total="380" page="1"`);
-    expect(root.querySelector('nav')!.getAttribute('aria-label')).toBe('Seiten');
-    expect(root.querySelector('.range')!.textContent).toBe('1–25 von 380');
+    expect(root.querySelector('nav')!.getAttribute('aria-label')).toBe('Pages');
+    expect(root.querySelector('.range')!.textContent).toBe('1–25 of 380');
     expect(nums()).toEqual(['1', '2', '3', '4', '5', '…', '16']);
     expect(root.querySelector('button.current')!.getAttribute('aria-current')).toBe('page');
     expect(root.querySelector('.prev')!.hasAttribute('disabled')).toBe(true);
@@ -44,7 +45,7 @@ describe('kern-pagination', () => {
     await page.waitForChanges();
     root.querySelector<HTMLButtonElement>('.last')!.click();
     await page.waitForChanges();
-    expect(root.querySelector('.range')!.textContent).toBe('376–380 von 380');
+    expect(root.querySelector('.range')!.textContent).toBe('376–380 of 380');
     expect(root.querySelector('.next')!.hasAttribute('disabled')).toBe(true);
     Array.from(root.querySelectorAll<HTMLButtonElement>('button.num')).find((b) => b.textContent === '1')!.click();
     await page.waitForChanges();
@@ -66,8 +67,23 @@ describe('kern-pagination', () => {
 
   it('handles an empty list and a page beyond the end', async () => {
     const empty = await setup(`total="0"`);
-    expect(empty.root.querySelector('.range')!.textContent).toBe('0–0 von 0');
+    expect(empty.root.querySelector('.range')!.textContent).toBe('0–0 of 0');
     const beyond = await setup(`total="30" page="9"`);
     expect(beyond.el.page).toBe(2);
+  });
+});
+
+describe('kern-pagination texts', () => {
+  afterEach(() => setKernLocale());
+
+  it('switches language at once and keeps texts set as properties', async () => {
+    const page = await newSpecPage({ components: [KernPagination], html: `<kern-pagination locale="de-CH" total="380" label-next="Weiter"></kern-pagination>` });
+    const root = page.root!.shadowRoot!;
+    expect(root.querySelector('nav')!.getAttribute('aria-label')).toBe('Pages');
+    setKernLocale('de');
+    await page.waitForChanges();
+    expect(root.querySelector('nav')!.getAttribute('aria-label')).toBe('Seiten');
+    expect(root.querySelector('.range')!.textContent).toBe('1–25 von 380');
+    expect(root.querySelector('.next')!.getAttribute('aria-label')).toBe('Weiter');
   });
 });

@@ -1,5 +1,6 @@
 import { Component, Host, Prop, h } from '@stencil/core';
 import { diffJson, KernJsonDiffEntry, KernJsonDiffKind } from '../../utils/json-diff';
+import { kernTexts } from '../../utils/i18n';
 
 const TONE: Record<KernJsonDiffKind, 'ok' | 'danger' | 'warn'> = { added: 'ok', removed: 'danger', changed: 'warn' };
 
@@ -22,16 +23,17 @@ export class KernJsonDiff {
   /** Longer values are cut with „…“; the whole value is in the tooltip. */
   @Prop() maxValueLength = 80;
   /** Header of the column with the earlier value, e.g. the time of the snapshot. */
-  @Prop() labelBefore = 'Vorher';
-  @Prop() labelAfter = 'Nachher';
-  @Prop() labelPath = 'Pfad';
-  @Prop() labelKind = 'Art';
-  @Prop() labelAdded = 'neu';
-  @Prop() labelRemoved = 'entfernt';
-  @Prop() labelChanged = 'geändert';
-  @Prop() labelNone = 'Keine Unterschiede';
+  @Prop() labelBefore?: string;
+  @Prop() labelAfter?: string;
+  @Prop() labelPath?: string;
+  @Prop() labelKind?: string;
+  @Prop() labelAdded?: string;
+  @Prop() labelRemoved?: string;
+  @Prop() labelChanged?: string;
+  @Prop() labelNone?: string;
   /** `{n}`, `{changed}`, `{added}` and `{removed}` are replaced. */
-  @Prop() labelSummary = '{n} Unterschiede: {changed} geändert, {added} neu, {removed} entfernt';
+  @Prop() labelSummary?: string;
+  private t = kernTexts(this, 'kern-json-diff');
 
   private parse(v: unknown): unknown {
     if (typeof v !== 'string') return v;
@@ -60,7 +62,7 @@ export class KernJsonDiff {
   }
 
   private row(d: KernJsonDiffEntry) {
-    const label = { added: this.labelAdded, removed: this.labelRemoved, changed: this.labelChanged }[d.kind];
+    const label = { added: this.t('labelAdded'), removed: this.t('labelRemoved'), changed: this.t('labelChanged') }[d.kind];
     return (
       <tr class={d.kind}>
         <td class="path">{d.path || '(root)'}</td>
@@ -77,12 +79,12 @@ export class KernJsonDiff {
     const list = diffJson(this.parse(this.from), this.parse(this.to), { ignore: this.paths });
     const count = (k: KernJsonDiffKind) => list.filter((d) => d.kind === k).length;
     const summary = list.length
-      ? this.labelSummary
+      ? this.t('labelSummary')
           .replace('{n}', String(list.length))
           .replace('{changed}', String(count('changed')))
           .replace('{added}', String(count('added')))
           .replace('{removed}', String(count('removed')))
-      : this.labelNone;
+      : this.t('labelNone');
     return (
       <Host>
         <div class="summary" role="status">
@@ -93,10 +95,10 @@ export class KernJsonDiff {
             <table>
               <thead>
                 <tr>
-                  <th>{this.labelPath}</th>
-                  <th>{this.labelBefore}</th>
-                  <th>{this.labelAfter}</th>
-                  <th>{this.labelKind}</th>
+                  <th>{this.t('labelPath')}</th>
+                  <th>{this.t('labelBefore')}</th>
+                  <th>{this.t('labelAfter')}</th>
+                  <th>{this.t('labelKind')}</th>
                 </tr>
               </thead>
               <tbody>{list.map((d) => this.row(d))}</tbody>

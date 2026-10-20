@@ -1,4 +1,4 @@
-# Colour temperature
+# Color temperature
 
 `mode="temperature"`: `value` is a colour temperature in Kelvin between `min-kelvin` and `max-kelvin` on a warm-to-cold bar, in steps of `kelvin-step`. Swatches are Kelvin values.
 

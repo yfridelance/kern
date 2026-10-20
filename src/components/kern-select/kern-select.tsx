@@ -2,6 +2,7 @@ import { AttachInternals, Component, Element, Event, EventEmitter, Host, Method,
 import { Icon } from '../../utils/icons';
 import { optionOf } from '../../utils/options';
 import { positionPopup } from '../../utils/popover';
+import { kernTexts } from '../../utils/i18n';
 
 let nextId = 0;
 
@@ -60,10 +61,11 @@ export class KernSelect {
   @Prop() required = false;
   /** Accessible name when there is no visible label. */
   @Prop() ariaLabelText?: string;
-  @Prop() labelSearch = 'Suchen …';
-  @Prop() labelNoResults = 'Keine Treffer';
+  @Prop() labelSearch?: string;
+  @Prop() labelNoResults?: string;
   /** Accessible name of a chip's ×; `{label}` is replaced. */
-  @Prop() labelRemove = '{label} entfernen';
+  @Prop() labelRemove?: string;
+  private t = kernTexts(this, 'kern-select');
 
   /** When the user picks (or, with `multiple`, toggles) an option. */
   @Event() kernChange!: EventEmitter<{ value: string | string[] }>;
@@ -425,8 +427,8 @@ export class KernSelect {
                     type="button"
                     class="chip-remove"
                     tabindex={-1}
-                    aria-label={this.labelRemove.replace('{label}', o.label)}
-                    title={this.labelRemove.replace('{label}', o.label)}
+                    aria-label={this.t('labelRemove').replace('{label}', o.label)}
+                    title={this.t('labelRemove').replace('{label}', o.label)}
                     disabled={this.disabled}
                     onClick={(e) => {
                       e.stopPropagation();
@@ -499,8 +501,8 @@ export class KernSelect {
                 aria-expanded="true"
                 aria-controls={listId}
                 aria-activedescendant={activeId}
-                aria-label={this.labelSearch}
-                placeholder={this.labelSearch}
+                aria-label={this.t('labelSearch')}
+                placeholder={this.t('labelSearch')}
                 autocomplete="off"
                 spellcheck={false}
                 value={this.query}
@@ -542,7 +544,7 @@ export class KernSelect {
                 </div>
               );
             })}
-            {!vis.size && <div class="no-results">{this.labelNoResults}</div>}
+            {!vis.size && <div class="no-results">{this.t('labelNoResults')}</div>}
           </div>
           <div class="footer" hidden={!this.hasFooter} onClick={this.onFooterClick}>
             <slot name="footer" onSlotchange={(e) => (this.hasFooter = (e.target as HTMLSlotElement).assignedElements().length > 0)} />

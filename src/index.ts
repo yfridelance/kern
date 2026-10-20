@@ -3,6 +3,8 @@ export { confirm } from './utils/confirm';
 export type { ConfirmOptions } from './utils/confirm';
 export { toast, setToastRegionLabel } from './utils/toast';
 export type { ToastOptions } from './utils/toast';
+export { setKernLocale, getKernLocale, setKernStrings } from './utils/i18n';
+export type { KernStrings, KernTextKey } from './utils/i18n';
 export { getTheme, setTheme, initTheme, THEMES, THEME_STORAGE_KEY } from './utils/theme';
 export type { KernTheme } from './utils/theme';
 export { rssiLevel } from './utils/signal';

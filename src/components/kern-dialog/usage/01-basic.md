@@ -5,7 +5,7 @@ A modal dialog on the native `<dialog>`: `show()` opens it, `close(returnValue)`
 ```html
 <kern-button class="open">Restart …</kern-button>
 <p class="out" style="font-size:13px;color:var(--text-muted)"></p>
-<kern-dialog heading="Restart Küche Licht?" close-label="Close">
+<kern-dialog heading="Restart Küche Licht?">
   <p>Küche Licht will be unreachable for about 10 seconds.</p>
   <kern-button slot="footer" class="cancel">Cancel</kern-button>
   <kern-button slot="footer" variant="primary" class="ok">Restart</kern-button>

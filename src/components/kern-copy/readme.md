@@ -36,10 +36,10 @@ root.addEventListener('kernCopy', (e) => (out.textContent = 'kernCopy → ' + e.
 
 ## Properties
 
-| Property | Attribute | Description                                 | Type                  | Default      |
-| -------- | --------- | ------------------------------------------- | --------------------- | ------------ |
-| `label`  | `label`   | Tooltip and accessible label of the button. | `string`              | `'Kopieren'` |
-| `value`  | `value`   | Copied text; defaults to the text content.  | `string \| undefined` | `undefined`  |
+| Property | Attribute | Description                                 | Type                  | Default     |
+| -------- | --------- | ------------------------------------------- | --------------------- | ----------- |
+| `label`  | `label`   | Tooltip and accessible label of the button. | `string \| undefined` | `undefined` |
+| `value`  | `value`   | Copied text; defaults to the text content.  | `string \| undefined` | `undefined` |
 
 
 ## Events

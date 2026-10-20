@@ -1,24 +1,16 @@
-# Long values and English labels
+# Long values and own labels
 
-Values longer than `max-value-length` (default 80) are cut with „…“; hover a cell to see the whole value. The built-in labels are German; this example sets them to English. An empty result shows `label-none`.
+Values longer than `max-value-length` (default 80) are cut with „…“; hover a cell to see the whole value. `label-before` and `label-after` name the columns after what is compared. An empty result shows `label-none`.
 
 ```html
 <kern-json-diff
   max-value-length="40"
   label-before="Target"
   label-after="Actual"
-  label-path="Path"
-  label-kind="Kind"
-  label-added="added"
-  label-removed="removed"
-  label-changed="changed"
-  label-none="No differences"
-  label-summary="{n} differences: {changed} changed, {added} added, {removed} removed"
 ></kern-json-diff>
 <kern-json-diff
   from='{"eco_mode":true}'
   to='{"eco_mode":true}'
-  label-none="No differences"
   style="margin-top: 16px"
 ></kern-json-diff>
 ```

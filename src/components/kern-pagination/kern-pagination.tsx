@@ -2,6 +2,7 @@ import { Component, Event, EventEmitter, Host, Prop, Watch, h } from '@stencil/c
 import { Icon } from '../../utils/icons';
 import { resolveLocale } from '../../utils/datetime';
 import { pageItems } from './pages';
+import { kernTexts } from '../../utils/i18n';
 
 /**
  * Paging for long tables and lists: range („1–25 von 380“), optional page size, first/previous, page numbers with
@@ -25,16 +26,17 @@ export class KernPagination {
   @Prop() siblings = 1;
   /** BCP 47 locale for numbers; defaults to `<html lang>`, then the browser language. */
   @Prop() locale?: string;
-  @Prop() label = 'Seiten';
+  @Prop() label?: string;
   /** `{from}`, `{to}` and `{total}` are replaced. */
-  @Prop() labelRange = '{from}–{to} von {total}';
-  @Prop() labelPageSize = 'Pro Seite';
+  @Prop() labelRange?: string;
+  @Prop() labelPageSize?: string;
   /** `{n}` is replaced. */
-  @Prop() labelPage = 'Seite {n}';
-  @Prop() labelFirst = 'Erste Seite';
-  @Prop() labelPrevious = 'Vorherige Seite';
-  @Prop() labelNext = 'Nächste Seite';
-  @Prop() labelLast = 'Letzte Seite';
+  @Prop() labelPage?: string;
+  @Prop() labelFirst?: string;
+  @Prop() labelPrevious?: string;
+  @Prop() labelNext?: string;
+  @Prop() labelLast?: string;
+  private t = kernTexts(this, 'kern-pagination');
 
   /** The page or page size changed. */
   @Event() kernPageChange!: EventEmitter<{ page: number; pageSize: number }>;
@@ -81,7 +83,7 @@ export class KernPagination {
     const fmt = new Intl.NumberFormat(resolveLocale(this.locale));
     const from = this.total ? (this.page - 1) * this.pageSize + 1 : 0;
     const to = Math.min(this.total, this.page * this.pageSize);
-    const range = this.labelRange.replace('{from}', fmt.format(from)).replace('{to}', fmt.format(to)).replace('{total}', fmt.format(this.total));
+    const range = this.t('labelRange').replace('{from}', fmt.format(from)).replace('{to}', fmt.format(to)).replace('{total}', fmt.format(this.total));
     const first = this.page <= 1;
     const last = this.page >= this.count;
     const sizes = this.sizes;
@@ -93,19 +95,19 @@ export class KernPagination {
     );
     return (
       <Host>
-        <nav aria-label={this.label}>
+        <nav aria-label={this.t('label')}>
           <span class="range" aria-live="polite">
             {range}
           </span>
           {sizes.length > 0 && (
             <span class="size">
-              <span class="size-label">{this.labelPageSize}</span>
-              <kern-select size="sm" aria-label-text={this.labelPageSize} value={String(this.pageSize)} options={sizes.map((n) => ({ value: String(n), label: fmt.format(n) }))} onKernChange={this.onSize} />
+              <span class="size-label">{this.t('labelPageSize')}</span>
+              <kern-select size="sm" aria-label-text={this.t('labelPageSize')} value={String(this.pageSize)} options={sizes.map((n) => ({ value: String(n), label: fmt.format(n) }))} onKernChange={this.onSize} />
             </span>
           )}
           <span class="pages">
-            {nav('first', this.labelFirst, 1, first, 'chevron-left', true)}
-            {nav('prev', this.labelPrevious, this.page - 1, first, 'chevron-left')}
+            {nav('first', this.t('labelFirst'), 1, first, 'chevron-left', true)}
+            {nav('prev', this.t('labelPrevious'), this.page - 1, first, 'chevron-left')}
             {pageItems(this.page, this.count, this.siblings).map((p) =>
               p === '…' ? (
                 <span class="gap" aria-hidden="true">
@@ -115,7 +117,7 @@ export class KernPagination {
                 <button
                   type="button"
                   class={{ num: true, current: p === this.page }}
-                  aria-label={this.labelPage.replace('{n}', String(p))}
+                  aria-label={this.t('labelPage').replace('{n}', String(p))}
                   aria-current={p === this.page ? 'page' : undefined}
                   onClick={() => this.go(p)}
                 >
@@ -123,8 +125,8 @@ export class KernPagination {
                 </button>
               ),
             )}
-            {nav('next', this.labelNext, this.page + 1, last, 'chevron-right')}
-            {nav('last', this.labelLast, this.count, last, 'chevron-right', true)}
+            {nav('next', this.t('labelNext'), this.page + 1, last, 'chevron-right')}
+            {nav('last', this.t('labelLast'), this.count, last, 'chevron-right', true)}
           </span>
         </nav>
       </Host>

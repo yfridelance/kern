@@ -57,7 +57,7 @@ setInterval(() => {
 | Property | Attribute | Description                                             | Type                                                                             | Default     |
 | -------- | --------- | ------------------------------------------------------- | -------------------------------------------------------------------------------- | ----------- |
 | `fill`   | `fill`    | Light area under the line.                              | `boolean`                                                                        | `false`     |
-| `label`  | `label`   |                                                         | `string`                                                                         | `'Verlauf'` |
+| `label`  | `label`   |                                                         | `string \| undefined`                                                            | `undefined` |
 | `max`    | `max`     |                                                         | `number \| undefined`                                                            | `undefined` |
 | `min`    | `min`     |                                                         | `number \| undefined`                                                            | `undefined` |
 | `tone`   | `tone`    |                                                         | `"chart-1" \| "chart-2" \| "chart-3" \| "chart-4" \| "danger" \| "ok" \| "warn"` | `'chart-1'` |

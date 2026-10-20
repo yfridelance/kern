@@ -1,5 +1,6 @@
 import { AttachInternals, Component, Element, Event, EventEmitter, Host, Method, Prop, State, Watch, h } from '@stencil/core';
 import { formatMac, parseMac, type KernMacFormat } from '../../utils/mac';
+import { kernTexts } from '../../utils/i18n';
 
 let nextId = 0;
 
@@ -35,7 +36,8 @@ export class KernMacInput {
   @Prop() required = false;
   /** Accessible name when there is no visible label. */
   @Prop() ariaLabelText?: string;
-  @Prop() labelInvalid = 'Keine gültige MAC-Adresse';
+  @Prop() labelInvalid?: string;
+  private t = kernTexts(this, 'kern-mac-input', 'sync');
 
   /** On every keystroke, with the raw text. */
   @Event() kernInput!: EventEmitter<{ value: string }>;
@@ -43,7 +45,7 @@ export class KernMacInput {
   @Event() kernChange!: EventEmitter<{ value: string }>;
 
   @State() text = '';
-  /** Own validation message, shown when `error` is not set. */
+  /** Name of the text property of the own validation message, shown when `error` is not set. */
   @State() problem?: string;
 
   private input?: HTMLInputElement;
@@ -76,7 +78,7 @@ export class KernMacInput {
       return;
     }
     this.text = v;
-    this.problem = v && norm === null ? this.labelInvalid : undefined;
+    this.problem = v && norm === null ? 'labelInvalid' : undefined;
     this.sync();
   }
 
@@ -85,7 +87,7 @@ export class KernMacInput {
   @Watch('problem')
   sync() {
     this.internals?.setFormValue?.(this.value ?? '');
-    const message = this.error ?? this.problem;
+    const message = this.error ?? this.problemText();
     if (message) this.internals?.setValidity?.({ customError: true }, message, this.input);
     else if (this.required && !this.value) this.internals?.setValidity?.({ valueMissing: true }, 'required', this.input);
     else this.internals?.setValidity?.({});
@@ -111,7 +113,7 @@ export class KernMacInput {
     const t = this.text.trim();
     const next = t ? this.normalise(t) : '';
     if (next === null) {
-      this.problem = this.labelInvalid;
+      this.problem = 'labelInvalid';
       return;
     }
     if (next === this.value) {
@@ -124,7 +126,7 @@ export class KernMacInput {
 
   private onInput = (ev: Event) => {
     this.text = (ev.target as HTMLInputElement).value;
-    if (this.problem === this.labelInvalid) this.problem = undefined;
+    if (this.problem === 'labelInvalid') this.problem = undefined;
     this.kernInput.emit({ value: this.text });
   };
 
@@ -132,8 +134,13 @@ export class KernMacInput {
     if (ev.key === 'Enter') this.commit();
   };
 
+  /** The own validation message in the current language; `problem` holds the text property's name. */
+  private problemText(): string | undefined {
+    return this.problem && this.t(this.problem);
+  }
+
   render() {
-    const message = this.error ?? this.problem;
+    const message = this.error ?? this.problemText();
     const describedBy = message ? `${this.uid}-error` : this.hint ? `${this.uid}-hint` : undefined;
     return (
       <Host invalid={!!message}>

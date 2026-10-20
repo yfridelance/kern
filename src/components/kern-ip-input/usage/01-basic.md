@@ -4,7 +4,7 @@ One field accepts a single address, a range (`192.168.1.10-50`) or a CIDR block.
 
 ```html
 <div style="display:grid;gap:16px;max-width:360px">
-  <kern-ip-input label="Scan range" value="192.168.1.0/24" max-addresses="1024" hint="Address, range or CIDR, max. 1024 addresses" label-count="{n} addresses" label-too-many="At most {n} addresses" label-invalid="Not a valid IPv4 address" locale="en"></kern-ip-input>
+  <kern-ip-input label="Scan range" value="192.168.1.0/24" max-addresses="1024" hint="Address, range or CIDR, max. 1024 addresses" locale="en"></kern-ip-input>
   <output style="font:12px var(--font-mono);color:var(--text-muted)">kernChange → …</output>
 </div>
 ```

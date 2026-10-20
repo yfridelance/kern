@@ -21,7 +21,7 @@ describe('kern-rating', () => {
     expect(stars().map((s) => s.classList.contains('filled'))).toEqual([true, true, true, false, false]);
     expect(stars().map((s) => s.getAttribute('aria-checked'))).toEqual(['false', 'false', 'true', 'false', 'false']);
     expect(stars().map((s) => s.getAttribute('tabindex'))).toEqual(['-1', '-1', '0', '-1', '-1']);
-    expect(stars()[0].getAttribute('aria-label')).toBe('1 von 5 Sternen');
+    expect(stars()[0].getAttribute('aria-label')).toBe('1 of 5 stars');
   });
 
   it('picks on click and clears the current star when clearable', async () => {
@@ -71,7 +71,7 @@ describe('kern-rating', () => {
   it('only shows the rating when readonly', async () => {
     const { root, stars } = await setup(`value="4" readonly`);
     expect(root.querySelector('[role="radiogroup"]')).toBeNull();
-    expect(root.querySelector('[role="img"]')!.getAttribute('aria-label')).toBe('Zuverlässigkeit: 4 von 5 Sternen');
+    expect(root.querySelector('[role="img"]')!.getAttribute('aria-label')).toBe('Zuverlässigkeit: 4 of 5 stars');
     expect(stars().some((s) => s.hasAttribute('tabindex'))).toBe(false);
   });
 

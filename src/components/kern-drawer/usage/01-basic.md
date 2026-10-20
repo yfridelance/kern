@@ -5,7 +5,7 @@ A modal side panel for details and longer forms. Open it with `show()`, close it
 ```html
 <kern-button class="open">Details</kern-button>
 <p class="out" style="font-size:13px;color:var(--text-muted)"></p>
-<kern-drawer heading="Bad Lüftung" close-label="Close">
+<kern-drawer heading="Bad Lüftung">
   <kern-kv>
     <kern-kv-item label="Model">Shelly Plus 1PM</kern-kv-item>
     <kern-kv-item label="IP"><kern-copy>192.168.1.21</kern-copy></kern-kv-item>

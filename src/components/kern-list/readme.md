@@ -69,12 +69,12 @@ root.querySelector('kern-list-item[clickable] kern-button').addEventListener('cl
 
 ## Properties
 
-| Property | Attribute | Description                                                | Type                  | Default            |
-| -------- | --------- | ---------------------------------------------------------- | --------------------- | ------------------ |
-| `empty`  | `empty`   | Shown when there are no items; empty string shows nothing. | `string`              | `'Keine Einträge'` |
-| `flush`  | `flush`   | Without border and background, e.g. inside kern-card.      | `boolean`             | `false`            |
-| `label`  | `label`   | Accessible name of the list.                               | `string \| undefined` | `undefined`        |
-| `size`   | `size`    | `sm` = denser rows.                                        | `"md" \| "sm"`        | `'md'`             |
+| Property | Attribute | Description                                                | Type                  | Default     |
+| -------- | --------- | ---------------------------------------------------------- | --------------------- | ----------- |
+| `empty`  | `empty`   | Shown when there are no items; empty string shows nothing. | `string \| undefined` | `undefined` |
+| `flush`  | `flush`   | Without border and background, e.g. inside kern-card.      | `boolean`             | `false`     |
+| `label`  | `label`   | Accessible name of the list.                               | `string \| undefined` | `undefined` |
+| `size`   | `size`    | `sm` = denser rows.                                        | `"md" \| "sm"`        | `'md'`      |
 
 
 ## Slots

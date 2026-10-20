@@ -63,7 +63,7 @@ describe('kern-select', () => {
     });
     const sr = page.root!.shadowRoot!;
     const search = sr.querySelector<HTMLInputElement>('.search input')!;
-    expect(search.getAttribute('aria-label')).toBe('Suchen …');
+    expect(search.getAttribute('aria-label')).toBe('Search …');
     search.value = 'bad';
     search.dispatchEvent(new Event('input'));
     await page.waitForChanges();
@@ -75,7 +75,7 @@ describe('kern-select', () => {
     search.value = 'xyz';
     search.dispatchEvent(new Event('input'));
     await page.waitForChanges();
-    expect(sr.querySelector('.no-results')!.textContent).toBe('Keine Treffer');
+    expect(sr.querySelector('.no-results')!.textContent).toBe('No results');
   });
 
   it('toggles several values with multiple and shows them as chips', async () => {

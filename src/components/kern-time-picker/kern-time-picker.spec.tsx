@@ -23,7 +23,7 @@ describe('kern-time-picker', () => {
     expect(text()).toEqual(['06', '30']);
     expect(seg('hour').getAttribute('role')).toBe('spinbutton');
     expect(seg('hour').getAttribute('aria-valuenow')).toBe('6');
-    expect(seg('minute').getAttribute('aria-label')).toBe('Start, Minuten');
+    expect(seg('minute').getAttribute('aria-label')).toBe('Start, Minutes');
   });
 
   it('types digits and fills a time', async () => {
@@ -77,7 +77,7 @@ describe('kern-time-picker', () => {
 
   it('flags times outside min/max', async () => {
     const { page, root } = await setup(`value="05:00" min="06:00" max="22:00"`);
-    expect(root.querySelector('.error')!.textContent).toBe('Zeit nicht erlaubt');
+    expect(root.querySelector('.error')!.textContent).toBe('Time not allowed');
     expect(page.root!.hasAttribute('invalid')).toBe(true);
   });
 

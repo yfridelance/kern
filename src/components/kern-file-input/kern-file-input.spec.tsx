@@ -19,7 +19,7 @@ const setup = async (attrs: string) => {
 describe('kern-file-input', () => {
   it('shows the choice, limits and the label on the button', async () => {
     const { root } = await setup(`accept=".zip,.bin" max-size="16MB"`);
-    expect(root.querySelector('.choose')!.textContent).toBe('Datei wählen');
+    expect(root.querySelector('.choose')!.textContent).toBe('Choose file');
     expect(root.querySelector('label')!.getAttribute('for')).toBe(root.querySelector('.choose')!.id);
     expect(root.querySelector('.limits')!.textContent).toBe('.zip, .bin · max. 16 MB');
     expect(root.querySelector('input[type="file"]')!.getAttribute('accept')).toBe('.zip,.bin');
@@ -44,14 +44,14 @@ describe('kern-file-input', () => {
     await page.waitForChanges();
     expect(names()).toEqual(['b.json']);
     expect(el.files.length).toBe(1);
-    expect(root.querySelector('.remove')!.getAttribute('aria-label')).toBe('b.json entfernen');
+    expect(root.querySelector('.remove')!.getAttribute('aria-label')).toBe('Remove b.json');
   });
 
   it('rejects wrong types and too large files with a message', async () => {
     const { root, add, names, page } = await setup(`multiple accept=".zip" max-size="1KB"`);
     await add(file('fw.zip', 512), file('notes.txt', 10), file('big.zip', 4096));
     expect(names()).toEqual(['fw.zip']);
-    expect(root.querySelector('.error')!.textContent).toBe('«notes.txt» hat keinen erlaubten Dateityp. «big.zip» ist grösser als 1 KB.');
+    expect(root.querySelector('.error')!.textContent).toBe('“notes.txt” is not an allowed file type. “big.zip” is larger than 1 KB.');
     expect(page.root!.hasAttribute('invalid')).toBe(true);
     await add(file('ok.zip', 100));
     expect(root.querySelector('.error')).toBeNull();

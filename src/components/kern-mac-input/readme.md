@@ -21,7 +21,7 @@ Accepts `C82B961A3F00`, `c8:2b:…`, `c8-2b-…` or `c82b.961a.3f00` and normali
 
 ```html
 <div style="display:grid;gap:16px;max-width:360px">
-  <kern-mac-input label="MAC address" value="c82b961a3f00" hint="Any notation, e.g. c82b.961a.3f00" label-invalid="Not a valid MAC address"></kern-mac-input>
+  <kern-mac-input label="MAC address" value="c82b961a3f00" hint="Any notation, e.g. c82b.961a.3f00"></kern-mac-input>
   <kern-mac-input label="MAC (dash, lower case)" value="C8:2B:96:1A:3F:00" format="dash" letter-case="lower"></kern-mac-input>
   <output style="font:12px var(--font-mono);color:var(--text-muted)">kernChange → …</output>
 </div>
@@ -53,22 +53,22 @@ for (const el of root.querySelectorAll('kern-mac-input')) {
 
 ## Properties
 
-| Property        | Attribute         | Description                                                                                               | Type                                    | Default                       |
-| --------------- | ----------------- | --------------------------------------------------------------------------------------------------------- | --------------------------------------- | ----------------------------- |
-| `ariaLabelText` | `aria-label-text` | Accessible name when there is no visible label.                                                           | `string \| undefined`                   | `undefined`                   |
-| `disabled`      | `disabled`        |                                                                                                           | `boolean`                               | `false`                       |
-| `error`         | `error`           |                                                                                                           | `string \| undefined`                   | `undefined`                   |
-| `format`        | `format`          | Notation of `value`: `C8:2B:…` (colon), `C8-2B-…` (dash), `c82b.961a.3f00` (dot), `C82B961A3F00` (plain). | `"colon" \| "dash" \| "dot" \| "plain"` | `'colon'`                     |
-| `hint`          | `hint`            |                                                                                                           | `string \| undefined`                   | `undefined`                   |
-| `label`         | `label`           |                                                                                                           | `string \| undefined`                   | `undefined`                   |
-| `labelInvalid`  | `label-invalid`   |                                                                                                           | `string`                                | `'Keine gültige MAC-Adresse'` |
-| `letterCase`    | `letter-case`     |                                                                                                           | `"lower" \| "upper"`                    | `'upper'`                     |
-| `name`          | `name`            |                                                                                                           | `string \| undefined`                   | `undefined`                   |
-| `placeholder`   | `placeholder`     | Defaults to an example in `format`.                                                                       | `string \| undefined`                   | `undefined`                   |
-| `readonly`      | `readonly`        |                                                                                                           | `boolean`                               | `false`                       |
-| `required`      | `required`        |                                                                                                           | `boolean`                               | `false`                       |
-| `size`          | `size`            |                                                                                                           | `"md" \| "sm"`                          | `'md'`                        |
-| `value`         | `value`           | Normalised MAC address; empty when none.                                                                  | `string`                                | `''`                          |
+| Property        | Attribute         | Description                                                                                               | Type                                    | Default     |
+| --------------- | ----------------- | --------------------------------------------------------------------------------------------------------- | --------------------------------------- | ----------- |
+| `ariaLabelText` | `aria-label-text` | Accessible name when there is no visible label.                                                           | `string \| undefined`                   | `undefined` |
+| `disabled`      | `disabled`        |                                                                                                           | `boolean`                               | `false`     |
+| `error`         | `error`           |                                                                                                           | `string \| undefined`                   | `undefined` |
+| `format`        | `format`          | Notation of `value`: `C8:2B:…` (colon), `C8-2B-…` (dash), `c82b.961a.3f00` (dot), `C82B961A3F00` (plain). | `"colon" \| "dash" \| "dot" \| "plain"` | `'colon'`   |
+| `hint`          | `hint`            |                                                                                                           | `string \| undefined`                   | `undefined` |
+| `label`         | `label`           |                                                                                                           | `string \| undefined`                   | `undefined` |
+| `labelInvalid`  | `label-invalid`   |                                                                                                           | `string \| undefined`                   | `undefined` |
+| `letterCase`    | `letter-case`     |                                                                                                           | `"lower" \| "upper"`                    | `'upper'`   |
+| `name`          | `name`            |                                                                                                           | `string \| undefined`                   | `undefined` |
+| `placeholder`   | `placeholder`     | Defaults to an example in `format`.                                                                       | `string \| undefined`                   | `undefined` |
+| `readonly`      | `readonly`        |                                                                                                           | `boolean`                               | `false`     |
+| `required`      | `required`        |                                                                                                           | `boolean`                               | `false`     |
+| `size`          | `size`            |                                                                                                           | `"md" \| "sm"`                          | `'md'`      |
+| `value`         | `value`           | Normalised MAC address; empty when none.                                                                  | `string`                                | `''`        |
 
 
 ## Events

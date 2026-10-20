@@ -8,7 +8,7 @@ In data mode `rowKey` returns a row's key (default: `row.id`, else its index in 
   <kern-button size="sm" variant="ghost" class="none">None</kern-button>
   <span class="count" slot="end">0 selected</span>
 </kern-toolbar>
-<kern-table selectable compact label-select-all="Select all" label-select-row="Select row"></kern-table>
+<kern-table selectable compact></kern-table>
 ```
 
 ```js

@@ -19,12 +19,12 @@ Four bars plus the RSSI in dBm: ≥ −55 gives 4 bars, ≥ −67 3, ≥ −75 2
 
 ```html
 <div style="display:flex;flex-wrap:wrap;gap:24px">
-  <kern-signal rssi="-52" label="Wi-Fi signal"></kern-signal>
-  <kern-signal rssi="-63" label="Wi-Fi signal"></kern-signal>
-  <kern-signal rssi="-71" label="Wi-Fi signal"></kern-signal>
-  <kern-signal rssi="-82" label="Wi-Fi signal"></kern-signal>
-  <kern-signal rssi="-91" label="Wi-Fi signal"></kern-signal>
-  <kern-signal label="Wi-Fi signal"></kern-signal>
+  <kern-signal rssi="-52"></kern-signal>
+  <kern-signal rssi="-63"></kern-signal>
+  <kern-signal rssi="-71"></kern-signal>
+  <kern-signal rssi="-82"></kern-signal>
+  <kern-signal rssi="-91"></kern-signal>
+  <kern-signal></kern-signal>
 </div>
 ```
 
@@ -37,7 +37,7 @@ Four bars plus the RSSI in dBm: ≥ −55 gives 4 bars, ≥ −67 3, ≥ −75 2
 
 ```html
 <kern-tooltip text="−58 dBm · good">
-  <kern-signal rssi="-58" hide-value label="Wi-Fi signal" tabindex="0"></kern-signal>
+  <kern-signal rssi="-58" hide-value tabindex="0"></kern-signal>
 </kern-tooltip>
 ```
 
@@ -45,11 +45,11 @@ Four bars plus the RSSI in dBm: ≥ −55 gives 4 bars, ≥ −67 3, ≥ −75 2
 
 ## Properties
 
-| Property    | Attribute    | Description                                            | Type                  | Default         |
-| ----------- | ------------ | ------------------------------------------------------ | --------------------- | --------------- |
-| `hideValue` | `hide-value` | Hide the dBm number (narrow table columns).            | `boolean`             | `false`         |
-| `label`     | `label`      |                                                        | `string`              | `'WLAN-Signal'` |
-| `rssi`      | `rssi`       | RSSI in dBm (Gen2+ `wifi.rssi`, Gen1 `wifi_sta.rssi`). | `number \| undefined` | `undefined`     |
+| Property    | Attribute    | Description                                            | Type                  | Default     |
+| ----------- | ------------ | ------------------------------------------------------ | --------------------- | ----------- |
+| `hideValue` | `hide-value` | Hide the dBm number (narrow table columns).            | `boolean`             | `false`     |
+| `label`     | `label`      |                                                        | `string \| undefined` | `undefined` |
+| `rssi`      | `rssi`       | RSSI in dBm (Gen2+ `wifi.rssi`, Gen1 `wifi_sta.rssi`). | `number \| undefined` | `undefined` |
 
 
 ----------------------------------------------

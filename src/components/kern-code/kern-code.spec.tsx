@@ -29,7 +29,7 @@ describe('kern-code', () => {
   it('shows the copy button unless no-copy, and limits the height', async () => {
     const page = await newSpecPage({ components: [KernCode], html: `<kern-code max-height="120px">x</kern-code>` });
     const root = page.root!.shadowRoot!;
-    expect(root.querySelector('.copy')!.getAttribute('aria-label')).toBe('Kopieren');
+    expect(root.querySelector('.copy')!.getAttribute('aria-label')).toBe('Copy');
     expect(root.querySelector('pre')!.getAttribute('style')).toContain('max-height: 120px');
     const bare = await newSpecPage({ components: [KernCode], html: `<kern-code no-copy>x</kern-code>` });
     expect(bare.root!.shadowRoot!.querySelector('.copy')).toBeNull();

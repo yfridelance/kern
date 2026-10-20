@@ -3,7 +3,7 @@
 `min` and `max` bound the selectable dates; `isDateDisabled` is a property taking a function from ISO date to boolean, e.g. to block weekends. Here only workdays in the last three months can be picked.
 
 ```html
-<kern-calendar label="Report day" label-prev="Previous month" label-next="Next month"></kern-calendar>
+<kern-calendar label="Report day"></kern-calendar>
 ```
 
 ```js

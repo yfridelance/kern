@@ -20,7 +20,7 @@ kern-theme-toggle). Put each nav link directly into the `nav` slot; the active o
 Brand on the left, the main navigation in the `nav` slot and tools in the `end` slot. Mark the current link with `aria-current="page"`; keep the navigation to at most six links.
 
 ```html
-<kern-topbar app-name="Shelly Manager" suite="Homelab" nav-label="Main navigation">
+<kern-topbar app-name="Shelly Manager" suite="Homelab">
   <a slot="nav" href="#">Scan</a>
   <a slot="nav" href="#" aria-current="page">Inventory</a>
   <a slot="nav" href="#">Templates</a>
@@ -57,12 +57,12 @@ The `brand` slot replaces the default mark and app name. A small kern-select in 
 
 ## Properties
 
-| Property   | Attribute   | Description                                               | Type                  | Default             |
-| ---------- | ----------- | --------------------------------------------------------- | --------------------- | ------------------- |
-| `appName`  | `app-name`  |                                                           | `string \| undefined` | `undefined`         |
-| `homeHref` | `home-href` | Link of the brand.                                        | `string`              | `'/'`               |
-| `navLabel` | `nav-label` | Accessible name of the navigation.                        | `string`              | `'Hauptnavigation'` |
-| `suite`    | `suite`     | Muted product family before the app name, e.g. "Homelab". | `string \| undefined` | `undefined`         |
+| Property   | Attribute   | Description                                               | Type                  | Default     |
+| ---------- | ----------- | --------------------------------------------------------- | --------------------- | ----------- |
+| `appName`  | `app-name`  |                                                           | `string \| undefined` | `undefined` |
+| `homeHref` | `home-href` | Link of the brand.                                        | `string`              | `'/'`       |
+| `navLabel` | `nav-label` | Accessible name of the navigation.                        | `string \| undefined` | `undefined` |
+| `suite`    | `suite`     | Muted product family before the app name, e.g. "Homelab". | `string \| undefined` | `undefined` |
 
 
 ## Slots

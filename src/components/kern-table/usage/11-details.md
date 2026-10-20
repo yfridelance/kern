@@ -3,7 +3,7 @@
 A `<tr kern-details>` right after a row is its detail row: hidden until the row is expanded, spanning all columns (the selection column, too). It moves with its row when sorting, doesn't count as a row for paging and hides with its row. A `<button kern-expand>` in the row toggles it; the table sets `aria-expanded` and `aria-controls`. `expanded` holds the keys of the open rows (`data-key`), `kernRowToggle` reports `{ key, open }` (cancel it to keep `expanded`), and `toggleRow(key, open?)` opens or closes a row from the app.
 
 ```html
-<kern-table selectable compact page-size="3" label-select-all="Select all" label-select-row="Select row">
+<kern-table selectable compact page-size="3">
   <table>
     <thead>
       <tr><th sortable sorted="asc">Device</th><th sortable class="num">Changes</th><th>Template</th></tr>

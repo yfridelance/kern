@@ -1,4 +1,5 @@
 import { newSpecPage } from '@stencil/core/testing';
+import { setKernLocale } from '../../utils/i18n';
 import { KernCalendar } from '../kern-calendar/kern-calendar';
 import { KernDatePicker } from './kern-date-picker';
 
@@ -40,11 +41,11 @@ describe('kern-date-picker', () => {
     const { page, root, picker, type, events } = await setup(`value="2026-10-05" min="2026-10-01" max="2026-10-31"`);
     await type('32.10.2026');
     expect(picker.value).toBe('2026-10-05');
-    expect(root.querySelector('.error')!.textContent).toBe('Kein gültiges Datum');
+    expect(root.querySelector('.error')!.textContent).toBe('Not a valid date');
     expect(page.root!.hasAttribute('invalid')).toBe(true);
     await type('5.11.2026');
     expect(picker.value).toBe('2026-11-05');
-    expect(root.querySelector('.error')!.textContent).toBe('Datum nicht erlaubt');
+    expect(root.querySelector('.error')!.textContent).toBe('Date not allowed');
     await type('6.10.2026');
     expect(root.querySelector('.error')).toBeNull();
     expect(events).toEqual(['2026-11-05', '2026-10-06']);
@@ -72,5 +73,18 @@ describe('kern-date-picker', () => {
     const { root } = await setup(`value="2026-10-05" readonly clearable`);
     expect(root.querySelector('.open')!.hasAttribute('disabled')).toBe(true);
     expect(root.querySelector('.clear')).toBeNull();
+  });
+});
+
+describe('kern-date-picker texts', () => {
+  afterEach(() => setKernLocale());
+
+  it('translates its own validation message when the language changes', async () => {
+    const { page, root, type } = await setup(`value="2026-10-05"`);
+    await type('32.10.2026');
+    expect(root.querySelector('.error')!.textContent).toBe('Not a valid date');
+    setKernLocale('de');
+    await page.waitForChanges();
+    expect(root.querySelector('.error')!.textContent).toBe('Kein gültiges Datum');
   });
 });

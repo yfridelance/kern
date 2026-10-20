@@ -68,8 +68,8 @@ kern-toast can also be placed directly, e.g. in a custom container. It closes it
 
 ```html
 <div style="display:grid;gap:8px;max-width:380px">
-  <kern-toast tone="ok" duration="0" close-label="Close">Snapshot of «Bad Lüftung» saved.</kern-toast>
-  <kern-toast tone="warn" heading="Update available" action-label="Install" duration="0" close-label="Close">Firmware 1.4.4 for 3 devices.</kern-toast>
+  <kern-toast tone="ok" duration="0">Snapshot of «Bad Lüftung» saved.</kern-toast>
+  <kern-toast tone="warn" heading="Update available" action-label="Install" duration="0">Firmware 1.4.4 for 3 devices.</kern-toast>
 </div>
 <p class="out" style="font-size:13px;color:var(--text-muted)"></p>
 ```
@@ -84,13 +84,13 @@ for (const t of root.querySelectorAll('kern-toast')) {
 
 ## Properties
 
-| Property      | Attribute      | Description                                                   | Type                                                | Default        |
-| ------------- | -------------- | ------------------------------------------------------------- | --------------------------------------------------- | -------------- |
-| `actionLabel` | `action-label` | Text of an optional action, e.g. „Rückgängig“.                | `string \| undefined`                               | `undefined`    |
-| `closeLabel`  | `close-label`  |                                                               | `string`                                            | `'Schliessen'` |
-| `duration`    | `duration`     | Milliseconds until it closes itself; 0 keeps it until closed. | `number`                                            | `5000`         |
-| `heading`     | `heading`      |                                                               | `string \| undefined`                               | `undefined`    |
-| `tone`        | `tone`         |                                                               | `"danger" \| "info" \| "neutral" \| "ok" \| "warn"` | `'neutral'`    |
+| Property      | Attribute      | Description                                                   | Type                                                | Default     |
+| ------------- | -------------- | ------------------------------------------------------------- | --------------------------------------------------- | ----------- |
+| `actionLabel` | `action-label` | Text of an optional action, e.g. „Rückgängig“.                | `string \| undefined`                               | `undefined` |
+| `closeLabel`  | `close-label`  |                                                               | `string \| undefined`                               | `undefined` |
+| `duration`    | `duration`     | Milliseconds until it closes itself; 0 keeps it until closed. | `number`                                            | `5000`      |
+| `heading`     | `heading`      |                                                               | `string \| undefined`                               | `undefined` |
+| `tone`        | `tone`         |                                                               | `"danger" \| "info" \| "neutral" \| "ok" \| "warn"` | `'neutral'` |
 
 
 ## Events

@@ -3,7 +3,7 @@
 An inline month view; `value` is an ISO date and `kernChange` reports `{ value }`. `show-week-numbers` adds ISO weeks (column header `label-week`), and the `footer` slot takes actions such as a “Today” button that uses `goTo()`.
 
 ```html
-<kern-calendar label="Maintenance day" show-week-numbers label-week="Wk" label-prev="Previous month" label-next="Next month">
+<kern-calendar label="Maintenance day" show-week-numbers>
   <kern-button slot="footer" size="sm" variant="ghost">Today</kern-button>
 </kern-calendar>
 <pre class="out" style="font:12px var(--font-mono);color:var(--text-muted)"></pre>

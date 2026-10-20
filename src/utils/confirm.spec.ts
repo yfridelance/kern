@@ -30,11 +30,11 @@ describe('confirmNormalizer', () => {
 
 describe('typeToConfirmText', () => {
   it('names one, two or more alternatives', () => {
-    expect(typeToConfirmText(['A4CF12F45B21'])).toBe('Zur Bestätigung «A4CF12F45B21» eintippen');
-    expect(typeToConfirmText(['Boiler', 'A8:03:2A:B1:23:45'])).toBe('Zur Bestätigung «Boiler» oder «A8:03:2A:B1:23:45» eintippen');
-    expect(typeToConfirmText(['A', 'B', 'C'])).toBe('Zur Bestätigung «A», «B» oder «C» eintippen');
+    expect(typeToConfirmText(['A4CF12F45B21'])).toBe('Type “A4CF12F45B21” to confirm');
+    expect(typeToConfirmText(['Boiler', 'A8:03:2A:B1:23:45'])).toBe('Type “Boiler” or “A8:03:2A:B1:23:45” to confirm');
+    expect(typeToConfirmText(['A', 'B', 'C'])).toBe('Type “A”, “B” or “C” to confirm');
   });
   it("formats MACs with 'mac'", () => {
-    expect(typeToConfirmText(['Boiler', 'a8032ab12345'], 'mac')).toBe('Zur Bestätigung «Boiler» oder «A8:03:2A:B1:23:45» eintippen');
+    expect(typeToConfirmText(['Boiler', 'a8032ab12345'], 'mac')).toBe('Type “Boiler” or “A8:03:2A:B1:23:45” to confirm');
   });
 });

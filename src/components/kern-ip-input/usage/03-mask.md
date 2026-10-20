@@ -4,8 +4,8 @@
 
 ```html
 <div style="display:grid;gap:16px;max-width:360px">
-  <kern-ip-input label="Netmask" allow="mask" value="255.255.255.0" required hint="Dotted mask or prefix, e.g. /22" label-invalid-mask="Not a valid subnet mask" label-mask-count="/{prefix} · {n} hosts" locale="en"></kern-ip-input>
-  <kern-ip-input label="Prefix" allow="mask" mask-format="prefix" value="/16" label-invalid-mask="Not a valid subnet mask" label-mask-count="/{prefix} · {n} hosts" locale="en"></kern-ip-input>
+  <kern-ip-input label="Netmask" allow="mask" value="255.255.255.0" required hint="Dotted mask or prefix, e.g. /22" locale="en"></kern-ip-input>
+  <kern-ip-input label="Prefix" allow="mask" mask-format="prefix" value="/16" locale="en"></kern-ip-input>
   <output style="font:12px var(--font-mono);color:var(--text-muted)">kernChange → …</output>
 </div>
 ```

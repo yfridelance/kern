@@ -1,5 +1,6 @@
 import { AttachInternals, Component, Element, Event, EventEmitter, Host, Method, Prop, State, Watch, h } from '@stencil/core';
 import { resolveLocale } from '../../utils/datetime';
+import { kernTexts } from '../../utils/i18n';
 
 let nextId = 0;
 
@@ -45,8 +46,9 @@ export class KernRange {
   @Prop({ reflect: true }) disabled = false;
   /** Accessible name when there is no visible label. */
   @Prop() ariaLabelText?: string;
-  @Prop() labelFrom = 'Von';
-  @Prop() labelTo = 'Bis';
+  @Prop() labelFrom?: string;
+  @Prop() labelTo?: string;
+  private t = kernTexts(this, 'kern-range');
 
   /** While dragging or on every key step. */
   @Event() kernInput!: EventEmitter<{ value: number | string }>;
@@ -252,7 +254,7 @@ export class KernRange {
                 aria-valuemax={this.range && t === 0 ? b : this.max}
                 aria-valuenow={v}
                 aria-valuetext={this.format(v)}
-                aria-label={this.range ? [name, t === 0 ? this.labelFrom : this.labelTo].filter(Boolean).join(', ') : this.label ? undefined : this.ariaLabelText}
+                aria-label={this.range ? [name, t === 0 ? this.t('labelFrom') : this.t('labelTo')].filter(Boolean).join(', ') : this.label ? undefined : this.ariaLabelText}
                 aria-labelledby={!this.range ? labelId : undefined}
                 aria-describedby={describedBy}
                 aria-disabled={this.disabled ? 'true' : undefined}

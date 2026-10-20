@@ -322,6 +322,16 @@ function stringsTable() {
   );
 }
 
+function flagGrid() {
+  const names = readFileSync(join(root, 'src/utils/flag-names.ts'), 'utf8').match(/'flag-[a-z]{2}'/g).map((n) => n.slice(1, -1));
+  return `<div class="icon-grid">${names
+    .map((n) => {
+      const title = /title: "([^"]+)"/.exec(readFileSync(join(root, 'src/utils/flags', `${n.slice(5)}.ts`), 'utf8'))[1];
+      return `<div class="icon-cell"><kern-icon name="${n}" label="${esc(title)}"></kern-icon><kern-copy value="${n}">${n}</kern-copy></div>`;
+    })
+    .join('')}</div>`;
+}
+
 function componentGrid() {
   return GROUPS.map(
     ([title, tags]) =>
@@ -345,6 +355,7 @@ const PLACEHOLDERS = {
   sizes: () => scaleTable('size'),
   icons: iconGrid,
   brands: brandGrid,
+  flags: flagGrid,
   strings: stringsTable,
   components: componentGrid,
   version: () => esc(pkg.version),

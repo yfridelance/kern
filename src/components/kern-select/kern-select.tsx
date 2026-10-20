@@ -1,5 +1,6 @@
 import { AttachInternals, Component, Element, Event, EventEmitter, Host, Method, Prop, State, Watch, h } from '@stencil/core';
 import { Icon } from '../../utils/icons';
+import type { IconName } from '../../utils/icon-names';
 import { optionOf } from '../../utils/options';
 import { positionPopup } from '../../utils/popover';
 import { kernTexts } from '../../utils/i18n';
@@ -10,6 +11,12 @@ export interface KernOption {
   value: string;
   label: string;
   disabled?: boolean;
+  /** Icon before the label, e.g. a flag (`flag-ch`); from `data-icon` on an `<option>`. */
+  icon?: IconName;
+  /** Accessible name when the label alone says too little, e.g. «Deutsch» for «DE»; from `aria-label`. */
+  ariaLabel?: string;
+  /** Language of the label, e.g. for language names; from `lang`. */
+  lang?: string;
 }
 
 /**
@@ -422,7 +429,10 @@ export class KernSelect {
           {chosen.length
             ? chosen.map((o) => (
                 <span class="chip" part="chip">
-                  <span class="chip-label">{o.label}</span>
+                  {o.icon && <kern-icon name={o.icon} class="option-icon" />}
+                  <span class="chip-label" lang={o.lang} aria-label={o.ariaLabel}>
+                    {o.label}
+                  </span>
                   <button
                     type="button"
                     class="chip-remove"
@@ -445,7 +455,19 @@ export class KernSelect {
       ];
     }
     const selected = this.list.find((o) => o.value === this.value);
-    return [<span class="value">{selected ? selected.label : (this.placeholder ?? '')}</span>, <Icon name="chevron-down" class="chevron" />];
+    return [
+      selected?.icon && <kern-icon name={selected.icon} class="option-icon" />,
+      <span class="value" lang={selected?.lang}>
+        {selected ? this.optionText(selected) : (this.placeholder ?? '')}
+      </span>,
+      <Icon name="chevron-down" class="chevron" />,
+    ];
+  }
+
+  /** The label, or the label shown and the accessible name read when they differ (e.g. «DE» / «Deutsch»). */
+  private optionText(o: KernOption) {
+    if (!o.ariaLabel) return o.label;
+    return [<span aria-hidden="true">{o.label}</span>, <span class="sr">{o.ariaLabel}</span>];
   }
 
   render() {
@@ -531,6 +553,8 @@ export class KernSelect {
                   class={{ option: true, active: i === this.active, selected: sel }}
                   part="option"
                   role="option"
+                  lang={o.lang}
+                  aria-label={o.ariaLabel}
                   aria-selected={sel ? 'true' : 'false'}
                   aria-disabled={o.disabled ? 'true' : undefined}
                   onPointerMove={() => {
@@ -539,6 +563,7 @@ export class KernSelect {
                   onClick={() => this.pick(i)}
                 >
                   {this.multiple && <span class={{ box: true, on: sel }} aria-hidden="true">{sel && <Icon name="check" />}</span>}
+                  {o.icon && <kern-icon name={o.icon} class="option-icon" />}
                   <span class="text">{o.label}</span>
                   {!this.multiple && sel && <Icon name="check" class="check" />}
                 </div>

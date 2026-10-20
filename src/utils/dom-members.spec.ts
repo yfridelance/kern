@@ -22,6 +22,7 @@ textContent title toggleAttribute togglePopover translate`.split(/\s+/);
 
 /** Class members: fields, getters, methods (incl. decorated props and states), one per line at class indentation. */
 function members(source: string): string[] {
+  source = source.slice(source.indexOf('export class ')); // interfaces before the class are no members
   const re = /^ {2}(?:@\w+\([^)]*\)\s*)*(?:(?:private|protected|public|readonly|static|async|get|set)\s+)*([A-Za-z_$][\w$]*)\s*[(:=!?<;]/gm;
   return [...source.matchAll(re)].map((m) => m[1]);
 }

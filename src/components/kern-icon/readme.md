@@ -99,11 +99,15 @@ Names starting with `flag-` and an ISO 3166 country code show a flag from flag-i
 
 ### Used by
 
+ - [kern-language-select](../kern-language-select)
+ - [kern-select](../kern-select)
  - [kern-table](../kern-table)
 
 ### Graph
 ```mermaid
 graph TD;
+  kern-language-select --> kern-icon
+  kern-select --> kern-icon
   kern-table --> kern-icon
   style kern-icon fill:#f9f,stroke:#333,stroke-width:4px
 ```

@@ -106,3 +106,17 @@ describe('kern-select', () => {
     expect(page.root!.value).toEqual(['a', 'b']);
   });
 });
+
+describe('kern-select options with icons', () => {
+  it('shows the icon and keeps a short label with its full name', async () => {
+    const page = await newSpecPage({
+      components: [KernSelect],
+      html: `<kern-select value="de" aria-label-text="Language"><option value="de" data-icon="flag-de" aria-label="Deutsch" lang="de">DE</option><option value="en" data-icon="flag-gb" aria-label="English" lang="en">EN</option></kern-select>`,
+    });
+    const root = page.root!.shadowRoot!;
+    expect(root.querySelector('.trigger kern-icon')!.getAttribute('name')).toBe('flag-de');
+    expect(root.querySelector('.trigger .value .sr')!.textContent).toBe('Deutsch');
+    const option = root.querySelectorAll('[role="option"]')[1];
+    expect([option.getAttribute('aria-label'), option.getAttribute('lang'), option.querySelector('kern-icon')!.getAttribute('name')]).toEqual(['English', 'en', 'flag-gb']);
+  });
+});

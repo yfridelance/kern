@@ -15,6 +15,11 @@
 .chevron { flex: none; width: 14px; height: 14px; color: var(--text-muted); transition: transform .15s; }
 .trigger[aria-expanded="true"] .chevron { transform: rotate(180deg); }
 
+/* Icons before labels, e.g. flags */
+.option-icon { flex: none; font-size: 16px; color: var(--text-muted); }
+.chip .option-icon { font-size: 14px; margin-right: 4px; }
+.sr { position: absolute; width: 1px; height: 1px; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
 /* Multiple: chips in a growing field */
 .trigger.multi { height: auto; min-height: var(--control-md); padding-block: 3px; cursor: pointer; }
 :host([size="sm"]) .trigger.multi { min-height: var(--control-sm); padding-block: 2px; }

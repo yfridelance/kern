@@ -52,6 +52,7 @@ export const en = {
   'kern-json-diff.labelChanged': 'changed',
   'kern-json-diff.labelNone': 'No differences',
   'kern-json-diff.labelSummary': '{n} differences: {changed} changed, {added} added, {removed} removed',
+  'kern-language-select.label': 'Language',
   'kern-link.labelExternal': 'opens in a new tab',
   'kern-list.empty': 'No entries',
   'kern-mac-input.labelInvalid': 'Not a valid MAC address',

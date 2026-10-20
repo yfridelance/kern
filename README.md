@@ -24,7 +24,7 @@ dort und hier sind dieselben (`tokens/tokens.json`).
 | Bereich | Elemente |
 | --- | --- |
 | Layout | `kern-topbar`, `kern-page-header`, `kern-card`, `kern-toolbar`, `kern-accordion` + `kern-accordion-item` |
-| Navigation | `kern-tabs` + `kern-tab-panel`, `kern-link`, `kern-breadcrumb`, `kern-pagination`, `kern-theme-toggle` |
+| Navigation | `kern-tabs` + `kern-tab-panel`, `kern-link`, `kern-breadcrumb`, `kern-pagination`, `kern-language-select`, `kern-theme-toggle` |
 | Aktionen | `kern-button`, `kern-menu` + `kern-menu-item` |
 | Formulare | `kern-input`, `kern-ip-input`, `kern-mac-input`, `kern-file-input`, `kern-textarea`, `kern-select`, `kern-switch`, `kern-checkbox`, `kern-radio-group` + `kern-radio`, `kern-segmented`, `kern-date-picker`, `kern-date-range-picker`, `kern-time-picker`, `kern-color-picker`, `kern-step-input`, `kern-range`, `kern-rating` |
 | Status | `kern-badge`, `kern-status`, `kern-icon` |

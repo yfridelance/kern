@@ -230,9 +230,14 @@ npm run docs:serve  # http://localhost:4321/kern/
 
 1. Version heben (`npm version <x.y.z> --no-git-tag-version`) und per PR nach `main` mergen.
 2. Auf `main` einen GitHub-Release mit Tag `v<x.y.z>` veröffentlichen (`gh release create v<x.y.z> --generate-notes`).
-3. Der Workflow `release.yml` prüft, dass Tag und `package.json` übereinstimmen, testet, baut und veröffentlicht
-   das Paket per npm Trusted Publishing (mit Provenance, ohne Token). Vorabversionen wie `0.7.0-beta.1` landen
-   unter dem dist-tag `next`.
+3. Der Workflow `release.yml` prüft, dass Tag und `package.json` übereinstimmen, testet, baut und stellt das
+   Paket per npm Trusted Publishing bereit (`npm stage publish`, mit Provenance, ohne Token). Vorabversionen wie
+   `0.7.0-beta.1` bekommen das dist-tag `next`.
+4. Die gestagte Version auf npmjs.com freigeben oder lokal mit `npm stage list @yfridelance/kern` und
+   `npm stage approve <id>` (verlangt 2FA). Erst dann ist sie installierbar.
+
+Schlägt der Lauf zum Release fehl, lässt er sich für denselben Tag erneut starten:
+`gh workflow run release.yml -f tag=v<x.y.z>`.
 
 ## Lizenz
 

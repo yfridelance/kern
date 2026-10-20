@@ -11,6 +11,8 @@ export { GLYPH_NAMES } from './utils/icons';
 export { ICON_NAMES } from './utils/icon-names';
 export { BRAND_NAMES } from './utils/brand-names';
 export { parseMac, formatMac } from './utils/mac';
+export { diffJson } from './utils/json-diff';
+export type { KernJsonDiffEntry, KernJsonDiffKind, KernJsonDiffOptions } from './utils/json-diff';
 export type { KernCodeLanguage } from './utils/highlight';
 export type { KernMacFormat } from './utils/mac';
 export type { GlyphName } from './utils/icons';

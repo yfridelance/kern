@@ -64,11 +64,13 @@ Badges label properties and results in at most two words. `tone` colours them; `
 
 ### Used by
 
+ - [kern-json-diff](../kern-json-diff)
  - [kern-tabs](../kern-tabs)
 
 ### Graph
 ```mermaid
 graph TD;
+  kern-json-diff --> kern-badge
   kern-tabs --> kern-badge
   style kern-badge fill:#f9f,stroke:#333,stroke-width:4px
 ```

@@ -1,0 +1,23 @@
+/* Shared by kern-select and kern-input (suggestions): dropdown panel (popover, top layer) with a listbox. */
+.popup {
+  position: fixed; inset: auto; margin: 0; box-sizing: border-box;
+  display: none; flex-direction: column;
+  padding: 0; overflow: hidden;
+  background: var(--surface-raised); color: var(--text);
+  border: 1px solid var(--line); border-radius: var(--radius-md);
+  box-shadow: var(--shadow-overlay);
+  font: 400 14px/20px var(--font-sans);
+  /* An overlay must not inherit the text styling of the place it sits in (e.g. text-align: end in a row). */
+  text-align: start; text-transform: none; letter-spacing: normal; white-space: normal;
+}
+.popup:popover-open { display: flex; }
+
+.listbox { flex: 1 1 auto; min-height: 0; overflow-y: auto; padding: var(--space-1); outline: none; }
+.option {
+  display: flex; align-items: center; gap: var(--space-3);
+  min-height: 30px; padding: 5px var(--space-2); border-radius: var(--radius-sm);
+  cursor: pointer; white-space: nowrap; user-select: none;
+}
+.option .text { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.option.active { background: var(--hover); }
+:host([size="sm"]) .option { min-height: 26px; padding-block: 3px; font-size: 13px; }

@@ -10,6 +10,11 @@
 Labelled text field (text, password, search, number …), form-associated.
 Use `mono` for IP, MAC, CIDR and IDs.
 
+`suggestions` turns it into a combobox: typing shows the suggestions that contain the text (case-insensitive) in a
+list below the field, free text stays allowed. Arrow keys open the list and move, Enter or a click takes a
+suggestion, Escape and Tab close it. Taking one sets `value` and emits `kernInput` and `kernChange` like typing.
+Only for `type` text, search, email, url and tel.
+
 ## Usage
 
 ### 01-basic
@@ -87,38 +92,55 @@ form.addEventListener('reset', () => {
 ```
 
 
+### 04-suggestions
+
+# Suggestions
+
+`suggestions` offers known values while typing and still allows free text, like a native `<datalist>` but in the Kern style. It takes an array or a comma-separated string. The list shows the suggestions that contain the typed text (case-insensitive, match highlighted); Arrow keys open it and move, Enter or a click takes a suggestion, Escape and Tab close it. Taking one sets `value` and emits `kernInput` and `kernChange` like typing. Works with `type` text, search, email, url and tel.
+
+```html
+<div style="display:grid;gap:16px;max-width:360px">
+  <kern-input label="Floor" suggestions="Ground floor, First floor, Second floor, Basement, Attic" hint="Pick a known floor or type a new one"></kern-input>
+  <kern-input label="Room" size="sm" suggestions="Kitchen, Living room, Bedroom, Bathroom, Office, Garage" placeholder="e.g. Kitchen"></kern-input>
+</div>
+```
+
+In Angular, bind an array: `<kern-input label="Location" [suggestions]="knownLocations" [(ngModel)]="location"></kern-input>`.
+
+
 
 ## Properties
 
-| Property        | Attribute         | Description                                     | Type                                                                        | Default     |
-| --------------- | ----------------- | ----------------------------------------------- | --------------------------------------------------------------------------- | ----------- |
-| `ariaLabelText` | `aria-label-text` | Accessible name when there is no visible label. | `string \| undefined`                                                       | `undefined` |
-| `autocomplete`  | `autocomplete`    |                                                 | `string \| undefined`                                                       | `undefined` |
-| `disabled`      | `disabled`        |                                                 | `boolean`                                                                   | `false`     |
-| `error`         | `error`           | Error text; also marks the field invalid.       | `string \| undefined`                                                       | `undefined` |
-| `hint`          | `hint`            |                                                 | `string \| undefined`                                                       | `undefined` |
-| `label`         | `label`           |                                                 | `string \| undefined`                                                       | `undefined` |
-| `max`           | `max`             |                                                 | `number \| string \| undefined`                                             | `undefined` |
-| `maxlength`     | `maxlength`       |                                                 | `number \| undefined`                                                       | `undefined` |
-| `min`           | `min`             | For `type="number"`.                            | `number \| string \| undefined`                                             | `undefined` |
-| `mono`          | `mono`            |                                                 | `boolean`                                                                   | `false`     |
-| `name`          | `name`            |                                                 | `string \| undefined`                                                       | `undefined` |
-| `pattern`       | `pattern`         |                                                 | `string \| undefined`                                                       | `undefined` |
-| `placeholder`   | `placeholder`     |                                                 | `string \| undefined`                                                       | `undefined` |
-| `readonly`      | `readonly`        |                                                 | `boolean`                                                                   | `false`     |
-| `required`      | `required`        |                                                 | `boolean`                                                                   | `false`     |
-| `size`          | `size`            |                                                 | `"md" \| "sm"`                                                              | `'md'`      |
-| `step`          | `step`            |                                                 | `number \| string \| undefined`                                             | `undefined` |
-| `type`          | `type`            |                                                 | `"email" \| "number" \| "password" \| "search" \| "tel" \| "text" \| "url"` | `'text'`    |
-| `value`         | `value`           |                                                 | `string`                                                                    | `''`        |
+| Property        | Attribute         | Description                                                                        | Type                                                                        | Default     |
+| --------------- | ----------------- | ---------------------------------------------------------------------------------- | --------------------------------------------------------------------------- | ----------- |
+| `ariaLabelText` | `aria-label-text` | Accessible name when there is no visible label.                                    | `string \| undefined`                                                       | `undefined` |
+| `autocomplete`  | `autocomplete`    |                                                                                    | `string \| undefined`                                                       | `undefined` |
+| `disabled`      | `disabled`        |                                                                                    | `boolean`                                                                   | `false`     |
+| `error`         | `error`           | Error text; also marks the field invalid.                                          | `string \| undefined`                                                       | `undefined` |
+| `hint`          | `hint`            |                                                                                    | `string \| undefined`                                                       | `undefined` |
+| `label`         | `label`           |                                                                                    | `string \| undefined`                                                       | `undefined` |
+| `max`           | `max`             |                                                                                    | `number \| string \| undefined`                                             | `undefined` |
+| `maxlength`     | `maxlength`       |                                                                                    | `number \| undefined`                                                       | `undefined` |
+| `min`           | `min`             | For `type="number"`.                                                               | `number \| string \| undefined`                                             | `undefined` |
+| `mono`          | `mono`            |                                                                                    | `boolean`                                                                   | `false`     |
+| `name`          | `name`            |                                                                                    | `string \| undefined`                                                       | `undefined` |
+| `pattern`       | `pattern`         |                                                                                    | `string \| undefined`                                                       | `undefined` |
+| `placeholder`   | `placeholder`     |                                                                                    | `string \| undefined`                                                       | `undefined` |
+| `readonly`      | `readonly`        |                                                                                    | `boolean`                                                                   | `false`     |
+| `required`      | `required`        |                                                                                    | `boolean`                                                                   | `false`     |
+| `size`          | `size`            |                                                                                    | `"md" \| "sm"`                                                              | `'md'`      |
+| `step`          | `step`            |                                                                                    | `number \| string \| undefined`                                             | `undefined` |
+| `suggestions`   | `suggestions`     | Values offered while typing; free text stays allowed. A string is split at commas. | `string \| string[] \| undefined`                                           | `undefined` |
+| `type`          | `type`            |                                                                                    | `"email" \| "number" \| "password" \| "search" \| "tel" \| "text" \| "url"` | `'text'`    |
+| `value`         | `value`           |                                                                                    | `string`                                                                    | `''`        |
 
 
 ## Events
 
-| Event        | Description                                                   | Type                              |
-| ------------ | ------------------------------------------------------------- | --------------------------------- |
-| `kernChange` | On every keystroke (also used by the Angular value accessor). | `CustomEvent<{ value: string; }>` |
-| `kernInput`  | On every keystroke.                                           | `CustomEvent<{ value: string; }>` |
+| Event        | Description                                                                                  | Type                              |
+| ------------ | -------------------------------------------------------------------------------------------- | --------------------------------- |
+| `kernChange` | On every keystroke and when a suggestion is taken (also used by the Angular value accessor). | `CustomEvent<{ value: string; }>` |
+| `kernInput`  | On every keystroke and when a suggestion is taken.                                           | `CustomEvent<{ value: string; }>` |
 
 
 ## Methods
@@ -146,9 +168,11 @@ Type: `Promise<void>`
 
 ## Shadow Parts
 
-| Part        | Description      |
-| ----------- | ---------------- |
-| `"control"` | The native input |
+| Part        | Description         |
+| ----------- | ------------------- |
+| `"control"` | The native input    |
+| `"listbox"` | The suggestion list |
+| `"option"`  | Each suggestion     |
 
 
 ----------------------------------------------

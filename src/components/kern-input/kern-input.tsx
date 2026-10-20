@@ -1,12 +1,23 @@
-import { AttachInternals, Component, Element, Event, EventEmitter, Host, Method, Prop, Watch, h } from '@stencil/core';
+import { AttachInternals, Component, Element, Event, EventEmitter, Host, Method, Prop, State, Watch, h } from '@stencil/core';
+import { positionPopup } from '../../utils/popover';
 
 let nextId = 0;
+
+/** Input types that can show suggestions. */
+const SUGGEST_TYPES = ['text', 'search', 'email', 'url', 'tel'];
 
 /**
  * Labelled text field (text, password, search, number …), form-associated.
  * Use `mono` for IP, MAC, CIDR and IDs.
  *
+ * `suggestions` turns it into a combobox: typing shows the suggestions that contain the text (case-insensitive) in a
+ * list below the field, free text stays allowed. Arrow keys open the list and move, Enter or a click takes a
+ * suggestion, Escape and Tab close it. Taking one sets `value` and emits `kernInput` and `kernChange` like typing.
+ * Only for `type` text, search, email, url and tel.
+ *
  * @part control - The native input
+ * @part listbox - The suggestion list
+ * @part option - Each suggestion
  */
 @Component({
   tag: 'kern-input',
@@ -33,6 +44,8 @@ export class KernInput {
   @Prop() min?: number | string;
   @Prop() max?: number | string;
   @Prop() step?: number | string;
+  /** Values offered while typing; free text stays allowed. A string is split at commas. */
+  @Prop() suggestions?: string[] | string;
   @Prop({ reflect: true }) mono = false;
   @Prop({ reflect: true }) size: 'md' | 'sm' = 'md';
   @Prop({ reflect: true }) disabled = false;
@@ -41,12 +54,16 @@ export class KernInput {
   /** Accessible name when there is no visible label. */
   @Prop() ariaLabelText?: string;
 
-  /** On every keystroke. */
+  /** On every keystroke and when a suggestion is taken. */
   @Event() kernInput!: EventEmitter<{ value: string }>;
-  /** On every keystroke (also used by the Angular value accessor). */
+  /** On every keystroke and when a suggestion is taken (also used by the Angular value accessor). */
   @Event() kernChange!: EventEmitter<{ value: string }>;
 
+  @State() open = false;
+  @State() active = -1;
+
   private input?: HTMLInputElement;
+  private popup?: HTMLElement;
   private uid = `kern-input-${++nextId}`;
   private initial = '';
 
@@ -56,6 +73,14 @@ export class KernInput {
 
   componentDidLoad() {
     this.sync();
+  }
+
+  componentDidRender() {
+    this.setupPopup();
+  }
+
+  disconnectedCallback() {
+    this.stopTracking();
   }
 
   @Watch('value')
@@ -88,14 +113,148 @@ export class KernInput {
     this.input?.select();
   }
 
-  private onInput = (ev: Event) => {
-    this.value = (ev.target as HTMLInputElement).value;
+  // ---------- suggestions ----------
+
+  private get suggestionList(): string[] {
+    const s = this.suggestions;
+    if (!s || !SUGGEST_TYPES.includes(this.type)) return [];
+    const list = Array.isArray(s) ? s : s.split(',');
+    return [...new Set(list.map((v) => String(v).trim()).filter(Boolean))];
+  }
+
+  /** Suggestions containing the typed text, ignoring case. */
+  private get hits(): string[] {
+    const q = (this.value ?? '').trim().toLowerCase();
+    return this.suggestionList.filter((s) => !q || s.toLowerCase().includes(q));
+  }
+
+  /** The popover is created once there are suggestions; `popover` is set here, not in JSX (older DOM typings). */
+  private setupPopup() {
+    const p = this.popup;
+    if (!p || p.hasAttribute('popover')) return;
+    p.setAttribute('popover', 'auto');
+    p.addEventListener('toggle', (e) => this.onToggle(e as ToggleEvent));
+  }
+
+  private openList() {
+    if (this.disabled || this.readonly || !this.popup || !this.hits.length) return;
+    this.open = true;
+    this.position();
+    const p = this.popup as HTMLElement & { showPopover?: () => void };
+    if (!safeMatches(p, ':popover-open')) p.showPopover?.();
+  }
+
+  private closeList() {
+    this.open = false;
+    this.active = -1;
+    const p = this.popup as (HTMLElement & { hidePopover?: () => void }) | undefined;
+    if (p && safeMatches(p, ':popover-open')) p.hidePopover?.();
+  }
+
+  private onToggle(e: ToggleEvent) {
+    if (e.newState === 'open') {
+      this.position();
+      this.startTracking();
+    } else {
+      this.stopTracking();
+      // Light dismiss (click outside, Escape) closed it.
+      this.open = false;
+      this.active = -1;
+    }
+  }
+
+  private reposition = () => this.position();
+
+  private startTracking() {
+    window.addEventListener('scroll', this.reposition, true);
+    window.addEventListener('resize', this.reposition);
+  }
+
+  private stopTracking() {
+    window.removeEventListener('scroll', this.reposition, true);
+    window.removeEventListener('resize', this.reposition);
+  }
+
+  private position() {
+    if (this.input && this.popup) positionPopup(this.input, this.popup, { matchWidth: true, maxHeight: 280 });
+  }
+
+  private take(i: number) {
+    const s = this.hits[i];
+    if (s === undefined) return;
+    this.closeList();
+    this.setValue(s);
+  }
+
+  private setValue(value: string) {
+    this.value = value;
+    if (this.input && this.input.value !== value) this.input.value = value;
     this.kernInput.emit({ value: this.value });
     this.kernChange.emit({ value: this.value });
+  }
+
+  private moveTo(i: number) {
+    this.active = i;
+    requestAnimationFrame(() => this.popup?.querySelector<HTMLElement>(`#${this.uid}-opt-${i}`)?.scrollIntoView?.({ block: 'nearest' }));
+  }
+
+  // ---------- events ----------
+
+  private onInput = (ev: Event) => {
+    this.setValue((ev.target as HTMLInputElement).value);
+    if (!this.suggestionList.length) return;
+    this.active = -1;
+    if (this.hits.length) this.openList();
+    else this.closeList();
   };
+
+  private onKeyDown = (ev: KeyboardEvent) => {
+    if (!this.suggestionList.length) return;
+    const n = this.hits.length;
+    if (ev.key === 'ArrowDown' || ev.key === 'ArrowUp') {
+      if (!n || this.disabled || this.readonly) return;
+      ev.preventDefault();
+      const down = ev.key === 'ArrowDown';
+      if (!this.open) {
+        this.openList();
+        this.moveTo(down ? 0 : n - 1);
+      } else {
+        this.moveTo(down ? Math.min(this.active + 1, n - 1) : Math.max(this.active - 1, 0));
+      }
+    } else if (ev.key === 'Enter') {
+      if (this.open && this.active >= 0 && this.active < n) {
+        ev.preventDefault();
+        this.take(this.active);
+      }
+    } else if (ev.key === 'Escape') {
+      if (this.open) {
+        // Only close; type="search" would also clear the text.
+        ev.preventDefault();
+        this.closeList();
+      }
+    } else if (ev.key === 'Tab') {
+      this.closeList();
+    }
+  };
+
+  private onBlur = () => {
+    if (this.open) this.closeList();
+  };
+
+  /** The typed text in a suggestion, highlighted. */
+  private renderMatch(s: string) {
+    const q = (this.value ?? '').trim();
+    const at = q ? s.toLowerCase().indexOf(q.toLowerCase()) : -1;
+    if (at < 0) return s;
+    return [s.slice(0, at), <mark>{s.slice(at, at + q.length)}</mark>, s.slice(at + q.length)];
+  }
 
   render() {
     const describedBy = this.error ? `${this.uid}-error` : this.hint ? `${this.uid}-hint` : undefined;
+    const combo = this.suggestionList.length > 0;
+    const matches = combo ? this.hits : [];
+    const listId = `${this.uid}-list`;
+    const activeId = this.open && this.active >= 0 && this.active < matches.length ? `${this.uid}-opt-${this.active}` : undefined;
     return (
       <Host invalid={!!this.error}>
         {this.label && (
@@ -113,7 +272,7 @@ export class KernInput {
           value={this.value}
           name={this.name}
           placeholder={this.placeholder}
-          autocomplete={this.autocomplete ?? (this.type === 'password' ? 'off' : undefined)}
+          autocomplete={this.autocomplete ?? (this.type === 'password' || combo ? 'off' : undefined)}
           pattern={this.pattern}
           maxLength={this.maxlength}
           min={this.min}
@@ -123,11 +282,41 @@ export class KernInput {
           readOnly={this.readonly}
           required={this.required}
           spellcheck={false}
+          role={combo ? 'combobox' : undefined}
+          aria-autocomplete={combo ? 'list' : undefined}
+          aria-expanded={combo ? (this.open ? 'true' : 'false') : undefined}
+          aria-controls={combo ? listId : undefined}
+          aria-activedescendant={activeId}
           aria-label={this.label ? undefined : this.ariaLabelText}
           aria-invalid={this.error ? 'true' : undefined}
           aria-describedby={describedBy}
           onInput={this.onInput}
+          onKeyDown={this.onKeyDown}
+          onBlur={this.onBlur}
         />
+        {combo && (
+          <div ref={(el) => (this.popup = el)} class="popup" part="listbox">
+            <div id={listId} class="listbox" role="listbox" aria-label={this.label ?? this.ariaLabelText}>
+              {matches.map((s, i) => (
+                <div
+                  id={`${this.uid}-opt-${i}`}
+                  class={{ option: true, active: i === this.active }}
+                  part="option"
+                  role="option"
+                  aria-selected={i === this.active ? 'true' : 'false'}
+                  // Keep focus in the input.
+                  onPointerDown={(e) => e.preventDefault()}
+                  onPointerMove={() => {
+                    if (i !== this.active) this.active = i;
+                  }}
+                  onClick={() => this.take(i)}
+                >
+                  <span class="text">{this.renderMatch(s)}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
         {this.error ? (
           <span class="error" id={`${this.uid}-error`}>
             {this.error}
@@ -141,5 +330,14 @@ export class KernInput {
         )}
       </Host>
     );
+  }
+}
+
+/** `el.matches(selector)` that is false where the selector is unknown (test DOM, browsers without popovers). */
+function safeMatches(el: HTMLElement, selector: string): boolean {
+  try {
+    return !!el.matches?.(selector);
+  } catch {
+    return false;
   }
 }

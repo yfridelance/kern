@@ -1,1 +1,5 @@
 @import '../../utils/field.css';
+@import '../../utils/listbox.css';
+
+/* Suggestions: the part of a suggestion that matches the typed text. */
+.option mark { background: none; color: var(--accent-text); font-weight: 600; }

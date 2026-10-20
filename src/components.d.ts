@@ -867,6 +867,10 @@ export namespace Components {
     /**
      * Labelled text field (text, password, search, number …), form-associated.
      * Use `mono` for IP, MAC, CIDR and IDs.
+     * `suggestions` turns it into a combobox: typing shows the suggestions that contain the text (case-insensitive) in a
+     * list below the field, free text stays allowed. Arrow keys open the list and move, Enter or a click takes a
+     * suggestion, Escape and Tab close it. Taking one sets `value` and emits `kernInput` and `kernChange` like typing.
+     * Only for `type` text, search, email, url and tel.
      */
     interface KernInput {
         /**
@@ -918,6 +922,10 @@ export namespace Components {
          */
         "size": 'md' | 'sm';
         "step"?: number | string;
+        /**
+          * Values offered while typing; free text stays allowed. A string is split at commas.
+         */
+        "suggestions"?: string[] | string;
         /**
           * @default 'text'
          */
@@ -2801,6 +2809,10 @@ declare global {
     /**
      * Labelled text field (text, password, search, number …), form-associated.
      * Use `mono` for IP, MAC, CIDR and IDs.
+     * `suggestions` turns it into a combobox: typing shows the suggestions that contain the text (case-insensitive) in a
+     * list below the field, free text stays allowed. Arrow keys open the list and move, Enter or a click takes a
+     * suggestion, Escape and Tab close it. Taking one sets `value` and emits `kernInput` and `kernChange` like typing.
+     * Only for `type` text, search, email, url and tel.
      */
     interface HTMLKernInputElement extends Components.KernInput, HTMLStencilElement {
         addEventListener<K extends keyof HTMLKernInputElementEventMap>(type: K, listener: (this: HTMLKernInputElement, ev: KernInputCustomEvent<HTMLKernInputElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
@@ -4406,6 +4418,10 @@ declare namespace LocalJSX {
     /**
      * Labelled text field (text, password, search, number …), form-associated.
      * Use `mono` for IP, MAC, CIDR and IDs.
+     * `suggestions` turns it into a combobox: typing shows the suggestions that contain the text (case-insensitive) in a
+     * list below the field, free text stays allowed. Arrow keys open the list and move, Enter or a click takes a
+     * suggestion, Escape and Tab close it. Taking one sets `value` and emits `kernInput` and `kernChange` like typing.
+     * Only for `type` text, search, email, url and tel.
      */
     interface KernInput {
         /**
@@ -4439,11 +4455,11 @@ declare namespace LocalJSX {
         "mono"?: boolean;
         "name"?: string;
         /**
-          * On every keystroke (also used by the Angular value accessor).
+          * On every keystroke and when a suggestion is taken (also used by the Angular value accessor).
          */
         "onKernChange"?: (event: KernInputCustomEvent<{ value: string }>) => void;
         /**
-          * On every keystroke.
+          * On every keystroke and when a suggestion is taken.
          */
         "onKernInput"?: (event: KernInputCustomEvent<{ value: string }>) => void;
         "pattern"?: string;
@@ -4461,6 +4477,10 @@ declare namespace LocalJSX {
          */
         "size"?: 'md' | 'sm';
         "step"?: number | string;
+        /**
+          * Values offered while typing; free text stays allowed. A string is split at commas.
+         */
+        "suggestions"?: string[] | string;
         /**
           * @default 'text'
          */
@@ -6171,6 +6191,7 @@ declare namespace LocalJSX {
         "min": string;
         "max": string;
         "step": string;
+        "suggestions": string[] | string;
         "mono": boolean;
         "size": 'md' | 'sm';
         "disabled": boolean;
@@ -6714,6 +6735,10 @@ declare module "@stencil/core" {
             /**
              * Labelled text field (text, password, search, number …), form-associated.
              * Use `mono` for IP, MAC, CIDR and IDs.
+             * `suggestions` turns it into a combobox: typing shows the suggestions that contain the text (case-insensitive) in a
+             * list below the field, free text stays allowed. Arrow keys open the list and move, Enter or a click takes a
+             * suggestion, Escape and Tab close it. Taking one sets `value` and emits `kernInput` and `kernChange` like typing.
+             * Only for `type` text, search, email, url and tel.
              */
             "kern-input": LocalJSX.IntrinsicElements["kern-input"] & JSXBase.HTMLAttributes<HTMLKernInputElement>;
             /**

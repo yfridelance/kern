@@ -107,6 +107,9 @@ zusätzlich Standalone-Wrapper mit `ControlValueAccessor` für `ngModel` und Rea
   `"16MB"`) prüfen, abgelehnte Dateien werden genannt und nicht übernommen. `multiple` fügt hinzu, sonst ersetzt eine
   neue Datei die alte. Liste mit Grösse und ×, `kernChange` mit `{ files }`, das Formular bekommt die Dateien. Kein
   Angular-Value-Accessor: `(kernChange)` verwenden.
+- **Vorschläge:** `kern-input` mit `suggestions` (Array oder kommagetrennt) zeigt beim Tippen passende Werte in einer
+  eigenen Liste (enthält, ohne Gross/Klein); freie Eingabe bleibt erlaubt. Pfeile/Enter/Klick übernehmen, Escape und Tab
+  schliessen; die Übernahme feuert `kernInput` und `kernChange` wie Tippen. Nur bei `type` text/search/email/url/tel.
 - **Einzelauswahl:** `kern-segmented` für 2–5 kurze Optionen, `kern-radio-group` mit `kern-radio` (`label`,
   `description`) für längere oder beschriebene; ein Tab-Stopp, Pfeile wählen. `kern-select` ab etwa 6 Optionen.
 - **Optionen** für `kern-select` und `kern-segmented` kommen aus der Property `options` oder aus Kind-`<option>`;

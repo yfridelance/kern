@@ -42,6 +42,12 @@ describe('kern-list-item', () => {
     expect(a.querySelector('slot[name="end"]')).toBeNull();
   });
 
+  it('marks the current page with aria-current="page"', async () => {
+    const { host, root } = await item(`heading="Devices" href="/devices" current selected`);
+    expect(host.hasAttribute('current')).toBe(true);
+    expect(root.querySelector('a.row')!.getAttribute('aria-current')).toBe('page');
+  });
+
   it('emits kernItemClick when clickable, not when disabled or from actions', async () => {
     const { page, root, host } = await item(`heading="A" clickable`, `<button slot="end">X</button>`);
     let clicks = 0;

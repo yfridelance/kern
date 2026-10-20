@@ -10,8 +10,10 @@ const LINKS = 'a[href], kern-link[href], kern-list-item[href], kern-button[href]
  *
  * From `breakpoint` (960 px of shell width) the sidebar stands on the left and scrolls on its own; below it, it opens
  * as a modal drawer from the left. A kern-topbar in the `topbar` slot then gets a menu button (`menu`) that opens it;
- * with your own header call `toggleSidebar()`. A link click in the drawer closes it. A skip link («Skip to content»)
- * leads past the navigation, and `<header>`, `<nav>` and `<main>` are landmarks.
+ * with your own header call `toggleSidebar()`. A link click in the drawer closes it and moves focus to the main
+ * content; after routing in `kernNavigate` call `focusMain()` for the same in the wide layout. A skip link («Skip to
+ * content») leads past the navigation, and `<header>`, `<nav>` and `<main>` are landmarks (the navigation also
+ * inside the drawer).
  *
  * @slot - Main content (kern-page-header, kern-grid …)
  * @slot topbar - kern-topbar (or your own header); stays at the top while scrolling
@@ -52,6 +54,8 @@ export class KernAppShell {
   @State() hasFooter = false;
 
   private main?: HTMLElement;
+  /** Focus the main content once the drawer has closed (the dialog returns focus to the menu button first). */
+  private focusOnClose = false;
   private observer?: MutationObserver;
   private resize?: ResizeObserver;
   /** Last measured shell width, to re-check a changed `breakpoint`. */
@@ -123,6 +127,16 @@ export class KernAppShell {
     this.kernSidebarToggle.emit({ open });
   }
 
+  /**
+   * Moves focus to the main content, e.g. after a navigation without page load, so keyboard and screen reader users
+   * continue there. While the drawer is open (everything else is inert) it waits until the drawer has closed.
+   */
+  @Method()
+  async focusMain() {
+    if (this.sidebarOpen) this.focusOnClose = true;
+    else this.main?.focus();
+  }
+
   @Listen('kernMenu')
   onMenu(ev: CustomEvent<{ expanded: boolean }>) {
     if ((ev.target as Element).getAttribute('slot') !== 'topbar') return;
@@ -132,10 +146,15 @@ export class KernAppShell {
   private onDrawerClose = (ev: Event) => {
     ev.stopPropagation(); // the shell's own drawer; the app hears kernSidebarToggle
     this.toggleSidebar(false);
+    if (this.focusOnClose) this.main?.focus();
+    this.focusOnClose = false;
   };
 
+  /** A link click navigates: close the drawer and continue in the content, not at the menu button. */
   private onDrawerClick = (ev: MouseEvent) => {
-    if (ev.composedPath().some((n) => (n as HTMLElement).matches?.(LINKS))) this.toggleSidebar(false);
+    if (!ev.composedPath().some((n) => (n as HTMLElement).matches?.(LINKS))) return;
+    this.focusOnClose = true;
+    this.toggleSidebar(false);
   };
 
   private onSkip = (ev: MouseEvent) => {
@@ -167,7 +186,7 @@ export class KernAppShell {
                 onKernClose={this.onDrawerClose}
                 onClick={this.onDrawerClick}
               >
-                {sidebar}
+                <nav aria-label={this.t('labelNavigation')}>{sidebar}</nav>
               </kern-drawer>
             ))}
           <main ref={(el) => (this.main = el)} tabindex={-1} part="main">

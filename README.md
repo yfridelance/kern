@@ -239,6 +239,8 @@ npm run docs:serve  # http://localhost:4321/kern/
 ```
 
 - Node 24 (`.nvmrc`), Stencil 4.45.
+- Vor einem PR: `npm test` und `npm run docs` (baut auch die Bibliothek). Dasselbe prüft der Workflow `ci.yml`
+  bei jedem Pull Request und auf `main`.
 - Tokens nur in `tokens/tokens.json` ändern; `npm run tokens` (läuft bei build/test/start mit) erzeugt
   `src/global/tokens.css`.
 - Komponenten-Styles nutzen ausschliesslich Tokens (`var(--surface)`, `var(--space-4)` …).

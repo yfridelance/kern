@@ -1,0 +1,32 @@
+name: CI
+
+# Prüft jeden Pull Request und jeden Push auf main: Spec-Tests, Build und Dokumentation (prüft auch, dass jede
+# Komponente in der Navigation steht). Nur lesend: keine Secrets, kein pull_request_target, also läuft auch Code
+# aus Forks gefahrlos. Browser-Tests (#128) kommen später als eigener Job dazu.
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+# Ein neuer Push bricht den alten Lauf desselben PRs (bzw. Branches) ab; verschiedene PRs laufen unabhängig.
+concurrency:
+  group: ci-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - run: npm test
+      - run: npm run docs

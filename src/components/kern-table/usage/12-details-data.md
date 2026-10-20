@@ -1,6 +1,6 @@
 # Detail rows from data
 
-In data mode `detail` returns the content of a row's detail row (a Node or text) and adds a first column with a chevron toggle. It is called when a row is opened for the first time. `label-expand-row` names the toggle for screen readers.
+In data mode `detail` returns the content of a row's detail row (a Node or text) and adds a first column with a chevron toggle. It is called when a row is opened for the first time. `label-expand-row` names the toggle for screen readers. `expanded` uses the same keys as `selected`: `rowKey` or `row.id` (use one of them for server data), else a key per row object.
 
 ```html
 <kern-table compact></kern-table>

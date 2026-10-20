@@ -1,6 +1,6 @@
 # Selectable rows from data
 
-In data mode `rowKey` returns a row's key (default: `row.id`, else its index in `rows`). Set `selected` to select rows from the app, e.g. for a bulk action like “only devices with changes”; the table keeps keys of rows that are filtered out.
+In data mode `rowKey` returns a row's key (default: `row.id`, else a key per row object). For data loaded from a server set `rowKey` or give rows an `id`: without both, the key belongs to the object, so a selection follows it through sorting and filtering, but reloaded objects are not selected. Set `selected` to select rows from the app, e.g. for a bulk action like “only devices with changes”; the table keeps keys of rows that are filtered out.
 
 ```html
 <kern-toolbar>

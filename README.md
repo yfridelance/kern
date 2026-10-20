@@ -98,7 +98,8 @@ zusätzlich Standalone-Wrapper mit `ControlValueAccessor` für `ngModel` und Rea
   `192.168.1.10-50`) oder CIDR (`192.168.1.0/24`) und normalisiert beim Verlassen (Host-Adresse in CIDR → Netz,
   umgekehrter Bereich → getauscht). `allow="single range cidr"` und `max-addresses` begrenzen; Bereiche zeigen ihre
   Grösse im Feld. `kernChange` liefert `{ value, kind, first, last, count }`. `parseIpv4()`, `ipv4ToInt()` und
-  `intToIpv4()` sind exportiert.
+  `intToIpv4()` sind exportiert. `allow="mask"` nimmt nur zusammenhängende Subnetzmasken (`255.255.252.0`, auch `/22`)
+  und zeigt `/22 · 1022 Hosts`; `parseMask()` prüft dasselbe in der App.
 - **MAC-Adressen:** `kern-mac-input` akzeptiert `C82B961A3F00`, `c8:2b:…`, `c8-2b-…` und `c82b.961a.3f00` und
   normalisiert auf `format="colon|dash|dot|plain"` und `letter-case="upper|lower"`. `parseMac()`/`formatMac()` sind
   exportiert.

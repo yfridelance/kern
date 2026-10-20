@@ -1,13 +1,17 @@
 import { AttachInternals, Component, Element, Event, EventEmitter, Host, Method, Prop, State, Watch, h } from '@stencil/core';
 import { resolveLocale } from '../../utils/datetime';
-import { parseIpv4, type KernIpKind, type KernIpv4 } from '../../utils/ip';
+import { parseIpv4, parseMask, type KernIpKind, type KernIpv4, type KernMask } from '../../utils/ip';
+
+type Kind = KernIpKind | 'mask';
+/** A parsed address, range or block, or a subnet mask with its normalised text. */
+type Parsed = KernIpv4 | (KernMask & { kind: 'mask'; value: string });
 
 let nextId = 0;
 
 /**
- * IPv4 field for a single address (`192.168.1.10`), a range (`192.168.1.10-192.168.1.50`, also `192.168.1.10-50`)
- * or a CIDR block (`192.168.1.0/24`), form-associated. Typed text is applied on Enter or when leaving the field and
- * normalised; `value` and the form value are the normalised form. Ranges and blocks show their size in the field.
+ * IPv4 field for a single address (`192.168.1.10`), a range (`192.168.1.10-192.168.1.50`, also `192.168.1.10-50`),
+ * a CIDR block (`192.168.1.0/24`) or a subnet mask (`255.255.255.0`, also `/24`), form-associated. Typed text is applied on Enter or when leaving the field and
+ * normalised; `value` and the form value are the normalised form. Ranges, blocks and masks show their size in the field.
  */
 @Component({
   tag: 'kern-ip-input',
@@ -22,11 +26,17 @@ export class KernIpInput {
   @Prop() label?: string;
   @Prop() hint?: string;
   @Prop() error?: string;
-  /** Normalised address, range or CIDR block; empty when none. */
+  /** Normalised address, range, CIDR block or mask; empty when none. */
   @Prop({ mutable: true }) value = '';
   @Prop() name?: string;
-  /** Allowed forms, space-separated: `single`, `range`, `cidr`. */
+  /**
+   * Allowed forms, space-separated: `single`, `range`, `cidr`, `mask`. `mask` accepts only contiguous subnet masks
+   * (`255.255.252.0`) and prefixes (`/22`, `22`); combined with `single`, a valid mask counts as mask and
+   * anything else as address.
+   */
   @Prop() allow = 'single range cidr';
+  /** How a mask is normalised: `dotted` (`255.255.255.0`) or `prefix` (`/24`). */
+  @Prop() maskFormat: 'dotted' | 'prefix' = 'dotted';
   /** Largest allowed number of addresses. */
   @Prop() maxAddresses?: number;
   /** Defaults to an example of the first allowed form. */
@@ -49,11 +59,25 @@ export class KernIpInput {
   @Prop() labelTooMany = 'Höchstens {n} Adressen';
   /** Size of a range or block; `{n}` is replaced by the number. */
   @Prop() labelCount = '{n} Adressen';
+  /** Shown for text that is no subnet mask when only `mask` is allowed. */
+  @Prop() labelInvalidMask = 'Keine gültige Subnetzmaske';
+  /** Size of a mask; `{prefix}` is replaced by the prefix length, `{n}` by the number of hosts. */
+  @Prop() labelMaskCount = '/{prefix} · {n} Hosts';
 
   /** On every keystroke, with the raw text. */
   @Event() kernInput!: EventEmitter<{ value: string }>;
   /** When typed text is applied: the normalised value and what it covers (empty value when cleared). */
-  @Event() kernChange!: EventEmitter<{ value: string; kind?: KernIpKind; first?: string; last?: string; count?: number }>;
+  @Event() kernChange!: EventEmitter<{
+    value: string;
+    kind?: KernIpKind | 'mask';
+    first?: string;
+    last?: string;
+    count?: number;
+    /** Masks only: dotted mask, prefix length and usable hosts. */
+    mask?: string;
+    prefix?: number;
+    hosts?: number;
+  }>;
 
   @State() text = '';
   /** Own validation message, shown when `error` is not set. */
@@ -74,17 +98,18 @@ export class KernIpInput {
 
   /** Value set from outside → normalised text and check. */
   @Watch('value')
+  @Watch('maskFormat')
   onValue() {
-    const ip = parseIpv4(this.value ?? '');
+    const ip = this.parse(this.value ?? '');
     this.text = ip?.value ?? this.value ?? '';
-    this.problem = this.value && !ip ? this.labelInvalid : this.check(ip);
+    this.problem = this.value && !ip ? this.invalid : this.check(ip);
     this.sync();
   }
 
   @Watch('allow')
   @Watch('maxAddresses')
   onRules() {
-    const ip = parseIpv4(this.value ?? '');
+    const ip = this.parse(this.value ?? '');
     if (ip) this.problem = this.check(ip);
     this.sync();
   }
@@ -115,13 +140,34 @@ export class KernIpInput {
     this.input?.focus();
   }
 
-  private get allowed(): KernIpKind[] {
-    return this.allow.split(/[\s,]+/).filter((k): k is KernIpKind => k === 'single' || k === 'range' || k === 'cidr');
+  private get allowed(): Kind[] {
+    return this.allow.split(/[\s,]+/).filter((k): k is Kind => k === 'single' || k === 'range' || k === 'cidr' || k === 'mask');
   }
 
-  private check(ip: KernIpv4 | null): string | undefined {
+  /** Only masks allowed: other text is no address but an invalid mask. */
+  private get onlyMask(): boolean {
+    const allowed = this.allowed;
+    return allowed.length > 0 && allowed.every((k) => k === 'mask');
+  }
+
+  private get invalid(): string {
+    return this.onlyMask ? this.labelInvalidMask : this.labelInvalid;
+  }
+
+  /** A mask when `mask` is allowed and the text is one, else an address, range or block. */
+  private parse(text: string): Parsed | null {
+    if (this.allowed.includes('mask')) {
+      const m = parseMask(text);
+      if (m) return { ...m, kind: 'mask', value: this.maskFormat === 'prefix' ? `/${m.prefix}` : m.mask };
+      if (this.onlyMask) return null;
+    }
+    return parseIpv4(text);
+  }
+
+  private check(ip: Parsed | null): string | undefined {
     if (!ip) return undefined;
     if (!this.allowed.includes(ip.kind)) return this.labelNotAllowed;
+    if (ip.kind === 'mask') return undefined;
     if (this.maxAddresses && ip.count > this.maxAddresses) return this.labelTooMany.replace('{n}', this.number(this.maxAddresses));
     return undefined;
   }
@@ -134,26 +180,28 @@ export class KernIpInput {
   private commit() {
     const t = this.text.trim();
     if (!t) return this.apply('', null);
-    const ip = parseIpv4(t);
+    const ip = this.parse(t);
     if (!ip) {
-      this.problem = this.labelInvalid;
+      this.problem = this.invalid;
       return;
     }
     this.apply(ip.value, ip);
   }
 
-  private apply(value: string, ip: KernIpv4 | null) {
+  private apply(value: string, ip: Parsed | null) {
     if (value === this.value) {
       this.onValue(); // normalise the text, e.g. „192.168.1.10 - 50“
       return;
     }
     this.value = value;
-    this.kernChange.emit(ip ? { value, kind: ip.kind, first: ip.first, last: ip.last, count: ip.count } : { value });
+    if (!ip) this.kernChange.emit({ value });
+    else if (ip.kind === 'mask') this.kernChange.emit({ value, kind: 'mask', mask: ip.mask, prefix: ip.prefix, hosts: ip.hosts });
+    else this.kernChange.emit({ value, kind: ip.kind, first: ip.first, last: ip.last, count: ip.count });
   }
 
   private onInput = (ev: Event) => {
     this.text = (ev.target as HTMLInputElement).value;
-    if (this.problem === this.labelInvalid) this.problem = undefined;
+    if (this.problem === this.invalid) this.problem = undefined;
     this.kernInput.emit({ value: this.text });
   };
 
@@ -164,10 +212,11 @@ export class KernIpInput {
   render() {
     const message = this.error ?? this.problem;
     const describedBy = message ? `${this.uid}-error` : this.hint ? `${this.uid}-hint` : undefined;
-    const ip = parseIpv4(this.value ?? '');
+    const ip = this.parse(this.value ?? '');
     const showCount = !this.hideCount && ip && ip.kind !== 'single' && ip.value === this.text.trim();
     const first = this.allowed[0] ?? 'cidr';
-    const example = { single: '192.168.1.10', range: '192.168.1.10-192.168.1.50', cidr: '192.168.1.0/24' }[first];
+    const mask = this.maskFormat === 'prefix' ? '/24' : '255.255.255.0';
+    const example = { single: '192.168.1.10', range: '192.168.1.10-192.168.1.50', cidr: '192.168.1.0/24', mask }[first];
     return (
       <Host invalid={!!message}>
         {this.label && (
@@ -198,8 +247,10 @@ export class KernIpInput {
             onKeyDown={this.onKey}
           />
           {showCount && (
-            <span class="count" id={`${this.uid}-count`} title={`${ip.first} – ${ip.last}`}>
-              {this.labelCount.replace('{n}', this.number(ip.count))}
+            <span class="count" id={`${this.uid}-count`} title={ip.kind === 'mask' ? ip.mask : `${ip.first} – ${ip.last}`}>
+              {ip.kind === 'mask'
+                ? this.labelMaskCount.replace('{prefix}', String(ip.prefix)).replace('{n}', this.number(ip.hosts))
+                : this.labelCount.replace('{n}', this.number(ip.count))}
             </span>
           )}
         </div>

@@ -1,4 +1,4 @@
-import { intToIpv4, ipv4ToInt, parseIpv4 } from './ip';
+import { intToIpv4, ipv4ToInt, parseIpv4, parseMask } from './ip';
 
 describe('ipv4ToInt / intToIpv4', () => {
   it('converts both ways', () => {
@@ -45,5 +45,33 @@ describe('parseIpv4', () => {
       null,
       null,
     ]);
+  });
+});
+
+describe('parseMask', () => {
+  it('reads contiguous dotted masks', () => {
+    expect(parseMask(' 255.255.255.0 ')).toEqual({ mask: '255.255.255.0', prefix: 24, hosts: 254 });
+    expect(parseMask('255.255.252.0')).toEqual({ mask: '255.255.252.0', prefix: 22, hosts: 1022 });
+    expect(parseMask('255.128.0.0')!.prefix).toBe(9);
+  });
+
+  it('reads prefixes with and without slash', () => {
+    expect(parseMask('/24')).toEqual({ mask: '255.255.255.0', prefix: 24, hosts: 254 });
+    expect(parseMask('24')).toEqual(parseMask('/24'));
+    expect(parseMask('/ 16')!.mask).toBe('255.255.0.0');
+  });
+
+  it('handles the limits /0, /31 and /32', () => {
+    expect(parseMask('0.0.0.0')).toEqual({ mask: '0.0.0.0', prefix: 0, hosts: 4294967294 });
+    expect(parseMask('/0')!.mask).toBe('0.0.0.0');
+    expect(parseMask('/31')).toEqual({ mask: '255.255.255.254', prefix: 31, hosts: 2 });
+    expect(parseMask('255.255.255.255')).toEqual({ mask: '255.255.255.255', prefix: 32, hosts: 1 });
+    expect(parseMask('32')!.hosts).toBe(1);
+  });
+
+  it('rejects non-contiguous masks, addresses and bad prefixes', () => {
+    expect(['255.0.255.0', '192.168.1.1', '255.255.255.1', '0.255.255.255', '255.255.256.0', '33', '/33', '/-1', '24/', '', 'x', '/', '255.255.255'].map(parseMask)).toEqual(
+      Array(13).fill(null),
+    );
   });
 });

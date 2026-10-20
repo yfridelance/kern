@@ -1,4 +1,4 @@
-import { Component, Element, Event, EventEmitter, Host, Prop, State, Watch, h } from '@stencil/core';
+import { Component, Element, Event, EventEmitter, Host, Listen, Prop, State, Watch, h } from '@stencil/core';
 
 interface TabInfo {
   name: string;
@@ -38,8 +38,21 @@ export class KernTabs {
   connectedCallback() {
     this.read();
     if (typeof MutationObserver === 'undefined') return; // server-side / test DOM
-    this.observer = new MutationObserver(() => this.read());
-    this.observer.observe(this.el, { childList: true, attributes: true, subtree: false, attributeFilter: ['label', 'name', 'count'] });
+    // Panels added or removed, or their attributes set from outside (also before they are upgraded).
+    this.observer = new MutationObserver((records) => {
+      if (records.some((r) => (r.type === 'childList' ? r.target === this.el : this.isPanel(r.target as Element)))) this.read();
+    });
+    this.observer.observe(this.el, { childList: true, attributes: true, subtree: true, attributeFilter: ['label', 'name', 'count'] });
+  }
+
+  /** A panel's label, name or count changed as a property (frameworks set them after inserting the panel). */
+  @Listen('kern-tab-panel-change')
+  onPanelChange(ev: Event) {
+    if (this.isPanel(ev.target as Element)) this.read();
+  }
+
+  private isPanel(el: Element | null) {
+    return el?.parentElement === this.el && el.tagName.toLowerCase() === 'kern-tab-panel';
   }
 
   disconnectedCallback() {
@@ -48,10 +61,15 @@ export class KernTabs {
 
   private read() {
     const panels = Array.from(Array.from(this.el.children).filter((c) => c.tagName.toLowerCase() === 'kern-tab-panel')) as TabInfo['panel'][];
+    // Properties first: Stencil reflects them to attributes only on the panel's next render.
+    const read = (p: TabInfo['panel'], key: 'name' | 'label' | 'count') => {
+      const v = (p as unknown as Record<string, unknown>)[key];
+      return v !== undefined && v !== null ? String(v) : (p.getAttribute(key) ?? undefined);
+    };
     this.tabs = panels.map((p, i) => ({
-      name: p.getAttribute('name') ?? String(i),
-      label: p.getAttribute('label') ?? `Tab ${i + 1}`,
-      count: p.getAttribute('count') ?? undefined,
+      name: read(p, 'name') ?? String(i),
+      label: read(p, 'label') ?? `Tab ${i + 1}`,
+      count: read(p, 'count'),
       panel: p,
     }));
     if (!this.value || !this.tabs.some((t) => t.name === this.value)) this.value = this.tabs[0]?.name;

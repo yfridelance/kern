@@ -127,7 +127,9 @@ zusätzlich Standalone-Wrapper mit `ControlValueAccessor` für `ngModel` und Rea
   Beim Wechsel der Seitengrösse bleibt der erste sichtbare Eintrag auf der Seite.
 - **Tabellen:** `kern-table` umschliesst eine native `<table>` ohne Shadow DOM, damit Zellen beliebiges Markup und
   Framework-Bindings enthalten können. Zellklassen `mono`, `num`, `empty`; Zeilen `clickable`, `dim`,
-  `aria-selected="true"`; sortierbar mit `<th aria-sort><button>`.
+  `aria-selected="true"`; sortierbar mit `<th aria-sort><button>`. `selectable` ergänzt eine Auswahlspalte mit
+  Kopf-Checkbox (sichtbare Zeilen der Seite); Schlüssel aus `data-key` bzw. `rowKey`, Zustand in `selected`, Event
+  `kernSelectionChange` mit `{ selected }`.
 - **Laden:** `kern-skeleton` als Platzhalter in Form des Inhalts (`variant="text"` mit `lines`, `"block"` mit
   `width`/`height`, `"circle"` mit `size`); statisch bei reduzierter Bewegung, für Screenreader verborgen. Den Container
   dabei mit `aria-busy="true"` markieren. `kern-spinner`/`kern-progress` für Vorgänge ohne Inhaltsform.

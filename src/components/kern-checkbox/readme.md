@@ -91,6 +91,19 @@ sync();
 | `"box"` | The visible box |
 
 
+## Dependencies
+
+### Used by
+
+ - [kern-table](../kern-table)
+
+### Graph
+```mermaid
+graph TD;
+  kern-table --> kern-checkbox
+  style kern-checkbox fill:#f9f,stroke:#333,stroke-width:4px
+```
+
 ----------------------------------------------
 
 

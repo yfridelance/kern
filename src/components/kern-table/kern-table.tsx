@@ -4,6 +4,8 @@ import { isBlank, sortByValue, type KernSortDirection, type KernTableColumn } fr
 
 /** Interactive elements inside a row: clicks on them are no row clicks. */
 const INTERACTIVE = 'a, button, input, select, textarea, label, summary, [role="button"], [tabindex]';
+/** Cells the table adds itself (selection column): no column of the app's table, skipped for sorting and `column`. */
+const GENERATED = 'data-kern-generated';
 
 /**
  * Dense data table: wraps a native `<table>` (light DOM, so cells can hold any markup and Angular bindings).
@@ -19,6 +21,10 @@ const INTERACTIVE = 'a, button, input, select, textarea, label, summary, [role="
  * Pagination: `page-size` adds a `kern-pagination` below the rows. `internal` pages the rows itself (back to page 1
  * after sorting); `external` shows the rows it gets and the app loads a page on `kernPageChange` (bubbles from the
  * embedded pagination) and sets `total`. Labels: set them on `table.querySelector('kern-pagination')`.
+ *
+ * Selection: `selectable` adds a first column with a `kern-checkbox` per row and one in the header for the visible rows
+ * of the current page. Rows are identified by `data-key` on the `<tr>` (data mode: `rowKey`, default `row.id` or the
+ * index). `selected` holds the keys and survives sorting, paging and new rows; selected rows get `aria-selected="true"`.
  *
  * @slot - A native `<table>` (not in data mode)
  */
@@ -63,17 +69,32 @@ export class KernTable {
   @Prop() pageSizes: number[] | string = '';
   /** `controlled="external"`: number of all rows (the table only gets the current page). */
   @Prop() total?: number;
+  /** Adds a first column with a checkbox per row and a header checkbox for the visible rows of the current page. */
+  @Prop({ reflect: true }) selectable = false;
+  /** Keys of the selected rows (`data-key`, in data mode `rowKey`). Keys of rows not shown (filtered, other page) stay. */
+  @Prop({ mutable: true }) selected: string[] = [];
+  /** Data mode: key of a row for `selected`. Default: `row.id`, else the index in `rows`. */
+  @Prop() rowKey?: (row: any, index: number) => string;
+  /** Accessible name of the header checkbox. */
+  @Prop() labelSelectAll = 'Alle auswählen';
+  /** Accessible name of a row checkbox. */
+  @Prop() labelSelectRow = 'Zeile auswählen';
 
   /** A sortable header was activated (or `sortBy()` called), with the requested direction. Cancelable: `preventDefault()` skips the built-in sort. */
   @Event({ cancelable: true }) kernSort!: EventEmitter<{ key: string; column: number; direction: KernSortDirection }>;
   /** Data mode: a row was clicked (not on a button, link or field in it). `index` is the position in `rows`. */
   @Event() kernRowClick!: EventEmitter<{ row: any; index: number }>;
+  /** The selection was changed with a checkbox. Cancelable: `preventDefault()` keeps `selected` as it is. */
+  @Event({ cancelable: true }) kernSelectionChange!: EventEmitter<{ selected: string[] }>;
 
   private observer?: MutationObserver;
   /** Data mode: current sort and the data behind each rendered row. */
   private sortKey?: string;
   private sortDir?: KernSortDirection;
   private rowData = new WeakMap<Element, { row: any; index: number }>();
+  /** Row keys: data mode from `rowKey`; markup rows without `data-key` get their first position. */
+  private rowKeys = new WeakMap<Element, string>();
+  private nextKey = 0;
 
   connectedCallback() {
     this.el.addEventListener('click', this.onClick);
@@ -83,8 +104,10 @@ export class KernTable {
       this.sync();
       // Rows added or replaced by the app: page them again (moving rows only, no attributes it watches).
       if (records.some((r) => r.type === 'childList' && /^(TBODY|TABLE)$/.test((r.target as Element).nodeName))) this.applyPaging();
+      // New cells or keys: selection cells and states follow (changes nothing when they are in place).
+      else if (this.selectable) this.syncSelection();
     });
-    this.observer.observe(this.el, { childList: true, subtree: true, attributes: true, attributeFilter: ['sortable', 'sorted'] });
+    this.observer.observe(this.el, { childList: true, subtree: true, attributes: true, attributeFilter: ['sortable', 'sorted', 'data-key'] });
   }
 
   disconnectedCallback() {
@@ -118,6 +141,7 @@ export class KernTable {
   @Watch('labelEmpty')
   @Watch('getRowClass')
   @Watch('getCellClass')
+  @Watch('rowKey')
   onRows() {
     this.buildBody();
     this.busy();
@@ -130,6 +154,23 @@ export class KernTable {
   onPaging() {
     if (this.columns) this.buildBody();
     else this.applyPaging();
+  }
+
+  @Watch('selectable')
+  @Watch('selected')
+  @Watch('labelSelectAll')
+  @Watch('labelSelectRow')
+  onSelected() {
+    this.syncSelection();
+  }
+
+  /** A checkbox of the selection column changed: the table reports the new selection, not the checkbox. */
+  @Listen('kernChange')
+  onCheck(ev: CustomEvent<{ checked: boolean }>) {
+    const cell = (ev.target as Element | null)?.closest?.('[data-kern-select]');
+    if (!cell || cell.closest('kern-table') !== this.el) return;
+    ev.stopPropagation();
+    this.choose(cell, ev.detail.checked);
   }
 
   /** The embedded pagination changed page or size; the event keeps bubbling for the app. */
@@ -148,6 +189,13 @@ export class KernTable {
   }
 
   private onClick = (ev: Event) => {
+    // A click beside the checkbox in its cell toggles it, too.
+    const target = ev.target as Element | null;
+    if (target?.matches?.('[data-kern-select]')) {
+      const box = target.querySelector('kern-checkbox') as any;
+      if (box && !box.disabled) this.choose(target, !box.checked);
+      return;
+    }
     const button = (ev.target as Element | null)?.closest?.('button');
     const th = button?.closest('th');
     if (th && this.sortable(th) && this.headers().includes(th)) return this.request(th, undefined);
@@ -159,7 +207,7 @@ export class KernTable {
       if (typeof node.matches !== 'function') continue;
       const data = this.rowData.get(node);
       if (data) return void this.kernRowClick.emit(data);
-      if (node === this.el || node.matches(INTERACTIVE)) return;
+      if (node === this.el || node.matches(INTERACTIVE) || node.hasAttribute(GENERATED)) return;
     }
   };
 
@@ -223,9 +271,7 @@ export class KernTable {
   /** Markup mode: rows outside the page get `data-kern-paged-out` (the app's own `hidden` rows don't count). */
   private applyPaging() {
     if (this.columns) return;
-    const rows = this.childrenOf(this.table(), 'tbody')
-      .flatMap((tb) => this.childrenOf(tb, 'tr'))
-      .filter((r) => !this.isFiller(r) && !r.hasAttribute('hidden'));
+    const rows = this.dataRows().filter((r) => !r.hasAttribute('hidden'));
     const [from, to] = this.paged() ? this.range(rows.length) : [0, rows.length];
     rows.forEach((r, i) => {
       const out = i < from || i >= to;
@@ -235,12 +281,13 @@ export class KernTable {
       }
     });
     this.pager(rows.length);
+    this.syncSelection();
   }
 
   /** Header cells of the last header row (the one that names the columns). */
   private headers(): HTMLTableCellElement[] {
     const rows = this.childrenOf(this.childrenOf(this.table(), 'thead')[0], 'tr');
-    return this.childrenOf(rows[rows.length - 1], 'th', 'td') as HTMLTableCellElement[];
+    return this.cellsOf(rows[rows.length - 1]) as HTMLTableCellElement[];
   }
 
   private sortable(th: Element) {
@@ -289,7 +336,7 @@ export class KernTable {
     for (const tbody of this.childrenOf(this.table(), 'tbody')) {
       const rows = this.childrenOf(tbody, 'tr');
       const filler = rows.filter((r) => this.isFiller(r));
-      const sorted = sortByValue(rows.filter((r) => !this.isFiller(r)), (row) => this.value(this.childrenOf(row, 'td', 'th')[column]), direction, this.collator());
+      const sorted = sortByValue(rows.filter((r) => !this.isFiller(r)), (row) => this.value(this.cellsOf(row)[column]), direction, this.collator());
       tbody.append(...sorted, ...filler);
     }
   }
@@ -301,8 +348,122 @@ export class KernTable {
 
   /** Empty state or a cell spanning the row: stays at the end, unsorted. */
   private isFiller(row: Element) {
-    const cells = this.childrenOf(row, 'td', 'th');
+    const cells = this.cellsOf(row);
     return cells.some((c) => c.classList.contains('empty')) || (cells.length === 1 && Number(cells[0].getAttribute('colspan') ?? 1) > 1);
+  }
+
+  /** The app's cells of a row, without the generated ones. */
+  private cellsOf(row: Element | undefined): Element[] {
+    return this.childrenOf(row, 'td', 'th').filter((c) => !c.hasAttribute(GENERATED));
+  }
+
+  /** Body rows that hold data: no filler, empty or skeleton rows. */
+  private dataRows(): Element[] {
+    return this.childrenOf(this.table(), 'tbody')
+      .flatMap((tb) => this.childrenOf(tb, 'tr'))
+      .filter((r) => !this.isFiller(r) && !r.classList.contains('skeleton'));
+  }
+
+  /** Data rows the user sees now: not hidden by the app, on the current page. */
+  private visibleRows(): Element[] {
+    return this.dataRows().filter((r) => !r.hasAttribute('hidden') && !r.hasAttribute('data-kern-paged-out'));
+  }
+
+  // ---- selection ----
+
+  /** `data-key`, in data mode `rowKey`; markup rows without one keep their first position as key. */
+  private keyOf(tr: Element): string {
+    const key = this.columns ? undefined : tr.getAttribute('data-key');
+    if (key != null) return key;
+    let auto = this.rowKeys.get(tr);
+    if (auto === undefined) this.rowKeys.set(tr, (auto = String(this.nextKey++)));
+    return auto;
+  }
+
+  private selection(): Set<string> {
+    return new Set(Array.isArray(this.selected) ? this.selected.map(String) : []);
+  }
+
+  /** A row checkbox or the header one (all visible rows) was set to `checked`. */
+  private choose(cell: Element, checked: boolean) {
+    const keys = this.selection();
+    const rows = cell.closest('thead') ? this.visibleRows() : [cell.parentElement!];
+    for (const r of rows) {
+      if (checked) keys.add(this.keyOf(r));
+      else keys.delete(this.keyOf(r));
+    }
+    const next = Array.from(keys);
+    if (!this.kernSelectionChange.emit({ selected: next }).defaultPrevented) this.selected = next;
+    this.syncSelection(); // also resets the checkbox when cancelled
+  }
+
+  /** Selection column: added to or removed from every row; checkbox states and `aria-selected` from `selected`. */
+  private syncSelection() {
+    const table = this.table();
+    if (!table) return;
+    const on = this.selectable;
+    const keys = this.selection();
+    const head = this.childrenOf(this.childrenOf(table, 'thead')[0], 'tr');
+    head.forEach((tr, i) => {
+      const cell = this.selectCell(tr, on && i === 0, 'th', true);
+      if (cell && head.length > 1) cell.setAttribute('rowspan', String(head.length));
+    });
+    const data = new Set(this.dataRows());
+    for (const tr of this.childrenOf(table, 'tbody').flatMap((tb) => this.childrenOf(tb, 'tr'))) {
+      if (data.has(tr)) {
+        const box = this.selectCell(tr, on, 'td', true)?.firstElementChild as any;
+        const selected = on && keys.has(this.keyOf(tr));
+        if (box) Object.assign(box, { checked: selected, label: this.labelSelectRow });
+        if (selected) {
+          if (tr.getAttribute('aria-selected') !== 'true') tr.setAttribute('aria-selected', 'true');
+        } else if (on && tr.hasAttribute('aria-selected')) tr.removeAttribute('aria-selected');
+      } else if (this.isFiller(tr)) this.widen(tr, on ? 1 : 0);
+      else this.selectCell(tr, on, 'td', false); // skeleton row
+    }
+    for (const tr of this.childrenOf(this.childrenOf(table, 'tfoot')[0], 'tr')) this.selectCell(tr, on, 'td', false);
+
+    const box = this.childrenOf(head[0], 'th').find((c) => c.hasAttribute('data-kern-select'))?.firstElementChild as any;
+    if (box) {
+      const visible = this.visibleRows();
+      const count = visible.filter((r) => keys.has(this.keyOf(r))).length;
+      Object.assign(box, {
+        checked: count > 0 && count === visible.length,
+        indeterminate: count > 0 && count < visible.length,
+        disabled: !visible.length,
+        label: this.labelSelectAll,
+      });
+    }
+  }
+
+  /** The selection cell of a row: created first in the row when `on`, else removed. */
+  private selectCell(tr: Element, on: boolean, tag: 'td' | 'th', checkbox: boolean): Element | undefined {
+    let cell = this.childrenOf(tr, 'td', 'th').find((c) => c.hasAttribute('data-kern-select'));
+    if (!on) {
+      if (cell) {
+        tr.removeChild(cell);
+        tr.removeAttribute('aria-selected');
+      }
+      return undefined;
+    }
+    if (!cell) {
+      cell = document.createElement(tag);
+      cell.setAttribute(GENERATED, '');
+      cell.setAttribute('data-kern-select', '');
+      if (checkbox) cell.append(document.createElement('kern-checkbox'));
+      tr.insertBefore(cell, tr.firstElementChild);
+    }
+    return cell;
+  }
+
+  /** A filler row's spanning cell covers `extra` generated columns, too; the app's `colspan` is kept to restore it. */
+  private widen(tr: Element, extra: number) {
+    const cell = this.cellsOf(tr).find((c) => c.classList.contains('empty') || c.hasAttribute('colspan'));
+    if (!cell) return;
+    const own = cell.getAttribute('data-kern-colspan') ?? cell.getAttribute('colspan') ?? '1';
+    const span = String(Number(own) + extra);
+    if (cell.getAttribute('colspan') !== span) cell.setAttribute('colspan', span);
+    if (!extra) cell.removeAttribute('data-kern-colspan');
+    else if (cell.getAttribute('data-kern-colspan') !== own) cell.setAttribute('data-kern-colspan', own);
   }
 
   /** The slotted table (not one nested in a cell); in data mode the generated one. */
@@ -366,12 +527,16 @@ export class KernTable {
         ? sortByValue(items, ({ row }) => (col.sortValue ? col.sortValue(row) : row?.[col.key]), this.sortDir, this.collator())
         : items;
     const visible = this.paged() ? ordered.slice(...this.range(ordered.length)) : ordered;
+    // Rebuilt rows (new `rows`, page, sort): a focused row checkbox keeps focus.
+    const active = document.activeElement;
+    const focusKey = active && tbody.contains(active) && active.closest('[data-kern-select]') ? this.keyOf(active.closest('tr')!) : undefined;
 
     const trs = visible.map(({ row, index }) => {
       const tr = document.createElement('tr');
       const rowCls = this.getRowClass?.(row, index);
       if (rowCls) tr.className = rowCls;
       this.rowData.set(tr, { row, index });
+      this.rowKeys.set(tr, String(this.rowKey ? this.rowKey(row, index) : row?.id ?? index));
       for (const c of columns) {
         const td = document.createElement('td');
         const cls = this.classes(c.align === 'end' && 'num', c.mono && 'mono', this.getCellClass?.(row, c, index));
@@ -408,6 +573,15 @@ export class KernTable {
     this.replace(tbody, trs);
     this.busy();
     this.pager(ordered.length);
+    this.syncSelection();
+    if (focusKey !== undefined) this.focusLater(trs.find((tr) => this.rowKeys.get(tr) === focusKey)?.querySelector('[data-kern-select] > *'));
+  }
+
+  /** Focuses a new component once it has rendered (before, a host delegating focus has nothing to focus). */
+  private focusLater(el: Element | null | undefined) {
+    const c = el as (HTMLElement & { componentOnReady?: () => Promise<unknown> }) | null | undefined;
+    if (c?.componentOnReady) c.componentOnReady().then(() => c.focus());
+    else c?.focus();
   }
 
   /** Like replaceChildren (not in every test DOM). */

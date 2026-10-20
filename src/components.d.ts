@@ -1887,6 +1887,9 @@ export namespace Components {
      * Pagination: `page-size` adds a `kern-pagination` below the rows. `internal` pages the rows itself (back to page 1
      * after sorting); `external` shows the rows it gets and the app loads a page on `kernPageChange` (bubbles from the
      * embedded pagination) and sets `total`. Labels: set them on `table.querySelector('kern-pagination')`.
+     * Selection: `selectable` adds a first column with a `kern-checkbox` per row and one in the header for the visible rows
+     * of the current page. Rows are identified by `data-key` on the `<tr>` (data mode: `rowKey`, default `row.id` or the
+     * index). `selected` holds the keys and survives sorting, paging and new rows; selected rows get `aria-selected="true"`.
      */
     interface KernTable {
         /**
@@ -1921,6 +1924,16 @@ export namespace Components {
          */
         "labelEmpty": string;
         /**
+          * Accessible name of the header checkbox.
+          * @default 'Alle auswählen'
+         */
+        "labelSelectAll": string;
+        /**
+          * Accessible name of a row checkbox.
+          * @default 'Zeile auswählen'
+         */
+        "labelSelectRow": string;
+        /**
           * Loading: content dimmed, a bar under the header, `aria-busy`; in data mode without rows, skeleton rows.
           * @default false
          */
@@ -1945,9 +1958,23 @@ export namespace Components {
          */
         "pageSizes": number[] | string;
         /**
+          * Data mode: key of a row for `selected`. Default: `row.id`, else the index in `rows`.
+         */
+        "rowKey"?: (row: any, index: number) => string;
+        /**
           * Data mode: one object per row; each column reads `row[column.key]`.
          */
         "rows"?: any[];
+        /**
+          * Adds a first column with a checkbox per row and a header checkbox for the visible rows of the current page.
+          * @default false
+         */
+        "selectable": boolean;
+        /**
+          * Keys of the selected rows (`data-key`, in data mode `rowKey`). Keys of rows not shown (filtered, other page) stay.
+          * @default []
+         */
+        "selected": string[];
         /**
           * Sorts by a column (`data-key` or index); without `direction` it toggles, starting with `asc`. With `controlled="external"` it only emits `kernSort`.
          */
@@ -3193,6 +3220,7 @@ declare global {
     interface HTMLKernTableElementEventMap {
         "kernSort": { key: string; column: number; direction: KernSortDirection };
         "kernRowClick": { row: any; index: number };
+        "kernSelectionChange": { selected: string[] };
     }
     /**
      * Dense data table: wraps a native `<table>` (light DOM, so cells can hold any markup and Angular bindings).
@@ -3206,6 +3234,9 @@ declare global {
      * Pagination: `page-size` adds a `kern-pagination` below the rows. `internal` pages the rows itself (back to page 1
      * after sorting); `external` shows the rows it gets and the app loads a page on `kernPageChange` (bubbles from the
      * embedded pagination) and sets `total`. Labels: set them on `table.querySelector('kern-pagination')`.
+     * Selection: `selectable` adds a first column with a `kern-checkbox` per row and one in the header for the visible rows
+     * of the current page. Rows are identified by `data-key` on the `<tr>` (data mode: `rowKey`, default `row.id` or the
+     * index). `selected` holds the keys and survives sorting, paging and new rows; selected rows get `aria-selected="true"`.
      */
     interface HTMLKernTableElement extends Components.KernTable, HTMLStencilElement {
         addEventListener<K extends keyof HTMLKernTableElementEventMap>(type: K, listener: (this: HTMLKernTableElement, ev: KernTableCustomEvent<HTMLKernTableElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
@@ -5369,6 +5400,9 @@ declare namespace LocalJSX {
      * Pagination: `page-size` adds a `kern-pagination` below the rows. `internal` pages the rows itself (back to page 1
      * after sorting); `external` shows the rows it gets and the app loads a page on `kernPageChange` (bubbles from the
      * embedded pagination) and sets `total`. Labels: set them on `table.querySelector('kern-pagination')`.
+     * Selection: `selectable` adds a first column with a `kern-checkbox` per row and one in the header for the visible rows
+     * of the current page. Rows are identified by `data-key` on the `<tr>` (data mode: `rowKey`, default `row.id` or the
+     * index). `selected` holds the keys and survives sorting, paging and new rows; selected rows get `aria-selected="true"`.
      */
     interface KernTable {
         /**
@@ -5403,6 +5437,16 @@ declare namespace LocalJSX {
          */
         "labelEmpty"?: string;
         /**
+          * Accessible name of the header checkbox.
+          * @default 'Alle auswählen'
+         */
+        "labelSelectAll"?: string;
+        /**
+          * Accessible name of a row checkbox.
+          * @default 'Zeile auswählen'
+         */
+        "labelSelectRow"?: string;
+        /**
           * Loading: content dimmed, a bar under the header, `aria-busy`; in data mode without rows, skeleton rows.
           * @default false
          */
@@ -5416,6 +5460,10 @@ declare namespace LocalJSX {
           * Data mode: a row was clicked (not on a button, link or field in it). `index` is the position in `rows`.
          */
         "onKernRowClick"?: (event: KernTableCustomEvent<{ row: any; index: number }>) => void;
+        /**
+          * The selection was changed with a checkbox. Cancelable: `preventDefault()` keeps `selected` as it is.
+         */
+        "onKernSelectionChange"?: (event: KernTableCustomEvent<{ selected: string[] }>) => void;
         /**
           * A sortable header was activated (or `sortBy()` called), with the requested direction. Cancelable: `preventDefault()` skips the built-in sort.
          */
@@ -5435,9 +5483,23 @@ declare namespace LocalJSX {
          */
         "pageSizes"?: number[] | string;
         /**
+          * Data mode: key of a row for `selected`. Default: `row.id`, else the index in `rows`.
+         */
+        "rowKey"?: (row: any, index: number) => string;
+        /**
           * Data mode: one object per row; each column reads `row[column.key]`.
          */
         "rows"?: any[];
+        /**
+          * Adds a first column with a checkbox per row and a header checkbox for the visible rows of the current page.
+          * @default false
+         */
+        "selectable"?: boolean;
+        /**
+          * Keys of the selected rows (`data-key`, in data mode `rowKey`). Keys of rows not shown (filtered, other page) stay.
+          * @default []
+         */
+        "selected"?: string[];
         /**
           * `controlled="external"`: number of all rows (the table only gets the current page).
          */
@@ -6242,6 +6304,9 @@ declare namespace LocalJSX {
         "page": number;
         "pageSizes": number[] | string;
         "total": number;
+        "selectable": boolean;
+        "labelSelectAll": string;
+        "labelSelectRow": string;
     }
     interface KernTabsAttributes {
         "value": string;
@@ -6672,6 +6737,9 @@ declare module "@stencil/core" {
              * Pagination: `page-size` adds a `kern-pagination` below the rows. `internal` pages the rows itself (back to page 1
              * after sorting); `external` shows the rows it gets and the app loads a page on `kernPageChange` (bubbles from the
              * embedded pagination) and sets `total`. Labels: set them on `table.querySelector('kern-pagination')`.
+             * Selection: `selectable` adds a first column with a `kern-checkbox` per row and one in the header for the visible rows
+             * of the current page. Rows are identified by `data-key` on the `<tr>` (data mode: `rowKey`, default `row.id` or the
+             * index). `selected` holds the keys and survives sorting, paging and new rows; selected rows get `aria-selected="true"`.
              */
             "kern-table": LocalJSX.IntrinsicElements["kern-table"] & JSXBase.HTMLAttributes<HTMLKernTableElement>;
             /**

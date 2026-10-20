@@ -302,4 +302,199 @@ describe('kern-table', () => {
       expect(el.querySelector('kern-pagination')).toBeNull();
     });
   });
+
+  describe('selection', () => {
+    const keyed = `<table><thead><tr><th sortable data-key="name">Name</th><th sortable>N</th></tr></thead><tbody>
+      <tr data-key="a"><td>Alpha</td><td>3</td></tr><tr data-key="b"><td>Bravo</td><td>1</td></tr>
+      <tr data-key="c"><td>Charlie</td><td>2</td></tr><tr hidden data-key="x"><td>Hidden</td><td>9</td></tr>
+      <tr><td colspan="2" class="empty">More</td></tr></tbody></table>`;
+    async function markup(attrs = '') {
+      const page = await newSpecPage({ components: [KernTable], html: `<kern-table selectable${attrs}>${keyed}</kern-table>` });
+      const el = page.root as any;
+      const head = () => el.querySelector('thead [data-kern-select] kern-checkbox');
+      const box = (key: string) => el.querySelector(`tr[data-key="${key}"] > [data-kern-select] kern-checkbox`);
+      const check = async (cb: Element, checked: boolean) => {
+        cb.dispatchEvent(new CustomEvent('kernChange', { detail: { checked }, bubbles: true, composed: true }));
+        await page.waitForChanges();
+      };
+      const changes: string[][] = [];
+      el.addEventListener('kernSelectionChange', (e: CustomEvent) => changes.push(e.detail.selected));
+      const names = () => Array.from(el.querySelectorAll('tbody tr:not([hidden])')).map((r: any) => r.querySelector('td:not([data-kern-generated])').textContent);
+      return { page, el, head, box, check, changes, names };
+    }
+
+    it('adds a selection column without shifting columns or the empty row', async () => {
+      const { page, el, head } = await markup();
+      expect(head()).not.toBeNull();
+      expect(head().label).toBe('Alle auswählen');
+      expect(el.querySelectorAll('tbody [data-kern-select] kern-checkbox').length).toBe(4);
+      expect(el.querySelector('tr[data-key="a"]').firstElementChild.hasAttribute('data-kern-select')).toBe(true);
+      expect(el.querySelector('td.empty').getAttribute('colspan')).toBe('3');
+      const spy = jest.fn();
+      el.addEventListener('kernSort', (e: CustomEvent) => spy(e.detail.column));
+      el.querySelectorAll('th button')[1].click();
+      await page.waitForChanges();
+      expect(spy).toHaveBeenCalledWith(1);
+      expect(Array.from(el.querySelectorAll('tbody tr[data-key]:not([hidden])')).map((r: any) => r.dataset.key)).toEqual(['b', 'c', 'a']);
+      el.selectable = false;
+      await page.waitForChanges();
+      expect(el.querySelector('[data-kern-select]')).toBeNull();
+      expect(el.querySelector('td.empty').getAttribute('colspan')).toBe('2');
+    });
+
+    it('selects rows by data-key, sets aria-selected and keeps the selection when sorting', async () => {
+      const { page, el, head, box, check, changes, names } = await markup();
+      const outer = jest.fn();
+      page.body.addEventListener('kernChange', outer);
+      await check(box('b'), true);
+      expect(el.selected).toEqual(['b']);
+      expect(changes).toEqual([['b']]);
+      expect(outer).not.toHaveBeenCalled();
+      expect(el.querySelector('tr[data-key="b"]').getAttribute('aria-selected')).toBe('true');
+      expect(box('b').checked).toBe(true);
+      expect(head().indeterminate).toBe(true);
+      expect(head().checked).toBe(false);
+      await el.sortBy('name', 'desc');
+      await page.waitForChanges();
+      expect(names()).toEqual(['Charlie', 'Bravo', 'Alpha', 'More']);
+      expect(box('b').checked).toBe(true);
+      await check(box('b'), false);
+      expect(el.selected).toEqual([]);
+      expect(el.querySelector('tr[data-key="b"]').hasAttribute('aria-selected')).toBe(false);
+    });
+
+    it('selects all visible rows from the header, keeping hidden ones', async () => {
+      const { page, el, head, check } = await markup();
+      el.selected = ['x'];
+      await page.waitForChanges();
+      expect(head().checked).toBe(false);
+      expect(head().indeterminate).toBe(false);
+      await check(head(), true);
+      expect([...el.selected].sort()).toEqual(['a', 'b', 'c', 'x']);
+      expect(head().checked).toBe(true);
+      await check(head(), false);
+      expect(el.selected).toEqual(['x']);
+    });
+
+    it('limits the header checkbox to the current page', async () => {
+      const { page, el, head, box, check } = await markup(' page-size="2"');
+      await check(head(), true);
+      expect(el.selected).toEqual(['a', 'b']);
+      el.page = 2;
+      await page.waitForChanges();
+      expect(head().checked).toBe(false);
+      expect(head().indeterminate).toBe(false);
+      await check(box('c'), true);
+      expect(head().checked).toBe(true);
+      el.page = 1;
+      await page.waitForChanges();
+      expect(head().checked).toBe(true);
+      expect(el.selected).toEqual(['a', 'b', 'c']);
+    });
+
+    it('keeps selected when kernSelectionChange is cancelled', async () => {
+      const { el, box, check } = await markup();
+      el.addEventListener('kernSelectionChange', (e: Event) => e.preventDefault());
+      await check(box('a'), true);
+      expect(el.selected).toEqual([]);
+      expect(box('a').checked).toBe(false);
+    });
+
+    it('toggles on a click beside the checkbox', async () => {
+      const { page, el } = await markup();
+      el.querySelector('tr[data-key="c"] > [data-kern-select]').click();
+      await page.waitForChanges();
+      expect(el.selected).toEqual(['c']);
+    });
+
+    it('works with controlled="external"', async () => {
+      const { el, head, box, check } = await markup(' controlled="external" page-size="2"');
+      await check(head(), true);
+      expect([...el.selected].sort()).toEqual(['a', 'b', 'c']); // external: all given rows are the page
+      await check(box('a'), false);
+      expect(head().indeterminate).toBe(true);
+    });
+
+    describe('data mode', () => {
+      const devices = [
+        { id: 'k', name: 'Kitchen light', power: 9 },
+        { id: 'b', name: 'Bathroom fan', power: 42 },
+        { id: 's', name: 'Shutter south', power: 3 },
+      ];
+      async function data(props: Record<string, unknown> = {}) {
+        const page = await newSpecPage({ components: [KernTable], html: `<kern-table selectable></kern-table>` });
+        const el = page.root as any;
+        el.columns = [
+          { key: 'name', label: 'Name', sortable: true },
+          { key: 'power', label: 'Power', sortable: true },
+        ];
+        el.rows = devices;
+        Object.assign(el, props);
+        await page.waitForChanges();
+        const boxes = () => Array.from(el.querySelectorAll('tbody [data-kern-select] kern-checkbox')) as any[];
+        const head = () => el.querySelector('thead [data-kern-select] kern-checkbox');
+        const names = () => Array.from(el.querySelectorAll('tbody tr')).map((r: any) => r.children[1]?.textContent);
+        const check = async (cb: Element, checked: boolean) => {
+          cb.dispatchEvent(new CustomEvent('kernChange', { detail: { checked }, bubbles: true }));
+          await page.waitForChanges();
+        };
+        return { page, el, boxes, head, names, check };
+      }
+
+      it('uses row.id as key and keeps the selection through sorting and new rows', async () => {
+        const { page, el, boxes, names, check } = await data();
+        expect(el.querySelectorAll('thead th').length).toBe(3);
+        await check(boxes()[1], true);
+        expect(el.selected).toEqual(['b']);
+        el.querySelectorAll('th button')[0].click();
+        await page.waitForChanges();
+        expect(names()).toEqual(['Bathroom fan', 'Kitchen light', 'Shutter south']);
+        expect(boxes().map((b) => b.checked)).toEqual([true, false, false]);
+        expect(el.querySelector('tbody tr').getAttribute('aria-selected')).toBe('true');
+        el.rows = devices.slice(2);
+        await page.waitForChanges();
+        expect(el.selected).toEqual(['b']);
+        el.rows = devices;
+        await page.waitForChanges();
+        expect(boxes().map((b) => b.checked)).toEqual([true, false, false]);
+      });
+
+      it('uses rowKey, else the index', async () => {
+        const { page, el, boxes, check } = await data({ rows: devices.map(({ name }) => ({ name })) });
+        await check(boxes()[2], true);
+        expect(el.selected).toEqual(['2']);
+        el.rowKey = (r: any) => r.name;
+        await page.waitForChanges();
+        await check(boxes()[0], true);
+        expect(el.selected).toEqual(['2', 'Kitchen light']);
+      });
+
+      it('pages: the header covers the current page only', async () => {
+        const { page, el, boxes, head, check } = await data({ pageSize: 2 });
+        await check(head(), true);
+        expect(el.selected).toEqual(['k', 'b']);
+        el.page = 2;
+        await page.waitForChanges();
+        expect(boxes().length).toBe(1);
+        expect(head().checked).toBe(false);
+        await check(boxes()[0], true);
+        expect(head().checked).toBe(true);
+      });
+
+      it('is no row click and widens the empty row', async () => {
+        const { page, el } = await data();
+        const spy = jest.fn();
+        el.addEventListener('kernRowClick', spy);
+        el.querySelector('tbody [data-kern-select]').click();
+        el.querySelector('tbody [data-kern-select] kern-checkbox').click();
+        await page.waitForChanges();
+        expect(spy).not.toHaveBeenCalled();
+        expect(el.selected).toEqual(['k']);
+        el.rows = [];
+        await page.waitForChanges();
+        expect(el.querySelector('td.empty').getAttribute('colspan')).toBe('3');
+        expect(el.querySelector('thead kern-checkbox').disabled).toBe(true);
+      });
+    });
+  });
 });

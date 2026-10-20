@@ -21,6 +21,10 @@ Pagination: `page-size` adds a `kern-pagination` below the rows. `internal` page
 after sorting); `external` shows the rows it gets and the app loads a page on `kernPageChange` (bubbles from the
 embedded pagination) and sets `total`. Labels: set them on `table.querySelector('kern-pagination')`.
 
+Selection: `selectable` adds a first column with a `kern-checkbox` per row and one in the header for the visible rows
+of the current page. Rows are identified by `data-key` on the `<tr>` (data mode: `rowKey`, default `row.id` or the
+index). `selected` holds the keys and survives sorting, paging and new rows; selected rows get `aria-selected="true"`.
+
 ## Usage
 
 ### 01-device-table
@@ -321,33 +325,111 @@ load();
 ```
 
 
+### 09-selectable
+
+# Selectable rows
+
+`selectable` adds a first column with a checkbox per row. The header checkbox selects or clears the visible rows of the current page and shows a mixed state when only some of them are selected. Rows are identified by `data-key` on the `<tr>`; `selected` holds the keys and survives sorting, paging and new rows, and selected rows get `aria-selected="true"`. `kernSelectionChange` reports the new keys (cancel it to keep `selected` as it is). A click on a checkbox is no row click. `label-select-all` and `label-select-row` name the checkboxes for screen readers.
+
+```html
+<kern-table selectable compact page-size="3" label-select-all="Select all" label-select-row="Select row">
+  <table>
+    <thead>
+      <tr><th sortable sorted="asc">Name</th><th sortable>IP</th><th sortable class="num">Power (W)</th></tr>
+    </thead>
+    <tbody>
+      <tr data-key="A4CF12F45B21"><td>Kitchen light</td><td class="mono">192.168.1.34</td><td class="num">9</td></tr>
+      <tr data-key="C82B961A3F00"><td>Bathroom fan</td><td class="mono">192.168.1.21</td><td class="num">42</td></tr>
+      <tr data-key="34987A6E01C4"><td>Shutter south</td><td class="mono">192.168.1.52</td><td class="num">3</td></tr>
+      <tr data-key="E86BEA112B90"><td>Garage door</td><td class="mono">192.168.1.9</td><td class="num">0</td></tr>
+      <tr data-key="B0A73291C5E8"><td>Office plug</td><td class="mono">192.168.1.61</td><td class="num">120</td></tr>
+    </tbody>
+  </table>
+</kern-table>
+<p class="selection">No devices selected.</p>
+```
+
+```js
+root.querySelector('kern-table').addEventListener('kernSelectionChange', (ev) => {
+  const n = ev.detail.selected.length;
+  root.querySelector('.selection').textContent = n ? `${n} selected: ${ev.detail.selected.join(', ')}` : 'No devices selected.';
+});
+```
+
+
+### 10-selectable-data
+
+# Selectable rows from data
+
+In data mode `rowKey` returns a row's key (default: `row.id`, else its index in `rows`). Set `selected` to select rows from the app, e.g. for a bulk action like “only devices with changes”; the table keeps keys of rows that are filtered out.
+
+```html
+<kern-toolbar>
+  <kern-button size="sm" class="updates">Only with update</kern-button>
+  <kern-button size="sm" variant="ghost" class="none">None</kern-button>
+  <span class="count" slot="end">0 selected</span>
+</kern-toolbar>
+<kern-table selectable compact label-select-all="Select all" label-select-row="Select row"></kern-table>
+```
+
+```js
+const table = root.querySelector('kern-table');
+const devices = [
+  { mac: 'A4CF12F45B21', name: 'Kitchen light', firmware: '1.4.2', update: true },
+  { mac: 'C82B961A3F00', name: 'Bathroom fan', firmware: '1.5.0', update: false },
+  { mac: '34987A6E01C4', name: 'Shutter south', firmware: '1.3.9', update: true },
+  { mac: 'E86BEA112B90', name: 'Garage door', firmware: '1.5.0', update: false },
+];
+table.columns = [
+  { key: 'name', label: 'Name', sortable: true, sorted: 'asc' },
+  { key: 'mac', label: 'MAC', mono: true },
+  { key: 'firmware', label: 'Firmware', sortable: true, mono: true },
+];
+table.rows = devices;
+table.rowKey = (d) => d.mac;
+const select = (keys) => {
+  table.selected = keys;
+  root.querySelector('.count').textContent = `${keys.length} selected`;
+};
+table.addEventListener('kernSelectionChange', (ev) => select(ev.detail.selected));
+root.querySelector('.updates').addEventListener('click', () => select(devices.filter((d) => d.update).map((d) => d.mac)));
+root.querySelector('.none').addEventListener('click', () => select([]));
+```
+
+
 
 ## Properties
 
-| Property             | Attribute      | Description                                                                                                                                                                                   | Type                                                                                            | Default            |
-| -------------------- | -------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------- | ------------------ |
-| `columns`            | --             | Data mode: column definitions. The table builds its own `<table>` from them and `rows`.                                                                                                       | `KernTableColumn<any>[] \| undefined`                                                           | `undefined`        |
-| `compact`            | `compact`      | 30px rows instead of 36px.                                                                                                                                                                    | `boolean`                                                                                       | `false`            |
-| `controlled`         | `controlled`   | `internal`: the table sorts its rows itself. `external`: it only emits `kernSort`; the app orders the rows and sets `sorted` on the header (in data mode: new `rows` and `columns[].sorted`). | `"external" \| "internal"`                                                                      | `'internal'`       |
-| `getCellClass`       | --             | Data mode: classes for a cell.                                                                                                                                                                | `((row: any, column: KernTableColumn<any>, index: number) => string \| undefined) \| undefined` | `undefined`        |
-| `getHeaderCellClass` | --             | Data mode: classes for a header cell.                                                                                                                                                         | `((column: KernTableColumn<any>) => string \| undefined) \| undefined`                          | `undefined`        |
-| `getRowClass`        | --             | Data mode: classes for a row, e.g. `clickable` or `dim`.                                                                                                                                      | `((row: any, index: number) => string \| undefined) \| undefined`                               | `undefined`        |
-| `labelEmpty`         | `label-empty`  | Data mode: shown when `rows` is empty.                                                                                                                                                        | `string`                                                                                        | `'Keine Einträge'` |
-| `loading`            | `loading`      | Loading: content dimmed, a bar under the header, `aria-busy`; in data mode without rows, skeleton rows.                                                                                       | `boolean`                                                                                       | `false`            |
-| `loadingRows`        | `loading-rows` | Data mode: number of skeleton rows while loading without rows.                                                                                                                                | `number`                                                                                        | `3`                |
-| `page`               | `page`         | Current page, from 1.                                                                                                                                                                         | `number`                                                                                        | `1`                |
-| `pageSize`           | `page-size`    | Rows per page; turns the pagination on.                                                                                                                                                       | `number \| undefined`                                                                           | `undefined`        |
-| `pageSizes`          | `page-sizes`   | Offered page sizes, e.g. `10,25,50`; empty hides the choice.                                                                                                                                  | `number[] \| string`                                                                            | `''`               |
-| `rows`               | --             | Data mode: one object per row; each column reads `row[column.key]`.                                                                                                                           | `any[] \| undefined`                                                                            | `undefined`        |
-| `total`              | `total`        | `controlled="external"`: number of all rows (the table only gets the current page).                                                                                                           | `number \| undefined`                                                                           | `undefined`        |
+| Property             | Attribute          | Description                                                                                                                                                                                   | Type                                                                                            | Default             |
+| -------------------- | ------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------- | ------------------- |
+| `columns`            | --                 | Data mode: column definitions. The table builds its own `<table>` from them and `rows`.                                                                                                       | `KernTableColumn<any>[] \| undefined`                                                           | `undefined`         |
+| `compact`            | `compact`          | 30px rows instead of 36px.                                                                                                                                                                    | `boolean`                                                                                       | `false`             |
+| `controlled`         | `controlled`       | `internal`: the table sorts its rows itself. `external`: it only emits `kernSort`; the app orders the rows and sets `sorted` on the header (in data mode: new `rows` and `columns[].sorted`). | `"external" \| "internal"`                                                                      | `'internal'`        |
+| `getCellClass`       | --                 | Data mode: classes for a cell.                                                                                                                                                                | `((row: any, column: KernTableColumn<any>, index: number) => string \| undefined) \| undefined` | `undefined`         |
+| `getHeaderCellClass` | --                 | Data mode: classes for a header cell.                                                                                                                                                         | `((column: KernTableColumn<any>) => string \| undefined) \| undefined`                          | `undefined`         |
+| `getRowClass`        | --                 | Data mode: classes for a row, e.g. `clickable` or `dim`.                                                                                                                                      | `((row: any, index: number) => string \| undefined) \| undefined`                               | `undefined`         |
+| `labelEmpty`         | `label-empty`      | Data mode: shown when `rows` is empty.                                                                                                                                                        | `string`                                                                                        | `'Keine Einträge'`  |
+| `labelSelectAll`     | `label-select-all` | Accessible name of the header checkbox.                                                                                                                                                       | `string`                                                                                        | `'Alle auswählen'`  |
+| `labelSelectRow`     | `label-select-row` | Accessible name of a row checkbox.                                                                                                                                                            | `string`                                                                                        | `'Zeile auswählen'` |
+| `loading`            | `loading`          | Loading: content dimmed, a bar under the header, `aria-busy`; in data mode without rows, skeleton rows.                                                                                       | `boolean`                                                                                       | `false`             |
+| `loadingRows`        | `loading-rows`     | Data mode: number of skeleton rows while loading without rows.                                                                                                                                | `number`                                                                                        | `3`                 |
+| `page`               | `page`             | Current page, from 1.                                                                                                                                                                         | `number`                                                                                        | `1`                 |
+| `pageSize`           | `page-size`        | Rows per page; turns the pagination on.                                                                                                                                                       | `number \| undefined`                                                                           | `undefined`         |
+| `pageSizes`          | `page-sizes`       | Offered page sizes, e.g. `10,25,50`; empty hides the choice.                                                                                                                                  | `number[] \| string`                                                                            | `''`                |
+| `rowKey`             | --                 | Data mode: key of a row for `selected`. Default: `row.id`, else the index in `rows`.                                                                                                          | `((row: any, index: number) => string) \| undefined`                                            | `undefined`         |
+| `rows`               | --                 | Data mode: one object per row; each column reads `row[column.key]`.                                                                                                                           | `any[] \| undefined`                                                                            | `undefined`         |
+| `selectable`         | `selectable`       | Adds a first column with a checkbox per row and a header checkbox for the visible rows of the current page.                                                                                   | `boolean`                                                                                       | `false`             |
+| `selected`           | --                 | Keys of the selected rows (`data-key`, in data mode `rowKey`). Keys of rows not shown (filtered, other page) stay.                                                                            | `string[]`                                                                                      | `[]`                |
+| `total`              | `total`            | `controlled="external"`: number of all rows (the table only gets the current page).                                                                                                           | `number \| undefined`                                                                           | `undefined`         |
 
 
 ## Events
 
-| Event          | Description                                                                                                                                   | Type                                                                          |
-| -------------- | --------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------- |
-| `kernRowClick` | Data mode: a row was clicked (not on a button, link or field in it). `index` is the position in `rows`.                                       | `CustomEvent<{ row: any; index: number; }>`                                   |
-| `kernSort`     | A sortable header was activated (or `sortBy()` called), with the requested direction. Cancelable: `preventDefault()` skips the built-in sort. | `CustomEvent<{ key: string; column: number; direction: KernSortDirection; }>` |
+| Event                 | Description                                                                                                                                   | Type                                                                          |
+| --------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------- |
+| `kernRowClick`        | Data mode: a row was clicked (not on a button, link or field in it). `index` is the position in `rows`.                                       | `CustomEvent<{ row: any; index: number; }>`                                   |
+| `kernSelectionChange` | The selection was changed with a checkbox. Cancelable: `preventDefault()` keeps `selected` as it is.                                          | `CustomEvent<{ selected: string[]; }>`                                        |
+| `kernSort`            | A sortable header was activated (or `sortBy()` called), with the requested direction. Cancelable: `preventDefault()` skips the built-in sort. | `CustomEvent<{ key: string; column: number; direction: KernSortDirection; }>` |
 
 
 ## Methods
@@ -382,12 +464,14 @@ Type: `Promise<void>`
 ### Depends on
 
 - [kern-pagination](../kern-pagination)
+- [kern-checkbox](../kern-checkbox)
 - [kern-skeleton](../kern-skeleton)
 
 ### Graph
 ```mermaid
 graph TD;
   kern-table --> kern-pagination
+  kern-table --> kern-checkbox
   kern-table --> kern-skeleton
   kern-pagination --> kern-select
   style kern-table fill:#f9f,stroke:#333,stroke-width:4px

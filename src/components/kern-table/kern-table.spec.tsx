@@ -459,14 +459,91 @@ describe('kern-table', () => {
         expect(boxes().map((b) => b.checked)).toEqual([true, false, false]);
       });
 
-      it('uses rowKey, else the index', async () => {
-        const { page, el, boxes, check } = await data({ rows: devices.map(({ name }) => ({ name })) });
+      it('uses rowKey, else a key per object, else the index', async () => {
+        const plain = devices.map(({ name, power }) => ({ name, power }));
+        const { page, el, boxes, check } = await data({ rows: plain });
         await check(boxes()[2], true);
-        expect(el.selected).toEqual(['2']);
+        expect(el.selected).toEqual([expect.stringMatching(/^~\d+$/)]);
         el.rowKey = (r: any) => r.name;
         await page.waitForChanges();
         await check(boxes()[0], true);
-        expect(el.selected).toEqual(['2', 'Kitchen light']);
+        expect(el.selected[1]).toBe('Kitchen light');
+        el.rowKey = undefined;
+        el.rows = ['a', 'b'];
+        el.columns = [{ key: 'x', label: 'X', cell: (r: any) => r }];
+        el.selected = [];
+        await page.waitForChanges();
+        await check(boxes()[1], true);
+        expect(el.selected).toEqual(['1']);
+      });
+
+      it('without id: the selection stays with the object when the rows are swapped or filtered', async () => {
+        const plain = devices.map(({ name, power }) => ({ name, power }));
+        const { page, el, boxes, names, check } = await data({ rows: plain });
+        await check(boxes()[1], true);
+        el.rows = [plain[2], plain[1], plain[0]];
+        await page.waitForChanges();
+        expect(names()).toEqual(['Shutter south', 'Bathroom fan', 'Kitchen light']);
+        expect(boxes().map((b) => b.checked)).toEqual([false, true, false]);
+        el.rows = [plain[0], plain[2]];
+        await page.waitForChanges();
+        expect(el.selected.length).toBe(1);
+        expect(boxes().map((b) => b.checked)).toEqual([false, false]);
+        el.rows = plain;
+        await page.waitForChanges();
+        expect(boxes().map((b) => b.checked)).toEqual([false, true, false]);
+      });
+
+      it('without id: new objects do not take over the selection', async () => {
+        const plain = () => devices.map(({ name, power }) => ({ name, power }));
+        const { page, el, boxes, check } = await data({ rows: plain() });
+        await check(boxes()[0], true);
+        el.rows = plain();
+        await page.waitForChanges();
+        expect(boxes().map((b) => b.checked)).toEqual([false, false, false]);
+        expect(el.querySelector('tbody tr[aria-selected="true"]')).toBeNull();
+      });
+
+      it('with ids: filtering and external pages keep the selection', async () => {
+        const { page, el, boxes, check } = await data({ controlled: 'external', pageSize: 2, total: 3 });
+        await check(boxes()[1], true);
+        el.rows = [{ ...devices[2] }];
+        await page.waitForChanges();
+        expect(boxes().map((b) => b.checked)).toEqual([false]);
+        el.rows = devices.slice(0, 2).map((d) => ({ ...d }));
+        await page.waitForChanges();
+        expect(el.selected).toEqual(['b']);
+        expect(boxes().map((b) => b.checked)).toEqual([false, true]);
+      });
+
+      it('warns once about duplicate keys and rowKey without a key', async () => {
+        const warn = jest.spyOn(console, 'warn').mockImplementation(() => {});
+        try {
+          const { page, el } = await data({ rows: [devices[0], { ...devices[0] }] });
+          expect(warn).toHaveBeenCalledTimes(1);
+          expect(warn.mock.calls[0][0]).toContain('rowKey');
+          el.rows = [...el.rows];
+          el.rowKey = () => undefined;
+          await page.waitForChanges();
+          expect(warn).toHaveBeenCalledTimes(1);
+          const other = await data({ rowKey: () => null });
+          expect(warn).toHaveBeenCalledTimes(2);
+          expect(warn.mock.calls[1][0]).toContain('rowKey returned null');
+          expect(other.el.querySelectorAll('tbody tr').length).toBe(3);
+        } finally {
+          warn.mockRestore();
+        }
+      });
+
+      it('does not warn with unique keys', async () => {
+        const warn = jest.spyOn(console, 'warn').mockImplementation(() => {});
+        try {
+          await data();
+          await data({ rows: devices.map(({ name }) => ({ name })) });
+          expect(warn).not.toHaveBeenCalled();
+        } finally {
+          warn.mockRestore();
+        }
       });
 
       it('pages: the header covers the current page only', async () => {
@@ -644,6 +721,18 @@ describe('kern-table', () => {
         await el.toggleRow('k');
         await page.waitForChanges();
         expect(order()[1]).toBe('[]');
+      });
+
+      it('without id: expanded follows the object, not its position', async () => {
+        const plain = devices.map(({ name }) => ({ name }));
+        const { page, el, order, toggle } = await data({ rows: plain });
+        await toggle(0);
+        el.rows = [plain[1], plain[0], plain[2]];
+        await page.waitForChanges();
+        expect(order()).toEqual(['Bathroom fan', '[]', 'Kitchen light', '[Details Kitchen light]', 'Shutter south', '[]']);
+        el.rows = plain.map((r) => ({ ...r }));
+        await page.waitForChanges();
+        expect(order().filter((t: string) => t.startsWith('[Details'))).toEqual([]);
       });
 
       it('widens the empty row by the toggle column', async () => {

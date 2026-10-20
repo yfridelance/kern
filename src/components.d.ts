@@ -1983,7 +1983,8 @@ export namespace Components {
      * embedded pagination) and sets `total`. Labels: set them on `table.querySelector('kern-pagination')`.
      * Selection: `selectable` adds a first column with a `kern-checkbox` per row and one in the header for the visible rows
      * of the current page. Rows are identified by `data-key` on the `<tr>` (data mode: `rowKey`, default `row.id` or the
-     * index). `selected` holds the keys and survives sorting, paging and new rows; selected rows get `aria-selected="true"`.
+     * object identity). `selected` holds the keys and survives sorting, paging and new rows; selected rows get
+     * `aria-selected="true"`. For data loaded from a server use `rowKey` or `id`: without both, new objects get new keys.
      * Detail rows: a `<tr kern-details>` right after its row is hidden until the row is expanded; it spans all columns,
      * moves with its row when sorting and is no row for paging or sorting. A `<button kern-expand>` in the row toggles it
      * (the table sets `aria-expanded` and `aria-controls`). Data mode: `detail` adds a chevron column and the detail rows.
@@ -2009,7 +2010,7 @@ export namespace Components {
          */
         "detail"?: (row: any, index: number) => Node | string;
         /**
-          * Keys of the expanded rows (see `selected` for keys).
+          * Keys of the expanded rows (see `selected` and `rowKey` for keys).
           * @default []
          */
         "expanded": string[];
@@ -2066,9 +2067,9 @@ export namespace Components {
          */
         "pageSizes": number[] | string;
         /**
-          * Data mode: key of a row for `selected`. Default: `row.id`, else the index in `rows`.
+          * Data mode: key of a row for `selected` and `expanded`. Default: `row.id`, else a key per row object (kept through sorting, filtering and reordering, but new for reloaded objects; use `rowKey` or `id` for server data). Rows that are no objects use their index in `rows`.
          */
-        "rowKey"?: (row: any, index: number) => string;
+        "rowKey"?: (row: any, index: number) => string | number;
         /**
           * Data mode: one object per row; each column reads `row[column.key]`.
          */
@@ -2079,7 +2080,7 @@ export namespace Components {
          */
         "selectable": boolean;
         /**
-          * Keys of the selected rows (`data-key`, in data mode `rowKey`). Keys of rows not shown (filtered, other page) stay.
+          * Keys of the selected rows (`data-key`, in data mode `rowKey`). Keys of rows not shown (filtered, other page) stay. Data mode without `rowKey` and `id`: the key belongs to the row object, so reloaded objects are not selected.
           * @default []
          */
         "selected": string[];
@@ -3486,7 +3487,8 @@ declare global {
      * embedded pagination) and sets `total`. Labels: set them on `table.querySelector('kern-pagination')`.
      * Selection: `selectable` adds a first column with a `kern-checkbox` per row and one in the header for the visible rows
      * of the current page. Rows are identified by `data-key` on the `<tr>` (data mode: `rowKey`, default `row.id` or the
-     * index). `selected` holds the keys and survives sorting, paging and new rows; selected rows get `aria-selected="true"`.
+     * object identity). `selected` holds the keys and survives sorting, paging and new rows; selected rows get
+     * `aria-selected="true"`. For data loaded from a server use `rowKey` or `id`: without both, new objects get new keys.
      * Detail rows: a `<tr kern-details>` right after its row is hidden until the row is expanded; it spans all columns,
      * moves with its row when sorting and is no row for paging or sorting. A `<button kern-expand>` in the row toggles it
      * (the table sets `aria-expanded` and `aria-controls`). Data mode: `detail` adds a chevron column and the detail rows.
@@ -5792,7 +5794,8 @@ declare namespace LocalJSX {
      * embedded pagination) and sets `total`. Labels: set them on `table.querySelector('kern-pagination')`.
      * Selection: `selectable` adds a first column with a `kern-checkbox` per row and one in the header for the visible rows
      * of the current page. Rows are identified by `data-key` on the `<tr>` (data mode: `rowKey`, default `row.id` or the
-     * index). `selected` holds the keys and survives sorting, paging and new rows; selected rows get `aria-selected="true"`.
+     * object identity). `selected` holds the keys and survives sorting, paging and new rows; selected rows get
+     * `aria-selected="true"`. For data loaded from a server use `rowKey` or `id`: without both, new objects get new keys.
      * Detail rows: a `<tr kern-details>` right after its row is hidden until the row is expanded; it spans all columns,
      * moves with its row when sorting and is no row for paging or sorting. A `<button kern-expand>` in the row toggles it
      * (the table sets `aria-expanded` and `aria-controls`). Data mode: `detail` adds a chevron column and the detail rows.
@@ -5818,7 +5821,7 @@ declare namespace LocalJSX {
          */
         "detail"?: (row: any, index: number) => Node | string;
         /**
-          * Keys of the expanded rows (see `selected` for keys).
+          * Keys of the expanded rows (see `selected` and `rowKey` for keys).
           * @default []
          */
         "expanded"?: string[];
@@ -5891,9 +5894,9 @@ declare namespace LocalJSX {
          */
         "pageSizes"?: number[] | string;
         /**
-          * Data mode: key of a row for `selected`. Default: `row.id`, else the index in `rows`.
+          * Data mode: key of a row for `selected` and `expanded`. Default: `row.id`, else a key per row object (kept through sorting, filtering and reordering, but new for reloaded objects; use `rowKey` or `id` for server data). Rows that are no objects use their index in `rows`.
          */
-        "rowKey"?: (row: any, index: number) => string;
+        "rowKey"?: (row: any, index: number) => string | number;
         /**
           * Data mode: one object per row; each column reads `row[column.key]`.
          */
@@ -5904,7 +5907,7 @@ declare namespace LocalJSX {
          */
         "selectable"?: boolean;
         /**
-          * Keys of the selected rows (`data-key`, in data mode `rowKey`). Keys of rows not shown (filtered, other page) stay.
+          * Keys of the selected rows (`data-key`, in data mode `rowKey`). Keys of rows not shown (filtered, other page) stay. Data mode without `rowKey` and `id`: the key belongs to the row object, so reloaded objects are not selected.
           * @default []
          */
         "selected"?: string[];
@@ -7249,7 +7252,8 @@ declare module "@stencil/core" {
              * embedded pagination) and sets `total`. Labels: set them on `table.querySelector('kern-pagination')`.
              * Selection: `selectable` adds a first column with a `kern-checkbox` per row and one in the header for the visible rows
              * of the current page. Rows are identified by `data-key` on the `<tr>` (data mode: `rowKey`, default `row.id` or the
-             * index). `selected` holds the keys and survives sorting, paging and new rows; selected rows get `aria-selected="true"`.
+             * object identity). `selected` holds the keys and survives sorting, paging and new rows; selected rows get
+             * `aria-selected="true"`. For data loaded from a server use `rowKey` or `id`: without both, new objects get new keys.
              * Detail rows: a `<tr kern-details>` right after its row is hidden until the row is expanded; it spans all columns,
              * moves with its row when sorting and is no row for paging or sorting. A `<button kern-expand>` in the row toggles it
              * (the table sets `aria-expanded` and `aria-controls`). Data mode: `detail` adds a chevron column and the detail rows.

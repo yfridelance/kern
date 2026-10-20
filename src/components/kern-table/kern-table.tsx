@@ -9,6 +9,9 @@ const INTERACTIVE = 'a, button, input, select, textarea, label, summary, [role="
 const GENERATED = 'data-kern-generated';
 /** For the `id` of detail rows (`aria-controls` of their toggle). */
 let detailsCount = 0;
+/** Data mode: keys of object rows without `rowKey` or `id`, per object (`~` keeps them apart from ids). */
+const objectKeys = new WeakMap<object, string>();
+let objectCount = 0;
 
 /**
  * Dense data table: wraps a native `<table>` (light DOM, so cells can hold any markup and Angular bindings).
@@ -27,7 +30,8 @@ let detailsCount = 0;
  *
  * Selection: `selectable` adds a first column with a `kern-checkbox` per row and one in the header for the visible rows
  * of the current page. Rows are identified by `data-key` on the `<tr>` (data mode: `rowKey`, default `row.id` or the
- * index). `selected` holds the keys and survives sorting, paging and new rows; selected rows get `aria-selected="true"`.
+ * object identity). `selected` holds the keys and survives sorting, paging and new rows; selected rows get
+ * `aria-selected="true"`. For data loaded from a server use `rowKey` or `id`: without both, new objects get new keys.
  *
  * Detail rows: a `<tr kern-details>` right after its row is hidden until the row is expanded; it spans all columns,
  * moves with its row when sorting and is no row for paging or sorting. A `<button kern-expand>` in the row toggles it
@@ -79,15 +83,22 @@ export class KernTable {
   @Prop() total?: number;
   /** Adds a first column with a checkbox per row and a header checkbox for the visible rows of the current page. */
   @Prop({ reflect: true }) selectable = false;
-  /** Keys of the selected rows (`data-key`, in data mode `rowKey`). Keys of rows not shown (filtered, other page) stay. */
+  /**
+   * Keys of the selected rows (`data-key`, in data mode `rowKey`). Keys of rows not shown (filtered, other page) stay.
+   * Data mode without `rowKey` and `id`: the key belongs to the row object, so reloaded objects are not selected.
+   */
   @Prop({ mutable: true }) selected: string[] = [];
-  /** Data mode: key of a row for `selected`. Default: `row.id`, else the index in `rows`. */
-  @Prop() rowKey?: (row: any, index: number) => string;
+  /**
+   * Data mode: key of a row for `selected` and `expanded`. Default: `row.id`, else a key per row object (kept through
+   * sorting, filtering and reordering, but new for reloaded objects; use `rowKey` or `id` for server data). Rows that
+   * are no objects use their index in `rows`.
+   */
+  @Prop() rowKey?: (row: any, index: number) => string | number;
   /** Accessible name of the header checkbox. */
   @Prop() labelSelectAll?: string;
   /** Accessible name of a row checkbox. */
   @Prop() labelSelectRow?: string;
-  /** Keys of the expanded rows (see `selected` for keys). */
+  /** Keys of the expanded rows (see `selected` and `rowKey` for keys). */
   @Prop({ mutable: true }) expanded: string[] = [];
   /** Data mode: content of a row's detail row; adds a first column with a toggle. Called when the row is first opened. */
   @Prop() detail?: (row: any, index: number) => Node | string;
@@ -112,6 +123,8 @@ export class KernTable {
   /** Row keys: data mode from `rowKey`; markup rows without `data-key` get their first position. */
   private rowKeys = new WeakMap<Element, string>();
   private nextKey = 0;
+  /** Data mode: a key problem was reported (once per table). */
+  private warned = false;
   /** Data mode: detail rows whose content is built (on first opening). */
   private filled = new WeakSet<Element>();
 
@@ -643,11 +656,38 @@ export class KernTable {
     if (focusKey) (Array.from(tr.children).find((th) => th.getAttribute('data-key') === focusKey)?.querySelector('button') as HTMLElement | null)?.focus();
   }
 
+  /** Data mode: rows with their key (`rowKey`, else `row.id`, else per object, else the index). */
+  private keyed(rows: any[]) {
+    const seen = new Set<string>();
+    let problem: string | undefined;
+    const items = rows.map((row, index) => {
+      const own = this.rowKey?.(row, index);
+      if (this.rowKey && typeof own !== 'string' && typeof own !== 'number') problem ??= `rowKey returned ${own} for row ${index}`;
+      let key: string;
+      if (typeof own === 'string' || typeof own === 'number') key = String(own);
+      else if (row?.id != null) key = String(row.id);
+      else if (row !== null && typeof row === 'object') {
+        key = objectKeys.get(row) ?? `~${++objectCount}`;
+        objectKeys.set(row, key);
+        return { row, index, key };
+      } else key = String(index);
+      if (seen.has(key)) problem ??= `duplicate row key "${key}"`;
+      seen.add(key);
+      return { row, index, key };
+    });
+    // Kern otherwise doesn't warn at runtime; wrong keys silently select or expand the wrong rows, nothing else shows it.
+    if (problem && !this.warned) {
+      this.warned = true;
+      console.warn(`kern-table: ${problem}; set rowKey to a unique string or number per row.`);
+    }
+    return items;
+  }
+
   private buildBody() {
     if (!this.columns) return;
     const { tbody } = this.generated();
     const columns = this.columns;
-    const items = (this.rows ?? []).map((row, index) => ({ row, index }));
+    const items = this.keyed(this.rows ?? []);
     const col = columns.find((c) => c.key === this.sortKey);
     // External: the app delivers rows already in order.
     const ordered =
@@ -661,12 +701,12 @@ export class KernTable {
     const focusKey = focusCell ? this.keyOf(focusCell.closest('tr')!) : undefined;
     const focusKind = focusCell?.hasAttribute('data-kern-expand') ? 'data-kern-expand' : 'data-kern-select';
 
-    const trs = visible.flatMap(({ row, index }) => {
+    const trs = visible.flatMap(({ row, index, key }) => {
       const tr = document.createElement('tr');
       const rowCls = this.getRowClass?.(row, index);
       if (rowCls) tr.className = rowCls;
       this.rowData.set(tr, { row, index });
-      this.rowKeys.set(tr, String(this.rowKey ? this.rowKey(row, index) : row?.id ?? index));
+      this.rowKeys.set(tr, key);
       for (const c of columns) {
         const td = document.createElement('td');
         const cls = this.classes(c.align === 'end' && 'num', c.mono && 'mono', this.getCellClass?.(row, c, index));

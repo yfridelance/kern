@@ -1,45 +1,54 @@
 name: Release
 
-# Veröffentlicht das Paket auf npmjs per Trusted Publishing (OIDC, kein NPM_TOKEN).
-# Auf npmjs.com muss dieser Workflow (release.yml) als Trusted Publisher eingetragen sein.
+# Stellt das Paket per Trusted Publishing (OIDC, kein NPM_TOKEN) auf npmjs bereit – als Staged Publish:
+# Die Version liegt danach im Wartebereich und wird auf npmjs.com (oder mit `npm stage approve <id>`) mit 2FA
+# freigegeben. Auf npmjs.com muss dieser Workflow (release.yml) als Trusted Publisher eingetragen sein; dort
+# genügt «npm stage publish», «Allow npm publish» bleibt aus.
 
 on:
   release:
     types: [published]
-  push:
-    tags: ['v*']
+  # Nachträglich stagen, z. B. wenn der Lauf zum Release fehlgeschlagen ist
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Release-Tag, z. B. v0.7.0
+        required: true
 
 permissions:
   contents: read
   id-token: write
 
-# Release und Tag-Push lösen für denselben Tag beide aus: nacheinander laufen lassen,
-# der zweite Lauf erkennt die bereits veröffentlichte Version und überspringt.
 concurrency:
-  group: release-${{ github.ref_name }}
+  group: release-${{ github.event.release.tag_name || inputs.tag }}
   cancel-in-progress: false
+
+env:
+  TAG: ${{ github.event.release.tag_name || inputs.tag }}
 
 jobs:
   publish:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: refs/tags/${{ env.TAG }}
       - uses: actions/setup-node@v4
         with:
           node-version-file: .nvmrc
           cache: npm
           registry-url: https://registry.npmjs.org
-      # Trusted Publishing braucht npm >= 11.5.1
+      # Trusted Publishing und npm stage brauchen ein aktuelles npm
       - run: npm install -g npm@latest
 
       - name: Version prüfen
         id: version
         run: |
-          tag="${GITHUB_REF_NAME#v}"
+          tag="${TAG#v}"
           pkg="$(node -p "require('./package.json').version")"
           name="$(node -p "require('./package.json').name")"
           if [ "$tag" != "$pkg" ]; then
-            echo "::error::Tag $GITHUB_REF_NAME passt nicht zu package.json ($pkg)"
+            echo "::error::Tag $TAG passt nicht zu package.json ($pkg)"
             exit 1
           fi
           if npm view "$name@$pkg" version >/dev/null 2>&1; then
@@ -59,4 +68,6 @@ jobs:
       - if: steps.version.outputs.published != 'true'
         run: npm run build
       - if: steps.version.outputs.published != 'true'
-        run: npm publish --provenance --access public --tag ${{ steps.version.outputs.dist_tag }}
+        run: npm stage publish --provenance --access public --tag ${{ steps.version.outputs.dist_tag }}
+      - if: steps.version.outputs.published != 'true'
+        run: echo "::notice::$TAG ist gestagt – auf npmjs.com oder mit npm stage list / npm stage approve <id> freigeben (2FA)"

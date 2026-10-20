@@ -5,6 +5,7 @@
  * It contains typing information for all components that exist in this project.
  */
 import { HTMLStencilElement, JSXBase } from "@stencil/core/internal";
+import { KernNavigateDetail } from "./utils/navigate";
 import { KernCodeLanguage } from "./utils/highlight";
 import { KernDateFormat } from "./utils/datetime";
 import { IconName } from "./utils/icon-names";
@@ -15,6 +16,7 @@ import { KernOption } from "./components/kern-select/kern-select";
 import { KernOption as KernOption1 } from "./components/kern-select/kern-select";
 import { KernSortDirection, KernTableColumn } from "./components/kern-table/sort";
 import { KernToastReason } from "./components/kern-toast/kern-toast";
+export { KernNavigateDetail } from "./utils/navigate";
 export { KernCodeLanguage } from "./utils/highlight";
 export { KernDateFormat } from "./utils/datetime";
 export { IconName } from "./utils/icon-names";
@@ -2324,6 +2326,10 @@ export interface KernAccordionItemCustomEvent<T> extends CustomEvent<T> {
     detail: T;
     target: HTMLKernAccordionItemElement;
 }
+export interface KernButtonCustomEvent<T> extends CustomEvent<T> {
+    detail: T;
+    target: HTMLKernButtonElement;
+}
 export interface KernCalendarCustomEvent<T> extends CustomEvent<T> {
     detail: T;
     target: HTMLKernCalendarElement;
@@ -2371,6 +2377,10 @@ export interface KernInputCustomEvent<T> extends CustomEvent<T> {
 export interface KernIpInputCustomEvent<T> extends CustomEvent<T> {
     detail: T;
     target: HTMLKernIpInputElement;
+}
+export interface KernLinkCustomEvent<T> extends CustomEvent<T> {
+    detail: T;
+    target: HTMLKernLinkElement;
 }
 export interface KernListItemCustomEvent<T> extends CustomEvent<T> {
     detail: T;
@@ -2507,11 +2517,22 @@ declare global {
         prototype: HTMLKernBreadcrumbElement;
         new (): HTMLKernBreadcrumbElement;
     };
+    interface HTMLKernButtonElementEventMap {
+        "kernNavigate": KernNavigateDetail;
+    }
     /**
      * Button for actions. One `primary` per area; `danger` for destructive actions; `icon-only` needs `label`.
      * Works as a form submit/reset button through ElementInternals.
      */
     interface HTMLKernButtonElement extends Components.KernButton, HTMLStencilElement {
+        addEventListener<K extends keyof HTMLKernButtonElementEventMap>(type: K, listener: (this: HTMLKernButtonElement, ev: KernButtonCustomEvent<HTMLKernButtonElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLKernButtonElementEventMap>(type: K, listener: (this: HTMLKernButtonElement, ev: KernButtonCustomEvent<HTMLKernButtonElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
     }
     var HTMLKernButtonElement: {
         prototype: HTMLKernButtonElement;
@@ -2856,12 +2877,23 @@ declare global {
         prototype: HTMLKernKvItemElement;
         new (): HTMLKernKvItemElement;
     };
+    interface HTMLKernLinkElementEventMap {
+        "kernNavigate": KernNavigateDetail;
+    }
     /**
      * Text link for running text, table cells and cards. `external` opens a new tab (with `rel="noopener noreferrer"`)
      * and marks the link with ↗; `tone="muted"` for secondary links; `disabled` keeps the text but removes the link.
      * For actions use kern-button, also when it navigates.
      */
     interface HTMLKernLinkElement extends Components.KernLink, HTMLStencilElement {
+        addEventListener<K extends keyof HTMLKernLinkElementEventMap>(type: K, listener: (this: HTMLKernLinkElement, ev: KernLinkCustomEvent<HTMLKernLinkElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLKernLinkElementEventMap>(type: K, listener: (this: HTMLKernLinkElement, ev: KernLinkCustomEvent<HTMLKernLinkElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
     }
     var HTMLKernLinkElement: {
         prototype: HTMLKernLinkElement;
@@ -2879,6 +2911,7 @@ declare global {
     };
     interface HTMLKernListItemElementEventMap {
         "kernItemClick": void;
+        "kernNavigate": KernNavigateDetail;
     }
     /**
      * One row of kern-list: optional icon or status at the start, heading and description, meta text (e.g. a time) and
@@ -3636,6 +3669,10 @@ declare namespace LocalJSX {
           * The name of the element, used when submitting an HTML form.
          */
         "name"?: string;
+        /**
+          * With `href`: plain left click (no modifier keys, `target`, `download`) before the browser navigates. `preventDefault()` stops the navigation, so a SPA router can take over.
+         */
+        "onKernNavigate"?: (event: KernButtonCustomEvent<KernNavigateDetail>) => void;
         /**
           * `sm` = 28px for tables and toolbars.
           * @default 'md'
@@ -4605,6 +4642,10 @@ declare namespace LocalJSX {
          */
         "labelExternal"?: string;
         /**
+          * Plain left click (no modifier keys, `target`, `download`, `external`) before the browser navigates. `preventDefault()` stops the navigation, so a SPA router can take over.
+         */
+        "onKernNavigate"?: (event: KernLinkCustomEvent<KernNavigateDetail>) => void;
+        /**
           * Defaults to `noopener noreferrer` for `external` or `target="_blank"`.
          */
         "rel"?: string;
@@ -4669,6 +4710,10 @@ declare namespace LocalJSX {
           * Click or Enter/Space on a `clickable` row.
          */
         "onKernItemClick"?: (event: KernListItemCustomEvent<void>) => void;
+        /**
+          * With `href`: plain left click (no modifier keys, `target`) before the browser navigates. `preventDefault()` stops the navigation, so a SPA router can take over.
+         */
+        "onKernNavigate"?: (event: KernListItemCustomEvent<KernNavigateDetail>) => void;
         /**
           * Marks the current row (`aria-current`).
           * @default false

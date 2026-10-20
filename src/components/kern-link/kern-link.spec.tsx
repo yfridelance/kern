@@ -30,3 +30,41 @@ describe('kern-link', () => {
     expect([a.hasAttribute('href'), a.hasAttribute('target'), a.getAttribute('aria-disabled')]).toEqual([false, false, 'true']);
   });
 });
+
+describe('kern-link kernNavigate', () => {
+  const setup = async (attrs: string) => {
+    const page = await newSpecPage({ components: [KernLink], html: `<kern-link ${attrs}>Doku</kern-link>` });
+    const detail = jest.fn();
+    page.root!.addEventListener('kernNavigate', (e) => {
+      detail((e as CustomEvent).detail.href);
+      e.preventDefault();
+    });
+    const click = (init: MouseEventInit = {}) => {
+      const ev = new MouseEvent('click', { bubbles: true, cancelable: true, ...init });
+      page.root!.shadowRoot!.querySelector('a')!.dispatchEvent(ev);
+      return ev;
+    };
+    return { click, detail };
+  };
+
+  it('emits on a plain click; preventDefault stops the navigation', async () => {
+    const { click, detail } = await setup(`href="/devices/1"`);
+    expect(click().defaultPrevented).toBe(true);
+    expect(detail).toHaveBeenCalledWith('/devices/1');
+  });
+
+  it('skips ctrl click, external, target, download and disabled', async () => {
+    for (const [attrs, init] of [
+      [`href="/x"`, { ctrlKey: true }],
+      [`href="/x"`, { altKey: true }],
+      [`href="/x" external`, {}],
+      [`href="/x" target="_blank"`, {}],
+      [`href="/x" download`, {}],
+      [`href="/x" disabled`, {}],
+    ] as [string, MouseEventInit][]) {
+      const { click, detail } = await setup(attrs);
+      expect(click(init).defaultPrevented).toBe(false);
+      expect(detail).not.toHaveBeenCalled();
+    }
+  });
+});

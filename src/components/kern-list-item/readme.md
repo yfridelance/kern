@@ -27,9 +27,10 @@ actions at the end. With `href` the row is a link, with `clickable` a button (`k
 
 ## Events
 
-| Event           | Description                                | Type                |
-| --------------- | ------------------------------------------ | ------------------- |
-| `kernItemClick` | Click or Enter/Space on a `clickable` row. | `CustomEvent<void>` |
+| Event           | Description                                                                                                                                                      | Type                              |
+| --------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------- |
+| `kernItemClick` | Click or Enter/Space on a `clickable` row.                                                                                                                       | `CustomEvent<void>`               |
+| `kernNavigate`  | With `href`: plain left click (no modifier keys, `target`) before the browser navigates. `preventDefault()` stops the navigation, so a SPA router can take over. | `CustomEvent<KernNavigateDetail>` |
 
 
 ## Slots

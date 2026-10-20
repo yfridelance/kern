@@ -1,5 +1,7 @@
 import { Component, Element, Event, EventEmitter, Host, Prop, State, h } from '@stencil/core';
 
+import { KernNavigateDetail, isPlainNavigation } from '../../utils/navigate';
+
 type SlotName = 'start' | 'description' | 'meta' | 'end';
 
 /**
@@ -37,6 +39,11 @@ export class KernListItem {
 
   /** Click or Enter/Space on a `clickable` row. */
   @Event() kernItemClick!: EventEmitter<void>;
+  /**
+   * With `href`: plain left click (no modifier keys, `target`) before the browser navigates.
+   * `preventDefault()` stops the navigation, so a SPA router can take over.
+   */
+  @Event({ cancelable: true }) kernNavigate!: EventEmitter<KernNavigateDetail>;
 
   @State() slots: Record<SlotName, boolean> = { start: false, description: false, meta: false, end: false };
 
@@ -52,6 +59,10 @@ export class KernListItem {
 
   private onClick = () => {
     if (!this.disabled) this.kernItemClick.emit();
+  };
+
+  private onLinkClick = (ev: MouseEvent) => {
+    if (isPlainNavigation(ev, this.target) && this.kernNavigate.emit({ href: this.href!, event: ev }).defaultPrevented) ev.preventDefault();
   };
 
   private renderMain() {
@@ -86,7 +97,7 @@ export class KernListItem {
     return (
       <Host role="listitem" class={{ 'has-end': this.slots.end }}>
         {link ? (
-          <a class="row interactive" part="row" href={this.href} target={this.target} rel={this.target === '_blank' ? 'noopener noreferrer' : undefined} aria-current={current}>
+          <a class="row interactive" part="row" href={this.href} target={this.target} rel={this.target === '_blank' ? 'noopener noreferrer' : undefined} aria-current={current} onClick={this.onLinkClick}>
             {this.renderMain()}
           </a>
         ) : this.clickable ? (

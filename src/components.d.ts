@@ -907,6 +907,9 @@ export namespace Components {
      * list below the field, free text stays allowed. Arrow keys open the list and move, Enter or a click takes a
      * suggestion, Escape and Tab close it. Taking one sets `value` and emits `kernInput` and `kernChange` like typing.
      * Only for `type` text, search, email, url and tel.
+     * Native checks (`required`, `type="email"`/`url`, `pattern`, `min`/`max`/`step`, `maxlength`) reach the form: an
+     * invalid value blocks submitting. Like `:user-invalid`, the browser's message is shown only after the value was
+     * changed or a submit failed. `error` takes priority.
      */
     interface KernInput {
         /**
@@ -2935,6 +2938,9 @@ declare global {
      * list below the field, free text stays allowed. Arrow keys open the list and move, Enter or a click takes a
      * suggestion, Escape and Tab close it. Taking one sets `value` and emits `kernInput` and `kernChange` like typing.
      * Only for `type` text, search, email, url and tel.
+     * Native checks (`required`, `type="email"`/`url`, `pattern`, `min`/`max`/`step`, `maxlength`) reach the form: an
+     * invalid value blocks submitting. Like `:user-invalid`, the browser's message is shown only after the value was
+     * changed or a submit failed. `error` takes priority.
      */
     interface HTMLKernInputElement extends Components.KernInput, HTMLStencilElement {
         addEventListener<K extends keyof HTMLKernInputElementEventMap>(type: K, listener: (this: HTMLKernInputElement, ev: KernInputCustomEvent<HTMLKernInputElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
@@ -4635,6 +4641,9 @@ declare namespace LocalJSX {
      * list below the field, free text stays allowed. Arrow keys open the list and move, Enter or a click takes a
      * suggestion, Escape and Tab close it. Taking one sets `value` and emits `kernInput` and `kernChange` like typing.
      * Only for `type` text, search, email, url and tel.
+     * Native checks (`required`, `type="email"`/`url`, `pattern`, `min`/`max`/`step`, `maxlength`) reach the form: an
+     * invalid value blocks submitting. Like `:user-invalid`, the browser's message is shown only after the value was
+     * changed or a submit failed. `error` takes priority.
      */
     interface KernInput {
         /**
@@ -7064,6 +7073,9 @@ declare module "@stencil/core" {
              * list below the field, free text stays allowed. Arrow keys open the list and move, Enter or a click takes a
              * suggestion, Escape and Tab close it. Taking one sets `value` and emits `kernInput` and `kernChange` like typing.
              * Only for `type` text, search, email, url and tel.
+             * Native checks (`required`, `type="email"`/`url`, `pattern`, `min`/`max`/`step`, `maxlength`) reach the form: an
+             * invalid value blocks submitting. Like `:user-invalid`, the browser's message is shown only after the value was
+             * changed or a submit failed. `error` takes priority.
              */
             "kern-input": LocalJSX.IntrinsicElements["kern-input"] & JSXBase.HTMLAttributes<HTMLKernInputElement>;
             /**

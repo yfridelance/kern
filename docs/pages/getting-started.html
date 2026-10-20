@@ -69,6 +69,20 @@ import { TextValueAccessor } from '@kern/angular/text-value-accessor';
 })
 export class DeviceNameComponent { name = new FormControl(''); }
 </kern-code>
+<h3>Router links</h3>
+<p><code>kern-button</code>, <code>kern-link</code> and <code>kern-list-item</code> render their <code>&lt;a href&gt;</code> in the shadow DOM, so <code>routerLink</code> cannot catch the click and the browser would reload the page. A plain left click emits the cancelable <code>kernNavigate</code> with <code>{ href, event }</code> first: call <code>preventDefault()</code> and let the router navigate. Ctrl/Cmd click, middle click, <code>target="_blank"</code> and <code>download</code> emit nothing, so "open in new tab" keeps working.</p>
+<kern-code language="ts">
+@Component({
+  standalone: true,
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
+  template: `
+    &lt;kern-button href="/templates/new" variant="primary"
+      (kernNavigate)="$event.preventDefault(); router.navigateByUrl($event.detail.href)"&gt;New template&lt;/kern-button&gt;
+    &lt;kern-link href="/devices/7" (kernNavigate)="$event.preventDefault(); router.navigateByUrl($event.detail.href)"&gt;Bad Lüftung&lt;/kern-link&gt;
+  `,
+})
+export class TemplatesComponent { router = inject(Router); }
+</kern-code>
 <kern-alert tone="info" class="callout">Angular collapses whitespace in templates. Bind <code>[code]</code> on <code>kern-code</code> (or use <code>ngPreserveWhitespaces</code>) when you show multi-line code.</kern-alert>
 
 <h2>A first page</h2>

@@ -1,5 +1,6 @@
-import { Component, Host, Prop, h } from '@stencil/core';
+import { Component, Event, EventEmitter, Host, Prop, h } from '@stencil/core';
 import { Icon } from '../../utils/icons';
+import { KernNavigateDetail, isPlainNavigation } from '../../utils/navigate';
 
 /**
  * Text link for running text, table cells and cards. `external` opens a new tab (with `rel="noopener noreferrer"`)
@@ -30,6 +31,18 @@ export class KernLink {
   /** Read after the text of `external` links. */
   @Prop() labelExternal = 'öffnet in neuem Tab';
 
+  /**
+   * Plain left click (no modifier keys, `target`, `download`, `external`) before the browser navigates.
+   * `preventDefault()` stops the navigation, so a SPA router can take over.
+   */
+  @Event({ cancelable: true }) kernNavigate!: EventEmitter<KernNavigateDetail>;
+
+  private onClick = (ev: MouseEvent) => {
+    if (this.disabled || !this.href) return;
+    const target = this.external ? '_blank' : this.target;
+    if (isPlainNavigation(ev, target, this.download) && this.kernNavigate.emit({ href: this.href, event: ev }).defaultPrevented) ev.preventDefault();
+  };
+
   render() {
     const target = this.external ? '_blank' : this.target;
     const rel = this.rel ?? (target === '_blank' ? 'noopener noreferrer' : undefined);
@@ -43,6 +56,7 @@ export class KernLink {
           download={this.disabled ? undefined : this.download === true || this.download === '' ? '' : this.download || undefined}
           aria-disabled={this.disabled ? 'true' : undefined}
           role={this.disabled ? 'link' : undefined}
+          onClick={this.onClick}
         >
           <slot />
           {this.external && [<Icon name="external" class="external" />, <span class="sr">({this.labelExternal})</span>]}

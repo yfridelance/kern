@@ -58,4 +58,23 @@ describe('kern-list-item', () => {
     const { root } = await item(`heading="A" href="/x" disabled`);
     expect(root.querySelector('a')).toBeNull();
   });
+
+  it('emits kernNavigate on a plain click of a link row', async () => {
+    for (const [attrs, init, expected] of [
+      [`href="/devices/1"`, {}, true],
+      [`href="/devices/1"`, { ctrlKey: true }, false],
+      [`href="/devices/1"`, { button: 1 }, false],
+      [`href="/devices/1" target="_blank"`, {}, false],
+    ] as [string, MouseEventInit, boolean][]) {
+      const { root, host } = await item(`heading="A" ${attrs}`);
+      const hrefs: string[] = [];
+      host.addEventListener('kernNavigate', (e) => {
+        hrefs.push((e as CustomEvent).detail.href);
+        e.preventDefault();
+      });
+      const ev = new MouseEvent('click', { bubbles: true, cancelable: true, ...init });
+      root.querySelector('a.row')!.dispatchEvent(ev);
+      expect([hrefs, ev.defaultPrevented]).toEqual([expected ? ['/devices/1'] : [], expected]);
+    }
+  });
 });

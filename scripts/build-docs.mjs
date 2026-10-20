@@ -73,7 +73,10 @@ const inline = (s) =>
     .replace(/\n{2,}/g, '</p><p>')
     .replace(/\n/g, ' ');
 
-/** Usage markdown → [{ title, text, html, js }] (one example per file, in file-name order). */
+/**
+ * Usage markdown → [{ title, text, html, js, snippets }] (one example per file, in file-name order). `html` and `js`
+ * run in the demo; blocks with a heading after the language (```ts Angular) are shown as source only.
+ */
 function examples(usage) {
   return Object.keys(usage ?? {})
     .sort()
@@ -88,7 +91,8 @@ function examples(usage) {
         .split(/\n{2,}/)
         .map((p) => p.trim())
         .filter(Boolean);
-      return { key, title, text, html: block('html'), js: block('js') };
+      const snippets = [...md.matchAll(/```(\w+)[ \t]+([^\n]+)\n([\s\S]*?)\n```/g)].map(([, lang, heading, code]) => ({ lang, heading: heading.trim(), code }));
+      return { key, title, text, html: block('html'), js: block('js'), snippets };
     });
 }
 
@@ -194,6 +198,7 @@ ${ex.html}
 ${esc(ex.html)}
   </kern-code>
   ${ex.js ? `<kern-code class="source" language="js" heading="JavaScript">\n${esc(ex.js)}\n  </kern-code>` : ''}
+  ${ex.snippets.map((sn) => `<kern-code class="source" language="${esc(sn.lang)}" heading="${esc(sn.heading)}">\n${esc(sn.code)}\n  </kern-code>`).join('\n  ')}
   ${script}
 </section>`;
 }

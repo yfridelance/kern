@@ -206,6 +206,11 @@ zusätzlich Standalone-Wrapper mit `ControlValueAccessor` für `ngModel` und Rea
 - **Links:** `kern-link` für Links im Text, in Tabellen und Karten; `external` öffnet einen neuen Tab (mit
   `rel="noopener noreferrer"`, ↗ und Hinweis für Screenreader), `tone="muted"` für Nebensächliches. Aktionen bleiben
   `kern-button` (auch mit `href`).
+- **SPA-Router:** `kern-button`, `kern-link` und `kern-list-item` mit `href` dürfen Router-Links sein. Ein normaler
+  Linksklick löst vorher das abbrechbare `kernNavigate` mit `{ href, event }` aus; `preventDefault()` verhindert den
+  Seitenwechsel, und die App routet selbst, z.B. in Angular
+  `(kernNavigate)="$event.preventDefault(); router.navigateByUrl($event.detail.href)"`. Ctrl/Cmd-Klick, Mittelklick,
+  `target="_blank"` und `download` bleiben beim Browser, «In neuem Tab öffnen» geht weiter.
 - **Theming von aussen:** nur über Tokens (CSS-Variablen) und die dokumentierten `::part()`; keine Farben in Apps
   erfinden.
 - **Texte:** Standardtexte (Aria-Labels, «Abbrechen») sind deutsch und über Props übersetzbar.

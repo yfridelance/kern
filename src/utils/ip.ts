@@ -69,3 +69,34 @@ function single(n: number): KernIpv4 {
   const ip = intToIpv4(n);
   return { kind: 'single', value: ip, first: ip, last: ip, count: 1 };
 }
+
+export interface KernMask {
+  /** Dotted mask: `255.255.255.0`. */
+  mask: string;
+  /** Prefix length 0–32. */
+  prefix: number;
+  /** Usable hosts: 2^(32−prefix)−2; /31 has 2 (point-to-point), /32 has 1. */
+  hosts: number;
+}
+
+/**
+ * Parses a subnet mask; null when invalid. Accepts a contiguous dotted mask (`255.255.252.0`) or a prefix
+ * (`/22` or `22`, 0–32). Non-contiguous masks (`255.0.255.0`) and plain addresses (`192.168.1.1`) are rejected.
+ */
+export function parseMask(text: string): KernMask | null {
+  const s = text.trim();
+  const p = /^\/?\s*(\d{1,2})$/.exec(s);
+  let prefix: number;
+  if (p) {
+    prefix = +p[1];
+    if (prefix > 32) return null;
+  } else {
+    const n = ipv4ToInt(s);
+    if (n === null) return null;
+    const inverted = 2 ** 32 - 1 - n; // host bits: must be 0…01…1
+    if (inverted & (inverted + 1)) return null;
+    prefix = 32 - Math.log2(inverted + 1);
+  }
+  const hosts = prefix === 32 ? 1 : prefix === 31 ? 2 : 2 ** (32 - prefix) - 2;
+  return { mask: intToIpv4(2 ** 32 - 2 ** (32 - prefix)), prefix, hosts };
+}

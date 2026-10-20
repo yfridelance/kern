@@ -76,4 +76,66 @@ describe('kern-ip-input', () => {
     await type('192.168.1.1');
     expect(count()).toBeNull();
   });
+
+  describe('mask', () => {
+    it('accepts masks and prefixes, normalises to dotted and shows the hosts', async () => {
+      const { ip, input, changes, type, count, error } = await setup(`allow="mask"`);
+      expect(input.getAttribute('placeholder')).toBe('255.255.255.0');
+      await type('/22');
+      expect(ip.value).toBe('255.255.252.0');
+      expect(input.value).toBe('255.255.252.0');
+      expect(error()).toBeUndefined();
+      expect(count()!.textContent).toBe(`/22 · ${new Intl.NumberFormat('de-CH').format(1022)} Hosts`);
+      expect(changes).toEqual([{ value: '255.255.252.0', kind: 'mask', mask: '255.255.252.0', prefix: 22, hosts: 1022 }]);
+      await type('24');
+      expect(ip.value).toBe('255.255.255.0');
+    });
+
+    it('rejects non-contiguous masks and addresses with its own message', async () => {
+      const { page, ip, type, error } = await setup(`allow="mask" value="255.255.255.0"`);
+      await type('255.0.255.0');
+      expect(ip.value).toBe('255.255.255.0');
+      expect(error()).toBe('Keine gültige Subnetzmaske');
+      expect(page.root!.hasAttribute('invalid')).toBe(true);
+      await type('192.168.1.1');
+      expect(error()).toBe('Keine gültige Subnetzmaske');
+      await type('255.255.0.0', false);
+      expect(error()).toBeUndefined();
+    });
+
+    it('marks an invalid mask set from outside', async () => {
+      const { error } = await setup(`allow="mask" value="255.0.255.0" label-invalid-mask="Not a subnet mask"`);
+      expect(error()).toBe('Not a subnet mask');
+    });
+
+    it('normalises to a prefix with mask-format="prefix"', async () => {
+      const { ip, input, type, count } = await setup(`allow="mask" mask-format="prefix" label-mask-count="{n} hosts (/{prefix})"`);
+      expect(input.getAttribute('placeholder')).toBe('/24');
+      await type('255.255.255.0');
+      expect(ip.value).toBe('/24');
+      expect(input.value).toBe('/24');
+      expect(count()!.textContent).toBe('254 hosts (/24)');
+      expect(count()!.getAttribute('title')).toBe('255.255.255.0');
+    });
+
+    it('treats a valid mask as mask and anything else as address when single is allowed too', async () => {
+      const { changes, type, error } = await setup(`allow="single mask"`);
+      await type('255.255.255.0');
+      await type('192.168.1.1');
+      expect(error()).toBeUndefined();
+      await type('192.168.1.0/24');
+      expect(error()).toBe('Diese Form ist hier nicht erlaubt');
+      await type('10.0.0.256');
+      expect(error()).toBe('Keine gültige IPv4-Adresse');
+      expect(changes.map((c) => (c as { kind: string }).kind)).toEqual(['mask', 'single', 'cidr']);
+    });
+
+    it('keeps masks as addresses when mask is not allowed', async () => {
+      const { type, error, changes } = await setup(`allow="single"`);
+      await type('255.255.255.0');
+      await type('24');
+      expect(error()).toBe('Keine gültige IPv4-Adresse');
+      expect(changes).toEqual([{ value: '255.255.255.0', kind: 'single', first: '255.255.255.0', last: '255.255.255.0', count: 1 }]);
+    });
+  });
 });

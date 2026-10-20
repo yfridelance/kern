@@ -926,13 +926,13 @@ export namespace Components {
         "value": string;
     }
     /**
-     * IPv4 field for a single address (`192.168.1.10`), a range (`192.168.1.10-192.168.1.50`, also `192.168.1.10-50`)
-     * or a CIDR block (`192.168.1.0/24`), form-associated. Typed text is applied on Enter or when leaving the field and
-     * normalised; `value` and the form value are the normalised form. Ranges and blocks show their size in the field.
+     * IPv4 field for a single address (`192.168.1.10`), a range (`192.168.1.10-192.168.1.50`, also `192.168.1.10-50`),
+     * a CIDR block (`192.168.1.0/24`) or a subnet mask (`255.255.255.0`, also `/24`), form-associated. Typed text is applied on Enter or when leaving the field and
+     * normalised; `value` and the form value are the normalised form. Ranges, blocks and masks show their size in the field.
      */
     interface KernIpInput {
         /**
-          * Allowed forms, space-separated: `single`, `range`, `cidr`.
+          * Allowed forms, space-separated: `single`, `range`, `cidr`, `mask`. `mask` accepts only contiguous subnet masks (`255.255.252.0`) and prefixes (`/22`, `22`); combined with `single`, a valid mask counts as mask and anything else as address.
           * @default 'single range cidr'
          */
         "allow": string;
@@ -963,6 +963,16 @@ export namespace Components {
          */
         "labelInvalid": string;
         /**
+          * Shown for text that is no subnet mask when only `mask` is allowed.
+          * @default 'Keine gültige Subnetzmaske'
+         */
+        "labelInvalidMask": string;
+        /**
+          * Size of a mask; `{prefix}` is replaced by the prefix length, `{n}` by the number of hosts.
+          * @default '/{prefix} · {n} Hosts'
+         */
+        "labelMaskCount": string;
+        /**
           * Shown for a form excluded by `allow`.
           * @default 'Diese Form ist hier nicht erlaubt'
          */
@@ -976,6 +986,11 @@ export namespace Components {
           * BCP 47 locale for the number of addresses; defaults to `<html lang>`, then the browser language.
          */
         "locale"?: string;
+        /**
+          * How a mask is normalised: `dotted` (`255.255.255.0`) or `prefix` (`/24`).
+          * @default 'dotted'
+         */
+        "maskFormat": 'dotted' | 'prefix';
         /**
           * Largest allowed number of addresses.
          */
@@ -1002,7 +1017,7 @@ export namespace Components {
          */
         "size": 'md' | 'sm';
         /**
-          * Normalised address, range or CIDR block; empty when none.
+          * Normalised address, range, CIDR block or mask; empty when none.
           * @default ''
          */
         "value": string;
@@ -2782,12 +2797,22 @@ declare global {
     };
     interface HTMLKernIpInputElementEventMap {
         "kernInput": { value: string };
-        "kernChange": { value: string; kind?: KernIpKind; first?: string; last?: string; count?: number };
+        "kernChange": {
+    value: string;
+    kind?: KernIpKind | 'mask';
+    first?: string;
+    last?: string;
+    count?: number;
+    /** Masks only: dotted mask, prefix length and usable hosts. */
+    mask?: string;
+    prefix?: number;
+    hosts?: number;
+  };
     }
     /**
-     * IPv4 field for a single address (`192.168.1.10`), a range (`192.168.1.10-192.168.1.50`, also `192.168.1.10-50`)
-     * or a CIDR block (`192.168.1.0/24`), form-associated. Typed text is applied on Enter or when leaving the field and
-     * normalised; `value` and the form value are the normalised form. Ranges and blocks show their size in the field.
+     * IPv4 field for a single address (`192.168.1.10`), a range (`192.168.1.10-192.168.1.50`, also `192.168.1.10-50`),
+     * a CIDR block (`192.168.1.0/24`) or a subnet mask (`255.255.255.0`, also `/24`), form-associated. Typed text is applied on Enter or when leaving the field and
+     * normalised; `value` and the form value are the normalised form. Ranges, blocks and masks show their size in the field.
      */
     interface HTMLKernIpInputElement extends Components.KernIpInput, HTMLStencilElement {
         addEventListener<K extends keyof HTMLKernIpInputElementEventMap>(type: K, listener: (this: HTMLKernIpInputElement, ev: KernIpInputCustomEvent<HTMLKernIpInputElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
@@ -4409,13 +4434,13 @@ declare namespace LocalJSX {
         "value"?: string;
     }
     /**
-     * IPv4 field for a single address (`192.168.1.10`), a range (`192.168.1.10-192.168.1.50`, also `192.168.1.10-50`)
-     * or a CIDR block (`192.168.1.0/24`), form-associated. Typed text is applied on Enter or when leaving the field and
-     * normalised; `value` and the form value are the normalised form. Ranges and blocks show their size in the field.
+     * IPv4 field for a single address (`192.168.1.10`), a range (`192.168.1.10-192.168.1.50`, also `192.168.1.10-50`),
+     * a CIDR block (`192.168.1.0/24`) or a subnet mask (`255.255.255.0`, also `/24`), form-associated. Typed text is applied on Enter or when leaving the field and
+     * normalised; `value` and the form value are the normalised form. Ranges, blocks and masks show their size in the field.
      */
     interface KernIpInput {
         /**
-          * Allowed forms, space-separated: `single`, `range`, `cidr`.
+          * Allowed forms, space-separated: `single`, `range`, `cidr`, `mask`. `mask` accepts only contiguous subnet masks (`255.255.252.0`) and prefixes (`/22`, `22`); combined with `single`, a valid mask counts as mask and anything else as address.
           * @default 'single range cidr'
          */
         "allow"?: string;
@@ -4450,6 +4475,16 @@ declare namespace LocalJSX {
          */
         "labelInvalid"?: string;
         /**
+          * Shown for text that is no subnet mask when only `mask` is allowed.
+          * @default 'Keine gültige Subnetzmaske'
+         */
+        "labelInvalidMask"?: string;
+        /**
+          * Size of a mask; `{prefix}` is replaced by the prefix length, `{n}` by the number of hosts.
+          * @default '/{prefix} · {n} Hosts'
+         */
+        "labelMaskCount"?: string;
+        /**
           * Shown for a form excluded by `allow`.
           * @default 'Diese Form ist hier nicht erlaubt'
          */
@@ -4464,6 +4499,11 @@ declare namespace LocalJSX {
          */
         "locale"?: string;
         /**
+          * How a mask is normalised: `dotted` (`255.255.255.0`) or `prefix` (`/24`).
+          * @default 'dotted'
+         */
+        "maskFormat"?: 'dotted' | 'prefix';
+        /**
           * Largest allowed number of addresses.
          */
         "maxAddresses"?: number;
@@ -4471,7 +4511,17 @@ declare namespace LocalJSX {
         /**
           * When typed text is applied: the normalised value and what it covers (empty value when cleared).
          */
-        "onKernChange"?: (event: KernIpInputCustomEvent<{ value: string; kind?: KernIpKind; first?: string; last?: string; count?: number }>) => void;
+        "onKernChange"?: (event: KernIpInputCustomEvent<{
+    value: string;
+    kind?: KernIpKind | 'mask';
+    first?: string;
+    last?: string;
+    count?: number;
+    /** Masks only: dotted mask, prefix length and usable hosts. */
+    mask?: string;
+    prefix?: number;
+    hosts?: number;
+  }>) => void;
         /**
           * On every keystroke, with the raw text.
          */
@@ -4493,7 +4543,7 @@ declare namespace LocalJSX {
          */
         "size"?: 'md' | 'sm';
         /**
-          * Normalised address, range or CIDR block; empty when none.
+          * Normalised address, range, CIDR block or mask; empty when none.
           * @default ''
          */
         "value"?: string;
@@ -6090,6 +6140,7 @@ declare namespace LocalJSX {
         "value": string;
         "name": string;
         "allow": string;
+        "maskFormat": 'dotted' | 'prefix';
         "maxAddresses": number;
         "placeholder": string;
         "hideCount": boolean;
@@ -6103,6 +6154,8 @@ declare namespace LocalJSX {
         "labelNotAllowed": string;
         "labelTooMany": string;
         "labelCount": string;
+        "labelInvalidMask": string;
+        "labelMaskCount": string;
     }
     interface KernJsonAttributes {
         "openDepth": number;
@@ -6619,9 +6672,9 @@ declare module "@stencil/core" {
              */
             "kern-input": LocalJSX.IntrinsicElements["kern-input"] & JSXBase.HTMLAttributes<HTMLKernInputElement>;
             /**
-             * IPv4 field for a single address (`192.168.1.10`), a range (`192.168.1.10-192.168.1.50`, also `192.168.1.10-50`)
-             * or a CIDR block (`192.168.1.0/24`), form-associated. Typed text is applied on Enter or when leaving the field and
-             * normalised; `value` and the form value are the normalised form. Ranges and blocks show their size in the field.
+             * IPv4 field for a single address (`192.168.1.10`), a range (`192.168.1.10-192.168.1.50`, also `192.168.1.10-50`),
+             * a CIDR block (`192.168.1.0/24`) or a subnet mask (`255.255.255.0`, also `/24`), form-associated. Typed text is applied on Enter or when leaving the field and
+             * normalised; `value` and the form value are the normalised form. Ranges, blocks and masks show their size in the field.
              */
             "kern-ip-input": LocalJSX.IntrinsicElements["kern-ip-input"] & JSXBase.HTMLAttributes<HTMLKernIpInputElement>;
             /**

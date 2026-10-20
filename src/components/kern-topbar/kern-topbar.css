@@ -7,6 +7,13 @@ header {
   background: var(--surface); border-bottom: 1px solid var(--line); color: var(--text);
   font: 400 14px/20px var(--font-sans);
 }
+.menu {
+  all: unset; display: inline-grid; place-items: center; flex: none; width: var(--control-sm); height: var(--control-sm);
+  margin-right: calc(var(--space-5) * -1 + var(--space-2)); border-radius: var(--radius-md); color: var(--text-muted); cursor: pointer;
+}
+.menu:hover { background: var(--hover); color: var(--text); }
+.menu:focus-visible { outline: 2px solid var(--focus); outline-offset: 1px; }
+.menu svg { width: 16px; height: 16px; }
 .brand { display: flex; align-items: center; gap: var(--space-2); color: var(--text); text-decoration: none; font-weight: 600; white-space: nowrap; }
 .brand:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; border-radius: var(--radius-sm); }
 .mark { width: 10px; height: 10px; border-radius: 2px; background: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }

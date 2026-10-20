@@ -3,6 +3,8 @@
  * component properties, `confirm.…` and `toast.…` for the functions. `{n}`, `{name}` … are replaced by the caller.
  */
 export const en = {
+  'kern-app-shell.labelSkip': 'Skip to content',
+  'kern-app-shell.labelNavigation': 'Navigation',
   'kern-breadcrumb.label': 'Path',
   'kern-breadcrumb.labelMore': 'More levels',
   'kern-calendar.label': 'Calendar',
@@ -88,6 +90,7 @@ export const en = {
   'kern-time-picker.labelList': 'Choose time',
   'kern-time-picker.labelOutOfRange': 'Time not allowed',
   'kern-toast.closeLabel': 'Close',
+  'kern-topbar.labelMenu': 'Menu',
   'kern-topbar.navLabel': 'Main navigation',
   'confirm.confirmLabel': 'OK',
   'confirm.cancelLabel': 'Cancel',

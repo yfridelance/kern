@@ -138,6 +138,10 @@ Type: `Promise<void>`
 
 ## Dependencies
 
+### Used by
+
+ - [kern-app-shell](../kern-app-shell)
+
 ### Depends on
 
 - [kern-button](../kern-button)
@@ -146,6 +150,7 @@ Type: `Promise<void>`
 ```mermaid
 graph TD;
   kern-drawer --> kern-button
+  kern-app-shell --> kern-drawer
   style kern-drawer fill:#f9f,stroke:#333,stroke-width:4px
 ```
 

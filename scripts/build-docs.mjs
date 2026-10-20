@@ -15,7 +15,7 @@ const REPO = 'https://github.com/yfridelance/kern';
 
 /** Component groups (order = navigation order). Every component in docs.json must appear exactly once. */
 const GROUPS = [
-  ['Layout', ['kern-topbar', 'kern-page-header', 'kern-grid', 'kern-grid-item', 'kern-card', 'kern-toolbar', 'kern-accordion', 'kern-accordion-item']],
+  ['Layout', ['kern-app-shell', 'kern-topbar', 'kern-page-header', 'kern-grid', 'kern-grid-item', 'kern-card', 'kern-toolbar', 'kern-accordion', 'kern-accordion-item']],
   ['Navigation', ['kern-tabs', 'kern-tab-panel', 'kern-link', 'kern-breadcrumb', 'kern-pagination', 'kern-language-select', 'kern-theme-toggle']],
   ['Actions', ['kern-button', 'kern-menu', 'kern-menu-item']],
   ['Forms', ['kern-input', 'kern-textarea', 'kern-select', 'kern-switch', 'kern-checkbox', 'kern-radio-group', 'kern-radio', 'kern-segmented', 'kern-ip-input', 'kern-mac-input', 'kern-file-input', 'kern-step-input', 'kern-range', 'kern-rating', 'kern-color-picker']],

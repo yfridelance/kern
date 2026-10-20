@@ -2,6 +2,8 @@ import type { KernStrings } from './en';
 
 /** Built-in German texts. */
 export const de: KernStrings = {
+  'kern-app-shell.labelSkip': 'Zum Inhalt springen',
+  'kern-app-shell.labelNavigation': 'Navigation',
   'kern-breadcrumb.label': 'Pfad',
   'kern-breadcrumb.labelMore': 'Weitere Ebenen',
   'kern-calendar.label': 'Kalender',
@@ -87,6 +89,7 @@ export const de: KernStrings = {
   'kern-time-picker.labelList': 'Zeit wählen',
   'kern-time-picker.labelOutOfRange': 'Zeit nicht erlaubt',
   'kern-toast.closeLabel': 'Schliessen',
+  'kern-topbar.labelMenu': 'Menü',
   'kern-topbar.navLabel': 'Hauptnavigation',
   'confirm.confirmLabel': 'OK',
   'confirm.cancelLabel': 'Abbrechen',

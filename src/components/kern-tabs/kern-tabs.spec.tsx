@@ -20,4 +20,25 @@ describe('kern-tabs', () => {
     expect(panels[0].hasAttribute('hidden')).toBe(true);
     expect(panels[1].hasAttribute('hidden')).toBe(false);
   });
+
+  it('follows label, name and count set on panels after they were inserted', async () => {
+    const page = await newSpecPage({ components: [KernTabs, KernTabPanel], html: `<kern-tabs></kern-tabs>` });
+    const panel = page.doc.createElement('kern-tab-panel') as HTMLElement & { name?: string; label?: string; count?: string };
+    page.root!.appendChild(panel);
+    await page.waitForChanges();
+    panel.name = 'config';
+    panel.label = 'Config';
+    await page.waitForChanges();
+    const tab = () => page.root!.shadowRoot!.querySelector('[role="tab"]')!;
+    expect(tab().textContent).toBe('Config');
+    expect(page.root!.getAttribute('value')).toBe('config');
+
+    panel.label = 'Konfiguration';
+    await page.waitForChanges();
+    expect(tab().textContent).toBe('Konfiguration');
+
+    panel.setAttribute('count', '3');
+    await page.waitForChanges();
+    expect(tab().querySelector('kern-badge')!.textContent).toBe('3');
+  });
 });

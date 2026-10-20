@@ -1048,6 +1048,68 @@ export namespace Components {
         "openDepth": number;
     }
     /**
+     * Differences between two states of the same JSON (config before/after, target/actual, two firmware versions): one
+     * table row per changed, added or removed path, with a summary line above. Uses `diffJson()`, which is exported too.
+     */
+    interface KernJsonDiff {
+        /**
+          * The earlier state (object, array or primitive). A string is parsed as JSON when possible.
+         */
+        "from"?: unknown;
+        /**
+          * Paths that do not count, as an array or comma-separated (`time,unixtime,sys.uptime`). A path ignores everything below it.
+          * @default []
+         */
+        "ignore": string[] | string;
+        /**
+          * @default 'neu'
+         */
+        "labelAdded": string;
+        /**
+          * @default 'Nachher'
+         */
+        "labelAfter": string;
+        /**
+          * Header of the column with the earlier value, e.g. the time of the snapshot.
+          * @default 'Vorher'
+         */
+        "labelBefore": string;
+        /**
+          * @default 'geändert'
+         */
+        "labelChanged": string;
+        /**
+          * @default 'Art'
+         */
+        "labelKind": string;
+        /**
+          * @default 'Keine Unterschiede'
+         */
+        "labelNone": string;
+        /**
+          * @default 'Pfad'
+         */
+        "labelPath": string;
+        /**
+          * @default 'entfernt'
+         */
+        "labelRemoved": string;
+        /**
+          * `{n}`, `{changed}`, `{added}` and `{removed}` are replaced.
+          * @default '{n} Unterschiede: {changed} geändert, {added} neu, {removed} entfernt'
+         */
+        "labelSummary": string;
+        /**
+          * Longer values are cut with „…“; the whole value is in the tooltip.
+          * @default 80
+         */
+        "maxValueLength": number;
+        /**
+          * The later state. A string is parsed as JSON when possible.
+         */
+        "to"?: unknown;
+    }
+    /**
      * Key/value list for device information: kern-kv-item children, labels in a narrow column on the left.
      */
     interface KernKv {
@@ -2872,6 +2934,16 @@ declare global {
         new (): HTMLKernJsonElement;
     };
     /**
+     * Differences between two states of the same JSON (config before/after, target/actual, two firmware versions): one
+     * table row per changed, added or removed path, with a summary line above. Uses `diffJson()`, which is exported too.
+     */
+    interface HTMLKernJsonDiffElement extends Components.KernJsonDiff, HTMLStencilElement {
+    }
+    var HTMLKernJsonDiffElement: {
+        prototype: HTMLKernJsonDiffElement;
+        new (): HTMLKernJsonDiffElement;
+    };
+    /**
      * Key/value list for device information: kern-kv-item children, labels in a narrow column on the left.
      */
     interface HTMLKernKvElement extends Components.KernKv, HTMLStencilElement {
@@ -3514,6 +3586,7 @@ declare global {
         "kern-input": HTMLKernInputElement;
         "kern-ip-input": HTMLKernIpInputElement;
         "kern-json": HTMLKernJsonElement;
+        "kern-json-diff": HTMLKernJsonDiffElement;
         "kern-kv": HTMLKernKvElement;
         "kern-kv-item": HTMLKernKvItemElement;
         "kern-link": HTMLKernLinkElement;
@@ -4619,6 +4692,68 @@ declare namespace LocalJSX {
           * @default 1
          */
         "openDepth"?: number;
+    }
+    /**
+     * Differences between two states of the same JSON (config before/after, target/actual, two firmware versions): one
+     * table row per changed, added or removed path, with a summary line above. Uses `diffJson()`, which is exported too.
+     */
+    interface KernJsonDiff {
+        /**
+          * The earlier state (object, array or primitive). A string is parsed as JSON when possible.
+         */
+        "from"?: unknown;
+        /**
+          * Paths that do not count, as an array or comma-separated (`time,unixtime,sys.uptime`). A path ignores everything below it.
+          * @default []
+         */
+        "ignore"?: string[] | string;
+        /**
+          * @default 'neu'
+         */
+        "labelAdded"?: string;
+        /**
+          * @default 'Nachher'
+         */
+        "labelAfter"?: string;
+        /**
+          * Header of the column with the earlier value, e.g. the time of the snapshot.
+          * @default 'Vorher'
+         */
+        "labelBefore"?: string;
+        /**
+          * @default 'geändert'
+         */
+        "labelChanged"?: string;
+        /**
+          * @default 'Art'
+         */
+        "labelKind"?: string;
+        /**
+          * @default 'Keine Unterschiede'
+         */
+        "labelNone"?: string;
+        /**
+          * @default 'Pfad'
+         */
+        "labelPath"?: string;
+        /**
+          * @default 'entfernt'
+         */
+        "labelRemoved"?: string;
+        /**
+          * `{n}`, `{changed}`, `{added}` and `{removed}` are replaced.
+          * @default '{n} Unterschiede: {changed} geändert, {added} neu, {removed} entfernt'
+         */
+        "labelSummary"?: string;
+        /**
+          * Longer values are cut with „…“; the whole value is in the tooltip.
+          * @default 80
+         */
+        "maxValueLength"?: number;
+        /**
+          * The later state. A string is parsed as JSON when possible.
+         */
+        "to"?: unknown;
     }
     /**
      * Key/value list for device information: kern-kv-item children, labels in a narrow column on the left.
@@ -6226,6 +6361,19 @@ declare namespace LocalJSX {
     interface KernJsonAttributes {
         "openDepth": number;
     }
+    interface KernJsonDiffAttributes {
+        "ignore": string[] | string;
+        "maxValueLength": number;
+        "labelBefore": string;
+        "labelAfter": string;
+        "labelPath": string;
+        "labelKind": string;
+        "labelAdded": string;
+        "labelRemoved": string;
+        "labelChanged": string;
+        "labelNone": string;
+        "labelSummary": string;
+    }
     interface KernKvItemAttributes {
         "label": string;
         "mono": boolean;
@@ -6579,6 +6727,7 @@ declare namespace LocalJSX {
         "kern-input": Omit<KernInput, keyof KernInputAttributes> & { [K in keyof KernInput & keyof KernInputAttributes]?: KernInput[K] } & { [K in keyof KernInput & keyof KernInputAttributes as `attr:${K}`]?: KernInputAttributes[K] } & { [K in keyof KernInput & keyof KernInputAttributes as `prop:${K}`]?: KernInput[K] };
         "kern-ip-input": Omit<KernIpInput, keyof KernIpInputAttributes> & { [K in keyof KernIpInput & keyof KernIpInputAttributes]?: KernIpInput[K] } & { [K in keyof KernIpInput & keyof KernIpInputAttributes as `attr:${K}`]?: KernIpInputAttributes[K] } & { [K in keyof KernIpInput & keyof KernIpInputAttributes as `prop:${K}`]?: KernIpInput[K] };
         "kern-json": Omit<KernJson, keyof KernJsonAttributes> & { [K in keyof KernJson & keyof KernJsonAttributes]?: KernJson[K] } & { [K in keyof KernJson & keyof KernJsonAttributes as `attr:${K}`]?: KernJsonAttributes[K] } & { [K in keyof KernJson & keyof KernJsonAttributes as `prop:${K}`]?: KernJson[K] };
+        "kern-json-diff": Omit<KernJsonDiff, keyof KernJsonDiffAttributes> & { [K in keyof KernJsonDiff & keyof KernJsonDiffAttributes]?: KernJsonDiff[K] } & { [K in keyof KernJsonDiff & keyof KernJsonDiffAttributes as `attr:${K}`]?: KernJsonDiffAttributes[K] } & { [K in keyof KernJsonDiff & keyof KernJsonDiffAttributes as `prop:${K}`]?: KernJsonDiff[K] };
         "kern-kv": KernKv;
         "kern-kv-item": Omit<KernKvItem, keyof KernKvItemAttributes> & { [K in keyof KernKvItem & keyof KernKvItemAttributes]?: KernKvItem[K] } & { [K in keyof KernKvItem & keyof KernKvItemAttributes as `attr:${K}`]?: KernKvItemAttributes[K] } & { [K in keyof KernKvItem & keyof KernKvItemAttributes as `prop:${K}`]?: KernKvItem[K] } & OneOf<"label", KernKvItem["label"], KernKvItemAttributes["label"]>;
         "kern-link": Omit<KernLink, keyof KernLinkAttributes> & { [K in keyof KernLink & keyof KernLinkAttributes]?: KernLink[K] } & { [K in keyof KernLink & keyof KernLinkAttributes as `attr:${K}`]?: KernLinkAttributes[K] } & { [K in keyof KernLink & keyof KernLinkAttributes as `prop:${K}`]?: KernLink[K] };
@@ -6752,6 +6901,11 @@ declare module "@stencil/core" {
              * Closed nodes show their size ({4}, [2]).
              */
             "kern-json": LocalJSX.IntrinsicElements["kern-json"] & JSXBase.HTMLAttributes<HTMLKernJsonElement>;
+            /**
+             * Differences between two states of the same JSON (config before/after, target/actual, two firmware versions): one
+             * table row per changed, added or removed path, with a summary line above. Uses `diffJson()`, which is exported too.
+             */
+            "kern-json-diff": LocalJSX.IntrinsicElements["kern-json-diff"] & JSXBase.HTMLAttributes<HTMLKernJsonDiffElement>;
             /**
              * Key/value list for device information: kern-kv-item children, labels in a narrow column on the left.
              */

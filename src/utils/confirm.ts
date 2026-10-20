@@ -1,3 +1,5 @@
+import { formatMac, parseMac } from './mac';
+
 export interface ConfirmOptions {
   heading: string;
   message?: string;
@@ -5,9 +7,37 @@ export interface ConfirmOptions {
   cancelLabel?: string;
   /** Confirm button in `danger` style. */
   danger?: boolean;
-  /** Confirm stays disabled until exactly this text is typed (case-insensitive), e.g. the MAC. */
-  typeToConfirm?: string;
+  /**
+   * Confirm stays disabled until this text is typed, e.g. the MAC. With an array, any one of the alternatives
+   * is enough (e.g. the device name or its MAC). Compared after `normalize`.
+   */
+  typeToConfirm?: string | string[];
+  /**
+   * Applied to the typed text and to every alternative before comparing. Default: `trim()` + `toUpperCase()`.
+   * `'mac'` accepts a MAC in any notation (`A8:03:2A:B1:23:45`, `a8-03-…`, `A8032AB12345`) and falls back to the
+   * default for text that is no MAC; the label then shows MACs as `A8:03:2A:B1:23:45`.
+   */
+  normalize?: ((text: string) => string) | 'mac';
+  /** Label above the input. Default: «Zur Bestätigung «A», «B» oder «C» eintippen». */
   typeToConfirmLabel?: string;
+}
+
+const defaultNormalize = (text: string) => text.trim().toUpperCase();
+
+/** The comparison function for `normalize`. */
+export function confirmNormalizer(normalize: ConfirmOptions['normalize']): (text: string) => string {
+  if (normalize === 'mac') return (text) => parseMac(text) ?? defaultNormalize(text);
+  return normalize ?? defaultNormalize;
+}
+
+/** Default label for `typeToConfirm`: «A», «B» oder «C». */
+export function typeToConfirmText(alternatives: string[], normalize?: ConfirmOptions['normalize']): string {
+  const shown = alternatives.map((alt) => {
+    const hex = normalize === 'mac' ? parseMac(alt) : null;
+    return `«${hex ? formatMac(hex) : alt}»`;
+  });
+  const list = shown.length > 1 ? `${shown.slice(0, -1).join(', ')} oder ${shown[shown.length - 1]}` : shown[0];
+  return `Zur Bestätigung ${list} eintippen`;
 }
 
 /**
@@ -35,15 +65,17 @@ export function confirm(opts: ConfirmOptions): Promise<boolean> {
     cancel.slot = 'footer';
 
     let input: (HTMLElement & { value: string; setFocus(): Promise<void> }) | undefined;
-    if (opts.typeToConfirm) {
-      const expected = opts.typeToConfirm.trim().toUpperCase();
+    const alternatives = ([] as string[]).concat(opts.typeToConfirm ?? []).filter(Boolean);
+    if (alternatives.length) {
+      const norm = confirmNormalizer(opts.normalize);
+      const expected = new Set(alternatives.map(norm));
       input = document.createElement('kern-input') as typeof input & HTMLElement;
-      input!.setAttribute('label', opts.typeToConfirmLabel ?? `Zur Bestätigung «${opts.typeToConfirm}» eintippen`);
+      input!.setAttribute('label', opts.typeToConfirmLabel ?? typeToConfirmText(alternatives, opts.normalize));
       input!.setAttribute('mono', '');
       input!.setAttribute('autocomplete', 'off');
       ok.disabled = true;
       input!.addEventListener('kernInput', (e) => {
-        ok.disabled = (e as CustomEvent<{ value: string }>).detail.value.trim().toUpperCase() !== expected;
+        ok.disabled = !expected.has(norm((e as CustomEvent<{ value: string }>).detail.value));
       });
       dialog.appendChild(input!);
     }

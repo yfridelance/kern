@@ -146,6 +146,7 @@ zusätzlich Standalone-Wrapper mit `ControlValueAccessor` für `ngModel` und Rea
   (`dismissible="false"` verhindert das). Kurze Bestätigungen bleiben `kern-dialog`/`confirm()`.
 - **Bestätigen:** `await confirm({ heading, message, confirmLabel, danger, typeToConfirm })` öffnet einen
   `kern-dialog`. Mit `typeToConfirm` (z.B. die MAC) bleibt die Bestätigung gesperrt, bis der Wert eingetippt ist.
+  Ein Array erlaubt Alternativen (`['Boiler', mac]`), `normalize: 'mac'` akzeptiert die MAC in jeder Schreibweise.
 - **Datum & Zeit:** Werte sind ISO-Strings (`2026-10-19`, `2026-10-19T08:15:00Z`, `06:30`, `PT1H23M`), Epoch-ms oder
   `Date`; Dauern auch in Sekunden (`duration="5025"`). Formatiert wird mit `Intl` nach `locale`, sonst `<html lang>`,
   sonst Browser. `<kern-date relative>` aktualisiert sich selbst («vor 3 Min.», «gestern»), der absolute Wert steht

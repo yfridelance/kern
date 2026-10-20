@@ -1,4 +1,4 @@
-import { AttachInternals, Component, Element, Event, EventEmitter, Host, Method, Prop, State, Watch, h } from '@stencil/core';
+import { AttachInternals, Component, Element, Event, EventEmitter, Host, Listen, Method, Prop, State, h } from '@stencil/core';
 import { positionPopup } from '../../utils/popover';
 
 let nextId = 0;
@@ -14,6 +14,10 @@ const SUGGEST_TYPES = ['text', 'search', 'email', 'url', 'tel'];
  * list below the field, free text stays allowed. Arrow keys open the list and move, Enter or a click takes a
  * suggestion, Escape and Tab close it. Taking one sets `value` and emits `kernInput` and `kernChange` like typing.
  * Only for `type` text, search, email, url and tel.
+ *
+ * Native checks (`required`, `type="email"`/`url`, `pattern`, `min`/`max`/`step`, `maxlength`) reach the form: an
+ * invalid value blocks submitting. Like `:user-invalid`, the browser's message is shown only after the value was
+ * changed or a submit failed. `error` takes priority.
  *
  * @part control - The native input
  * @part listbox - The suggestion list
@@ -61,6 +65,10 @@ export class KernInput {
 
   @State() open = false;
   @State() active = -1;
+  /** Changed by the user or a failed submit; native problems are shown from then on. */
+  @State() touched = false;
+  /** The inner input's validation message, read after each render. */
+  @State() nativeError = '';
 
   private input?: HTMLInputElement;
   private popup?: HTMLElement;
@@ -77,24 +85,54 @@ export class KernInput {
 
   componentDidRender() {
     this.setupPopup();
+    // The inner input has the new attributes and value only now.
+    this.sync();
   }
 
   disconnectedCallback() {
     this.stopTracking();
   }
 
-  @Watch('value')
-  @Watch('error')
-  @Watch('required')
-  sync() {
+  /** Passes value and validity to the form; native problems of the inner input are mirrored (readonly and disabled are skipped via `willValidate`). */
+  private sync() {
     this.internals?.setFormValue?.(this.value ?? '');
-    if (this.error) this.internals?.setValidity?.({ customError: true }, this.error, this.input);
-    else if (this.required && !this.value) this.internals?.setValidity?.({ valueMissing: true }, 'required', this.input);
-    else this.internals?.setValidity?.({});
+    const input = this.input;
+    let message = '';
+    if (this.error) {
+      this.internals?.setValidity?.({ customError: true }, this.error, input);
+    } else if (input?.willValidate && !input.validity.valid) {
+      const v = input.validity;
+      message = input.validationMessage;
+      this.internals?.setValidity?.(
+        {
+          valueMissing: v.valueMissing,
+          typeMismatch: v.typeMismatch,
+          patternMismatch: v.patternMismatch,
+          tooLong: v.tooLong,
+          tooShort: v.tooShort,
+          rangeUnderflow: v.rangeUnderflow,
+          rangeOverflow: v.rangeOverflow,
+          stepMismatch: v.stepMismatch,
+          badInput: v.badInput,
+        },
+        message,
+        input,
+      );
+    } else {
+      this.internals?.setValidity?.({});
+    }
+    if (message !== this.nativeError) this.nativeError = message;
+  }
+
+  /** Fired by the browser when a submit or `checkValidity()` finds the field invalid. */
+  @Listen('invalid')
+  onInvalid() {
+    this.touched = true;
   }
 
   formResetCallback() {
     this.value = this.initial;
+    this.touched = false;
   }
 
   formDisabledCallback(disabled: boolean) {
@@ -241,6 +279,11 @@ export class KernInput {
     if (this.open) this.closeList();
   };
 
+  /** Fires after the user changed the value (on blur or Enter), like `:user-invalid`. */
+  private onChange = () => {
+    this.touched = true;
+  };
+
   /** The typed text in a suggestion, highlighted. */
   private renderMatch(s: string) {
     const q = (this.value ?? '').trim();
@@ -250,13 +293,14 @@ export class KernInput {
   }
 
   render() {
-    const describedBy = this.error ? `${this.uid}-error` : this.hint ? `${this.uid}-hint` : undefined;
+    const message = this.error || (this.touched ? this.nativeError : '');
+    const describedBy = message ? `${this.uid}-error` : this.hint ? `${this.uid}-hint` : undefined;
     const combo = this.suggestionList.length > 0;
     const matches = combo ? this.hits : [];
     const listId = `${this.uid}-list`;
     const activeId = this.open && this.active >= 0 && this.active < matches.length ? `${this.uid}-opt-${this.active}` : undefined;
     return (
-      <Host invalid={!!this.error}>
+      <Host invalid={!!message}>
         {this.label && (
           <label class="label" htmlFor={this.uid}>
             {this.label}
@@ -269,7 +313,6 @@ export class KernInput {
           class="control"
           part="control"
           type={this.type}
-          value={this.value}
           name={this.name}
           placeholder={this.placeholder}
           autocomplete={this.autocomplete ?? (this.type === 'password' || combo ? 'off' : undefined)}
@@ -278,6 +321,7 @@ export class KernInput {
           min={this.min}
           max={this.max}
           step={this.step}
+          value={this.value}
           disabled={this.disabled}
           readOnly={this.readonly}
           required={this.required}
@@ -288,11 +332,12 @@ export class KernInput {
           aria-controls={combo ? listId : undefined}
           aria-activedescendant={activeId}
           aria-label={this.label ? undefined : this.ariaLabelText}
-          aria-invalid={this.error ? 'true' : undefined}
+          aria-invalid={message ? 'true' : undefined}
           aria-describedby={describedBy}
           onInput={this.onInput}
           onKeyDown={this.onKeyDown}
           onBlur={this.onBlur}
+          onChange={this.onChange}
         />
         {combo && (
           <div ref={(el) => (this.popup = el)} class="popup" part="listbox">
@@ -317,9 +362,9 @@ export class KernInput {
             </div>
           </div>
         )}
-        {this.error ? (
+        {message ? (
           <span class="error" id={`${this.uid}-error`}>
-            {this.error}
+            {message}
           </span>
         ) : (
           this.hint && (

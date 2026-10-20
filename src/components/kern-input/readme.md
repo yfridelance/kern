@@ -15,6 +15,10 @@ list below the field, free text stays allowed. Arrow keys open the list and move
 suggestion, Escape and Tab close it. Taking one sets `value` and emits `kernInput` and `kernChange` like typing.
 Only for `type` text, search, email, url and tel.
 
+Native checks (`required`, `type="email"`/`url`, `pattern`, `min`/`max`/`step`, `maxlength`) reach the form: an
+invalid value blocks submitting. Like `:user-invalid`, the browser's message is shown only after the value was
+changed or a submit failed. `error` takes priority.
+
 ## Usage
 
 ### 01-basic

@@ -15,6 +15,18 @@
 <div class="demo" style="border-radius:var(--radius-md)">
   <kern-input label="Device password" type="password" value="secret" error="Wrong credentials" style="max-width:320px"></kern-input>
 </div>
+<p><code>kern-input</code> passes the native checks to the form: <code>required</code>, <code>type="email"</code> / <code>"url"</code>, <code>pattern</code>, <code>maxlength</code> and <code>min</code> / <code>max</code> / <code>step</code> for numbers. An invalid value blocks submitting. Like <code>:user-invalid</code>, the browser's message («Please enter an email address») shows only after the value was changed or a submit failed; correcting the value removes it and <code>form.reset()</code> hides it again. <code>error</code> wins over native problems.</p>
+<div class="demo" style="border-radius:var(--radius-md)">
+  <form style="display:grid;gap:var(--space-3);max-width:320px" onsubmit="event.preventDefault()">
+    <kern-input label="Email" name="email" type="email" value="admin@"></kern-input>
+    <kern-input label="Hostname" name="host" pattern="[a-z0-9]+(-[a-z0-9]+)*" hint="Lowercase letters, digits and dashes"></kern-input>
+    <kern-input label="VLAN" name="vlan" type="number" min="1" max="4094"></kern-input>
+    <div style="display:flex;gap:var(--space-2)">
+      <kern-button type="submit" variant="primary">Save</kern-button>
+      <kern-button type="reset">Reset</kern-button>
+    </div>
+  </form>
+</div>
 <h2>Events</h2>
 <ul>
   <li><code>kernChange</code> with <code>{ value }</code>: the value was applied. For typed fields this is on Enter or when leaving the field; for controls on every change.</li>

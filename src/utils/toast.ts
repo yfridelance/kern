@@ -14,6 +14,16 @@ export interface ToastOptions {
 /** At most this many toasts at once; the oldest closes first. */
 const MAX = 4;
 let region: HTMLElement | undefined;
+let regionLabel = 'Benachrichtigungen';
+
+/**
+ * Accessible name of the toast region (default „Benachrichtigungen“). Global, because all toasts share one region:
+ * call it once at start and again when the language changes; an existing region is updated at once.
+ */
+export function setToastRegionLabel(label: string): void {
+  regionLabel = label;
+  if (region?.isConnected) region.setAttribute('aria-label', label);
+}
 
 /** The stack at the bottom right: a live region in the top layer, created on first use. */
 function getRegion(): HTMLElement {
@@ -21,7 +31,7 @@ function getRegion(): HTMLElement {
   region = document.createElement('div');
   region.className = 'kern-toasts';
   region.setAttribute('role', 'region');
-  region.setAttribute('aria-label', 'Benachrichtigungen');
+  region.setAttribute('aria-label', regionLabel);
   region.setAttribute('aria-live', 'polite');
   region.setAttribute('popover', 'manual');
   Object.assign(region.style, {

@@ -17,3 +17,8 @@
 <kern-code language="html">
 &lt;kern-pagination total="380" label-range="{from}–{to} of {total}" label-next="Next page"&gt;&lt;/kern-pagination&gt;
 </kern-code>
+<p>Functions take their texts as options (<code>confirmLabel</code>, <code>cancelLabel</code> for <code>confirm()</code>, <code>closeLabel</code> for <code>toast()</code>). The region all toasts share is named once with <code>setToastRegionLabel()</code>; call it again when the language changes.</p>
+<kern-code language="js">
+import { setToastRegionLabel } from '@yfridelance/kern';
+setToastRegionLabel('Notifications');
+</kern-code>

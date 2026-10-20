@@ -135,7 +135,9 @@ zusätzlich Standalone-Wrapper mit `ControlValueAccessor` für `ngModel` und Rea
   rechts (höchstens 4, über offenen Dialogen) und liefert `'timeout' | 'close' | 'action'`. Schliesst nach 5 s
   (pausiert bei Hover/Fokus), `duration: 0` bleibt. Für Meldungen, die stehen bleiben müssen: `kern-alert`.
   Während ein modaler Dialog offen ist, ist alles ausserhalb inert: Toasts sind dann sichtbar, aber weder bedienbar
-  noch angesagt. Darum erst den Dialog schliessen, dann den Toast zeigen.
+  noch angesagt. Darum erst den Dialog schliessen, dann den Toast zeigen. Die Region heisst für Screenreader
+  «Benachrichtigungen»; `setToastRegionLabel('Notifications')` übersetzt sie (einmal beim Start und bei jedem
+  Sprachwechsel, wirkt auch auf eine bestehende Region).
 - **Seitenpanel:** `kern-drawer` (rechts, `side="start"` links, `width`) für Details, Filter und längere Formulare;
   modal auf `<dialog>`, Kopf und Fuss stehen, der Inhalt scrollt. Escape, × und Klick auf den Hintergrund schliessen
   (`dismissible="false"` verhindert das). Kurze Bestätigungen bleiben `kern-dialog`/`confirm()`.

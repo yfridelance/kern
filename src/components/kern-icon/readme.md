@@ -75,6 +75,19 @@ Names starting with `brand-` show a logo from Simple Icons (CC0; four from other
 | `name` _(required)_ | `name`        | Glyph name, e.g. `wifi`, `power`, `refresh`, or a brand icon, e.g. `brand-github`.                                 | `"brand-alexa" \| "brand-android" \| "brand-apple" \| "brand-arduino" \| "brand-bluetooth" \| "brand-cloudflare" \| "brand-debian" \| "brand-docker" \| "brand-esphome" \| "brand-espressif" \| "brand-github" \| "brand-gitlab" \| "brand-google" \| "brand-google-home" \| "brand-grafana" \| "brand-home-assistant" \| "brand-homebridge" \| "brand-ikea" \| "brand-influxdb" \| "brand-linux" \| "brand-matter" \| "brand-microsoft" \| "brand-mqtt" \| "brand-nextcloud" \| "brand-node-red" \| "brand-openwrt" \| "brand-philips-hue" \| "brand-pi-hole" \| "brand-plex" \| "brand-proxmox" \| "brand-raspberry-pi" \| "brand-shelly" \| "brand-signal" \| "brand-synology" \| "brand-tailscale" \| "brand-tasmota" \| "brand-telegram" \| "brand-ubiquiti" \| "brand-ubuntu" \| "brand-whatsapp" \| "brand-wireguard" \| "brand-z-wave" \| "brand-zigbee" \| "bulb" \| "calendar" \| "check" \| "chevron-down" \| "chevron-left" \| "chevron-right" \| "chevron-up" \| "clock" \| "close" \| "copy" \| "download" \| "edit" \| "external" \| "eye" \| "eye-off" \| "filter" \| "home" \| "info" \| "link" \| "lock" \| "menu" \| "minus" \| "moon" \| "more" \| "plus" \| "power" \| "refresh" \| "search" \| "settings" \| "star" \| "sun" \| "thermometer" \| "trash" \| "upload" \| "warn" \| "wifi"` | `undefined` |
 
 
+## Dependencies
+
+### Used by
+
+ - [kern-table](../kern-table)
+
+### Graph
+```mermaid
+graph TD;
+  kern-table --> kern-icon
+  style kern-icon fill:#f9f,stroke:#333,stroke-width:4px
+```
+
 ----------------------------------------------
 
 

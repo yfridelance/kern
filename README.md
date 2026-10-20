@@ -129,7 +129,8 @@ zusätzlich Standalone-Wrapper mit `ControlValueAccessor` für `ngModel` und Rea
   Framework-Bindings enthalten können. Zellklassen `mono`, `num`, `empty`; Zeilen `clickable`, `dim`,
   `aria-selected="true"`; sortierbar mit `<th aria-sort><button>`. `selectable` ergänzt eine Auswahlspalte mit
   Kopf-Checkbox (sichtbare Zeilen der Seite); Schlüssel aus `data-key` bzw. `rowKey`, Zustand in `selected`, Event
-  `kernSelectionChange` mit `{ selected }`.
+  `kernSelectionChange` mit `{ selected }`. Detail-Zeilen: `<tr kern-details>` direkt nach ihrer Zeile, aufgeklappt
+  mit `<button kern-expand>` (im Datenmodus `detail`); Zustand in `expanded`, Event `kernRowToggle`, `toggleRow()`.
 - **Laden:** `kern-skeleton` als Platzhalter in Form des Inhalts (`variant="text"` mit `lines`, `"block"` mit
   `width`/`height`, `"circle"` mit `size`); statisch bei reduzierter Bewegung, für Screenreader verborgen. Den Container
   dabei mit `aria-busy="true"` markieren. `kern-spinner`/`kern-progress` für Vorgänge ohne Inhaltsform.

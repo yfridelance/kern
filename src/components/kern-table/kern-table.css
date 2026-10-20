@@ -42,6 +42,23 @@ kern-table tr.skeleton td kern-skeleton { display: block; max-width: 120px; }
 kern-table tr.skeleton td.num kern-skeleton { margin-left: auto; max-width: 48px; }
 kern-table tbody tr.skeleton:hover td { background: none; }
 kern-table tbody tr[data-kern-paged-out] { display: none; }
+/* Detail rows: hidden until their row is expanded; sunken, padded, no hover colour. */
+kern-table tbody tr[kern-details]:not([data-kern-open]) { display: none; }
+kern-table tbody tr:has(+ tr[kern-details]:not([data-kern-open]):last-child) td { border-bottom: 0; }
+kern-table tbody tr[kern-details] > td {
+  height: auto; padding: var(--space-3) var(--space-4); background: var(--surface-sunken); white-space: normal;
+}
+kern-table :is(td, th)[data-kern-expand] { width: 16px; padding-right: 0; }
+/* Toggle: a link-like button; a chevron in it turns when open. */
+kern-table button[kern-expand] {
+  all: unset; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; color: var(--accent-text); border-radius: 2px;
+}
+kern-table button[kern-expand]:hover { text-decoration: underline; }
+kern-table button[kern-expand]:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+kern-table button[kern-expand] kern-icon { transition: transform .15s; }
+kern-table button[kern-expand][aria-expanded="true"] kern-icon[name="chevron-right"] { transform: rotate(90deg); }
+kern-table td[data-kern-expand] button[kern-expand] { color: var(--text-muted); }
+@media (prefers-reduced-motion: reduce) { kern-table button[kern-expand] kern-icon { transition: none; } }
 /* Pagination footer: stays in view while the table scrolls sideways or down; covers the last row's border. */
 kern-table > kern-pagination[data-kern-generated] {
   position: sticky; left: 0; bottom: 0; z-index: 2; margin-top: -1px;

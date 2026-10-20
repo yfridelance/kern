@@ -10,7 +10,12 @@
 }
 .trigger:hover:not(:disabled) { border-color: var(--text-faint); }
 .trigger[aria-expanded="true"] { outline: 2px solid var(--focus); outline-offset: -1px; border-color: var(--focus); }
-.value { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.value { flex: 1; min-width: 0; white-space: nowrap; }
+/* Single: the current value stacked on hidden copies of all options, so the width follows the longest (an outer width still wins) */
+.trigger:not(.multi) .value { display: grid; grid-template-columns: minmax(0, 1fr); }
+.current, .sizer { grid-area: 1 / 1; display: flex; align-items: center; gap: var(--space-2); min-width: 0; }
+.sizer { visibility: hidden; height: 0; overflow: hidden; font-weight: 500; }
+.value .text { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
 .empty .value { color: var(--text-faint); }
 .chevron { flex: none; width: 14px; height: 14px; color: var(--text-muted); transition: transform .15s; }
 .trigger[aria-expanded="true"] .chevron { transform: rotate(180deg); }

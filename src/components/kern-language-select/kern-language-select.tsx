@@ -169,7 +169,14 @@ export class KernLanguageSelect {
     const items = list.map((l) => {
       const active = l.code === this.value;
       // Codes are read with the full name: «DE» alone would be spelled out.
-      const content = [l.flag && <kern-icon name={l.flag} />, code ? [<span aria-hidden="true">{l.short}</span>, <span class="sr">{l.name}</span>] : <span>{l.name}</span>];
+      // data-text reserves the bold width, so the items do not shift when the active one changes.
+      const text = code ? l.short : l.name;
+      const label = (
+        <span class="text" data-text={text} aria-hidden={code ? 'true' : undefined}>
+          {text}
+        </span>
+      );
+      const content = [l.flag && <kern-icon name={l.flag} />, code ? [label, <span class="sr">{l.name}</span>] : label];
       const common = { class: { item: true, active }, part: active ? 'item active' : 'item', lang: l.code };
       if (active) {
         return (

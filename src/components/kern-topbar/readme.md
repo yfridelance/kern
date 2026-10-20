@@ -11,6 +11,9 @@ App header: brand on the left, main navigation, tools on the right (site switch,
 kern-theme-toggle). Put each nav link directly into the `nav` slot; the active one gets
 `aria-current="page"` or class `active` (e.g. Angular `routerLinkActive="active"`).
 
+`menu` adds a menu button before the brand that emits `kernMenu`, e.g. to open a side navigation on small screens;
+kern-app-shell sets it itself.
+
 ## Usage
 
 ### 01-basic
@@ -58,12 +61,22 @@ The `brand` slot replaces the default mark and app name. A small kern-select in 
 
 ## Properties
 
-| Property   | Attribute   | Description                                               | Type                  | Default     |
-| ---------- | ----------- | --------------------------------------------------------- | --------------------- | ----------- |
-| `appName`  | `app-name`  |                                                           | `string \| undefined` | `undefined` |
-| `homeHref` | `home-href` | Link of the brand.                                        | `string`              | `'/'`       |
-| `navLabel` | `nav-label` | Accessible name of the navigation.                        | `string \| undefined` | `undefined` |
-| `suite`    | `suite`     | Muted product family before the app name, e.g. "Homelab". | `string \| undefined` | `undefined` |
+| Property       | Attribute       | Description                                                  | Type                  | Default     |
+| -------------- | --------------- | ------------------------------------------------------------ | --------------------- | ----------- |
+| `appName`      | `app-name`      |                                                              | `string \| undefined` | `undefined` |
+| `homeHref`     | `home-href`     | Link of the brand.                                           | `string`              | `'/'`       |
+| `labelMenu`    | `label-menu`    | Accessible name of the menu button.                          | `string \| undefined` | `undefined` |
+| `menu`         | `menu`          | Shows a menu button before the brand.                        | `boolean`             | `false`     |
+| `menuExpanded` | `menu-expanded` | Whether the menu the button opens is open (`aria-expanded`). | `boolean`             | `false`     |
+| `navLabel`     | `nav-label`     | Accessible name of the navigation.                           | `string \| undefined` | `undefined` |
+| `suite`        | `suite`         | Muted product family before the app name, e.g. "Homelab".    | `string \| undefined` | `undefined` |
+
+
+## Events
+
+| Event      | Description                  | Type                                  |
+| ---------- | ---------------------------- | ------------------------------------- |
+| `kernMenu` | The menu button was clicked. | `CustomEvent<{ expanded: boolean; }>` |
 
 
 ## Slots
@@ -77,9 +90,10 @@ The `brand` slot replaces the default mark and app name. A small kern-select in 
 
 ## Shadow Parts
 
-| Part    | Description    |
-| ------- | -------------- |
-| `"bar"` | The header bar |
+| Part     | Description     |
+| -------- | --------------- |
+| `"bar"`  | The header bar  |
+| `"menu"` | The menu button |
 
 
 ----------------------------------------------

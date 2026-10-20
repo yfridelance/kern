@@ -1,0 +1,21 @@
+/* The host is the container; the inner grid and the kern-grid-item children switch by its width.
+   Breakpoints are literal (custom properties do not work in @container): 640 / 960 / 1280 = --breakpoint-sm/md/lg. */
+/* A size container has no width of its own: width 100% keeps it full width also in flex rows. */
+:host { display: block; width: 100%; container: kern-grid / inline-size; }
+:host([hidden]) { display: none; }
+
+.grid { display: grid; gap: var(--space-4); align-items: stretch; }
+:host([gap="sm"]) .grid { gap: var(--space-3); }
+:host([gap="lg"]) .grid { gap: var(--space-5); }
+:host([align="start"]) .grid { align-items: start; }
+
+.auto { grid-template-columns: repeat(auto-fill, minmax(min(var(--_min), 100%), 1fr)); }
+.auto.fit { grid-template-columns: repeat(auto-fit, minmax(min(var(--_min), 100%), 1fr)); }
+
+.cols { --_cols: var(--_c); grid-template-columns: repeat(var(--_cols), minmax(0, 1fr)); }
+@container kern-grid (min-width: 640px) { .cols { --_cols: var(--_c-sm, var(--_c)); } }
+@container kern-grid (min-width: 960px) { .cols { --_cols: var(--_c-md, var(--_c-sm, var(--_c))); } }
+@container kern-grid (min-width: 1280px) { .cols { --_cols: var(--_c-lg, var(--_c-md, var(--_c-sm, var(--_c)))); } }
+
+/* Items inherit --_cols through the slot and cut their span to it. */
+::slotted(*) { min-width: 0; }

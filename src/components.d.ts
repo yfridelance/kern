@@ -75,6 +75,48 @@ export namespace Components {
         "tone": 'neutral' | 'info' | 'ok' | 'warn' | 'danger';
     }
     /**
+     * Base layout of an app: topbar, optional side navigation, main content with a maximum width and page padding, and
+     * an optional footer. Without the `sidebar` slot it is a plain page frame.
+     * From `breakpoint` (960 px of shell width) the sidebar stands on the left and scrolls on its own; below it, it opens
+     * as a modal drawer from the left. A kern-topbar in the `topbar` slot then gets a menu button (`menu`) that opens it;
+     * with your own header call `toggleSidebar()`. A link click in the drawer closes it. A skip link («Skip to content»)
+     * leads past the navigation, and `<header>`, `<nav>` and `<main>` are landmarks.
+     */
+    interface KernAppShell {
+        /**
+          * Shell width in px from which the sidebar stands next to the content; below, it is a drawer.
+          * @default 960
+         */
+        "breakpoint": number;
+        /**
+          * Accessible name of the side navigation and title of the drawer.
+         */
+        "labelNavigation"?: string;
+        /**
+          * Text of the skip link.
+         */
+        "labelSkip"?: string;
+        /**
+          * Whether the drawer with the side navigation is open (narrow layout only).
+          * @default false
+         */
+        "sidebarOpen": boolean;
+        /**
+          * Width of the side navigation in px.
+          * @default 240
+         */
+        "sidebarWidth": number;
+        /**
+          * Opens or closes the drawer with the side navigation (narrow layout); without an argument it toggles.
+         */
+        "toggleSidebar": (open?: boolean) => Promise<void>;
+        /**
+          * Maximum content width: `normal` (`--content-max`), `wide` (`--content-wide`) or `full`.
+          * @default 'normal'
+         */
+        "width": 'normal' | 'wide' | 'full';
+    }
+    /**
      * Short label for properties (Gen, firmware, function) and results in tables. At most two words;
      * device states use kern-status instead.
      */
@@ -767,6 +809,75 @@ export namespace Components {
           * @default false
          */
         "required": boolean;
+    }
+    /**
+     * Lays out cards, tiles and form groups in columns. Without `columns` it fits as many columns of at least `min` as
+     * there is room for, without breakpoints. With `columns` it has a fixed number of equal columns; `columns-sm`,
+     * `columns-md` and `columns-lg` change it from 640, 960 and 1280 px, and `kern-grid-item` children span several.
+     * Breakpoints are measured on the grid itself (container queries), not on the window, so a grid in a sidebar, a
+     * drawer or half a page switches by the room it really has.
+     */
+    interface KernGrid {
+        /**
+          * `stretch` makes items in a row equally high (cards); `start` keeps their own height.
+          * @default 'stretch'
+         */
+        "align": 'stretch' | 'start';
+        /**
+          * Fixed number of columns; switches from auto mode to columns.
+         */
+        "columns"?: number;
+        /**
+          * Columns from 1280 px grid width.
+         */
+        "columnsLg"?: number;
+        /**
+          * Columns from 960 px grid width.
+         */
+        "columnsMd"?: number;
+        /**
+          * Columns from 640 px grid width.
+         */
+        "columnsSm"?: number;
+        /**
+          * Auto mode: stretch few items over the whole width instead of keeping empty columns.
+          * @default false
+         */
+        "fit": boolean;
+        /**
+          * Space between items: `sm` 12 px, `md` 16 px, `lg` 24 px.
+          * @default 'md'
+         */
+        "gap": 'sm' | 'md' | 'lg';
+        /**
+          * Smallest column width in auto mode (without `columns`), e.g. `240px` or `16rem`.
+          * @default '240px'
+         */
+        "min": string;
+    }
+    /**
+     * An item of a `kern-grid` with `columns` that spans several columns. `span-sm`, `span-md` and `span-lg` change the
+     * span from 640, 960 and 1280 px grid width, e.g. `span="12" span-md="8"`: full width on small grids, two thirds
+     * from 960 px. A span larger than the columns is cut to the row.
+     */
+    interface KernGridItem {
+        /**
+          * Columns spanned.
+          * @default 1
+         */
+        "span": number;
+        /**
+          * Columns spanned from 1280 px grid width.
+         */
+        "spanLg"?: number;
+        /**
+          * Columns spanned from 960 px grid width.
+         */
+        "spanMd"?: number;
+        /**
+          * Columns spanned from 640 px grid width.
+         */
+        "spanSm"?: number;
     }
     /**
      * One of Kern's glyphs (Lucide style), a brand icon (`brand-github`, `brand-home-assistant` …, from Simple Icons) or a
@@ -2244,6 +2355,8 @@ export namespace Components {
      * App header: brand on the left, main navigation, tools on the right (site switch, server status,
      * kern-theme-toggle). Put each nav link directly into the `nav` slot; the active one gets
      * `aria-current="page"` or class `active` (e.g. Angular `routerLinkActive="active"`).
+     * `menu` adds a menu button before the brand that emits `kernMenu`, e.g. to open a side navigation on small screens;
+     * kern-app-shell sets it itself.
      */
     interface KernTopbar {
         "appName"?: string;
@@ -2252,6 +2365,20 @@ export namespace Components {
           * @default '/'
          */
         "homeHref": string;
+        /**
+          * Accessible name of the menu button.
+         */
+        "labelMenu"?: string;
+        /**
+          * Shows a menu button before the brand.
+          * @default false
+         */
+        "menu": boolean;
+        /**
+          * Whether the menu the button opens is open (`aria-expanded`).
+          * @default false
+         */
+        "menuExpanded": boolean;
         /**
           * Accessible name of the navigation.
          */
@@ -2265,6 +2392,10 @@ export namespace Components {
 export interface KernAccordionItemCustomEvent<T> extends CustomEvent<T> {
     detail: T;
     target: HTMLKernAccordionItemElement;
+}
+export interface KernAppShellCustomEvent<T> extends CustomEvent<T> {
+    detail: T;
+    target: HTMLKernAppShellElement;
 }
 export interface KernButtonCustomEvent<T> extends CustomEvent<T> {
     detail: T;
@@ -2398,6 +2529,10 @@ export interface KernToastCustomEvent<T> extends CustomEvent<T> {
     detail: T;
     target: HTMLKernToastElement;
 }
+export interface KernTopbarCustomEvent<T> extends CustomEvent<T> {
+    detail: T;
+    target: HTMLKernTopbarElement;
+}
 declare global {
     /**
      * Collapsible sections (advanced settings, FAQ, log groups): kern-accordion-item children in a bordered box.
@@ -2439,6 +2574,31 @@ declare global {
     var HTMLKernAlertElement: {
         prototype: HTMLKernAlertElement;
         new (): HTMLKernAlertElement;
+    };
+    interface HTMLKernAppShellElementEventMap {
+        "kernSidebarToggle": { open: boolean };
+    }
+    /**
+     * Base layout of an app: topbar, optional side navigation, main content with a maximum width and page padding, and
+     * an optional footer. Without the `sidebar` slot it is a plain page frame.
+     * From `breakpoint` (960 px of shell width) the sidebar stands on the left and scrolls on its own; below it, it opens
+     * as a modal drawer from the left. A kern-topbar in the `topbar` slot then gets a menu button (`menu`) that opens it;
+     * with your own header call `toggleSidebar()`. A link click in the drawer closes it. A skip link («Skip to content»)
+     * leads past the navigation, and `<header>`, `<nav>` and `<main>` are landmarks.
+     */
+    interface HTMLKernAppShellElement extends Components.KernAppShell, HTMLStencilElement {
+        addEventListener<K extends keyof HTMLKernAppShellElementEventMap>(type: K, listener: (this: HTMLKernAppShellElement, ev: KernAppShellCustomEvent<HTMLKernAppShellElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLKernAppShellElementEventMap>(type: K, listener: (this: HTMLKernAppShellElement, ev: KernAppShellCustomEvent<HTMLKernAppShellElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
+    }
+    var HTMLKernAppShellElement: {
+        prototype: HTMLKernAppShellElement;
+        new (): HTMLKernAppShellElement;
     };
     /**
      * Short label for properties (Gen, firmware, function) and results in tables. At most two words;
@@ -2726,6 +2886,30 @@ declare global {
     var HTMLKernFileInputElement: {
         prototype: HTMLKernFileInputElement;
         new (): HTMLKernFileInputElement;
+    };
+    /**
+     * Lays out cards, tiles and form groups in columns. Without `columns` it fits as many columns of at least `min` as
+     * there is room for, without breakpoints. With `columns` it has a fixed number of equal columns; `columns-sm`,
+     * `columns-md` and `columns-lg` change it from 640, 960 and 1280 px, and `kern-grid-item` children span several.
+     * Breakpoints are measured on the grid itself (container queries), not on the window, so a grid in a sidebar, a
+     * drawer or half a page switches by the room it really has.
+     */
+    interface HTMLKernGridElement extends Components.KernGrid, HTMLStencilElement {
+    }
+    var HTMLKernGridElement: {
+        prototype: HTMLKernGridElement;
+        new (): HTMLKernGridElement;
+    };
+    /**
+     * An item of a `kern-grid` with `columns` that spans several columns. `span-sm`, `span-md` and `span-lg` change the
+     * span from 640, 960 and 1280 px grid width, e.g. `span="12" span-md="8"`: full width on small grids, two thirds
+     * from 960 px. A span larger than the columns is cut to the row.
+     */
+    interface HTMLKernGridItemElement extends Components.KernGridItem, HTMLStencilElement {
+    }
+    var HTMLKernGridItemElement: {
+        prototype: HTMLKernGridItemElement;
+        new (): HTMLKernGridItemElement;
     };
     /**
      * One of Kern's glyphs (Lucide style), a brand icon (`brand-github`, `brand-home-assistant` …, from Simple Icons) or a
@@ -3453,12 +3637,25 @@ declare global {
         prototype: HTMLKernTooltipElement;
         new (): HTMLKernTooltipElement;
     };
+    interface HTMLKernTopbarElementEventMap {
+        "kernMenu": { expanded: boolean };
+    }
     /**
      * App header: brand on the left, main navigation, tools on the right (site switch, server status,
      * kern-theme-toggle). Put each nav link directly into the `nav` slot; the active one gets
      * `aria-current="page"` or class `active` (e.g. Angular `routerLinkActive="active"`).
+     * `menu` adds a menu button before the brand that emits `kernMenu`, e.g. to open a side navigation on small screens;
+     * kern-app-shell sets it itself.
      */
     interface HTMLKernTopbarElement extends Components.KernTopbar, HTMLStencilElement {
+        addEventListener<K extends keyof HTMLKernTopbarElementEventMap>(type: K, listener: (this: HTMLKernTopbarElement, ev: KernTopbarCustomEvent<HTMLKernTopbarElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLKernTopbarElementEventMap>(type: K, listener: (this: HTMLKernTopbarElement, ev: KernTopbarCustomEvent<HTMLKernTopbarElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
     }
     var HTMLKernTopbarElement: {
         prototype: HTMLKernTopbarElement;
@@ -3468,6 +3665,7 @@ declare global {
         "kern-accordion": HTMLKernAccordionElement;
         "kern-accordion-item": HTMLKernAccordionItemElement;
         "kern-alert": HTMLKernAlertElement;
+        "kern-app-shell": HTMLKernAppShellElement;
         "kern-badge": HTMLKernBadgeElement;
         "kern-breadcrumb": HTMLKernBreadcrumbElement;
         "kern-button": HTMLKernButtonElement;
@@ -3483,6 +3681,8 @@ declare global {
         "kern-dialog": HTMLKernDialogElement;
         "kern-drawer": HTMLKernDrawerElement;
         "kern-file-input": HTMLKernFileInputElement;
+        "kern-grid": HTMLKernGridElement;
+        "kern-grid-item": HTMLKernGridItemElement;
         "kern-icon": HTMLKernIconElement;
         "kern-input": HTMLKernInputElement;
         "kern-ip-input": HTMLKernIpInputElement;
@@ -3580,6 +3780,48 @@ declare namespace LocalJSX {
           * @default 'neutral'
          */
         "tone"?: 'neutral' | 'info' | 'ok' | 'warn' | 'danger';
+    }
+    /**
+     * Base layout of an app: topbar, optional side navigation, main content with a maximum width and page padding, and
+     * an optional footer. Without the `sidebar` slot it is a plain page frame.
+     * From `breakpoint` (960 px of shell width) the sidebar stands on the left and scrolls on its own; below it, it opens
+     * as a modal drawer from the left. A kern-topbar in the `topbar` slot then gets a menu button (`menu`) that opens it;
+     * with your own header call `toggleSidebar()`. A link click in the drawer closes it. A skip link («Skip to content»)
+     * leads past the navigation, and `<header>`, `<nav>` and `<main>` are landmarks.
+     */
+    interface KernAppShell {
+        /**
+          * Shell width in px from which the sidebar stands next to the content; below, it is a drawer.
+          * @default 960
+         */
+        "breakpoint"?: number;
+        /**
+          * Accessible name of the side navigation and title of the drawer.
+         */
+        "labelNavigation"?: string;
+        /**
+          * Text of the skip link.
+         */
+        "labelSkip"?: string;
+        /**
+          * The drawer with the side navigation opened or closed.
+         */
+        "onKernSidebarToggle"?: (event: KernAppShellCustomEvent<{ open: boolean }>) => void;
+        /**
+          * Whether the drawer with the side navigation is open (narrow layout only).
+          * @default false
+         */
+        "sidebarOpen"?: boolean;
+        /**
+          * Width of the side navigation in px.
+          * @default 240
+         */
+        "sidebarWidth"?: number;
+        /**
+          * Maximum content width: `normal` (`--content-max`), `wide` (`--content-wide`) or `full`.
+          * @default 'normal'
+         */
+        "width"?: 'normal' | 'wide' | 'full';
     }
     /**
      * Short label for properties (Gen, firmware, function) and results in tables. At most two words;
@@ -4293,6 +4535,75 @@ declare namespace LocalJSX {
           * @default false
          */
         "required"?: boolean;
+    }
+    /**
+     * Lays out cards, tiles and form groups in columns. Without `columns` it fits as many columns of at least `min` as
+     * there is room for, without breakpoints. With `columns` it has a fixed number of equal columns; `columns-sm`,
+     * `columns-md` and `columns-lg` change it from 640, 960 and 1280 px, and `kern-grid-item` children span several.
+     * Breakpoints are measured on the grid itself (container queries), not on the window, so a grid in a sidebar, a
+     * drawer or half a page switches by the room it really has.
+     */
+    interface KernGrid {
+        /**
+          * `stretch` makes items in a row equally high (cards); `start` keeps their own height.
+          * @default 'stretch'
+         */
+        "align"?: 'stretch' | 'start';
+        /**
+          * Fixed number of columns; switches from auto mode to columns.
+         */
+        "columns"?: number;
+        /**
+          * Columns from 1280 px grid width.
+         */
+        "columnsLg"?: number;
+        /**
+          * Columns from 960 px grid width.
+         */
+        "columnsMd"?: number;
+        /**
+          * Columns from 640 px grid width.
+         */
+        "columnsSm"?: number;
+        /**
+          * Auto mode: stretch few items over the whole width instead of keeping empty columns.
+          * @default false
+         */
+        "fit"?: boolean;
+        /**
+          * Space between items: `sm` 12 px, `md` 16 px, `lg` 24 px.
+          * @default 'md'
+         */
+        "gap"?: 'sm' | 'md' | 'lg';
+        /**
+          * Smallest column width in auto mode (without `columns`), e.g. `240px` or `16rem`.
+          * @default '240px'
+         */
+        "min"?: string;
+    }
+    /**
+     * An item of a `kern-grid` with `columns` that spans several columns. `span-sm`, `span-md` and `span-lg` change the
+     * span from 640, 960 and 1280 px grid width, e.g. `span="12" span-md="8"`: full width on small grids, two thirds
+     * from 960 px. A span larger than the columns is cut to the row.
+     */
+    interface KernGridItem {
+        /**
+          * Columns spanned.
+          * @default 1
+         */
+        "span"?: number;
+        /**
+          * Columns spanned from 1280 px grid width.
+         */
+        "spanLg"?: number;
+        /**
+          * Columns spanned from 960 px grid width.
+         */
+        "spanMd"?: number;
+        /**
+          * Columns spanned from 640 px grid width.
+         */
+        "spanSm"?: number;
     }
     /**
      * One of Kern's glyphs (Lucide style), a brand icon (`brand-github`, `brand-home-assistant` …, from Simple Icons) or a
@@ -5870,6 +6181,8 @@ declare namespace LocalJSX {
      * App header: brand on the left, main navigation, tools on the right (site switch, server status,
      * kern-theme-toggle). Put each nav link directly into the `nav` slot; the active one gets
      * `aria-current="page"` or class `active` (e.g. Angular `routerLinkActive="active"`).
+     * `menu` adds a menu button before the brand that emits `kernMenu`, e.g. to open a side navigation on small screens;
+     * kern-app-shell sets it itself.
      */
     interface KernTopbar {
         "appName"?: string;
@@ -5879,9 +6192,27 @@ declare namespace LocalJSX {
          */
         "homeHref"?: string;
         /**
+          * Accessible name of the menu button.
+         */
+        "labelMenu"?: string;
+        /**
+          * Shows a menu button before the brand.
+          * @default false
+         */
+        "menu"?: boolean;
+        /**
+          * Whether the menu the button opens is open (`aria-expanded`).
+          * @default false
+         */
+        "menuExpanded"?: boolean;
+        /**
           * Accessible name of the navigation.
          */
         "navLabel"?: string;
+        /**
+          * The menu button was clicked.
+         */
+        "onKernMenu"?: (event: KernTopbarCustomEvent<{ expanded: boolean }>) => void;
         /**
           * Muted product family before the app name, e.g. "Homelab".
          */
@@ -5900,6 +6231,14 @@ declare namespace LocalJSX {
     interface KernAlertAttributes {
         "tone": 'neutral' | 'info' | 'ok' | 'warn' | 'danger';
         "heading": string;
+    }
+    interface KernAppShellAttributes {
+        "width": 'normal' | 'wide' | 'full';
+        "sidebarWidth": number;
+        "breakpoint": number;
+        "sidebarOpen": boolean;
+        "labelSkip": string;
+        "labelNavigation": string;
     }
     interface KernBadgeAttributes {
         "tone": 'neutral' | 'accent' | 'ok' | 'warn' | 'danger';
@@ -6082,6 +6421,22 @@ declare namespace LocalJSX {
         "labelRemove": string;
         "labelTooLarge": string;
         "labelWrongType": string;
+    }
+    interface KernGridAttributes {
+        "min": string;
+        "fit": boolean;
+        "columns": number;
+        "columnsSm": number;
+        "columnsMd": number;
+        "columnsLg": number;
+        "gap": 'sm' | 'md' | 'lg';
+        "align": 'stretch' | 'start';
+    }
+    interface KernGridItemAttributes {
+        "span": number;
+        "spanSm": number;
+        "spanMd": number;
+        "spanLg": number;
     }
     interface KernIconAttributes {
         "name": IconName;
@@ -6489,12 +6844,16 @@ declare namespace LocalJSX {
         "suite": string;
         "homeHref": string;
         "navLabel": string;
+        "menu": boolean;
+        "menuExpanded": boolean;
+        "labelMenu": string;
     }
 
     interface IntrinsicElements {
         "kern-accordion": Omit<KernAccordion, keyof KernAccordionAttributes> & { [K in keyof KernAccordion & keyof KernAccordionAttributes]?: KernAccordion[K] } & { [K in keyof KernAccordion & keyof KernAccordionAttributes as `attr:${K}`]?: KernAccordionAttributes[K] } & { [K in keyof KernAccordion & keyof KernAccordionAttributes as `prop:${K}`]?: KernAccordion[K] };
         "kern-accordion-item": Omit<KernAccordionItem, keyof KernAccordionItemAttributes> & { [K in keyof KernAccordionItem & keyof KernAccordionItemAttributes]?: KernAccordionItem[K] } & { [K in keyof KernAccordionItem & keyof KernAccordionItemAttributes as `attr:${K}`]?: KernAccordionItemAttributes[K] } & { [K in keyof KernAccordionItem & keyof KernAccordionItemAttributes as `prop:${K}`]?: KernAccordionItem[K] };
         "kern-alert": Omit<KernAlert, keyof KernAlertAttributes> & { [K in keyof KernAlert & keyof KernAlertAttributes]?: KernAlert[K] } & { [K in keyof KernAlert & keyof KernAlertAttributes as `attr:${K}`]?: KernAlertAttributes[K] } & { [K in keyof KernAlert & keyof KernAlertAttributes as `prop:${K}`]?: KernAlert[K] };
+        "kern-app-shell": Omit<KernAppShell, keyof KernAppShellAttributes> & { [K in keyof KernAppShell & keyof KernAppShellAttributes]?: KernAppShell[K] } & { [K in keyof KernAppShell & keyof KernAppShellAttributes as `attr:${K}`]?: KernAppShellAttributes[K] } & { [K in keyof KernAppShell & keyof KernAppShellAttributes as `prop:${K}`]?: KernAppShell[K] };
         "kern-badge": Omit<KernBadge, keyof KernBadgeAttributes> & { [K in keyof KernBadge & keyof KernBadgeAttributes]?: KernBadge[K] } & { [K in keyof KernBadge & keyof KernBadgeAttributes as `attr:${K}`]?: KernBadgeAttributes[K] } & { [K in keyof KernBadge & keyof KernBadgeAttributes as `prop:${K}`]?: KernBadge[K] };
         "kern-breadcrumb": Omit<KernBreadcrumb, keyof KernBreadcrumbAttributes> & { [K in keyof KernBreadcrumb & keyof KernBreadcrumbAttributes]?: KernBreadcrumb[K] } & { [K in keyof KernBreadcrumb & keyof KernBreadcrumbAttributes as `attr:${K}`]?: KernBreadcrumbAttributes[K] } & { [K in keyof KernBreadcrumb & keyof KernBreadcrumbAttributes as `prop:${K}`]?: KernBreadcrumb[K] };
         "kern-button": Omit<KernButton, keyof KernButtonAttributes> & { [K in keyof KernButton & keyof KernButtonAttributes]?: KernButton[K] } & { [K in keyof KernButton & keyof KernButtonAttributes as `attr:${K}`]?: KernButtonAttributes[K] } & { [K in keyof KernButton & keyof KernButtonAttributes as `prop:${K}`]?: KernButton[K] };
@@ -6510,6 +6869,8 @@ declare namespace LocalJSX {
         "kern-dialog": Omit<KernDialog, keyof KernDialogAttributes> & { [K in keyof KernDialog & keyof KernDialogAttributes]?: KernDialog[K] } & { [K in keyof KernDialog & keyof KernDialogAttributes as `attr:${K}`]?: KernDialogAttributes[K] } & { [K in keyof KernDialog & keyof KernDialogAttributes as `prop:${K}`]?: KernDialog[K] };
         "kern-drawer": Omit<KernDrawer, keyof KernDrawerAttributes> & { [K in keyof KernDrawer & keyof KernDrawerAttributes]?: KernDrawer[K] } & { [K in keyof KernDrawer & keyof KernDrawerAttributes as `attr:${K}`]?: KernDrawerAttributes[K] } & { [K in keyof KernDrawer & keyof KernDrawerAttributes as `prop:${K}`]?: KernDrawer[K] };
         "kern-file-input": Omit<KernFileInput, keyof KernFileInputAttributes> & { [K in keyof KernFileInput & keyof KernFileInputAttributes]?: KernFileInput[K] } & { [K in keyof KernFileInput & keyof KernFileInputAttributes as `attr:${K}`]?: KernFileInputAttributes[K] } & { [K in keyof KernFileInput & keyof KernFileInputAttributes as `prop:${K}`]?: KernFileInput[K] };
+        "kern-grid": Omit<KernGrid, keyof KernGridAttributes> & { [K in keyof KernGrid & keyof KernGridAttributes]?: KernGrid[K] } & { [K in keyof KernGrid & keyof KernGridAttributes as `attr:${K}`]?: KernGridAttributes[K] } & { [K in keyof KernGrid & keyof KernGridAttributes as `prop:${K}`]?: KernGrid[K] };
+        "kern-grid-item": Omit<KernGridItem, keyof KernGridItemAttributes> & { [K in keyof KernGridItem & keyof KernGridItemAttributes]?: KernGridItem[K] } & { [K in keyof KernGridItem & keyof KernGridItemAttributes as `attr:${K}`]?: KernGridItemAttributes[K] } & { [K in keyof KernGridItem & keyof KernGridItemAttributes as `prop:${K}`]?: KernGridItem[K] };
         "kern-icon": Omit<KernIcon, keyof KernIconAttributes> & { [K in keyof KernIcon & keyof KernIconAttributes]?: KernIcon[K] } & { [K in keyof KernIcon & keyof KernIconAttributes as `attr:${K}`]?: KernIconAttributes[K] } & { [K in keyof KernIcon & keyof KernIconAttributes as `prop:${K}`]?: KernIcon[K] } & OneOf<"name", KernIcon["name"], KernIconAttributes["name"]>;
         "kern-input": Omit<KernInput, keyof KernInputAttributes> & { [K in keyof KernInput & keyof KernInputAttributes]?: KernInput[K] } & { [K in keyof KernInput & keyof KernInputAttributes as `attr:${K}`]?: KernInputAttributes[K] } & { [K in keyof KernInput & keyof KernInputAttributes as `prop:${K}`]?: KernInput[K] };
         "kern-ip-input": Omit<KernIpInput, keyof KernIpInputAttributes> & { [K in keyof KernIpInput & keyof KernIpInputAttributes]?: KernIpInput[K] } & { [K in keyof KernIpInput & keyof KernIpInputAttributes as `attr:${K}`]?: KernIpInputAttributes[K] } & { [K in keyof KernIpInput & keyof KernIpInputAttributes as `prop:${K}`]?: KernIpInput[K] };
@@ -6574,6 +6935,15 @@ declare module "@stencil/core" {
              * `danger` is announced as an alert, the others as status.
              */
             "kern-alert": LocalJSX.IntrinsicElements["kern-alert"] & JSXBase.HTMLAttributes<HTMLKernAlertElement>;
+            /**
+             * Base layout of an app: topbar, optional side navigation, main content with a maximum width and page padding, and
+             * an optional footer. Without the `sidebar` slot it is a plain page frame.
+             * From `breakpoint` (960 px of shell width) the sidebar stands on the left and scrolls on its own; below it, it opens
+             * as a modal drawer from the left. A kern-topbar in the `topbar` slot then gets a menu button (`menu`) that opens it;
+             * with your own header call `toggleSidebar()`. A link click in the drawer closes it. A skip link («Skip to content»)
+             * leads past the navigation, and `<header>`, `<nav>` and `<main>` are landmarks.
+             */
+            "kern-app-shell": LocalJSX.IntrinsicElements["kern-app-shell"] & JSXBase.HTMLAttributes<HTMLKernAppShellElement>;
             /**
              * Short label for properties (Gen, firmware, function) and results in tables. At most two words;
              * device states use kern-status instead.
@@ -6663,6 +7033,20 @@ declare module "@stencil/core" {
              * new files are added, otherwise they replace the previous one. The form gets the files under `name`.
              */
             "kern-file-input": LocalJSX.IntrinsicElements["kern-file-input"] & JSXBase.HTMLAttributes<HTMLKernFileInputElement>;
+            /**
+             * Lays out cards, tiles and form groups in columns. Without `columns` it fits as many columns of at least `min` as
+             * there is room for, without breakpoints. With `columns` it has a fixed number of equal columns; `columns-sm`,
+             * `columns-md` and `columns-lg` change it from 640, 960 and 1280 px, and `kern-grid-item` children span several.
+             * Breakpoints are measured on the grid itself (container queries), not on the window, so a grid in a sidebar, a
+             * drawer or half a page switches by the room it really has.
+             */
+            "kern-grid": LocalJSX.IntrinsicElements["kern-grid"] & JSXBase.HTMLAttributes<HTMLKernGridElement>;
+            /**
+             * An item of a `kern-grid` with `columns` that spans several columns. `span-sm`, `span-md` and `span-lg` change the
+             * span from 640, 960 and 1280 px grid width, e.g. `span="12" span-md="8"`: full width on small grids, two thirds
+             * from 960 px. A span larger than the columns is cut to the row.
+             */
+            "kern-grid-item": LocalJSX.IntrinsicElements["kern-grid-item"] & JSXBase.HTMLAttributes<HTMLKernGridItemElement>;
             /**
              * One of Kern's glyphs (Lucide style), a brand icon (`brand-github`, `brand-home-assistant` …, from Simple Icons) or a
              * country flag (`flag-ch`, `flag-gb` …, from flag-icons). Sized by `font-size` (1em high) and coloured by
@@ -6921,6 +7305,8 @@ declare module "@stencil/core" {
              * App header: brand on the left, main navigation, tools on the right (site switch, server status,
              * kern-theme-toggle). Put each nav link directly into the `nav` slot; the active one gets
              * `aria-current="page"` or class `active` (e.g. Angular `routerLinkActive="active"`).
+             * `menu` adds a menu button before the brand that emits `kernMenu`, e.g. to open a side navigation on small screens;
+             * kern-app-shell sets it itself.
              */
             "kern-topbar": LocalJSX.IntrinsicElements["kern-topbar"] & JSXBase.HTMLAttributes<HTMLKernTopbarElement>;
         }

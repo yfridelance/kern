@@ -59,4 +59,19 @@ describe('toast()', () => {
     expect(await done).toBe('timeout');
     expect(region.querySelectorAll('kern-toast').length).toBe(0);
   });
+
+  it('names the region with setToastRegionLabel, also after it exists', async () => {
+    const page = await newSpecPage({ components: [KernToast], html: `<div></div>` });
+    // A fresh module: the region is created once per page and would be the previous test's otherwise.
+    let mod!: typeof import('../../utils/toast');
+    jest.isolateModules(() => (mod = require('../../utils/toast')));
+    mod.setToastRegionLabel('Notifications');
+    const done = mod.toast({ message: 'Saved', duration: 20 });
+    await page.waitForChanges();
+    const region = page.doc.querySelector('.kern-toasts')!;
+    expect(region.getAttribute('aria-label')).toBe('Notifications');
+    mod.setToastRegionLabel('Mitteilungen');
+    expect(region.getAttribute('aria-label')).toBe('Mitteilungen');
+    await done;
+  });
 });

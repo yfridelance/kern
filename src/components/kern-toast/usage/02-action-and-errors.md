@@ -1,6 +1,6 @@
 # Undo action and persistent errors
 
-`actionLabel` adds a button; the promise then resolves with `'action'` when it is clicked. `duration` is in milliseconds (default 5000, paused while hovered or focused); `0` keeps the toast until the user closes it, which suits errors. `danger` interrupts as an alert.
+`actionLabel` adds a button; the promise then resolves with `'action'` when it is clicked. `duration` is in milliseconds (default 5000, paused while hovered or focused); `0` keeps the toast until the user closes it, which suits errors. `danger` interrupts as an alert. All toasts share one live region; `setToastRegionLabel('Notifications')` sets its accessible name (default „Benachrichtigungen“).
 
 ```html
 <div style="display:flex;flex-wrap:wrap;gap:12px">

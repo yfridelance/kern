@@ -55,6 +55,21 @@ const GUIDES = [
   ],
 ];
 
+/**
+ * Patterns: `docs/patterns/NN-slug.md` → `patterns/slug.html`, ordered by the number, titled by the `#` heading.
+ * New pages need no change here.
+ */
+const PATTERNS = readdirSync(join(root, 'docs/patterns'))
+  .filter((f) => /^\d+-[a-z0-9-]+\.md$/.test(f))
+  .sort()
+  .map((file) => {
+    const md = readFileSync(join(root, 'docs/patterns', file), 'utf8').replace(/\r/g, '');
+    const title = /^#\s+(.+)$/m.exec(md)?.[1]?.trim();
+    if (!title) throw new Error(`docs/patterns/${file}: missing # title`);
+    return { path: `patterns/${file.replace(/^\d+-/, '').replace(/\.md$/, '')}`, title, file, md };
+  });
+GUIDES.push(['Patterns', PATTERNS.map((p) => [p.path, p.title])]);
+
 const byTag = new Map(docs.components.map((c) => [c.tag, c]));
 const listed = GROUPS.flatMap(([, tags]) => tags);
 const missing = docs.components.map((c) => c.tag).filter((t) => !listed.includes(t));
@@ -82,20 +97,37 @@ const inline = (s) =>
 function examples(usage) {
   return Object.keys(usage ?? {})
     .sort()
-    .map((key) => {
-      const md = usage[key].replace(/\r/g, '');
-      const title = /^#\s+(.+)$/m.exec(md)?.[1]?.trim() ?? key.replace(/^\d+-/, '').replace(/-/g, ' ');
-      const block = (lang) => new RegExp('```' + lang + '\\s*\\n([\\s\\S]*?)\\n```').exec(md)?.[1] ?? '';
-      const text = md
-        .replace(/^#\s+.+$/m, '')
-        .replace(/```[\s\S]*?```/g, '')
-        .trim()
-        .split(/\n{2,}/)
-        .map((p) => p.trim())
-        .filter(Boolean);
-      const snippets = [...md.matchAll(/```(\w+)[ \t]+([^\n]+)\n([\s\S]*?)\n```/g)].map(([, lang, heading, code]) => ({ lang, heading: heading.trim(), code }));
-      return { key, title, text, html: block('html'), js: block('js'), snippets };
-    });
+    .map((key) => parseExample(usage[key].replace(/\r/g, ''), /^#\s+(.+)$/m, key.replace(/^\d+-/, '').replace(/-/g, ' '), key));
+}
+
+/** One example from markdown: the title (by `heading`), text paragraphs, html/js blocks and source-only snippets. */
+function parseExample(md, heading, fallbackTitle, key) {
+  const title = heading.exec(md)?.[1]?.trim() ?? fallbackTitle;
+  const block = (lang) => new RegExp('```' + lang + '\\s*\\n([\\s\\S]*?)\\n```').exec(md)?.[1] ?? '';
+  const text = md
+    .replace(heading, '')
+    .replace(/```[\s\S]*?```/g, '')
+    .trim()
+    .split(/\n{2,}/)
+    .map((p) => p.trim())
+    .filter(Boolean);
+  const snippets = [...md.matchAll(/```(\w+)[ \t]+([^\n]+)\n([\s\S]*?)\n```/g)].map(([, lang, h, code]) => ({ lang, heading: h.trim(), code }));
+  return { key, title, text, html: block('html'), js: block('js'), snippets };
+}
+
+/** Text paragraphs with simple markdown: `- ` lists, `code`, **bold**, [links](…). */
+function prose(paragraphs) {
+  const md = (s) => inline(s).replace(/\[([^\]]+)\]\(([^)\s]+)\)/g, (m, label, href) => `<a href="${href}">${label}</a>`);
+  return paragraphs
+    .map((p) =>
+      /^- /.test(p)
+        ? `<ul>${p
+            .split(/\n(?=- )/)
+            .map((li) => `<li>${md(li.replace(/^- /, ''))}</li>`)
+            .join('')}</ul>`
+        : `<p>${md(p)}</p>`,
+    )
+    .join('\n  ');
 }
 
 // ---------- page shell ----------
@@ -192,13 +224,17 @@ ${ex.js}
     : '';
   return `<section class="example" aria-labelledby="${id}-title">
   <h3 id="${id}-title">${esc(ex.title)}</h3>
-  ${ex.text.map((p) => `<p>${inline(p)}</p>`).join('\n  ')}
-  <div class="demo" id="${id}">
+  ${prose(ex.text)}
+  ${
+    ex.html
+      ? `<div class="demo" id="${id}">
 ${ex.html}
   </div>
   <kern-code class="source" language="html" heading="HTML">
 ${esc(ex.html)}
-  </kern-code>
+  </kern-code>`
+      : ''
+  }
   ${ex.js ? `<kern-code class="source" language="js" heading="JavaScript">\n${esc(ex.js)}\n  </kern-code>` : ''}
   ${ex.snippets.map((sn) => `<kern-code class="source" language="${esc(sn.lang)}" heading="${esc(sn.heading)}">\n${esc(sn.code)}\n  </kern-code>`).join('\n  ')}
   ${script}
@@ -375,11 +411,32 @@ function guidePage(path, file) {
   return page({ path, title, body, source: `docs/pages/${file}` });
 }
 
+// ---------- pattern pages ----------
+
+/** Pattern page: `# Title`, intro, then one live example per `## Section` (text-only sections are fine). */
+function patternPage(p) {
+  const [head, ...parts] = p.md.split(/^(?=## )/m);
+  const intro = parseExample(head, /^#\s+(.+)$/m, p.title, p.file);
+  const sections = parts.map((part, i) => parseExample(part, /^##\s+(.+)$/m, `Section ${i + 1}`, `${p.file}#${i + 1}`));
+  const slug = (t) => t.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+  const toc = sections.map((s) => `<a href="#${slug(s.title)}-title">${esc(s.title)}</a>`).join('');
+  const body = `
+      <header class="page-head">
+        <span class="overline">Pattern</span>
+        <h1>${esc(p.title)}</h1>
+        <div class="lead">${prose(intro.text)}</div>
+        ${sections.length > 1 ? `<nav class="toc" aria-label="On this page">${toc}</nav>` : ''}
+      </header>
+      ${sections.map((s) => example(s, slug(s.title))).join('\n')}`;
+  return page({ path: p.path, title: p.title, body, source: `docs/patterns/${p.file}` });
+}
+
 // ---------- write ----------
 
 rmSync(out, { recursive: true, force: true });
 mkdirSync(join(out, 'components'), { recursive: true });
 mkdirSync(join(out, 'fundamentals'), { recursive: true });
+mkdirSync(join(out, 'patterns'), { recursive: true });
 cpSync(join(root, 'dist/kern'), join(out, 'kern'), { recursive: true });
 cpSync(join(root, 'docs/assets'), join(out, 'assets'), { recursive: true });
 
@@ -390,7 +447,8 @@ const write = (path, html) => {
 };
 
 write('index', guidePage('index', 'index.html'));
-for (const [, pages] of GUIDES) for (const [path] of pages) write(path, guidePage(path, `${path.replace('/', '-')}.html`));
+for (const [, pages] of GUIDES) for (const [path] of pages) if (!path.startsWith('patterns/')) write(path, guidePage(path, `${path.replace('/', '-')}.html`));
+for (const p of PATTERNS) write(p.path, patternPage(p));
 for (const c of docs.components) write(`components/${c.tag}`, componentPage(c));
 writeFileSync(join(out, '.nojekyll'), '');
 

@@ -234,7 +234,7 @@ npm install
 npm start        # Demo mit Watch unter http://localhost:3333
 npm test         # Spec-Tests (Jest)
 npm run build    # dist/, loader/, www/, Angular-Wrapper, readme.md pro Komponente
-npm run docs     # Dokumentation nach site/ (Beispiele: src/components/<tag>/usage/*.md)
+npm run docs     # Dokumentation nach site/ (Beispiele: src/components/<tag>/usage/*.md, Muster: docs/patterns/*.md)
 npm run docs:serve  # http://localhost:4321/kern/
 ```
 

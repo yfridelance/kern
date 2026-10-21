@@ -230,12 +230,16 @@ const ACTIONS = {
   },
 };
 
-/** Devices behind the selection. For “all matching” the server resolves the filter snapshot now. */
-async function targets() {
-  if (selection.mode === 'keys') return selection.keys.map((k) => known.get(k)).filter(Boolean);
-  const { rows } = await server.query({ ...selection.filter, sort: query.sort, page: 1, pageSize: 10_000 });
+/** A copy of the selection, taken when an action starts: later clicks in the list must not change a running job. */
+const snapshot = (sel) =>
+  sel.mode === 'keys' ? { mode: 'keys', keys: [...sel.keys] } : { mode: 'all', filter: structuredClone(sel.filter), except: new Set(sel.except) };
+
+/** Devices behind a selection snapshot. For “all matching” the server resolves the filter now. */
+async function targets(sel) {
+  if (sel.mode === 'keys') return sel.keys.map((k) => known.get(k)).filter(Boolean);
+  const { rows } = await server.query({ ...sel.filter, sort: query.sort, page: 1, pageSize: 10_000 });
   for (const d of rows) known.set(d.id, d);
-  return rows.filter((d) => !selection.except.has(d.id));
+  return rows.filter((d) => !sel.except.has(d.id));
 }
 
 /** In this demo about every sixth device times out, a few of them also on retry. */
@@ -249,7 +253,7 @@ async function execute(name, button, retryOf) {
   let started = false;
   try {
     button.busy = true;
-    const list = retryOf ?? (await targets());
+    const list = retryOf ?? (await targets(snapshot(selection)));
     button.busy = false;
     if (!list.length) return;
     if (action.confirm && !retryOf && !(await confirm(action.confirm(list.length)))) return;
@@ -283,8 +287,12 @@ async function execute(name, button, retryOf) {
 async function removeDone(states) {
   const gone = new Set(states.filter((s) => s.status === 'done').map((s) => s.key));
   for (let i = inventory.length - 1; i >= 0; i--) if (gone.has(inventory[i].id)) inventory.splice(i, 1);
-  if (selection.mode === 'keys') selection.keys = selection.keys.filter((k) => !gone.has(k));
-  else selection.total = (await server.query({ ...selection.filter, pageSize: 1 })).total;
+  const sel = selection;
+  if (sel.mode === 'keys') sel.keys = sel.keys.filter((k) => !gone.has(k));
+  else {
+    const { total } = await server.query({ ...sel.filter, pageSize: 1 });
+    if (sel === selection) sel.total = total; // unless the user changed the selection meanwhile
+  }
   await load();
 }
 
@@ -374,6 +382,7 @@ If your app prefers to keep “all matching” across a filter change, update th
 
 - **Confirm when it matters.** A reboot asks with `confirm()`; removing devices uses `typeToConfirm` with the number of devices, so the user has to read the scope. A harmless action (the firmware update skips devices that are up to date) runs at once.
 - **No double start.** The clicked button is `busy` while the targets are resolved and while the job runs; the other action buttons are disabled. The handler also returns early while a run is open, because a click can arrive before the button re-renders. `busy` on kern-button ignores clicks on its own.
+- **Freeze the scope.** The action copies the selection (keys, or filter and exceptions) when it starts and resolves its targets from that copy. Clearing the selection or changing the filter while the targets load or the job runs does not change the job.
 - **Skips are decided by the app** before the run (offline devices cannot reboot) and shown with their reason.
 - **Long jobs** with cancel and live progress per device are covered in the Jobs pattern.
 

@@ -10,6 +10,7 @@ export const de: KernStrings = {
   'kern-calendar.labelPrev': 'Vorheriger Monat',
   'kern-calendar.labelNext': 'Nächster Monat',
   'kern-calendar.labelWeek': 'KW',
+  'kern-chip.labelRemove': '{label} entfernen',
   'kern-code.labelCopy': 'Kopieren',
   'kern-code.labelCopied': 'Kopiert',
   'kern-color-picker.labelOpen': 'Farbe wählen',

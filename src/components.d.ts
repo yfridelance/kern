@@ -322,6 +322,38 @@ export namespace Components {
         "value": string;
     }
     /**
+     * Compact pill for an active filter, a selected value or a tag. `removable` adds a × button (one tab stop per chip);
+     * × or Delete/Backspace on it emits `kernRemove`. The chip does not remove itself: the app updates its state and
+     * moves the focus, e.g. with `setFocus()` to the next chip or back to the search field.
+     */
+    interface KernChip {
+        /**
+          * Accessible name of the ×; `{label}` is replaced by the chip text.
+         */
+        "labelRemove"?: string;
+        /**
+          * Shows a × button that emits `kernRemove`.
+          * @default false
+         */
+        "removable": boolean;
+        /**
+          * Focuses the × (removable chips only), e.g. the next chip after one was removed.
+         */
+        "setFocus": () => Promise<void>;
+        /**
+          * @default 'md'
+         */
+        "size": 'md' | 'sm';
+        /**
+          * @default 'neutral'
+         */
+        "tone": 'neutral' | 'accent' | 'ok' | 'warn' | 'danger';
+        /**
+          * Value sent with `kernRemove`; defaults to the chip text.
+         */
+        "value"?: string;
+    }
+    /**
      * Code and commands: a block with copy button, optional heading (file name), line numbers, wrapping and a maximum
      * height, highlighted for shell, yaml, json, js/ts, ini and html; or `inline` in running text. The code comes from `code`
      * or the text content; common indentation is removed, so it can be written indented in HTML.
@@ -2436,6 +2468,10 @@ export interface KernCheckboxCustomEvent<T> extends CustomEvent<T> {
     detail: T;
     target: HTMLKernCheckboxElement;
 }
+export interface KernChipCustomEvent<T> extends CustomEvent<T> {
+    detail: T;
+    target: HTMLKernChipElement;
+}
 export interface KernCodeCustomEvent<T> extends CustomEvent<T> {
     detail: T;
     target: HTMLKernCodeElement;
@@ -2723,6 +2759,28 @@ declare global {
     var HTMLKernCheckboxElement: {
         prototype: HTMLKernCheckboxElement;
         new (): HTMLKernCheckboxElement;
+    };
+    interface HTMLKernChipElementEventMap {
+        "kernRemove": { value: string };
+    }
+    /**
+     * Compact pill for an active filter, a selected value or a tag. `removable` adds a × button (one tab stop per chip);
+     * × or Delete/Backspace on it emits `kernRemove`. The chip does not remove itself: the app updates its state and
+     * moves the focus, e.g. with `setFocus()` to the next chip or back to the search field.
+     */
+    interface HTMLKernChipElement extends Components.KernChip, HTMLStencilElement {
+        addEventListener<K extends keyof HTMLKernChipElementEventMap>(type: K, listener: (this: HTMLKernChipElement, ev: KernChipCustomEvent<HTMLKernChipElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLKernChipElementEventMap>(type: K, listener: (this: HTMLKernChipElement, ev: KernChipCustomEvent<HTMLKernChipElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
+    }
+    var HTMLKernChipElement: {
+        prototype: HTMLKernChipElement;
+        new (): HTMLKernChipElement;
     };
     interface HTMLKernCodeElementEventMap {
         "kernCopy": { value: string };
@@ -3708,6 +3766,7 @@ declare global {
         "kern-calendar": HTMLKernCalendarElement;
         "kern-card": HTMLKernCardElement;
         "kern-checkbox": HTMLKernCheckboxElement;
+        "kern-chip": HTMLKernChipElement;
         "kern-code": HTMLKernCodeElement;
         "kern-color-picker": HTMLKernColorPickerElement;
         "kern-copy": HTMLKernCopyElement;
@@ -4074,6 +4133,38 @@ declare namespace LocalJSX {
         "onKernChange"?: (event: KernCheckboxCustomEvent<{ checked: boolean }>) => void;
         /**
           * @default 'on'
+         */
+        "value"?: string;
+    }
+    /**
+     * Compact pill for an active filter, a selected value or a tag. `removable` adds a × button (one tab stop per chip);
+     * × or Delete/Backspace on it emits `kernRemove`. The chip does not remove itself: the app updates its state and
+     * moves the focus, e.g. with `setFocus()` to the next chip or back to the search field.
+     */
+    interface KernChip {
+        /**
+          * Accessible name of the ×; `{label}` is replaced by the chip text.
+         */
+        "labelRemove"?: string;
+        /**
+          * × clicked or Delete/Backspace pressed on it.
+         */
+        "onKernRemove"?: (event: KernChipCustomEvent<{ value: string }>) => void;
+        /**
+          * Shows a × button that emits `kernRemove`.
+          * @default false
+         */
+        "removable"?: boolean;
+        /**
+          * @default 'md'
+         */
+        "size"?: 'md' | 'sm';
+        /**
+          * @default 'neutral'
+         */
+        "tone"?: 'neutral' | 'accent' | 'ok' | 'warn' | 'danger';
+        /**
+          * Value sent with `kernRemove`; defaults to the chip text.
          */
         "value"?: string;
     }
@@ -6350,6 +6441,13 @@ declare namespace LocalJSX {
         "value": string;
         "label": string;
     }
+    interface KernChipAttributes {
+        "value": string;
+        "removable": boolean;
+        "tone": 'neutral' | 'accent' | 'ok' | 'warn' | 'danger';
+        "size": 'md' | 'sm';
+        "labelRemove": string;
+    }
     interface KernCodeAttributes {
         "code": string;
         "language": KernCodeLanguage;
@@ -6922,6 +7020,7 @@ declare namespace LocalJSX {
         "kern-calendar": Omit<KernCalendar, keyof KernCalendarAttributes> & { [K in keyof KernCalendar & keyof KernCalendarAttributes]?: KernCalendar[K] } & { [K in keyof KernCalendar & keyof KernCalendarAttributes as `attr:${K}`]?: KernCalendarAttributes[K] } & { [K in keyof KernCalendar & keyof KernCalendarAttributes as `prop:${K}`]?: KernCalendar[K] };
         "kern-card": Omit<KernCard, keyof KernCardAttributes> & { [K in keyof KernCard & keyof KernCardAttributes]?: KernCard[K] } & { [K in keyof KernCard & keyof KernCardAttributes as `attr:${K}`]?: KernCardAttributes[K] } & { [K in keyof KernCard & keyof KernCardAttributes as `prop:${K}`]?: KernCard[K] };
         "kern-checkbox": Omit<KernCheckbox, keyof KernCheckboxAttributes> & { [K in keyof KernCheckbox & keyof KernCheckboxAttributes]?: KernCheckbox[K] } & { [K in keyof KernCheckbox & keyof KernCheckboxAttributes as `attr:${K}`]?: KernCheckboxAttributes[K] } & { [K in keyof KernCheckbox & keyof KernCheckboxAttributes as `prop:${K}`]?: KernCheckbox[K] };
+        "kern-chip": Omit<KernChip, keyof KernChipAttributes> & { [K in keyof KernChip & keyof KernChipAttributes]?: KernChip[K] } & { [K in keyof KernChip & keyof KernChipAttributes as `attr:${K}`]?: KernChipAttributes[K] } & { [K in keyof KernChip & keyof KernChipAttributes as `prop:${K}`]?: KernChip[K] };
         "kern-code": Omit<KernCode, keyof KernCodeAttributes> & { [K in keyof KernCode & keyof KernCodeAttributes]?: KernCode[K] } & { [K in keyof KernCode & keyof KernCodeAttributes as `attr:${K}`]?: KernCodeAttributes[K] } & { [K in keyof KernCode & keyof KernCodeAttributes as `prop:${K}`]?: KernCode[K] };
         "kern-color-picker": Omit<KernColorPicker, keyof KernColorPickerAttributes> & { [K in keyof KernColorPicker & keyof KernColorPickerAttributes]?: KernColorPicker[K] } & { [K in keyof KernColorPicker & keyof KernColorPickerAttributes as `attr:${K}`]?: KernColorPickerAttributes[K] } & { [K in keyof KernColorPicker & keyof KernColorPickerAttributes as `prop:${K}`]?: KernColorPicker[K] };
         "kern-copy": Omit<KernCopy, keyof KernCopyAttributes> & { [K in keyof KernCopy & keyof KernCopyAttributes]?: KernCopy[K] } & { [K in keyof KernCopy & keyof KernCopyAttributes as `attr:${K}`]?: KernCopyAttributes[K] } & { [K in keyof KernCopy & keyof KernCopyAttributes as `prop:${K}`]?: KernCopy[K] };
@@ -7039,6 +7138,12 @@ declare module "@stencil/core" {
              * Checkbox for selection and filters ("nur mit Firmware-Update", device selection), form-associated.
              */
             "kern-checkbox": LocalJSX.IntrinsicElements["kern-checkbox"] & JSXBase.HTMLAttributes<HTMLKernCheckboxElement>;
+            /**
+             * Compact pill for an active filter, a selected value or a tag. `removable` adds a × button (one tab stop per chip);
+             * × or Delete/Backspace on it emits `kernRemove`. The chip does not remove itself: the app updates its state and
+             * moves the focus, e.g. with `setFocus()` to the next chip or back to the search field.
+             */
+            "kern-chip": LocalJSX.IntrinsicElements["kern-chip"] & JSXBase.HTMLAttributes<HTMLKernChipElement>;
             /**
              * Code and commands: a block with copy button, optional heading (file name), line numbers, wrapping and a maximum
              * height, highlighted for shell, yaml, json, js/ts, ini and html; or `inline` in running text. The code comes from `code`

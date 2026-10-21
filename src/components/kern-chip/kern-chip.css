@@ -1,0 +1,25 @@
+:host {
+  display: inline-flex; align-items: center; gap: 2px; max-width: 100%; height: 24px; padding: 0 var(--space-2);
+  box-sizing: border-box; vertical-align: middle;
+  border: 1px solid var(--line); border-radius: var(--radius-pill);
+  background: var(--surface-sunken); color: var(--text);
+  font: 400 13px/18px var(--font-sans); white-space: nowrap;
+}
+:host([hidden]) { display: none; }
+:host([removable]) { padding-right: 2px; }
+:host([size="sm"]) { height: 20px; padding: 0 6px; font-size: 12px; }
+:host([size="sm"][removable]) { padding-right: 1px; }
+:host([tone="accent"]) { background: var(--accent-soft); border-color: transparent; color: var(--accent-text); }
+:host([tone="ok"]) { background: var(--ok-soft); border-color: transparent; color: var(--ok); }
+:host([tone="warn"]) { background: var(--warn-soft); border-color: transparent; color: var(--warn); }
+:host([tone="danger"]) { background: var(--danger-soft); border-color: transparent; color: var(--danger); }
+.label { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.remove {
+  all: unset; flex: none; display: inline-grid; place-items: center; width: 20px; height: 20px;
+  border-radius: var(--radius-pill); color: inherit; opacity: .75; cursor: pointer;
+}
+.remove:hover { background: var(--hover); opacity: 1; }
+.remove:focus-visible { outline: 2px solid var(--focus); outline-offset: -1px; opacity: 1; }
+.remove svg { width: 12px; height: 12px; }
+:host([size="sm"]) .remove { width: 16px; height: 16px; }
+:host([size="sm"]) .remove svg { width: 10px; height: 10px; }

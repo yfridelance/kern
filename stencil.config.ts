@@ -49,7 +49,8 @@ export const config: Config = {
   testing: {
     browserHeadless: 'shell',
     // Agent worktrees live in .claude/worktrees inside the repo; their copies must not run with ours.
-    testPathIgnorePatterns: ['/node_modules/', '/\\.claude/'],
+    // e2e/ holds the Playwright browser tests (npm run e2e).
+    testPathIgnorePatterns: ['/node_modules/', '/\\.claude/', '/e2e/'],
     modulePathIgnorePatterns: ['/\\.claude/'],
   },
 };

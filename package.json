@@ -70,9 +70,11 @@
     "test": "npm run tokens && stencil test --spec",
     "generate": "stencil generate",
     "docs": "npm run build && node scripts/build-docs.mjs",
-    "docs:serve": "node scripts/serve-docs.mjs"
+    "docs:serve": "node scripts/serve-docs.mjs",
+    "e2e": "npm run build && playwright test"
   },
   "devDependencies": {
+    "@playwright/test": "1.64.1",
     "@stencil/angular-output-target": "1.5.0",
     "@stencil/core": "4.45.2",
     "@types/jest": "29.5.14",

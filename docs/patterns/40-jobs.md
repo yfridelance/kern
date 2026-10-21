@@ -17,8 +17,6 @@ Try it with the keyboard: expand a row or focus a button, then start the job. Fo
 
 ```html
 <style>
-  /* Workaround until kern-card wraps its header itself (#148). */
-  .job::part(header) { flex-wrap: wrap; }
   .job-meta { display: flex; flex-wrap: wrap; gap: var(--space-1) var(--space-4); margin: 0 0 var(--space-3); font-size: 13px; color: var(--text-muted); }
   .job-meta kern-time, .job-meta strong { color: var(--text); font-weight: 500; }
   .job-progress { margin-bottom: var(--space-4); }
@@ -250,8 +248,6 @@ When the scan ends, the bar goes away and the state says how it ended. Here, too
 
 ```html
 <style>
-  /* Workaround until kern-card wraps its header itself (#148). */
-  .scan::part(header) { flex-wrap: wrap; }
   .scan-meta { display: flex; flex-wrap: wrap; gap: var(--space-1) var(--space-4); margin: 0 0 var(--space-3); font-size: 13px; color: var(--text-muted); }
   .scan-meta kern-time { color: var(--text); font-weight: 500; }
   .scan-progress { margin-bottom: var(--space-4); }
@@ -369,8 +365,6 @@ When a step fails, the following steps are skipped and say why. The state of the
 
 ```html
 <style>
-  /* Workaround until kern-card wraps its header itself (#148). */
-  .deploy::part(header) { flex-wrap: wrap; }
   .deploy-log { margin-top: var(--space-3); }
   .deploy-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 </style>

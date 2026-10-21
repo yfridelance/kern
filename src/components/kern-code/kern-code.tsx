@@ -1,4 +1,4 @@
-import { Component, Element, Event, EventEmitter, Host, Prop, State, h } from '@stencil/core';
+import { Component, Element, Event, EventEmitter, Host, Method, Prop, State, h } from '@stencil/core';
 import { Icon } from '../../utils/icons';
 import { dedent, tokenLines, type KernCodeLanguage } from '../../utils/highlight';
 import { kernTexts } from '../../utils/i18n';
@@ -8,9 +8,13 @@ import { kernTexts } from '../../utils/i18n';
  * height, highlighted for shell, yaml, json, js/ts, ini and html; or `inline` in running text. The code comes from `code`
  * or the text content; common indentation is removed, so it can be written indented in HTML.
  *
+ * With `follow` and `max-height` it suits live logs: appended lines scroll into view while the block is scrolled to the
+ * end; scroll up and the position stays, with a button to jump back to the latest line.
+ *
  * @slot - The code as text (instead of `code`)
  * @part code - The `<pre>` (block) or `<code>` (inline)
  * @part copy - The copy button
+ * @part latest - The «Jump to latest» button (with `follow`)
  */
 @Component({
   tag: 'kern-code',
@@ -34,8 +38,14 @@ export class KernCode {
   @Prop({ reflect: true }) inline = false;
   /** Hide the copy button. */
   @Prop() noCopy = false;
+  /**
+   * Follow new lines, for live logs with `max-height`: when the code changes while the block is scrolled to the end,
+   * it scrolls to the new end. Scrolled up, the position stays and a button jumps to the latest line.
+   */
+  @Prop() follow = false;
   @Prop() labelCopy?: string;
   @Prop() labelCopied?: string;
+  @Prop() labelLatest?: string;
   private t = kernTexts(this, 'kern-code');
 
   /** After a successful copy. */
@@ -43,9 +53,14 @@ export class KernCode {
 
   @State() slotText = '';
   @State() copied = false;
+  /** With `follow`: scrolled away from the end. */
+  @State() away = false;
 
   private observer?: MutationObserver;
   private timer?: ReturnType<typeof setTimeout>;
+  private pre?: HTMLPreElement;
+  /** Whether the next render should end scrolled to the end (measured before it). */
+  private stick = true;
 
   connectedCallback() {
     this.read();
@@ -58,6 +73,37 @@ export class KernCode {
     this.observer?.disconnect();
     clearTimeout(this.timer);
   }
+
+  /** Scroll the block to its last line. */
+  @Method()
+  async scrollToEnd() {
+    if (this.pre) this.pre.scrollTop = this.pre.scrollHeight;
+    this.away = false;
+  }
+
+  componentWillRender() {
+    // Measured before the new lines are in: only a block that was at the end follows them.
+    this.stick = !this.pre || this.atEnd();
+  }
+
+  componentDidRender() {
+    if (!this.follow || !this.pre) return;
+    // Synchronously after the patch and before the next paint, so fast updates don't flicker.
+    if (this.stick) this.pre.scrollTop = this.pre.scrollHeight;
+    const away = !this.atEnd();
+    if (away !== this.away) this.away = away;
+  }
+
+  private atEnd() {
+    const pre = this.pre!;
+    return !(pre.scrollHeight > pre.clientHeight) || pre.scrollTop + pre.clientHeight >= pre.scrollHeight - 4;
+  }
+
+  private onScroll = () => {
+    if (!this.follow) return;
+    const away = !this.atEnd();
+    if (away !== this.away) this.away = away;
+  };
 
   private read() {
     this.slotText = this.el.textContent ?? '';
@@ -115,9 +161,23 @@ export class KernCode {
             )}
           </div>
         )}
-        <pre part="code" class={{ numbered: this.lineNumbers, wrap: this.wrap }} style={{ maxHeight: this.maxHeight }} tabindex={0} aria-label={this.heading}>
+        <pre
+          part="code"
+          class={{ numbered: this.lineNumbers, wrap: this.wrap }}
+          style={{ maxHeight: this.maxHeight }}
+          tabindex={0}
+          aria-label={this.heading}
+          ref={(el) => (this.pre = el)}
+          onScroll={this.onScroll}
+        >
           <code>{this.renderLines()}</code>
         </pre>
+        {this.follow && this.away && (
+          <button type="button" class="latest" part="latest" onClick={() => this.scrollToEnd()}>
+            <Icon name="chevron-down" />
+            {this.t('labelLatest')}
+          </button>
+        )}
         <span hidden>
           <slot />
         </span>

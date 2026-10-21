@@ -5,7 +5,7 @@ import { kernTexts } from '../../utils/i18n';
 
 /**
  * Code and commands: a block with copy button, optional heading (file name), line numbers, wrapping and a maximum
- * height, highlighted for shell, yaml, json, js/ts, ini and html; or `inline` in running text. The code comes from `code`
+ * height, highlighted for shell, PowerShell, yaml, json, js/ts, ini, html, Ruby and Go; or `inline` in running text. The code comes from `code`
  * or the text content; common indentation is removed, so it can be written indented in HTML.
  *
  * With `follow` and `max-height` it suits live logs: appended lines scroll into view while the block is scrolled to the
@@ -26,6 +26,10 @@ export class KernCode {
 
   /** The code; defaults to the text content. */
   @Prop() code?: string;
+  /**
+   * Highlighting: `shell`, `powershell` (`ps1`, `pwsh`), `yaml`, `json`, `js`, `ts`, `ini`, `html`, `ruby` (`rb`),
+   * `go` (`golang`) or `text`.
+   */
   @Prop() language: KernCodeLanguage = 'text';
   /** Title above the block, e.g. a file name. */
   @Prop() heading?: string;

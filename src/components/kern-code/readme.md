@@ -8,7 +8,7 @@
 ## Overview
 
 Code and commands: a block with copy button, optional heading (file name), line numbers, wrapping and a maximum
-height, highlighted for shell, yaml, json, js/ts, ini and html; or `inline` in running text. The code comes from `code`
+height, highlighted for shell, PowerShell, yaml, json, js/ts, ini, html, Ruby and Go; or `inline` in running text. The code comes from `code`
 or the text content; common indentation is removed, so it can be written indented in HTML.
 
 With `follow` and `max-height` it suits live logs: appended lines scroll into view while the block is scrolled to the
@@ -20,7 +20,7 @@ end; scroll up and the position stays, with a button to jump back to the latest 
 
 # Commands and config files
 
-A code block with copy button, highlighted for `shell`, `yaml`, `json`, `js`/`ts` and `ini`. The code is the text content; common indentation is removed, so it can be indented with the HTML. `heading` shows a title such as a file name.
+A code block with copy button, highlighted for `shell`, `powershell`, `yaml`, `json`, `js`/`ts`, `ini`, `html`, `ruby` and `go`. The code is the text content; common indentation is removed, so it can be indented with the HTML. `heading` shows a title such as a file name.
 
 ```html
 <div style="display:grid;gap:16px">
@@ -127,23 +127,86 @@ run();
 ```
 
 
+### 05-languages
+
+# PowerShell, Ruby and Go
+
+`language="powershell"` (or `ps1`, `pwsh`) highlights cmdlets such as `Get-ChildItem`, `$variables`, operators like `-eq` and here-strings. `ruby` (`rb`) knows symbols, `@instance` variables and heredocs, `go` (`golang`) raw strings, runes and the predeclared types and functions.
+
+```html
+<div style="display:grid;gap:16px">
+  <kern-code language="powershell" heading="Restart-Shelly.ps1" line-numbers>
+    <# Turn a Shelly relay off and on again, e.g. to restart a frozen access point #>
+    param([string]$Ip = $env:SHELLY_IP, [int]$Delay = 5)
+
+    $status = Invoke-RestMethod -Uri "http://$Ip/rpc/Switch.GetStatus?id=0" -TimeoutSec 3
+    if ($status.output -eq $true) {
+        $body = @"
+    {"id": 0, "on": false, "toggle_after": $Delay}
+    "@
+        Invoke-RestMethod -Method Post -Uri "http://$Ip/rpc/Switch.Set" -Body $body -ContentType 'application/json'
+        Write-Host "Relay off, back on in $Delay s" -ForegroundColor Yellow
+    }
+  </kern-code>
+  <kern-code language="ruby" heading="power_report.rb">
+    require 'net/http'
+    require 'json'
+
+    DEVICES = { kitchen: '192.168.1.34', bathroom_fan: '192.168.1.21' }.freeze
+
+    DEVICES.each do |name, ip|
+      res = Net::HTTP.get(URI("http://#{ip}/rpc/Switch.GetStatus?id=0"))
+      watts = JSON.parse(res, symbolize_names: true)[:apower]
+      puts format('%-14s %6.1f W', name, watts)
+    rescue Errno::EHOSTUNREACH, Net::OpenTimeout
+      warn "#{name}: offline"
+    end
+  </kern-code>
+  <kern-code language="go" heading="shelly.go">
+    // Status reads the relay state of a Shelly Gen2 device.
+    func Status(ctx context.Context, ip string) (bool, error) {
+    	ctx, cancel := context.WithTimeout(ctx, 3*time.Second)
+    	defer cancel()
+    	req, err := http.NewRequestWithContext(ctx, http.MethodGet, "http://"+ip+"/rpc/Switch.GetStatus?id=0", nil)
+    	if err != nil {
+    		return false, err
+    	}
+    	res, err := http.DefaultClient.Do(req)
+    	if err != nil {
+    		return false, fmt.Errorf("shelly %s: %w", ip, err)
+    	}
+    	defer res.Body.Close()
+    	var s struct {
+    		Output bool    `json:"output"`
+    		Power  float64 `json:"apower"`
+    	}
+    	if err := json.NewDecoder(res.Body).Decode(&s); err != nil {
+    		return false, err
+    	}
+    	return s.Output, nil
+    }
+  </kern-code>
+</div>
+```
+
+
 
 ## Properties
 
-| Property      | Attribute      | Description                                                                                                                                                                                                        | Type                                                                       | Default     |
-| ------------- | -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------- | ----------- |
-| `code`        | `code`         | The code; defaults to the text content.                                                                                                                                                                            | `string \| undefined`                                                      | `undefined` |
-| `follow`      | `follow`       | Follow new lines, for live logs with `max-height`: when the code changes while the block is scrolled to the end, it scrolls to the new end. Scrolled up, the position stays and a button jumps to the latest line. | `boolean`                                                                  | `false`     |
-| `heading`     | `heading`      | Title above the block, e.g. a file name.                                                                                                                                                                           | `string \| undefined`                                                      | `undefined` |
-| `inline`      | `inline`       | In running text, without copy button.                                                                                                                                                                              | `boolean`                                                                  | `false`     |
-| `labelCopied` | `label-copied` |                                                                                                                                                                                                                    | `string \| undefined`                                                      | `undefined` |
-| `labelCopy`   | `label-copy`   |                                                                                                                                                                                                                    | `string \| undefined`                                                      | `undefined` |
-| `labelLatest` | `label-latest` |                                                                                                                                                                                                                    | `string \| undefined`                                                      | `undefined` |
-| `language`    | `language`     |                                                                                                                                                                                                                    | `"html" \| "ini" \| "js" \| "json" \| "shell" \| "text" \| "ts" \| "yaml"` | `'text'`    |
-| `lineNumbers` | `line-numbers` |                                                                                                                                                                                                                    | `boolean`                                                                  | `false`     |
-| `maxHeight`   | `max-height`   | Scroll beyond this height, e.g. `240px`.                                                                                                                                                                           | `string \| undefined`                                                      | `undefined` |
-| `noCopy`      | `no-copy`      | Hide the copy button.                                                                                                                                                                                              | `boolean`                                                                  | `false`     |
-| `wrap`        | `wrap`         | Wrap long lines instead of scrolling sideways.                                                                                                                                                                     | `boolean`                                                                  | `false`     |
+| Property      | Attribute      | Description                                                                                                                                                                                                        | Type                                                                                                                                                | Default     |
+| ------------- | -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------- | ----------- |
+| `code`        | `code`         | The code; defaults to the text content.                                                                                                                                                                            | `string \| undefined`                                                                                                                               | `undefined` |
+| `follow`      | `follow`       | Follow new lines, for live logs with `max-height`: when the code changes while the block is scrolled to the end, it scrolls to the new end. Scrolled up, the position stays and a button jumps to the latest line. | `boolean`                                                                                                                                           | `false`     |
+| `heading`     | `heading`      | Title above the block, e.g. a file name.                                                                                                                                                                           | `string \| undefined`                                                                                                                               | `undefined` |
+| `inline`      | `inline`       | In running text, without copy button.                                                                                                                                                                              | `boolean`                                                                                                                                           | `false`     |
+| `labelCopied` | `label-copied` |                                                                                                                                                                                                                    | `string \| undefined`                                                                                                                               | `undefined` |
+| `labelCopy`   | `label-copy`   |                                                                                                                                                                                                                    | `string \| undefined`                                                                                                                               | `undefined` |
+| `labelLatest` | `label-latest` |                                                                                                                                                                                                                    | `string \| undefined`                                                                                                                               | `undefined` |
+| `language`    | `language`     | Highlighting: `shell`, `powershell` (`ps1`, `pwsh`), `yaml`, `json`, `js`, `ts`, `ini`, `html`, `ruby` (`rb`), `go` (`golang`) or `text`.                                                                          | `"go" \| "golang" \| "html" \| "ini" \| "js" \| "json" \| "powershell" \| "ps1" \| "pwsh" \| "rb" \| "ruby" \| "shell" \| "text" \| "ts" \| "yaml"` | `'text'`    |
+| `lineNumbers` | `line-numbers` |                                                                                                                                                                                                                    | `boolean`                                                                                                                                           | `false`     |
+| `maxHeight`   | `max-height`   | Scroll beyond this height, e.g. `240px`.                                                                                                                                                                           | `string \| undefined`                                                                                                                               | `undefined` |
+| `noCopy`      | `no-copy`      | Hide the copy button.                                                                                                                                                                                              | `boolean`                                                                                                                                           | `false`     |
+| `wrap`        | `wrap`         | Wrap long lines instead of scrolling sideways.                                                                                                                                                                     | `boolean`                                                                                                                                           | `false`     |
 
 
 ## Events

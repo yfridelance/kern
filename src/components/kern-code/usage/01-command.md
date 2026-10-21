@@ -1,6 +1,6 @@
 # Commands and config files
 
-A code block with copy button, highlighted for `shell`, `yaml`, `json`, `js`/`ts` and `ini`. The code is the text content; common indentation is removed, so it can be indented with the HTML. `heading` shows a title such as a file name.
+A code block with copy button, highlighted for `shell`, `powershell`, `yaml`, `json`, `js`/`ts`, `ini`, `html`, `ruby` and `go`. The code is the text content; common indentation is removed, so it can be indented with the HTML. `heading` shows a title such as a file name.
 
 ```html
 <div style="display:grid;gap:16px">

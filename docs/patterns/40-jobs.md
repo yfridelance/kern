@@ -222,10 +222,12 @@ async function run(keys) {
 ui.start.addEventListener('click', () => run([...states.keys()]));
 ui.cancel.addEventListener('click', async () => {
   if (phase !== 'running') return;
+  // The request belongs to this run: if it ends meanwhile and a new one starts, the new one keeps running.
+  const job = controller;
   setPhase('cancelling');
   // The app asks its backend to cancel; the button stays busy until the backend confirms.
   await new Promise((resolve) => setTimeout(resolve, 900));
-  controller.abort();
+  job.abort();
 });
 ui.retry.addEventListener('click', () => run([...states.values()].filter((s) => s.status === 'failed' || s.status === 'cancelled').map((s) => s.key)));
 ui.again.addEventListener('click', () => {
@@ -351,9 +353,10 @@ ui.start.addEventListener('click', async () => {
 });
 ui.cancel.addEventListener('click', async () => {
   if (ui.cancel.busy) return;
+  const scan = controller; // only this scan, not one started after it ended
   setPhase('cancelling');
   await new Promise((resolve) => setTimeout(resolve, 700));
-  controller.abort();
+  scan.abort();
 });
 setPhase('idle');
 ```

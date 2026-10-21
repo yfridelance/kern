@@ -2,7 +2,7 @@ name: CI
 
 # Prüft jeden Pull Request und jeden Push auf main: Spec-Tests, Build und Dokumentation (prüft auch, dass jede
 # Komponente in der Navigation steht). Nur lesend: keine Secrets, kein pull_request_target, also läuft auch Code
-# aus Forks gefahrlos. Browser-Tests (#128) kommen später als eigener Job dazu.
+# aus Forks gefahrlos. Der Job e2e läuft parallel dazu die Browser-Tests mit Playwright (Chromium, Firefox, WebKit).
 
 on:
   pull_request:
@@ -30,3 +30,36 @@ jobs:
       - run: npm ci
       - run: npm test
       - run: npm run docs
+
+  e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      # Browser je Playwright-Version zwischenspeichern; die Systempakete installiert install-deps jedes Mal.
+      - name: Playwright-Version
+        id: playwright
+        run: echo "version=$(node -p "require('@playwright/test/package.json').version")" >> "$GITHUB_OUTPUT"
+      - uses: actions/cache@v4
+        id: browsers
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ steps.playwright.outputs.version }}
+      - if: steps.browsers.outputs.cache-hit != 'true'
+        run: npx playwright install --with-deps chromium firefox webkit
+      - if: steps.browsers.outputs.cache-hit == 'true'
+        run: npx playwright install-deps chromium firefox webkit
+      - run: npm run e2e
+      - if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 14

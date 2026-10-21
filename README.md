@@ -236,16 +236,40 @@ npm test         # Spec-Tests (Jest)
 npm run build    # dist/, loader/, www/, Angular-Wrapper, readme.md pro Komponente
 npm run docs     # Dokumentation nach site/ (Beispiele: src/components/<tag>/usage/*.md, Muster: docs/patterns/*.md)
 npm run docs:serve  # http://localhost:4321/kern/
+npm run e2e      # Browser-Tests (Playwright), siehe «Browser-Tests»
 ```
 
 - Node 24 (`.nvmrc`), Stencil 4.45.
 - Vor einem PR: `npm test` und `npm run docs` (baut auch die Bibliothek). Dasselbe prüft der Workflow `ci.yml`
-  bei jedem Pull Request und auf `main`.
+  bei jedem Pull Request und auf `main`, dazu parallel die Browser-Tests (`npm run e2e`).
 - Tokens nur in `tokens/tokens.json` ändern; `npm run tokens` (läuft bei build/test/start mit) erzeugt
   `src/global/tokens.css`.
 - Komponenten-Styles nutzen ausschliesslich Tokens (`var(--surface)`, `var(--space-4)` …).
 - Neue Komponente: Name nach «Benennung», `npm run generate`, Doku-Kommentar über der Klasse (erster Satz =
   Zusammenfassung), Props mit JSDoc, Spec-Test für Logik.
+
+### Browser-Tests
+
+Eine kleine Playwright-Suite in `e2e/` prüft, was Spec-Tests nur nachbilden: ElementInternals in echten Formularen
+(FormData, Reset, disabled fieldset, Constraint-Validierung), Select und Combobox mit Tastatur, Escape und
+Light-Dismiss, Popovers in einem modalen Dialog sowie Fokus in Dialog und Drawer.
+
+```bash
+npx playwright install --with-deps   # einmalig: Browser und Systempakete
+npm run e2e                          # baut, startet den Server und testet in Chromium, Firefox und WebKit
+npx playwright test --project=webkit # nur eine Engine (setzt einen Build voraus)
+npx playwright show-report           # HTML-Bericht des letzten Laufs
+```
+
+- Die Testseiten liegen in `e2e/fixtures/` und laden `dist/kern` (Loader und `kern.css`). Sie hängen nicht von
+  den Doku-Texten ab. `scripts/e2e-fixtures.mjs` kopiert sie nach `site/e2e/`, `scripts/serve-docs.mjs` liefert sie
+  auf Port 4329 aus; beides startet Playwright selbst (`webServer` in `playwright.config.ts`).
+- WebKit ist der WebKit-Build von Playwright, kein Test auf Safari oder einem Apple-Gerät.
+- Bei Fehlern bleiben Trace und Screenshot in `test-results/` (`npx playwright show-trace <trace.zip>`). Der Job
+  `e2e` in `ci.yml` lädt Bericht und Traces dann als Artefakt `playwright-report` hoch.
+- Keine festen Wartezeiten: Assertions wie `toBeVisible()` oder `toBeFocused()` warten selbst.
+- Findet ein Test einen echten Fehler, wird dieser als Bug-Issue gemeldet und der Test bis zum Fix mit
+  `test.fixme` und Verweis aufs Issue markiert.
 
 ### Release
 

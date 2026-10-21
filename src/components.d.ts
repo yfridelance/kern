@@ -8,10 +8,10 @@ import { HTMLStencilElement, JSXBase } from "@stencil/core/internal";
 import { KernNavigateDetail } from "./utils/navigate";
 import { KernCodeLanguage } from "./utils/highlight";
 import { KernDateFormat } from "./utils/datetime";
+import { GlyphName } from "./utils/icons";
 import { IconName } from "./utils/icon-names";
 import { KernIpKind } from "./utils/ip";
 import { KernMacFormat } from "./utils/mac";
-import { GlyphName } from "./utils/icons";
 import { KernOption } from "./components/kern-select/kern-select";
 import { KernOption as KernOption1 } from "./components/kern-select/kern-select";
 import { KernSortDirection, KernTableColumn } from "./components/kern-table/sort";
@@ -19,10 +19,10 @@ import { KernToastReason } from "./components/kern-toast/kern-toast";
 export { KernNavigateDetail } from "./utils/navigate";
 export { KernCodeLanguage } from "./utils/highlight";
 export { KernDateFormat } from "./utils/datetime";
+export { GlyphName } from "./utils/icons";
 export { IconName } from "./utils/icon-names";
 export { KernIpKind } from "./utils/ip";
 export { KernMacFormat } from "./utils/mac";
-export { GlyphName } from "./utils/icons";
 export { KernOption } from "./components/kern-select/kern-select";
 export { KernOption as KernOption1 } from "./components/kern-select/kern-select";
 export { KernSortDirection, KernTableColumn } from "./components/kern-table/sort";
@@ -752,6 +752,39 @@ export namespace Components {
           * @default 420
          */
         "width": number;
+    }
+    /**
+     * Placeholder where content would be: nothing created yet (`empty`), no matches for the current filters
+     * (`no-results`) or the data could not be loaded (`error`). Icon, heading, a sentence and the actions that help,
+     * e.g. «Add device», «Reset filters» or «Try again». The app decides which state applies; for a lost connection
+     * with data already shown, keep the data and put a kern-alert above it instead.
+     * Only `error` is a live region (`role="status"`, announced once when it appears). The heading is plain text, so
+     * it does not change the page outline; `heading-level` makes it a heading for screen readers when the state
+     * replaces a whole page section.
+     */
+    interface KernEmptyState {
+        /**
+          * Less space and a smaller icon, e.g. in a table cell or a card.
+          * @default false
+         */
+        "compact": boolean;
+        /**
+          * Heading; defaults to a Kern text per variant («No entries yet», «No matches», «Could not load»).
+         */
+        "heading"?: string;
+        /**
+          * Exposes the heading as a heading of this level (1–6) to screen readers, without changing its look.
+         */
+        "headingLevel"?: 1 | 2 | 3 | 4 | 5 | 6;
+        /**
+          * Glyph instead of the variant's default (see kern-icon); `none` hides the icon.
+         */
+        "icon"?: GlyphName | 'none';
+        /**
+          * Which state: sets the default icon and heading.
+          * @default 'empty'
+         */
+        "variant": 'empty' | 'no-results' | 'error';
     }
     /**
      * File picker with drop zone (firmware, configuration import), form-associated. Checks `accept` and `max-size`;
@@ -2906,6 +2939,21 @@ declare global {
         prototype: HTMLKernDrawerElement;
         new (): HTMLKernDrawerElement;
     };
+    /**
+     * Placeholder where content would be: nothing created yet (`empty`), no matches for the current filters
+     * (`no-results`) or the data could not be loaded (`error`). Icon, heading, a sentence and the actions that help,
+     * e.g. «Add device», «Reset filters» or «Try again». The app decides which state applies; for a lost connection
+     * with data already shown, keep the data and put a kern-alert above it instead.
+     * Only `error` is a live region (`role="status"`, announced once when it appears). The heading is plain text, so
+     * it does not change the page outline; `heading-level` makes it a heading for screen readers when the state
+     * replaces a whole page section.
+     */
+    interface HTMLKernEmptyStateElement extends Components.KernEmptyState, HTMLStencilElement {
+    }
+    var HTMLKernEmptyStateElement: {
+        prototype: HTMLKernEmptyStateElement;
+        new (): HTMLKernEmptyStateElement;
+    };
     interface HTMLKernFileInputElementEventMap {
         "kernChange": { files: File[] };
     }
@@ -3728,6 +3776,7 @@ declare global {
         "kern-date-range-picker": HTMLKernDateRangePickerElement;
         "kern-dialog": HTMLKernDialogElement;
         "kern-drawer": HTMLKernDrawerElement;
+        "kern-empty-state": HTMLKernEmptyStateElement;
         "kern-file-input": HTMLKernFileInputElement;
         "kern-grid": HTMLKernGridElement;
         "kern-grid-item": HTMLKernGridItemElement;
@@ -4522,6 +4571,39 @@ declare namespace LocalJSX {
           * @default 420
          */
         "width"?: number;
+    }
+    /**
+     * Placeholder where content would be: nothing created yet (`empty`), no matches for the current filters
+     * (`no-results`) or the data could not be loaded (`error`). Icon, heading, a sentence and the actions that help,
+     * e.g. «Add device», «Reset filters» or «Try again». The app decides which state applies; for a lost connection
+     * with data already shown, keep the data and put a kern-alert above it instead.
+     * Only `error` is a live region (`role="status"`, announced once when it appears). The heading is plain text, so
+     * it does not change the page outline; `heading-level` makes it a heading for screen readers when the state
+     * replaces a whole page section.
+     */
+    interface KernEmptyState {
+        /**
+          * Less space and a smaller icon, e.g. in a table cell or a card.
+          * @default false
+         */
+        "compact"?: boolean;
+        /**
+          * Heading; defaults to a Kern text per variant («No entries yet», «No matches», «Could not load»).
+         */
+        "heading"?: string;
+        /**
+          * Exposes the heading as a heading of this level (1–6) to screen readers, without changing its look.
+         */
+        "headingLevel"?: 1 | 2 | 3 | 4 | 5 | 6;
+        /**
+          * Glyph instead of the variant's default (see kern-icon); `none` hides the icon.
+         */
+        "icon"?: GlyphName | 'none';
+        /**
+          * Which state: sets the default icon and heading.
+          * @default 'empty'
+         */
+        "variant"?: 'empty' | 'no-results' | 'error';
     }
     /**
      * File picker with drop zone (firmware, configuration import), form-associated. Checks `accept` and `max-size`;
@@ -6475,6 +6557,13 @@ declare namespace LocalJSX {
         "dismissible": boolean;
         "closeLabel": string;
     }
+    interface KernEmptyStateAttributes {
+        "variant": 'empty' | 'no-results' | 'error';
+        "heading": string;
+        "icon": GlyphName | 'none';
+        "compact": boolean;
+        "headingLevel": 1 | 2 | 3 | 4 | 5 | 6;
+    }
     interface KernFileInputAttributes {
         "label": string;
         "hint": string;
@@ -6942,6 +7031,7 @@ declare namespace LocalJSX {
         "kern-date-range-picker": Omit<KernDateRangePicker, keyof KernDateRangePickerAttributes> & { [K in keyof KernDateRangePicker & keyof KernDateRangePickerAttributes]?: KernDateRangePicker[K] } & { [K in keyof KernDateRangePicker & keyof KernDateRangePickerAttributes as `attr:${K}`]?: KernDateRangePickerAttributes[K] } & { [K in keyof KernDateRangePicker & keyof KernDateRangePickerAttributes as `prop:${K}`]?: KernDateRangePicker[K] };
         "kern-dialog": Omit<KernDialog, keyof KernDialogAttributes> & { [K in keyof KernDialog & keyof KernDialogAttributes]?: KernDialog[K] } & { [K in keyof KernDialog & keyof KernDialogAttributes as `attr:${K}`]?: KernDialogAttributes[K] } & { [K in keyof KernDialog & keyof KernDialogAttributes as `prop:${K}`]?: KernDialog[K] };
         "kern-drawer": Omit<KernDrawer, keyof KernDrawerAttributes> & { [K in keyof KernDrawer & keyof KernDrawerAttributes]?: KernDrawer[K] } & { [K in keyof KernDrawer & keyof KernDrawerAttributes as `attr:${K}`]?: KernDrawerAttributes[K] } & { [K in keyof KernDrawer & keyof KernDrawerAttributes as `prop:${K}`]?: KernDrawer[K] };
+        "kern-empty-state": Omit<KernEmptyState, keyof KernEmptyStateAttributes> & { [K in keyof KernEmptyState & keyof KernEmptyStateAttributes]?: KernEmptyState[K] } & { [K in keyof KernEmptyState & keyof KernEmptyStateAttributes as `attr:${K}`]?: KernEmptyStateAttributes[K] } & { [K in keyof KernEmptyState & keyof KernEmptyStateAttributes as `prop:${K}`]?: KernEmptyState[K] };
         "kern-file-input": Omit<KernFileInput, keyof KernFileInputAttributes> & { [K in keyof KernFileInput & keyof KernFileInputAttributes]?: KernFileInput[K] } & { [K in keyof KernFileInput & keyof KernFileInputAttributes as `attr:${K}`]?: KernFileInputAttributes[K] } & { [K in keyof KernFileInput & keyof KernFileInputAttributes as `prop:${K}`]?: KernFileInput[K] };
         "kern-grid": Omit<KernGrid, keyof KernGridAttributes> & { [K in keyof KernGrid & keyof KernGridAttributes]?: KernGrid[K] } & { [K in keyof KernGrid & keyof KernGridAttributes as `attr:${K}`]?: KernGridAttributes[K] } & { [K in keyof KernGrid & keyof KernGridAttributes as `prop:${K}`]?: KernGrid[K] };
         "kern-grid-item": Omit<KernGridItem, keyof KernGridItemAttributes> & { [K in keyof KernGridItem & keyof KernGridItemAttributes]?: KernGridItem[K] } & { [K in keyof KernGridItem & keyof KernGridItemAttributes as `attr:${K}`]?: KernGridItemAttributes[K] } & { [K in keyof KernGridItem & keyof KernGridItemAttributes as `prop:${K}`]?: KernGridItem[K] };
@@ -7103,6 +7193,16 @@ declare module "@stencil/core" {
              * button and a click on the backdrop close it unless `dismissible` is false. For short confirmations use kern-dialog.
              */
             "kern-drawer": LocalJSX.IntrinsicElements["kern-drawer"] & JSXBase.HTMLAttributes<HTMLKernDrawerElement>;
+            /**
+             * Placeholder where content would be: nothing created yet (`empty`), no matches for the current filters
+             * (`no-results`) or the data could not be loaded (`error`). Icon, heading, a sentence and the actions that help,
+             * e.g. «Add device», «Reset filters» or «Try again». The app decides which state applies; for a lost connection
+             * with data already shown, keep the data and put a kern-alert above it instead.
+             * Only `error` is a live region (`role="status"`, announced once when it appears). The heading is plain text, so
+             * it does not change the page outline; `heading-level` makes it a heading for screen readers when the state
+             * replaces a whole page section.
+             */
+            "kern-empty-state": LocalJSX.IntrinsicElements["kern-empty-state"] & JSXBase.HTMLAttributes<HTMLKernEmptyStateElement>;
             /**
              * File picker with drop zone (firmware, configuration import), form-associated. Checks `accept` and `max-size`;
              * rejected files are named in the message and not added. The chosen files are listed with size and ×; with `multiple`

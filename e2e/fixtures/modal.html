@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="de-CH" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <title>e2e: Dialog und Drawer</title>
+  <link rel="stylesheet" href="kern/kern.css">
+  <script type="module" src="kern/kern.esm.js"></script>
+  <style>body { padding: 24px; display: grid; gap: 16px; max-width: 360px; }</style>
+</head>
+<body>
+  <button id="page-before">Seite davor</button>
+  <kern-button id="open-dialog">Einstellungen</kern-button>
+  <kern-button id="open-drawer">Details</kern-button>
+  <button id="page-after">Seite danach</button>
+
+  <kern-dialog id="dialog" heading="Einstellungen">
+    <kern-select label="Raum" name="room">
+      <option value="kitchen">Küche</option>
+      <option value="bath" selected>Bad</option>
+      <option value="garage">Garage</option>
+    </kern-select>
+    <kern-date-picker label="Wartung" name="day" value="2026-10-19"></kern-date-picker>
+    <kern-button slot="footer" id="dialog-cancel">Abbrechen</kern-button>
+    <kern-button slot="footer" variant="primary" id="dialog-save">Speichern</kern-button>
+  </kern-dialog>
+
+  <kern-drawer id="drawer" heading="Details">
+    <kern-input label="Name" name="name" value="Bad Lüftung"></kern-input>
+    <kern-switch name="cloud">Cloud</kern-switch>
+    <kern-button slot="footer" id="drawer-save" variant="primary">Speichern</kern-button>
+  </kern-drawer>
+
+  <script>
+    document.getElementById('open-dialog').addEventListener('click', () => document.getElementById('dialog').show());
+    document.getElementById('open-drawer').addEventListener('click', () => document.getElementById('drawer').show());
+  </script>
+</body>
+</html>

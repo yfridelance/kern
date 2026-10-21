@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="de-CH" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <title>e2e: Formular</title>
+  <link rel="stylesheet" href="kern/kern.css">
+  <script type="module" src="kern/kern.esm.js"></script>
+</head>
+<body>
+  <form id="device">
+    <kern-input label="Hostname" name="host" value="nas-01" required></kern-input>
+    <kern-input label="E-Mail" name="mail" type="email"></kern-input>
+    <kern-input label="VLAN-Name" name="vlan" pattern="vlan-[0-9]+"></kern-input>
+    <kern-input label="Port" name="port" type="number" min="1" max="65535" value="443"></kern-input>
+    <kern-select label="Raum" name="room">
+      <option value="kitchen">Küche</option>
+      <option value="bath" selected>Bad</option>
+      <option value="garage">Garage</option>
+      <option value="office">Büro</option>
+    </kern-select>
+    <kern-checkbox name="updates" value="yes" checked>Updates</kern-checkbox>
+    <kern-switch name="cloud">Cloud</kern-switch>
+    <kern-date-picker label="Wartung" name="day" value="2026-10-19" min="2026-01-01" max="2026-12-31"></kern-date-picker>
+    <fieldset id="advanced" disabled>
+      <legend>Erweitert</legend>
+      <kern-input label="Gateway" name="gateway" value="192.168.1.1"></kern-input>
+      <kern-switch name="mqtt" checked>MQTT</kern-switch>
+    </fieldset>
+    <button type="submit">Speichern</button>
+    <button type="reset">Zurücksetzen</button>
+  </form>
+  <script>
+    // Submits are counted and their data kept instead of navigating.
+    window.submits = [];
+    document.getElementById('device').addEventListener('submit', (e) => {
+      e.preventDefault();
+      window.submits.push([...new FormData(e.target)]);
+    });
+  </script>
+</body>
+</html>

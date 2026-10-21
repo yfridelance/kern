@@ -58,14 +58,27 @@ export const devices = (() => {
 export const sites = SITES;
 export const statuses = ['online', 'offline', 'update'];
 
+const aborted = () => new DOMException('Aborted', 'AbortError');
 const wait = (ms, signal) =>
   new Promise((resolve, reject) => {
+    // Also when the signal was aborted before the call (e.g. inside an onUpdate callback).
+    if (signal?.aborted) return reject(aborted());
     const t = setTimeout(resolve, ms);
     signal?.addEventListener('abort', () => {
       clearTimeout(t);
-      reject(new DOMException('Aborted', 'AbortError'));
-    });
+      reject(aborted());
+    }, { once: true });
   });
+
+/** Numbers numerically, text with the collator; empty values last. */
+const collator = new Intl.Collator(undefined, { numeric: true, sensitivity: 'base' });
+function compare(a, b) {
+  const ea = a === null || a === undefined || a === '';
+  const eb = b === null || b === undefined || b === '';
+  if (ea || eb) return ea === eb ? 0 : ea ? 1 : -1;
+  if (typeof a === 'number' && typeof b === 'number') return a - b;
+  return collator.compare(String(a), String(b));
+}
 
 /**
  * A pretend backend over `devices` (or your own rows).
@@ -102,7 +115,11 @@ export function fakeServer({ rows = devices, delay = 400, jitter = 0, failRate =
       });
       if (sort?.key) {
         const sign = sort.direction === 'desc' ? -1 : 1;
-        result = [...result].sort((a, b) => sign * String(a[sort.key] ?? '').localeCompare(String(b[sort.key] ?? ''), undefined, { numeric: true }));
+        result = [...result].sort((a, b) => {
+          const c = compare(a[sort.key], b[sort.key]);
+          // Empty values stay last in both directions, as in kern-table.
+          return a[sort.key] == null || b[sort.key] == null ? c : sign * c;
+        });
       }
       const start = (page - 1) * pageSize;
       return { rows: result.slice(start, start + pageSize), total: result.length };

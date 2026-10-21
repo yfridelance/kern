@@ -33,6 +33,19 @@ export class KernChip {
   private t = kernTexts(this, 'kern-chip');
 
   private button?: HTMLButtonElement;
+  private observer?: MutationObserver;
+
+  connectedCallback() {
+    // The × label follows the text, also when a framework changes a text node in place (no slotchange then).
+    if (typeof MutationObserver === 'undefined') return; // server-side / test DOM
+    this.observer = new MutationObserver(() => forceUpdate(this));
+    this.observer.observe(this.el, { childList: true, subtree: true, characterData: true });
+  }
+
+  disconnectedCallback() {
+    this.observer?.disconnect();
+    this.observer = undefined;
+  }
 
   /** Focuses the × (removable chips only), e.g. the next chip after one was removed. */
   @Method()
@@ -57,7 +70,7 @@ export class KernChip {
     return (
       <Host>
         <span class="label">
-          <slot onSlotchange={() => forceUpdate(this)} />
+          <slot />
         </span>
         {this.removable && (
           <button ref={(el) => (this.button = el)} type="button" class="remove" part="remove" aria-label={label} title={label} onClick={this.emitRemove} onKeyDown={this.onKey}>

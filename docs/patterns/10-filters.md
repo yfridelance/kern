@@ -154,7 +154,7 @@ apply();
 
 With many devices the server filters and pages. The app sends the filter state with every request and shows what comes back. Three things need care:
 
-- **Debounce:** the search waits 300 ms after the last keystroke, so typing «kitchen» sends one request, not seven. Selects and paging load at once.
+- **Debounce:** the search waits 300 ms after the last keystroke, so typing «kitchen» sends one request, not seven. Selects and paging load at once. The search text goes into the state at once and only the request waits, so removing a chip while the timer runs keeps the new search.
 - **Stale answers:** answers can arrive out of order (the pretend server has `jitter`). Each request aborts the one before with an `AbortController`, so an old answer can never overwrite a newer one. Without `AbortSignal` support, a request counter does the same (see below).
 - **Loading and errors:** `loading` keeps the old rows visible under skeletons while a request runs. A failed request shows an alert with «Retry» and leaves the filters as they are. Try it with «Fail next request».
 
@@ -276,11 +276,10 @@ function renderChips() {
 
 let timer;
 search.addEventListener('kernInput', (e) => {
+  // The state follows every keystroke; only the request waits. So another filter change in between keeps the search.
+  state.search = e.detail.value.trim();
   clearTimeout(timer);
-  timer = setTimeout(() => {
-    state.search = e.detail.value.trim();
-    filtersChanged();
-  }, 300);
+  timer = setTimeout(filtersChanged, 300);
 });
 selects.status.addEventListener('kernChange', (e) => {
   state.status = e.detail.value;

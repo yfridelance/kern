@@ -37,3 +37,38 @@ describe('kern-chip', () => {
     expect(root.querySelector('.remove')!.getAttribute('title')).toBe('offline entfernen');
   });
 });
+
+describe('kern-chip text changes', () => {
+  const original = (global as any).MutationObserver;
+  const observers: { cb: () => void; target?: Node; disconnected: boolean }[] = [];
+  beforeAll(() => {
+    // The test DOM has no MutationObserver: a stand-in that the test triggers by hand.
+    (global as any).MutationObserver = class {
+      entry: { cb: () => void; target?: Node; disconnected: boolean };
+      constructor(cb: () => void) {
+        this.entry = { cb, disconnected: false };
+        observers.push(this.entry);
+      }
+      observe(target: Node) {
+        this.entry.target = target;
+      }
+      disconnect() {
+        this.entry.disconnected = true;
+      }
+    };
+  });
+  afterAll(() => ((global as any).MutationObserver = original));
+
+  it('updates the × label when the text node changes and disconnects when removed', async () => {
+    const { page, root } = await setup(`<kern-chip removable>Before</kern-chip>`);
+    const own = observers.filter((o) => o.target === page.root);
+    expect(own.length).toBe(1);
+    page.root!.firstChild!.textContent = 'After';
+    observers.forEach((o) => !o.disconnected && o.cb());
+    await page.waitForChanges();
+    expect(root.querySelector('.remove')!.getAttribute('aria-label')).toBe('Remove After');
+    page.root!.parentNode!.removeChild(page.root!);
+    await page.waitForChanges();
+    expect(own[0].disconnected).toBe(true);
+  });
+});

@@ -1077,14 +1077,26 @@ export namespace Components {
      */
     interface KernJson {
         /**
+          * Closes every node.
+         */
+        "collapseAll": () => Promise<void>;
+        /**
           * The value to show (object, array or primitive). A string is parsed as JSON when possible.
          */
         "data"?: unknown;
         /**
-          * Nodes up to this depth start open.
+          * Opens every node.
+         */
+        "expandAll": () => Promise<void>;
+        /**
+          * Nodes up to this depth start open. Changing it opens or closes every node to that depth, including nodes toggled by hand.
           * @default 1
          */
         "openDepth": number;
+        /**
+          * Opens nodes up to `depth` and closes all others; also resets nodes toggled by hand when `depth` is unchanged.
+         */
+        "setOpenDepth": (depth: number) => Promise<void>;
     }
     /**
      * Differences between two states of the same JSON (config before/after, target/actual, two firmware versions): one
@@ -4861,7 +4873,7 @@ declare namespace LocalJSX {
          */
         "data"?: unknown;
         /**
-          * Nodes up to this depth start open.
+          * Nodes up to this depth start open. Changing it opens or closes every node to that depth, including nodes toggled by hand.
           * @default 1
          */
         "openDepth"?: number;

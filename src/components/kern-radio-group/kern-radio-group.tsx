@@ -1,4 +1,5 @@
-import { AttachInternals, Component, Element, Event, EventEmitter, Host, Listen, Method, Prop, Watch, h } from '@stencil/core';
+import { AttachInternals, Component, Element, Event, EventEmitter, Host, Listen, Method, Prop, State, Watch, h } from '@stencil/core';
+import { fieldDisabled } from '../../utils/form-disabled';
 
 let nextId = 0;
 
@@ -33,6 +34,8 @@ export class KernRadioGroup {
   /** Layout of the options. */
   @Prop({ reflect: true }) orientation: 'vertical' | 'horizontal' = 'vertical';
   @Prop({ reflect: true }) disabled = false;
+  /** Set by a disabled fieldset or form; `disabled` stays the author's own. */
+  @State() formDisabled = false;
   @Prop() required = false;
   /** Accessible name when there is no visible label. */
   @Prop() ariaLabelText?: string;
@@ -65,6 +68,7 @@ export class KernRadioGroup {
 
   @Watch('value')
   @Watch('disabled')
+  @Watch('formDisabled')
   @Watch('error')
   @Watch('required')
   sync() {
@@ -73,7 +77,7 @@ export class KernRadioGroup {
     const stop = current ?? this.enabled[0];
     for (const r of radios) {
       r.checked = valueOf(r) === this.value;
-      r.tabIndex = !this.disabled && r === stop ? 0 : -1;
+      r.tabIndex = !fieldDisabled(this) && r === stop ? 0 : -1;
     }
     this.internals?.setFormValue?.(this.value || null);
     if (this.error) this.internals?.setValidity?.({ customError: true }, this.error, stop);
@@ -86,7 +90,7 @@ export class KernRadioGroup {
   }
 
   formDisabledCallback(disabled: boolean) {
-    this.disabled = disabled;
+    this.formDisabled = disabled;
   }
 
   /** Focuses the checked option (or the first). */
@@ -96,7 +100,7 @@ export class KernRadioGroup {
   }
 
   private pick(radio: Radio, focus = false) {
-    if (this.disabled || isDisabled(radio)) return;
+    if (fieldDisabled(this) || isDisabled(radio)) return;
     if (valueOf(radio) !== this.value) {
       this.value = valueOf(radio);
       this.kernChange.emit({ value: this.value });
@@ -113,7 +117,7 @@ export class KernRadioGroup {
   @Listen('keydown')
   onKey(ev: KeyboardEvent) {
     const list = this.enabled;
-    if (!list.length || this.disabled) return;
+    if (!list.length || fieldDisabled(this)) return;
     const focused = (ev.target as HTMLElement).closest?.('kern-radio') as Radio | null;
     const i = Math.max(0, list.findIndex((r) => r === focused));
     const moves: Record<string, number> = { ArrowDown: i + 1, ArrowRight: i + 1, ArrowUp: i - 1, ArrowLeft: i - 1, Home: 0, End: list.length - 1 };
@@ -142,7 +146,7 @@ export class KernRadioGroup {
           aria-orientation={this.orientation}
           aria-required={this.required ? 'true' : undefined}
           aria-invalid={this.error ? 'true' : undefined}
-          aria-disabled={this.disabled ? 'true' : undefined}
+          aria-disabled={fieldDisabled(this) ? 'true' : undefined}
         >
           <slot onSlotchange={() => this.sync()} />
         </div>

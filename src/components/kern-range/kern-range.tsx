@@ -1,4 +1,5 @@
 import { AttachInternals, Component, Element, Event, EventEmitter, Host, Method, Prop, State, Watch, h } from '@stencil/core';
+import { fieldDisabled } from '../../utils/form-disabled';
 import { resolveLocale } from '../../utils/datetime';
 import { kernTexts } from '../../utils/i18n';
 
@@ -44,6 +45,8 @@ export class KernRange {
   /** BCP 47 locale for numbers; defaults to `<html lang>`, then the browser language. */
   @Prop() locale?: string;
   @Prop({ reflect: true }) disabled = false;
+  /** Set by a disabled fieldset or form; `disabled` stays the author's own. */
+  @State() formDisabled = false;
   /** Accessible name when there is no visible label. */
   @Prop() ariaLabelText?: string;
   @Prop() labelFrom?: string;
@@ -112,7 +115,7 @@ export class KernRange {
   }
 
   formDisabledCallback(disabled: boolean) {
-    this.disabled = disabled;
+    this.formDisabled = disabled;
   }
 
   /** Focuses the (first) handle. */
@@ -151,7 +154,7 @@ export class KernRange {
   }
 
   private onTrackDown = (ev: PointerEvent) => {
-    if (this.disabled || ev.button !== 0 || !this.track) return;
+    if (fieldDisabled(this) || ev.button !== 0 || !this.track) return;
     ev.preventDefault();
     const n = this.fromPointer(ev);
     const [a, b] = this.values;
@@ -178,7 +181,7 @@ export class KernRange {
   };
 
   private onKey = (thumb: Thumb) => (ev: KeyboardEvent) => {
-    if (this.disabled) return;
+    if (fieldDisabled(this)) return;
     const cur = this.values[thumb];
     const big = Math.max(this.step, (this.max - this.min) / 10);
     const keys: Record<string, number> = {
@@ -248,7 +251,7 @@ export class KernRange {
                 class="thumb"
                 part="thumb"
                 role="slider"
-                tabindex={this.disabled ? -1 : 0}
+                tabindex={fieldDisabled(this) ? -1 : 0}
                 style={{ left: `${this.pct(v)}%` }}
                 aria-valuemin={this.range && t === 1 ? a : this.min}
                 aria-valuemax={this.range && t === 0 ? b : this.max}
@@ -257,7 +260,7 @@ export class KernRange {
                 aria-label={this.range ? [name, t === 0 ? this.t('labelFrom') : this.t('labelTo')].filter(Boolean).join(', ') : this.label ? undefined : this.ariaLabelText}
                 aria-labelledby={!this.range ? labelId : undefined}
                 aria-describedby={describedBy}
-                aria-disabled={this.disabled ? 'true' : undefined}
+                aria-disabled={fieldDisabled(this) ? 'true' : undefined}
                 onKeyDown={this.onKey(t)}
               />
             );

@@ -7,7 +7,7 @@
 <h2>What works like native fields</h2>
 <ul>
   <li><code>name</code> puts the value into <code>FormData</code>. Components with several values (<code>kern-select multiple</code>, <code>kern-file-input multiple</code>) add one entry per value.</li>
-  <li><code>required</code> blocks submitting while empty; <code>form.reset()</code> restores the initial value; a disabled <code>&lt;fieldset&gt;</code> disables the fields.</li>
+  <li><code>required</code> blocks submitting while empty; <code>form.reset()</code> restores the initial value; a disabled <code>&lt;fieldset&gt;</code> disables the fields until it is enabled again, without changing their own <code>disabled</code>.</li>
   <li><code>kern-button type="submit"</code> / <code>type="reset"</code> submit or reset the surrounding form.</li>
 </ul>
 <h2>Errors</h2>

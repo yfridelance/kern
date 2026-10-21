@@ -1,4 +1,5 @@
 import { AttachInternals, Component, Element, Event, EventEmitter, Host, Method, Prop, State, Watch, h } from '@stencil/core';
+import { fieldDisabled } from '../../utils/form-disabled';
 import { formatMac, parseMac, type KernMacFormat } from '../../utils/mac';
 import { kernTexts } from '../../utils/i18n';
 
@@ -32,6 +33,8 @@ export class KernMacInput {
   @Prop() placeholder?: string;
   @Prop({ reflect: true }) size: 'md' | 'sm' = 'md';
   @Prop({ reflect: true }) disabled = false;
+  /** Set by a disabled fieldset or form; `disabled` stays the author's own. */
+  @State() formDisabled = false;
   @Prop() readonly = false;
   @Prop() required = false;
   /** Accessible name when there is no visible label. */
@@ -99,7 +102,7 @@ export class KernMacInput {
   }
 
   formDisabledCallback(disabled: boolean) {
-    this.disabled = disabled;
+    this.formDisabled = disabled;
   }
 
   /** Focuses the native input. */
@@ -161,7 +164,7 @@ export class KernMacInput {
           spellcheck={false}
           value={this.text}
           placeholder={this.placeholder ?? formatMac('c82b961a3f00', this.format, this.letterCase !== 'lower')}
-          disabled={this.disabled}
+          disabled={fieldDisabled(this)}
           readOnly={this.readonly}
           required={this.required}
           aria-label={this.label ? undefined : this.ariaLabelText}

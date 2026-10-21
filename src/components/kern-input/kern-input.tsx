@@ -1,4 +1,5 @@
 import { AttachInternals, Component, Element, Event, EventEmitter, Host, Listen, Method, Prop, State, h } from '@stencil/core';
+import { fieldDisabled } from '../../utils/form-disabled';
 import { positionPopup } from '../../utils/popover';
 
 let nextId = 0;
@@ -53,6 +54,8 @@ export class KernInput {
   @Prop({ reflect: true }) mono = false;
   @Prop({ reflect: true }) size: 'md' | 'sm' = 'md';
   @Prop({ reflect: true }) disabled = false;
+  /** Set by a disabled fieldset or form; `disabled` stays the author's own. */
+  @State() formDisabled = false;
   @Prop() readonly = false;
   @Prop() required = false;
   /** Accessible name when there is no visible label. */
@@ -136,7 +139,7 @@ export class KernInput {
   }
 
   formDisabledCallback(disabled: boolean) {
-    this.disabled = disabled;
+    this.formDisabled = disabled;
   }
 
   /** Focuses the native input. */
@@ -175,7 +178,7 @@ export class KernInput {
   }
 
   private openList() {
-    if (this.disabled || this.readonly || !this.popup || !this.hits.length) return;
+    if (fieldDisabled(this) || this.readonly || !this.popup || !this.hits.length) return;
     this.open = true;
     this.position();
     const p = this.popup as HTMLElement & { showPopover?: () => void };
@@ -250,7 +253,7 @@ export class KernInput {
     if (!this.suggestionList.length) return;
     const n = this.hits.length;
     if (ev.key === 'ArrowDown' || ev.key === 'ArrowUp') {
-      if (!n || this.disabled || this.readonly) return;
+      if (!n || fieldDisabled(this) || this.readonly) return;
       ev.preventDefault();
       const down = ev.key === 'ArrowDown';
       if (!this.open) {
@@ -322,7 +325,7 @@ export class KernInput {
           max={this.max}
           step={this.step}
           value={this.value}
-          disabled={this.disabled}
+          disabled={fieldDisabled(this)}
           readOnly={this.readonly}
           required={this.required}
           spellcheck={false}

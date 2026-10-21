@@ -4,5 +4,5 @@
 .label { margin-bottom: 0; }
 .options { display: grid; gap: var(--space-2); }
 :host([orientation="horizontal"]) .options { display: flex; flex-wrap: wrap; gap: var(--space-2) var(--space-5); }
-:host([disabled]) ::slotted(kern-radio) { opacity: .45; cursor: not-allowed; }
+:host(:disabled) ::slotted(kern-radio) { opacity: .45; cursor: not-allowed; }
 :host([invalid]) ::slotted(kern-radio) { --kern-radio-border: var(--danger); }

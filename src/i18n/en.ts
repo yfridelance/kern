@@ -11,6 +11,7 @@ export const en = {
   'kern-calendar.labelPrev': 'Previous month',
   'kern-calendar.labelNext': 'Next month',
   'kern-calendar.labelWeek': 'Wk',
+  'kern-chip.labelRemove': 'Remove {label}',
   'kern-code.labelCopy': 'Copy',
   'kern-code.labelCopied': 'Copied',
   'kern-color-picker.labelOpen': 'Choose color',

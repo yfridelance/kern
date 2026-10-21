@@ -20,7 +20,7 @@ const GROUPS = [
   ['Actions', ['kern-button', 'kern-menu', 'kern-menu-item']],
   ['Forms', ['kern-input', 'kern-textarea', 'kern-select', 'kern-switch', 'kern-checkbox', 'kern-radio-group', 'kern-radio', 'kern-segmented', 'kern-ip-input', 'kern-mac-input', 'kern-file-input', 'kern-step-input', 'kern-range', 'kern-rating', 'kern-color-picker']],
   ['Date & time', ['kern-date', 'kern-time', 'kern-calendar', 'kern-date-picker', 'kern-date-range-picker', 'kern-time-picker']],
-  ['Status', ['kern-badge', 'kern-status', 'kern-icon']],
+  ['Status', ['kern-badge', 'kern-chip', 'kern-status', 'kern-icon']],
   ['Feedback', ['kern-alert', 'kern-empty-state', 'kern-toast', 'kern-tooltip', 'kern-dialog', 'kern-drawer', 'kern-progress', 'kern-spinner', 'kern-skeleton']],
   ['Data', ['kern-table', 'kern-list', 'kern-list-item', 'kern-kv', 'kern-kv-item', 'kern-stat', 'kern-sparkline', 'kern-meter', 'kern-signal', 'kern-copy', 'kern-json', 'kern-json-diff', 'kern-code']],
 ];

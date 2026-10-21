@@ -28,7 +28,7 @@ dort und hier sind dieselben (`tokens/tokens.json`).
 | Aktionen | `kern-button`, `kern-menu` + `kern-menu-item` |
 | Formulare | `kern-input`, `kern-ip-input`, `kern-mac-input`, `kern-file-input`, `kern-textarea`, `kern-select`, `kern-switch`, `kern-checkbox`, `kern-radio-group` + `kern-radio`, `kern-segmented`, `kern-date-picker`, `kern-date-range-picker`, `kern-time-picker`, `kern-color-picker`, `kern-step-input`, `kern-range`, `kern-rating` |
 | Status | `kern-badge`, `kern-status`, `kern-icon` |
-| Rückmeldung | `kern-alert`, `kern-skeleton`, `kern-toast` (+ `toast()`), `kern-tooltip`, `kern-drawer`, `kern-progress`, `kern-spinner`, `kern-dialog` (+ `confirm()`) |
+| Rückmeldung | `kern-alert`, `kern-empty-state`, `kern-skeleton`, `kern-toast` (+ `toast()`), `kern-tooltip`, `kern-drawer`, `kern-progress`, `kern-spinner`, `kern-dialog` (+ `confirm()`) |
 | Daten | `kern-table`, `kern-list` + `kern-list-item`, `kern-kv` + `kern-kv-item`, `kern-stat`, `kern-sparkline`, `kern-meter`, `kern-signal`, `kern-copy`, `kern-json`, `kern-json-diff` (+ `diffJson()`), `kern-code` |
 | Datum & Zeit | `kern-date`, `kern-time`, `kern-calendar` |
 
@@ -190,7 +190,7 @@ zusätzlich Standalone-Wrapper mit `ControlValueAccessor` für `ngModel` und Rea
   Bild angesagt. Namen (auch als `ICON_NAMES` exportiert): `sun`, `moon`, `copy`, `check`, `close`, `chevron-down`,
   `chevron-up`, `chevron-left`, `chevron-right`, `calendar`, `clock`, `minus`, `plus`, `star`, `more`, `menu`,
   `search`, `filter`, `settings`, `edit`, `trash`, `refresh`, `power`, `download`, `upload`, `link`, `lock`, `eye`,
-  `eye-off`, `info`, `warn`, `wifi`, `home`, `bulb`, `thermometer`, `external`.
+  `eye-off`, `info`, `warn`, `wifi`, `inbox`, `home`, `bulb`, `thermometer`, `external`.
   Marken-Icons mit Präfix `brand-` (`BRAND_NAMES`): `brand-home-assistant`, `brand-zigbee`, `brand-mqtt`,
   `brand-shelly`, `brand-esphome`, `brand-github`, `brand-google` u.a.; `brand-color` zeigt die offizielle Farbe.
   Quelle: [Simple Icons](https://simpleicons.org) (CC0), Auswahl und Erzeugung in `scripts/build-brands.mjs`

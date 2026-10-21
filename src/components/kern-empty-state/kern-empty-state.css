@@ -1,0 +1,22 @@
+:host {
+  display: flex; flex-direction: column; align-items: center; box-sizing: border-box; width: 100%;
+  padding: var(--space-7) var(--space-4); text-align: center; color: var(--text-muted); font-size: 14px; line-height: 20px;
+}
+:host([hidden]) { display: none; }
+.icon {
+  display: grid; place-items: center; box-sizing: border-box; width: 48px; height: 48px; margin-bottom: var(--space-4);
+  border: 1px solid var(--line); border-radius: 50%; color: var(--text-muted);
+}
+.icon svg { width: 24px; height: 24px; }
+:host([variant="error"]) .icon { border-color: transparent; background: var(--danger-soft); color: var(--danger); }
+.heading { font-size: 15px; line-height: 22px; font-weight: 600; color: var(--text); text-wrap: balance; }
+.body { max-width: 44ch; margin-top: var(--space-1); text-wrap: pretty; }
+::slotted(p) { margin: 0; }
+.actions { display: flex; flex-wrap: wrap; justify-content: center; gap: var(--space-2); margin-top: var(--space-4); }
+.actions[hidden] { display: none; }
+
+:host([compact]) { padding: var(--space-4) var(--space-3); font-size: 13px; line-height: 18px; }
+:host([compact]) .icon { width: 32px; height: 32px; margin-bottom: var(--space-2); }
+:host([compact]) .icon svg { width: 16px; height: 16px; }
+:host([compact]) .heading { font-size: 14px; line-height: 20px; }
+:host([compact]) .actions { margin-top: var(--space-3); }

@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="de-CH" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <title>e2e: Tabelle im Datenmodus</title>
+  <link rel="stylesheet" href="kern/kern.css">
+  <script type="module" src="kern/kern.esm.js"></script>
+  <style>
+    body { padding: 24px; max-width: 640px; }
+    .log { height: 60px; overflow: auto; margin: 0; }
+  </style>
+</head>
+<body>
+  <kern-table id="table" selectable></kern-table>
+  <script type="module">
+    const table = document.getElementById('table');
+    let devices = [
+      { id: 'k', name: 'Küche Licht', progress: 10 },
+      { id: 'b', name: 'Bad Lüftung', progress: 20 },
+      { id: 's', name: 'Rollladen Süd', progress: 30 },
+    ];
+    table.columns = [
+      { key: 'name', label: 'Gerät', sortable: true },
+      { key: 'progress', label: 'Fortschritt', sortable: true, align: 'end' },
+      {
+        key: 'action',
+        label: 'Aktion',
+        // The cell keeps its button: it updates the one it gets.
+        cell: (d, _i, current) => {
+          const b = current ?? Object.assign(document.createElement('button'), { type: 'button' });
+          b.textContent = `Neustart ${d.name}`;
+          return b;
+        },
+      },
+    ];
+    table.detail = (d) => {
+      const pre = document.createElement('pre');
+      pre.className = 'log';
+      pre.textContent = Array.from({ length: 30 }, (_, i) => `${d.name}: Zeile ${i + 1}`).join('\n');
+      return pre;
+    };
+    table.rows = devices;
+    // Live update: every row a new object with new progress; `reverse` turns the order around.
+    window.tick = (reverse = false) => {
+      devices = devices.map((d) => ({ ...d, progress: d.progress + 1 }));
+      if (reverse) devices.reverse();
+      table.rows = devices;
+    };
+  </script>
+</body>
+</html>

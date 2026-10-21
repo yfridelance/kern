@@ -478,7 +478,7 @@ setPhase('idle');
 
 A job sends many small updates. If every update rebuilt the rows, a focused button would lose focus, open details would close or lose their scroll position, and screen readers would read the rows again. The examples avoid that:
 
-- **Stable rows:** the job table uses markup mode. The script creates every `<tr data-key>` and its `<tr kern-details>` once; the key is the device id, the same value a data-mode table takes from `rowKey`. Expanded rows (`expanded`), the focused expand button and the log's scroll position stay because the elements stay.
+- **Stable rows:** the job table uses markup mode. The script creates every `<tr data-key>` and its `<tr kern-details>` once; the key is the device id. Expanded rows (`expanded`), the focused expand button and the log's scroll position stay because the elements stay. A data-mode table does the same by itself, see below.
 - **Change, don't replace:** an update sets properties on the elements that exist: `tone` and text of `kern-status`, `value` of `kern-progress`, `duration` of `kern-time`, `code` of `kern-code`. `paint()` compares with the last painted state and skips what didn't change.
 - **Append, don't rebuild:** the scan adds a `kern-list-item` per found device; items already shown are left alone.
 - **No jumping rows:** the rows keep their order while the job runs. If your table is sortable, sort on request, not on every update.
@@ -486,7 +486,7 @@ A job sends many small updates. If every update rebuilt the rows, a focused butt
 - **Quiet announcements:** a `role="status"` element announces phase changes («Running», «Cancelling …», «Finished with errors: 9 updated · 1 failed · 2 skipped»), not every step.
 - **Fast backends:** if updates arrive many times a second, collect them and paint once per `requestAnimationFrame`.
 
-Why not data mode? A `kern-table` with `columns` and `rows` builds its rows from the array. Every new `rows` array rebuilds all `<tr>`: it puts focus back on its own checkboxes and toggles, but not on buttons in your cells, and the contents of open detail rows are created anew. That is fine for a page of server data, but not for a job that updates several times a second. Reusing rows by `rowKey` in data mode is proposed in [issue #149](https://github.com/yfridelance/kern/issues/149).
+Data mode works for live updates, too: a `kern-table` with `columns` and `rows` keeps its rows per `rowKey` (or `row.id`). A new `rows` array moves and updates the existing `<tr>` instead of rebuilding them, so a focused button in a cell, open detail rows and their scroll position stay, and sorting and paging keep working. Two rules keep it that way: give every row a stable key from the backend, and let `cell` update the Node it gets as its third argument instead of creating a new one each time (a new Node replaces the old one and takes the focus with it). `detail` is called once per opened row; update its content yourself, like `paint()` does here. The job table above stays in markup mode because it already holds its elements per device; see [Live data](../components/kern-table.html#ex-13-title) for the data-mode version.
 
 ```js Paint only what changed
 function paint(s) {
@@ -498,4 +498,17 @@ function paint(s) {
   if (s.progress !== r.last.progress) r.progress.value = s.progress;
   r.last = s;
 }
+```
+
+```js Data mode: keep the cell's Node
+table.rowKey = (job) => job.key;
+table.columns = [
+  { key: 'name', label: 'Device' },
+  {
+    key: 'progress', label: 'Progress',
+    // `bar` is the kern-progress this row already shows; only the first call creates it.
+    cell: (job, _i, bar = document.createElement('kern-progress')) => Object.assign(bar, { value: job.progress }),
+  },
+];
+await simulateTargets(keys, { onUpdate: (list) => (table.rows = list) }); // rows update in place, focus stays
 ```

@@ -1,4 +1,4 @@
-import { Component, Host, Prop, h } from '@stencil/core';
+import { Component, Element, Host, Method, Prop, Watch, h } from '@stencil/core';
 
 /**
  * Collapsible JSON tree for configs, status and device info (native `<details>`, keyboard accessible).
@@ -12,8 +12,51 @@ import { Component, Host, Prop, h } from '@stencil/core';
 export class KernJson {
   /** The value to show (object, array or primitive). A string is parsed as JSON when possible. */
   @Prop() data?: unknown;
-  /** Nodes up to this depth start open. */
-  @Prop() openDepth = 1;
+  @Element() el!: HTMLElement;
+
+  /** Nodes up to this depth start open. Changing it opens or closes every node to that depth, including nodes toggled by hand. */
+  @Prop({ mutable: true }) openDepth = 1;
+
+  private applyPending = false;
+
+  @Watch('openDepth')
+  onOpenDepth() {
+    this.applyPending = true;
+  }
+
+  componentDidRender() {
+    if (!this.applyPending) return;
+    this.applyPending = false;
+    this.applyOpenDepth();
+  }
+
+  /** Sets `open` on every node directly; the VDOM only knows the value of the last render, not clicks by hand. */
+  private applyOpenDepth() {
+    this.el.shadowRoot?.querySelectorAll('details').forEach((d) => {
+      if (Number(d.getAttribute('data-depth')) < this.openDepth) d.setAttribute('open', '');
+      else d.removeAttribute('open');
+    });
+  }
+
+  /** Opens nodes up to `depth` and closes all others; also resets nodes toggled by hand when `depth` is unchanged. */
+  @Method()
+  async setOpenDepth(depth: number) {
+    const same = depth === this.openDepth;
+    this.openDepth = depth;
+    if (same) this.applyOpenDepth();
+  }
+
+  /** Opens every node. */
+  @Method()
+  async expandAll() {
+    await this.setOpenDepth(Infinity);
+  }
+
+  /** Closes every node. */
+  @Method()
+  async collapseAll() {
+    await this.setOpenDepth(0);
+  }
 
   private value(): unknown {
     if (typeof this.data !== 'string') return this.data;
@@ -43,7 +86,7 @@ export class KernJson {
     const isArr = Array.isArray(v);
     const entries = Object.entries(v as Record<string, unknown>);
     return (
-      <details open={depth < this.openDepth}>
+      <details open={depth < this.openDepth} data-depth={depth}>
         <summary>
           {k}
           <span class="meta">{isArr ? `[${entries.length}]` : `{${entries.length}}`}</span>

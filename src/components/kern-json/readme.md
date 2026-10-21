@@ -43,13 +43,80 @@ A string in the `data` attribute is parsed as JSON when possible, so short value
 ```
 
 
+### 03-expand-all
+
+# Expand all / Collapse all
+
+`expandAll()`, `collapseAll()` and `setOpenDepth(depth)` open or close every node to a depth, also nodes toggled by hand and also when the depth is already set. Setting `openDepth` resets hand toggles the same way when the value changes.
+
+```html
+<div style="display:flex;gap:8px;margin-bottom:8px">
+  <kern-button size="sm" variant="ghost" class="expand">Expand all</kern-button>
+  <kern-button size="sm" variant="ghost" class="collapse">Collapse all</kern-button>
+  <kern-button size="sm" variant="ghost" class="reset">Depth 1</kern-button>
+</div>
+<kern-json open-depth="1"></kern-json>
+```
+
+```js
+const json = root.querySelector('kern-json');
+json.data = {
+  sys: { device: { name: 'Boiler', mac: 'C82B961A3F00', fw_id: '20240819-074343/1.4.2' }, location: { tz: 'Europe/Zurich', lat: 47.37, lon: 8.54 } },
+  wifi: { sta: { ssid: 'Home', ipv4mode: 'dhcp' }, ap: { enable: false } },
+  switch: [{ id: 0, name: 'Heater', initial_state: 'off', power_limit: 2500 }],
+};
+root.querySelector('.expand').addEventListener('click', () => json.expandAll());
+root.querySelector('.collapse').addEventListener('click', () => json.collapseAll());
+root.querySelector('.reset').addEventListener('click', () => json.setOpenDepth(1));
+```
+
+
 
 ## Properties
 
-| Property    | Attribute    | Description                                                                               | Type      | Default     |
-| ----------- | ------------ | ----------------------------------------------------------------------------------------- | --------- | ----------- |
-| `data`      | --           | The value to show (object, array or primitive). A string is parsed as JSON when possible. | `unknown` | `undefined` |
-| `openDepth` | `open-depth` | Nodes up to this depth start open.                                                        | `number`  | `1`         |
+| Property    | Attribute    | Description                                                                                                               | Type      | Default     |
+| ----------- | ------------ | ------------------------------------------------------------------------------------------------------------------------- | --------- | ----------- |
+| `data`      | --           | The value to show (object, array or primitive). A string is parsed as JSON when possible.                                 | `unknown` | `undefined` |
+| `openDepth` | `open-depth` | Nodes up to this depth start open. Changing it opens or closes every node to that depth, including nodes toggled by hand. | `number`  | `1`         |
+
+
+## Methods
+
+### `collapseAll() => Promise<void>`
+
+Closes every node.
+
+#### Returns
+
+Type: `Promise<void>`
+
+
+
+### `expandAll() => Promise<void>`
+
+Opens every node.
+
+#### Returns
+
+Type: `Promise<void>`
+
+
+
+### `setOpenDepth(depth: number) => Promise<void>`
+
+Opens nodes up to `depth` and closes all others; also resets nodes toggled by hand when `depth` is unchanged.
+
+#### Parameters
+
+| Name    | Type     | Description |
+| ------- | -------- | ----------- |
+| `depth` | `number` |             |
+
+#### Returns
+
+Type: `Promise<void>`
+
+
 
 
 ----------------------------------------------

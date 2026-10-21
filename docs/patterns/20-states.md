@@ -34,8 +34,11 @@ table.columns = [
   { key: 'firmware', label: 'Firmware', mono: true },
 ];
 const load = async () => {
+  // While loading, show the loading table (skeleton rows), never the empty state.
+  Object.assign(table, { hidden: false, loading: true });
+  empty.hidden = true;
   const result = await server.query({ pageSize: 10 });
-  table.rows = result.rows;
+  Object.assign(table, { rows: result.rows, loading: false });
   // Your app decides: no rows without any filter means "nothing created yet".
   empty.hidden = result.total > 0;
   table.hidden = result.total === 0;
@@ -81,7 +84,9 @@ let ctrl;
 const load = async () => {
   ctrl?.abort();
   ctrl = new AbortController();
-  table.loading = true;
+  // Leave the old empty state at once: the loading table shows that new results are on the way.
+  Object.assign(table, { hidden: false, loading: true });
+  empty.hidden = true;
   try {
     const { rows, total } = await server.query({ ...state, signal: ctrl.signal });
     Object.assign(table, { rows, total, page: state.page, loading: false });
@@ -117,7 +122,7 @@ load();
 
 ## Load error
 
-The first request fails (`failNext()`), so there is nothing to show. The error state says what happened and offers «Try again»; it is announced once as status. The second attempt succeeds.
+The first request fails (`failNext()`), so there is nothing to show. The error state says what happened and offers «Try again»; it is announced once as status. While the next attempt runs, the loading table takes its place; the second attempt succeeds.
 
 ```html
 <kern-table hidden></kern-table>
@@ -140,18 +145,16 @@ table.columns = [
   { key: 'status', label: 'Status' },
 ];
 const load = async () => {
-  retry.busy = true;
-  table.loading = true;
+  // Each attempt shows the loading table; the error state only comes back if this attempt fails too.
+  Object.assign(table, { hidden: false, loading: true });
+  empty.hidden = true;
   try {
     const { rows } = await server.query({ pageSize: 5 });
-    Object.assign(table, { rows, loading: false, hidden: false });
-    empty.hidden = true;
+    Object.assign(table, { rows, loading: false });
   } catch (e) {
     empty.querySelector('.reason').textContent = `${e.message}. Check that the server is running.`;
-    table.hidden = true;
+    Object.assign(table, { hidden: true, loading: false });
     empty.hidden = false;
-  } finally {
-    retry.busy = false;
   }
 };
 retry.addEventListener('click', load);

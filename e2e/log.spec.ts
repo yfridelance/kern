@@ -26,6 +26,7 @@ test('follow: folgt am Ende, hält beim Hochscrollen die Position, «N neu» spr
   const log = page.locator('#log');
   const latest = log.locator('.latest');
   await add(page, 30);
+  await expect(log.locator('li.entry')).toHaveCount(30);
   await expect.poll(() => fromEnd(log)).toBeLessThanOrEqual(4);
   await expect(latest).toHaveCount(0);
 
@@ -59,6 +60,7 @@ test('Puffer: alte Einträge fallen oben weg, die gelesenen Zeilen bleiben stehe
 test('Pause friert die Ansicht ein, zählt wartende Einträge und setzt fort', async ({ page }) => {
   const log = page.locator('#log');
   await add(page, 10);
+  await expect(log.locator('li.entry')).toHaveCount(10);
   await log.locator('kern-button.pause').click();
   await expect(log).toHaveAttribute('paused', '');
   const frozen = await keys(log);

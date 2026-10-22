@@ -53,6 +53,8 @@ for (const id of ['#dialog', '#drawer']) {
     await host.evaluate((el: HTMLElement & { show(): Promise<void> }) => el.show());
     await expect(host.locator('dialog')).toBeVisible();
     const panel = host.locator('dialog');
+    // Measure after the opening animation: the drawer slides in from outside the panel.
+    await panel.evaluate((d) => Promise.all(d.getAnimations().map((a) => a.finished)));
     const [scrollWidth, clientWidth] = await panel.evaluate((d) => [d.scrollWidth, d.clientWidth]);
     expect(scrollWidth, 'Panel scrollt horizontal').toBeLessThanOrEqual(clientWidth);
     expect(await outside(host, 'dialog')).toEqual([]);

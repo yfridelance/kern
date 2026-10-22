@@ -148,6 +148,8 @@ zusätzlich Standalone-Wrapper mit `ControlValueAccessor` für `ngModel` und Rea
 - **Seitenpanel:** `kern-drawer` (rechts, `side="start"` links, `width`) für Details, Filter und längere Formulare;
   modal auf `<dialog>`, Kopf und Fuss stehen, der Inhalt scrollt. Escape, × und Klick auf den Hintergrund schliessen
   (`dismissible="false"` verhindert das). Kurze Bestätigungen bleiben `kern-dialog`/`confirm()`.
+- **Anfangsfokus:** `autofocus` an einem Kern-Feld in `kern-drawer` oder `kern-dialog` setzt beim Öffnen den Fokus
+  dorthin statt auf den Schliessen-Knopf; `kernOpen` meldet das Öffnen.
 - **Bestätigen:** `await confirm({ heading, message, confirmLabel, danger, typeToConfirm })` öffnet einen
   `kern-dialog`. Mit `typeToConfirm` (z.B. die MAC) bleibt die Bestätigung gesperrt, bis der Wert eingetippt ist.
   Ein Array erlaubt Alternativen (`['Boiler', mac]`), `normalize: 'mac'` akzeptiert die MAC in jeder Schreibweise.

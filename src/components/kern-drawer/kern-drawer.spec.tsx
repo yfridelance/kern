@@ -36,4 +36,19 @@ describe('kern-drawer', () => {
     await page.waitForChanges();
     expect([page.root!.hasAttribute('open'), values]).toEqual([false, ['saved']]);
   });
+
+  it('emits kernOpen and focuses the first field with autofocus', async () => {
+    const page = await newSpecPage({ components: [KernDrawer], html: `<kern-drawer heading="X"><kern-input name="a"></kern-input><kern-input name="b" autofocus></kern-input></kern-drawer>` });
+    const dialog = page.root!.shadowRoot!.querySelector('dialog')! as HTMLDialogElement;
+    dialog.showModal = function () {
+      this.open = true;
+    };
+    const events: string[] = [];
+    page.root!.addEventListener('kernOpen', () => events.push('kernOpen'));
+    const b = page.root!.querySelector('[name=b]') as HTMLElement & { setFocus: () => Promise<void> };
+    b.setFocus = async () => void events.push('setFocus b');
+    await (page.root as unknown as KernDrawer).show();
+    await page.waitForChanges();
+    expect(events).toEqual(['kernOpen', 'setFocus b']);
+  });
 });

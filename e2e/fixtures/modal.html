@@ -11,6 +11,8 @@
   <button id="page-before">Seite davor</button>
   <kern-button id="open-dialog">Einstellungen</kern-button>
   <kern-button id="open-drawer">Details</kern-button>
+  <kern-button id="open-drawer-form">Bearbeiten</kern-button>
+  <kern-button id="open-dialog-form">Umbenennen</kern-button>
   <button id="page-after">Seite danach</button>
 
   <kern-dialog id="dialog" heading="Einstellungen">
@@ -30,7 +32,24 @@
     <kern-button slot="footer" id="drawer-save" variant="primary">Speichern</kern-button>
   </kern-drawer>
 
+  <kern-drawer id="drawer-form" heading="Bearbeiten">
+    <kern-input label="Name" name="name" value="Bad Lüftung"></kern-input>
+    <kern-input label="IP" name="ip" autofocus></kern-input>
+    <kern-button slot="footer" variant="primary">Speichern</kern-button>
+  </kern-drawer>
+
+  <kern-dialog id="dialog-form" heading="Umbenennen">
+    <div><kern-input label="Neuer Name" name="name" autofocus></kern-input></div>
+    <kern-button slot="footer" variant="primary">Speichern</kern-button>
+  </kern-dialog>
+
   <script>
+    window.opened = [];
+    for (const [opener, modal] of [['open-drawer-form', 'drawer-form'], ['open-dialog-form', 'dialog-form']]) {
+      const el = document.getElementById(modal);
+      document.getElementById(opener).addEventListener('click', () => el.show());
+      el.addEventListener('kernOpen', () => window.opened.push(modal));
+    }
     document.getElementById('open-dialog').addEventListener('click', () => document.getElementById('dialog').show());
     document.getElementById('open-drawer').addEventListener('click', () => document.getElementById('drawer').show());
   </script>

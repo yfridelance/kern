@@ -9,6 +9,16 @@
   <li><code>name</code> puts the value into <code>FormData</code>. Components with several values (<code>kern-select multiple</code>, <code>kern-file-input multiple</code>) add one entry per value.</li>
   <li><code>required</code> blocks submitting while empty; <code>form.reset()</code> restores the initial value; a disabled <code>&lt;fieldset&gt;</code> disables the fields until it is enabled again, without changing their own <code>disabled</code>.</li>
   <li><code>kern-button type="submit"</code> / <code>type="reset"</code> submit or reset the surrounding form.</li>
+  <li><strong>Enter</strong> in a single-line field submits the surrounding form (implicit submission).</li>
+</ul>
+<h2>Enter submits</h2>
+<p>The native input of a Kern field sits in the shadow DOM and belongs to no form, so the field submits the form itself on Enter, as the browser does for native fields. This applies to <code>kern-input</code>, <code>kern-ip-input</code>, <code>kern-mac-input</code>, <code>kern-step-input</code>, <code>kern-date-picker</code>, <code>kern-date-range-picker</code>, <code>kern-time-picker</code> and <code>kern-color-picker</code>.</p>
+<ul>
+  <li>Typed fields first apply the text (<code>192.168.1.10 - 50</code> → <code>192.168.1.10-192.168.1.50</code>), so the form gets the current value and validity.</li>
+  <li>Like the browser, the field clicks the form's first submit button, or calls <code>requestSubmit()</code> when there is none. Validation runs and <code>submit</code> fires; a disabled or <code>busy</code> submit button blocks it.</li>
+  <li>No submit with a modifier key (Shift, Ctrl, Alt, Meta), when the field is <code>disabled</code> or <code>readonly</code>, outside a form, or when a <code>keydown</code> handler called <code>preventDefault()</code>.</li>
+  <li>With an open list (<code>kern-input suggestions</code>, a picker's popover) Enter takes the suggestion or closes the list; the next Enter submits.</li>
+  <li><code>no-implicit-submit</code> turns it off for one field, e.g. when the field uses Enter itself. <code>kern-textarea</code> keeps Enter for a new line.</li>
 </ul>
 <h2>Errors</h2>
 <p>Set <code>error</code> to show a message. A field with <code>error</code> is invalid and blocks submitting until the message is removed. Typed fields (dates, IPs, MACs, numbers, colours) also report their own problems, e.g. «Not a valid IPv4 address».</p>

@@ -1,5 +1,6 @@
 import { AttachInternals, Component, Element, Event, EventEmitter, Host, Method, Prop, State, Watch, h } from '@stencil/core';
 import { fieldDisabled } from '../../utils/form-disabled';
+import { implicitSubmit } from '../../utils/implicit-submit';
 import { Icon } from '../../utils/icons';
 import { positionPopup } from '../../utils/popover';
 import { dayPeriods, isoTime, parseTime, resolveLocale, timeSteps, uses12h } from '../../utils/datetime';
@@ -14,7 +15,7 @@ type Segment = 'hour' | 'minute' | 'second' | 'period';
  * `HH:mm` (or `HH:mm:ss` with `seconds`), empty while a segment is missing.
  *
  * Keyboard per segment: Arrow Up/Down change it (minutes in `step`), digits type it and move on, Arrow Left/Right
- * switch segments, Backspace clears, A/P set AM/PM. With `list`, a button opens a list of times
+ * switch segments, Backspace clears, A/P set AM/PM, Enter submits the surrounding form. With `list`, a button opens a list of times
  * (every `step`, at least 5 minutes; every 30 minutes when `step` is smaller).
  *
  * @part control - The field box
@@ -56,6 +57,8 @@ export class KernTimePicker {
   @State() formDisabled = false;
   @Prop() readonly = false;
   @Prop() required = false;
+  /** Enter does not submit the surrounding form. */
+  @Prop() noImplicitSubmit = false;
   /** Accessible name when there is no visible label. */
   @Prop() ariaLabelText?: string;
   @Prop() labelHour?: string;
@@ -284,6 +287,9 @@ export class KernTimePicker {
       ev.preventDefault();
       this.typed = '';
       this.focusSegment(this.neighbour(seg, 1));
+    } else if (k === 'Enter' && !this.open) {
+      this.typed = '';
+      implicitSubmit(this, ev);
     }
   };
 

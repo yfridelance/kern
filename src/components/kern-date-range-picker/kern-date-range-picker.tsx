@@ -1,5 +1,6 @@
 import { AttachInternals, Component, Element, Event, EventEmitter, Host, Listen, Method, Prop, State, Watch, h } from '@stencil/core';
 import { fieldDisabled } from '../../utils/form-disabled';
+import { implicitSubmit } from '../../utils/implicit-submit';
 import { Icon } from '../../utils/icons';
 import { positionPopup } from '../../utils/popover';
 import { clampIso, datePlaceholder, daysBetween, formatInputDate, fromIsoDate, parseInputDate, rangeUntil } from '../../utils/datetime';
@@ -63,6 +64,8 @@ export class KernDateRangePicker {
   @State() formDisabled = false;
   @Prop() readonly = false;
   @Prop() required = false;
+  /** Enter does not submit the surrounding form. */
+  @Prop() noImplicitSubmit = false;
   /** Accessible name when there is no visible label. */
   @Prop() ariaLabelText?: string;
   @Prop() labelStart?: string;
@@ -281,6 +284,7 @@ export class KernDateRangePicker {
       this.openCalendar();
     } else if (ev.key === 'Enter') {
       this.commit();
+      if (!this.open) implicitSubmit(this, ev);
     }
   };
 

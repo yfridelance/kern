@@ -55,27 +55,28 @@ With `locale="de-DE"` the field shows and accepts a decimal comma (`-0,25`). `re
 
 ## Properties
 
-| Property        | Attribute         | Description                                                                                    | Type                  | Default     |
-| --------------- | ----------------- | ---------------------------------------------------------------------------------------------- | --------------------- | ----------- |
-| `ariaLabelText` | `aria-label-text` | Accessible name when there is no visible label.                                                | `string \| undefined` | `undefined` |
-| `disabled`      | `disabled`        |                                                                                                | `boolean`             | `false`     |
-| `error`         | `error`           |                                                                                                | `string \| undefined` | `undefined` |
-| `hint`          | `hint`            |                                                                                                | `string \| undefined` | `undefined` |
-| `label`         | `label`           |                                                                                                | `string \| undefined` | `undefined` |
-| `labelDecrease` | `label-decrease`  |                                                                                                | `string \| undefined` | `undefined` |
-| `labelIncrease` | `label-increase`  |                                                                                                | `string \| undefined` | `undefined` |
-| `labelInvalid`  | `label-invalid`   | Shown for text that is not a number.                                                           | `string \| undefined` | `undefined` |
-| `locale`        | `locale`          | BCP 47 locale for the decimal separator; defaults to `<html lang>`, then the browser language. | `string \| undefined` | `undefined` |
-| `max`           | `max`             |                                                                                                | `number \| undefined` | `undefined` |
-| `min`           | `min`             |                                                                                                | `number \| undefined` | `undefined` |
-| `name`          | `name`            |                                                                                                | `string \| undefined` | `undefined` |
-| `placeholder`   | `placeholder`     |                                                                                                | `string \| undefined` | `undefined` |
-| `readonly`      | `readonly`        |                                                                                                | `boolean`             | `false`     |
-| `required`      | `required`        |                                                                                                | `boolean`             | `false`     |
-| `size`          | `size`            |                                                                                                | `"md" \| "sm"`        | `'md'`      |
-| `step`          | `step`            | Step for buttons and keys; its decimals set the precision (0.5 → one decimal).                 | `number`              | `1`         |
-| `unit`          | `unit`            | Unit after the number, e.g. „°C“, „%“, „s“.                                                    | `string \| undefined` | `undefined` |
-| `value`         | `value`           | The number, or `''` when empty.                                                                | `"" \| number`        | `''`        |
+| Property           | Attribute            | Description                                                                                    | Type                  | Default     |
+| ------------------ | -------------------- | ---------------------------------------------------------------------------------------------- | --------------------- | ----------- |
+| `ariaLabelText`    | `aria-label-text`    | Accessible name when there is no visible label.                                                | `string \| undefined` | `undefined` |
+| `disabled`         | `disabled`           |                                                                                                | `boolean`             | `false`     |
+| `error`            | `error`              |                                                                                                | `string \| undefined` | `undefined` |
+| `hint`             | `hint`               |                                                                                                | `string \| undefined` | `undefined` |
+| `label`            | `label`              |                                                                                                | `string \| undefined` | `undefined` |
+| `labelDecrease`    | `label-decrease`     |                                                                                                | `string \| undefined` | `undefined` |
+| `labelIncrease`    | `label-increase`     |                                                                                                | `string \| undefined` | `undefined` |
+| `labelInvalid`     | `label-invalid`      | Shown for text that is not a number.                                                           | `string \| undefined` | `undefined` |
+| `locale`           | `locale`             | BCP 47 locale for the decimal separator; defaults to `<html lang>`, then the browser language. | `string \| undefined` | `undefined` |
+| `max`              | `max`                |                                                                                                | `number \| undefined` | `undefined` |
+| `min`              | `min`                |                                                                                                | `number \| undefined` | `undefined` |
+| `name`             | `name`               |                                                                                                | `string \| undefined` | `undefined` |
+| `noImplicitSubmit` | `no-implicit-submit` | Enter does not submit the surrounding form.                                                    | `boolean`             | `false`     |
+| `placeholder`      | `placeholder`        |                                                                                                | `string \| undefined` | `undefined` |
+| `readonly`         | `readonly`           |                                                                                                | `boolean`             | `false`     |
+| `required`         | `required`           |                                                                                                | `boolean`             | `false`     |
+| `size`             | `size`               |                                                                                                | `"md" \| "sm"`        | `'md'`      |
+| `step`             | `step`               | Step for buttons and keys; its decimals set the precision (0.5 → one decimal).                 | `number`              | `1`         |
+| `unit`             | `unit`               | Unit after the number, e.g. „°C“, „%“, „s“.                                                    | `string \| undefined` | `undefined` |
+| `value`            | `value`              | The number, or `''` when empty.                                                                | `"" \| number`        | `''`        |
 
 
 ## Events

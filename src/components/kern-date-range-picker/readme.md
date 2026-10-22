@@ -63,36 +63,37 @@ root.querySelector('kern-date-range-picker').max = new Date(d.getTime() - d.getT
 
 ## Properties
 
-| Property          | Attribute            | Description                                                                               | Type                                      | Default     |
-| ----------------- | -------------------- | ----------------------------------------------------------------------------------------- | ----------------------------------------- | ----------- |
-| `ariaLabelText`   | `aria-label-text`    | Accessible name when there is no visible label.                                           | `string \| undefined`                     | `undefined` |
-| `clearable`       | `clearable`          | Show a button that empties both dates.                                                    | `boolean`                                 | `false`     |
-| `disabled`        | `disabled`           |                                                                                           | `boolean`                                 | `false`     |
-| `end`             | `end`                | Last day (inclusive), ISO `YYYY-MM-DD`.                                                   | `string`                                  | `''`        |
-| `error`           | `error`              |                                                                                           | `string \| undefined`                     | `undefined` |
-| `firstDayOfWeek`  | `first-day-of-week`  | 0 = Sunday … 6 = Saturday; defaults to the locale.                                        | `number \| undefined`                     | `undefined` |
-| `hint`            | `hint`               |                                                                                           | `string \| undefined`                     | `undefined` |
-| `isDateDisabled`  | --                   | Additional rule for unselectable days.                                                    | `((iso: string) => boolean) \| undefined` | `undefined` |
-| `label`           | `label`              |                                                                                           | `string \| undefined`                     | `undefined` |
-| `labelClear`      | `label-clear`        |                                                                                           | `string \| undefined`                     | `undefined` |
-| `labelEnd`        | `label-end`          |                                                                                           | `string \| undefined`                     | `undefined` |
-| `labelIncomplete` | `label-incomplete`   | Shown when only one date is set.                                                          | `string \| undefined`                     | `undefined` |
-| `labelInvalid`    | `label-invalid`      |                                                                                           | `string \| undefined`                     | `undefined` |
-| `labelOpen`       | `label-open`         |                                                                                           | `string \| undefined`                     | `undefined` |
-| `labelOutOfRange` | `label-out-of-range` |                                                                                           | `string \| undefined`                     | `undefined` |
-| `labelStart`      | `label-start`        |                                                                                           | `string \| undefined`                     | `undefined` |
-| `labelTooLong`    | `label-too-long`     | Shown when the range is longer than `maxDays`; `{n}` is replaced by it.                   | `string \| undefined`                     | `undefined` |
-| `locale`          | `locale`             | BCP 47 locale; defaults to `<html lang>`, then the browser language.                      | `string \| undefined`                     | `undefined` |
-| `max`             | `max`                | Latest allowed date.                                                                      | `string \| undefined`                     | `undefined` |
-| `maxDays`         | `max-days`           | Longest allowed range in days (inclusive).                                                | `number \| undefined`                     | `undefined` |
-| `min`             | `min`                | Earliest allowed date.                                                                    | `string \| undefined`                     | `undefined` |
-| `name`            | `name`               |                                                                                           | `string \| undefined`                     | `undefined` |
-| `readonly`        | `readonly`           |                                                                                           | `boolean`                                 | `false`     |
-| `required`        | `required`           |                                                                                           | `boolean`                                 | `false`     |
-| `showWeekNumbers` | `show-week-numbers`  | ISO week numbers in the calendar.                                                         | `boolean`                                 | `false`     |
-| `size`            | `size`               |                                                                                           | `"md" \| "sm"`                            | `'md'`      |
-| `start`           | `start`              | First day, ISO `YYYY-MM-DD`.                                                              | `string`                                  | `''`        |
-| `value`           | `value`              | ISO 8601 interval `start/end`, empty until both are set; kept in sync with `start`/`end`. | `string`                                  | `''`        |
+| Property           | Attribute            | Description                                                                               | Type                                      | Default     |
+| ------------------ | -------------------- | ----------------------------------------------------------------------------------------- | ----------------------------------------- | ----------- |
+| `ariaLabelText`    | `aria-label-text`    | Accessible name when there is no visible label.                                           | `string \| undefined`                     | `undefined` |
+| `clearable`        | `clearable`          | Show a button that empties both dates.                                                    | `boolean`                                 | `false`     |
+| `disabled`         | `disabled`           |                                                                                           | `boolean`                                 | `false`     |
+| `end`              | `end`                | Last day (inclusive), ISO `YYYY-MM-DD`.                                                   | `string`                                  | `''`        |
+| `error`            | `error`              |                                                                                           | `string \| undefined`                     | `undefined` |
+| `firstDayOfWeek`   | `first-day-of-week`  | 0 = Sunday … 6 = Saturday; defaults to the locale.                                        | `number \| undefined`                     | `undefined` |
+| `hint`             | `hint`               |                                                                                           | `string \| undefined`                     | `undefined` |
+| `isDateDisabled`   | --                   | Additional rule for unselectable days.                                                    | `((iso: string) => boolean) \| undefined` | `undefined` |
+| `label`            | `label`              |                                                                                           | `string \| undefined`                     | `undefined` |
+| `labelClear`       | `label-clear`        |                                                                                           | `string \| undefined`                     | `undefined` |
+| `labelEnd`         | `label-end`          |                                                                                           | `string \| undefined`                     | `undefined` |
+| `labelIncomplete`  | `label-incomplete`   | Shown when only one date is set.                                                          | `string \| undefined`                     | `undefined` |
+| `labelInvalid`     | `label-invalid`      |                                                                                           | `string \| undefined`                     | `undefined` |
+| `labelOpen`        | `label-open`         |                                                                                           | `string \| undefined`                     | `undefined` |
+| `labelOutOfRange`  | `label-out-of-range` |                                                                                           | `string \| undefined`                     | `undefined` |
+| `labelStart`       | `label-start`        |                                                                                           | `string \| undefined`                     | `undefined` |
+| `labelTooLong`     | `label-too-long`     | Shown when the range is longer than `maxDays`; `{n}` is replaced by it.                   | `string \| undefined`                     | `undefined` |
+| `locale`           | `locale`             | BCP 47 locale; defaults to `<html lang>`, then the browser language.                      | `string \| undefined`                     | `undefined` |
+| `max`              | `max`                | Latest allowed date.                                                                      | `string \| undefined`                     | `undefined` |
+| `maxDays`          | `max-days`           | Longest allowed range in days (inclusive).                                                | `number \| undefined`                     | `undefined` |
+| `min`              | `min`                | Earliest allowed date.                                                                    | `string \| undefined`                     | `undefined` |
+| `name`             | `name`               |                                                                                           | `string \| undefined`                     | `undefined` |
+| `noImplicitSubmit` | `no-implicit-submit` | Enter does not submit the surrounding form.                                               | `boolean`                                 | `false`     |
+| `readonly`         | `readonly`           |                                                                                           | `boolean`                                 | `false`     |
+| `required`         | `required`           |                                                                                           | `boolean`                                 | `false`     |
+| `showWeekNumbers`  | `show-week-numbers`  | ISO week numbers in the calendar.                                                         | `boolean`                                 | `false`     |
+| `size`             | `size`               |                                                                                           | `"md" \| "sm"`                            | `'md'`      |
+| `start`            | `start`              | First day, ISO `YYYY-MM-DD`.                                                              | `string`                                  | `''`        |
+| `value`            | `value`              | ISO 8601 interval `start/end`, empty until both are set; kept in sync with `start`/`end`. | `string`                                  | `''`        |
 
 
 ## Events

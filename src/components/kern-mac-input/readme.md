@@ -53,22 +53,23 @@ for (const el of root.querySelectorAll('kern-mac-input')) {
 
 ## Properties
 
-| Property        | Attribute         | Description                                                                                               | Type                                    | Default     |
-| --------------- | ----------------- | --------------------------------------------------------------------------------------------------------- | --------------------------------------- | ----------- |
-| `ariaLabelText` | `aria-label-text` | Accessible name when there is no visible label.                                                           | `string \| undefined`                   | `undefined` |
-| `disabled`      | `disabled`        |                                                                                                           | `boolean`                               | `false`     |
-| `error`         | `error`           |                                                                                                           | `string \| undefined`                   | `undefined` |
-| `format`        | `format`          | Notation of `value`: `C8:2B:…` (colon), `C8-2B-…` (dash), `c82b.961a.3f00` (dot), `C82B961A3F00` (plain). | `"colon" \| "dash" \| "dot" \| "plain"` | `'colon'`   |
-| `hint`          | `hint`            |                                                                                                           | `string \| undefined`                   | `undefined` |
-| `label`         | `label`           |                                                                                                           | `string \| undefined`                   | `undefined` |
-| `labelInvalid`  | `label-invalid`   |                                                                                                           | `string \| undefined`                   | `undefined` |
-| `letterCase`    | `letter-case`     |                                                                                                           | `"lower" \| "upper"`                    | `'upper'`   |
-| `name`          | `name`            |                                                                                                           | `string \| undefined`                   | `undefined` |
-| `placeholder`   | `placeholder`     | Defaults to an example in `format`.                                                                       | `string \| undefined`                   | `undefined` |
-| `readonly`      | `readonly`        |                                                                                                           | `boolean`                               | `false`     |
-| `required`      | `required`        |                                                                                                           | `boolean`                               | `false`     |
-| `size`          | `size`            |                                                                                                           | `"md" \| "sm"`                          | `'md'`      |
-| `value`         | `value`           | Normalised MAC address; empty when none.                                                                  | `string`                                | `''`        |
+| Property           | Attribute            | Description                                                                                               | Type                                    | Default     |
+| ------------------ | -------------------- | --------------------------------------------------------------------------------------------------------- | --------------------------------------- | ----------- |
+| `ariaLabelText`    | `aria-label-text`    | Accessible name when there is no visible label.                                                           | `string \| undefined`                   | `undefined` |
+| `disabled`         | `disabled`           |                                                                                                           | `boolean`                               | `false`     |
+| `error`            | `error`              |                                                                                                           | `string \| undefined`                   | `undefined` |
+| `format`           | `format`             | Notation of `value`: `C8:2B:…` (colon), `C8-2B-…` (dash), `c82b.961a.3f00` (dot), `C82B961A3F00` (plain). | `"colon" \| "dash" \| "dot" \| "plain"` | `'colon'`   |
+| `hint`             | `hint`               |                                                                                                           | `string \| undefined`                   | `undefined` |
+| `label`            | `label`              |                                                                                                           | `string \| undefined`                   | `undefined` |
+| `labelInvalid`     | `label-invalid`      |                                                                                                           | `string \| undefined`                   | `undefined` |
+| `letterCase`       | `letter-case`        |                                                                                                           | `"lower" \| "upper"`                    | `'upper'`   |
+| `name`             | `name`               |                                                                                                           | `string \| undefined`                   | `undefined` |
+| `noImplicitSubmit` | `no-implicit-submit` | Enter does not submit the surrounding form.                                                               | `boolean`                               | `false`     |
+| `placeholder`      | `placeholder`        | Defaults to an example in `format`.                                                                       | `string \| undefined`                   | `undefined` |
+| `readonly`         | `readonly`           |                                                                                                           | `boolean`                               | `false`     |
+| `required`         | `required`           |                                                                                                           | `boolean`                               | `false`     |
+| `size`             | `size`               |                                                                                                           | `"md" \| "sm"`                          | `'md'`      |
+| `value`            | `value`              | Normalised MAC address; empty when none.                                                                  | `string`                                | `''`        |
 
 
 ## Events

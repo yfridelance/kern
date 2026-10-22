@@ -1,5 +1,6 @@
 import { AttachInternals, Component, Element, Event, EventEmitter, Host, Method, Prop, State, Watch, h } from '@stencil/core';
 import { fieldDisabled } from '../../utils/form-disabled';
+import { implicitSubmit } from '../../utils/implicit-submit';
 import { formatMac, parseMac, type KernMacFormat } from '../../utils/mac';
 import { kernTexts } from '../../utils/i18n';
 
@@ -37,6 +38,8 @@ export class KernMacInput {
   @State() formDisabled = false;
   @Prop() readonly = false;
   @Prop() required = false;
+  /** Enter does not submit the surrounding form. */
+  @Prop() noImplicitSubmit = false;
   /** Accessible name when there is no visible label. */
   @Prop() ariaLabelText?: string;
   @Prop() labelInvalid?: string;
@@ -134,7 +137,9 @@ export class KernMacInput {
   };
 
   private onKey = (ev: KeyboardEvent) => {
-    if (ev.key === 'Enter') this.commit();
+    if (ev.key !== 'Enter') return;
+    this.commit();
+    implicitSubmit(this, ev);
   };
 
   /** The own validation message in the current language; `problem` holds the text property's name. */

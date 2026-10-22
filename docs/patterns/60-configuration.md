@@ -186,13 +186,6 @@ form.addEventListener('submit', (e) => {
   e.preventDefault();
   submit();
 });
-// Enter in a text field saves, as in a native form (Kern fields keep their input in the shadow DOM). Workaround until #155.
-form.addEventListener('keydown', (e) => {
-  if (e.key === 'Enter' && !e.defaultPrevented && ['kern-input', 'kern-ip-input'].includes(e.target.localName)) {
-    // kern-ip-input applies the typed text on the same Enter; submit once it has.
-    requestAnimationFrame(() => form.requestSubmit());
-  }
-});
 cancel.addEventListener('click', () => drawer.close('cancel'));
 
 // ---------- close: the focus returns to «Edit», then the toast ----------
@@ -253,7 +246,7 @@ On success the app closes the panel with `close('saved')` and shows the toast in
 
 - **Opening:** `kern-drawer` is a native modal dialog, so the focus stays inside it. It first lands on the close button in the header; the app moves it to the first field with `setFocus()` once the panel is open. `autofocus` on a Kern field does not work yet (#154).
 - **Closing:** Escape, the close button, «Cancel» and «Save» all close the panel, and the dialog returns the focus to the element that had it before, the «Edit» button. So the app updates the saved row in place instead of rebuilding the list: a new button would not get the focus back.
-- **Enter** in a text field saves the form. Kern fields keep their input in the shadow DOM, where the browser's implicit submission does not reach the form, so the example calls `requestSubmit()` itself (until #155).
+- **Enter** in a text field saves the form, as in a native form: Kern's text fields submit their form themselves. `kern-ip-input` first applies the typed text, so a wrong address is reported instead of saved. While «Save» is `busy`, Enter does nothing, like a click.
 - **Buttons in the footer** stand outside the `<form>` (they are in the panel's `footer` slot). Like a native button, `kern-button type="submit"` takes the form's id in `form`, so «Save» still submits it.
 
 ## Drawer or dialog

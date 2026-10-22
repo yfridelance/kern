@@ -13,6 +13,14 @@ let detailsCount = 0;
 const objectKeys = new WeakMap<object, string>();
 let objectCount = 0;
 
+/** Data mode: a row kept per key, its cells and what they show (the Node or text from `cell()` or `row[key]`). */
+interface DataRow {
+  tr: HTMLTableRowElement;
+  cells: HTMLTableCellElement[];
+  content: (Node | string | undefined)[];
+  details?: HTMLTableRowElement;
+}
+
 /**
  * Dense data table: wraps a native `<table>` (light DOM, so cells can hold any markup and Angular bindings).
  * Sortable column: `<th sortable>`; `sorted="asc|desc"` is the current direction (the table sets `aria-sort`),
@@ -22,7 +30,8 @@ let objectCount = 0;
  * Empty state: `<td colspan="…" class="empty">`.
  *
  * Data mode: with `columns` (and `rows`) the table builds its own `<table>`; don't combine it with own markup.
- * Assign new arrays to update it.
+ * Assign new arrays to update it. Rows are kept per key (see `rowKey`): new `rows` move and update the existing `<tr>`,
+ * so focus, text selection and open details stay; only cells whose class or content changed are touched.
  *
  * Pagination: `page-size` adds a `kern-pagination` below the rows. `internal` pages the rows itself (back to page 1
  * after sorting); `external` shows the rows it gets and the app loads a page on `kernPageChange` (bubbles from the
@@ -89,7 +98,7 @@ export class KernTable {
    */
   @Prop({ mutable: true }) selected: string[] = [];
   /**
-   * Data mode: key of a row for `selected` and `expanded`. Default: `row.id`, else a key per row object (kept through
+   * Data mode: key of a row for `selected`, `expanded` and keeping its `<tr>` through updates. Default: `row.id`, else a key per row object (kept through
    * sorting, filtering and reordering, but new for reloaded objects; use `rowKey` or `id` for server data). Rows that
    * are no objects use their index in `rows`.
    */
@@ -100,7 +109,10 @@ export class KernTable {
   @Prop() labelSelectRow?: string;
   /** Keys of the expanded rows (see `selected` and `rowKey` for keys). */
   @Prop({ mutable: true }) expanded: string[] = [];
-  /** Data mode: content of a row's detail row; adds a first column with a toggle. Called when the row is first opened. */
+  /**
+   * Data mode: content of a row's detail row; adds a first column with a toggle. Called when the row is first opened;
+   * the content stays while the row is shown (new `rows` don't rebuild it), so update it yourself for live data.
+   */
   @Prop() detail?: (row: any, index: number) => Node | string;
   /** Data mode: accessible name of the toggle button of a row. */
   @Prop() labelExpandRow?: string;
@@ -127,6 +139,8 @@ export class KernTable {
   private warned = false;
   /** Data mode: detail rows whose content is built (on first opening). */
   private filled = new WeakSet<Element>();
+  /** Data mode: the rows shown, per key, kept through new `rows`, sorting and paging while shown. */
+  private cache = new Map<string, DataRow>();
 
   connectedCallback() {
     this.el.addEventListener('click', this.onClick);
@@ -164,6 +178,7 @@ export class KernTable {
     const sorted = this.columns?.find((c) => c.sortable && c.sorted);
     this.sortKey = sorted?.key;
     this.sortDir = sorted?.sorted;
+    this.cache.clear(); // other cells or toggle column: rows are built anew
     this.buildHead();
     this.buildBody();
   }
@@ -695,34 +710,19 @@ export class KernTable {
         ? sortByValue(items, ({ row }) => (col.sortValue ? col.sortValue(row) : row?.[col.key]), this.sortDir, this.collator())
         : items;
     const visible = this.paged() ? ordered.slice(...this.range(ordered.length)) : ordered;
-    // Rebuilt rows (new `rows`, page, sort): a focused row checkbox or toggle keeps focus.
-    const active = document.activeElement;
-    const focusCell = active && tbody.contains(active) ? active.closest(`[${GENERATED}]`) : null;
-    const focusKey = focusCell ? this.keyOf(focusCell.closest('tr')!) : undefined;
-    const focusKind = focusCell?.hasAttribute('data-kern-expand') ? 'data-kern-expand' : 'data-kern-select';
 
+    // Rows are kept per key: focus, text selection, open details and their contents survive new `rows`.
+    // Rows no longer shown (removed, filtered, other page) are dropped with their nodes.
+    const cache = new Map<string, DataRow>();
     const trs = visible.flatMap(({ row, index, key }) => {
-      const tr = document.createElement('tr');
-      const rowCls = this.getRowClass?.(row, index);
-      if (rowCls) tr.className = rowCls;
-      this.rowData.set(tr, { row, index });
-      this.rowKeys.set(tr, key);
-      for (const c of columns) {
-        const td = document.createElement('td');
-        const cls = this.classes(c.align === 'end' && 'num', c.mono && 'mono', this.getCellClass?.(row, c, index));
-        if (cls) td.className = cls;
-        const content = c.cell ? c.cell(row, index) : row?.[c.key];
-        if (content && typeof content === 'object' && 'nodeType' in content) td.append(content);
-        else td.textContent = isBlank(content) ? '–' : String(content);
-        tr.append(td);
-      }
-      if (!this.detail) return [tr];
-      tr.prepend(this.expandCell('td'));
-      const details = document.createElement('tr');
-      details.setAttribute('kern-details', '');
-      details.append(document.createElement('td'));
-      return [tr, details];
+      const entry = (!cache.has(key) && this.cache.get(key)) || this.dataRow(columns);
+      if (!cache.has(key)) cache.set(key, entry); // a duplicate key gets a row of its own, not kept
+      this.updateRow(entry, columns, row, index);
+      this.rowData.set(entry.tr, { row, index });
+      this.rowKeys.set(entry.tr, key);
+      return entry.details ? [entry.tr, entry.details] : [entry.tr];
     });
+    this.cache = cache;
 
     if (!trs.length && this.loading) {
       for (let i = 0; i < this.loadingRows; i++) {
@@ -746,11 +746,80 @@ export class KernTable {
       tr.append(td);
       trs.push(tr);
     }
-    this.replace(tbody, trs);
+    this.arrange(tbody, trs);
     this.busy();
     this.pager(ordered.length);
     this.syncRows();
-    if (focusKey !== undefined) this.focusLater(trs.find((tr) => this.rowKeys.get(tr) === focusKey)?.querySelector(`[${focusKind}] > *`));
+  }
+
+  /** Data mode: a new row with its cells (and toggle and detail row with `detail`). */
+  private dataRow(columns: KernTableColumn[]): DataRow {
+    const tr = document.createElement('tr');
+    const cells = columns.map(() => document.createElement('td'));
+    tr.append(...cells);
+    if (!this.detail) return { tr, cells, content: [] };
+    tr.prepend(this.expandCell('td'));
+    const details = document.createElement('tr');
+    details.setAttribute('kern-details', '');
+    details.append(document.createElement('td'));
+    return { tr, cells, content: [], details };
+  }
+
+  /** Data mode: classes and cell contents of a kept row; only what changed is touched. */
+  private updateRow(entry: DataRow, columns: KernTableColumn[], row: any, index: number) {
+    this.setClass(entry.tr, this.getRowClass?.(row, index));
+    columns.forEach((c, i) => {
+      const td = entry.cells[i];
+      this.setClass(td, this.classes(c.align === 'end' && 'num', c.mono && 'mono', this.getCellClass?.(row, c, index)));
+      const prev = entry.content[i];
+      const content = c.cell ? c.cell(row, index, typeof prev === 'object' ? prev : undefined) : row?.[c.key];
+      if (content && typeof content === 'object' && 'nodeType' in content) {
+        // The same Node stays (a fragment empties when appended, so it only counts once); another one replaces it.
+        const fragment = content.nodeType === 11;
+        if (content !== prev || (!fragment && content.parentNode !== td)) this.replace(td, [content]);
+        entry.content[i] = fragment ? undefined : content;
+      } else {
+        const text = isBlank(content) ? '–' : String(content);
+        if (text !== prev) td.textContent = text;
+        entry.content[i] = text;
+      }
+    });
+    const toggle = entry.tr.querySelector('[kern-expand]');
+    const label = this.t('labelExpandRow');
+    if (toggle && toggle.getAttribute('aria-label') !== label) toggle.setAttribute('aria-label', label);
+  }
+
+  private setClass(el: Element, cls: string | undefined) {
+    if ((el.getAttribute('class') ?? '') === (cls ?? '')) return;
+    if (cls) el.setAttribute('class', cls);
+    else el.removeAttribute('class');
+  }
+
+  /**
+   * Puts `trs` into `tbody` in this order, moving only rows out of place and removing the others.
+   * Focus inside a moved row is restored (`moveBefore` keeps it where the browser has it).
+   */
+  private arrange(tbody: Element, trs: Element[]) {
+    const active = document.activeElement;
+    // The element that has focus, also inside a component's shadow DOM (`activeElement` only names its host).
+    const focused = active && tbody.contains(active) ? this.deepActive() : null;
+    const keep = new Set<Element>(trs);
+    for (const child of Array.from(tbody.children)) if (!keep.has(child)) tbody.removeChild(child);
+    const move = (tbody as Element & { moveBefore?: (node: Node, child: Node | null) => void }).moveBefore;
+    let next = tbody.firstElementChild;
+    for (const tr of trs) {
+      if (tr === next) next = next.nextElementSibling;
+      else if (move && tr.parentNode === tbody) move.call(tbody, tr, next);
+      else tbody.insertBefore(tr, next);
+    }
+    if (focused?.isConnected && this.deepActive() !== focused) focused.focus({ preventScroll: true });
+  }
+
+  /** The innermost focused element, following open shadow roots. */
+  private deepActive(): HTMLElement | null {
+    let el = document.activeElement;
+    while (el?.shadowRoot?.activeElement) el = el.shadowRoot.activeElement;
+    return el as HTMLElement | null;
   }
 
   /** Data mode: the generated toggle cell of a row (empty in the header and skeleton rows). */
@@ -771,15 +840,8 @@ export class KernTable {
     return cell;
   }
 
-  /** Focuses a new component once it has rendered (before, a host delegating focus has nothing to focus). */
-  private focusLater(el: Element | null | undefined) {
-    const c = el as (HTMLElement & { componentOnReady?: () => Promise<unknown> }) | null | undefined;
-    if (c?.componentOnReady) c.componentOnReady().then(() => c.focus());
-    else c?.focus();
-  }
-
   /** Like replaceChildren (not in every test DOM). */
-  private replace(parent: Element, nodes: Element[]) {
+  private replace(parent: Element, nodes: Node[]) {
     while (parent.firstChild) parent.removeChild(parent.firstChild);
     parent.append(...nodes);
   }

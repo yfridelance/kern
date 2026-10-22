@@ -743,4 +743,149 @@ describe('kern-table', () => {
       });
     });
   });
+
+  describe('data mode: kept rows', () => {
+    const devices = [
+      { id: 'k', name: 'Kitchen light', power: 9 },
+      { id: 'b', name: 'Bathroom fan', power: 42 },
+      { id: 's', name: 'Shutter south', power: 3 },
+      { id: 'g', name: 'Garage door', power: 0 },
+    ];
+    async function data(props: Record<string, unknown> = {}) {
+      const page = await newSpecPage({ components: [KernTable], html: `<kern-table></kern-table>` });
+      const el = page.root as any;
+      const made = jest.fn();
+      el.columns = [
+        { key: 'name', label: 'Name', sortable: true },
+        { key: 'power', label: 'Power', sortable: true, align: 'end' },
+        {
+          key: 'action',
+          label: 'Action',
+          // Keeps its button: updates the one it gets, creates one only the first time.
+          cell: (r: any, _i: number, current?: HTMLButtonElement) => {
+            const b = current ?? (made(r.id), page.doc.createElement('button'));
+            b.textContent = `Restart ${r.name}`;
+            return b;
+          },
+        },
+      ];
+      el.rows = devices;
+      Object.assign(el, props);
+      await page.waitForChanges();
+      const trs = () => Array.from(el.querySelectorAll('tbody tr:not([kern-details])')) as HTMLTableRowElement[];
+      const row = (name: string) => trs().find((tr) => tr.textContent!.includes(name))!;
+      const names = () => trs().map((tr) => tr.querySelector('td:not([data-kern-generated])')!.textContent);
+      const update = async (rows: any[]) => {
+        el.rows = rows;
+        await page.waitForChanges();
+      };
+      return { page, el, made, trs, row, names, update };
+    }
+
+    it('keeps the <tr> of a key and only touches changed cells', async () => {
+      const { el, made, trs, row, update } = await data({ getRowClass: (r: any) => (r.power ? undefined : 'dim') });
+      const before = trs();
+      const kitchen = row('Kitchen light');
+      const name = kitchen.children[0].firstChild;
+      const power = kitchen.children[1].firstChild;
+      expect(row('Garage door').className).toBe('dim');
+      await update(devices.map((d) => (d.id === 'k' ? { ...d, power: 11 } : d.id === 'g' ? { ...d, power: 5 } : { ...d })));
+      expect(trs()).toEqual(before);
+      expect(kitchen.children[0].firstChild).toBe(name); // same text: not set again
+      expect(kitchen.children[1].firstChild).not.toBe(power);
+      expect(kitchen.children[1].textContent).toBe('11');
+      expect(kitchen.children[1].className).toBe('num');
+      expect(row('Garage door').hasAttribute('class')).toBe(false);
+      expect(made).toHaveBeenCalledTimes(4);
+      expect(el.querySelectorAll('tbody button').length).toBe(4);
+    });
+
+    // Focus itself is checked in a browser (e2e/table.spec.ts): the test DOM has no focus.
+    it('keeps the button a cell returns again through new rows', async () => {
+      const { made, row, names, update } = await data();
+      const button = row('Bathroom fan').querySelector('button')!;
+      // Moved to the top and renamed.
+      await update([{ ...devices[1], name: 'Fan' }, devices[0], devices[2], devices[3]]);
+      expect(names()).toEqual(['Fan', 'Kitchen light', 'Shutter south', 'Garage door']);
+      expect(row('Fan').querySelector('button') === button).toBe(true);
+      expect(button.textContent).toBe('Restart Fan');
+      expect(made).toHaveBeenCalledTimes(4);
+    });
+
+    it('replaces a node that cell() returns anew and removes the old one', async () => {
+      const { page, el, row, update } = await data();
+      el.columns = [{ key: 'name', label: 'Name', cell: (r: any) => Object.assign(page.doc.createElement('b'), { textContent: r.name }) }];
+      await page.waitForChanges();
+      const tr = row('Kitchen light');
+      const old = tr.querySelector('b')!;
+      await update(devices.map((d) => ({ ...d })));
+      expect(row('Kitchen light')).toBe(tr);
+      expect(tr.querySelectorAll('b').length).toBe(1);
+      expect(tr.querySelector('b')).not.toBe(old);
+      expect(old.parentNode).toBeNull();
+    });
+
+    it('moves rows when sorting and paging, drops rows no longer shown', async () => {
+      const { page, el, trs, row, names, update } = await data({ pageSize: 3 });
+      const kept = { k: row('Kitchen light'), b: row('Bathroom fan'), s: row('Shutter south') };
+      el.querySelector('th[data-key="power"] button').click();
+      await page.waitForChanges();
+      expect(names()).toEqual(['Garage door', 'Shutter south', 'Kitchen light']);
+      expect(row('Shutter south')).toBe(kept.s);
+      expect(row('Kitchen light')).toBe(kept.k);
+      expect(trs()).not.toContain(kept.b);
+      el.page = 2;
+      await page.waitForChanges();
+      expect(names()).toEqual(['Bathroom fan']);
+      expect(trs()).not.toContain(kept.k); // left with its page
+      el.page = 1;
+      await page.waitForChanges();
+      const kitchen = row('Kitchen light');
+      await update(devices.filter((d) => d.id !== 's'));
+      expect(names()).toEqual(['Garage door', 'Kitchen light', 'Bathroom fan']);
+      expect(row('Kitchen light') === kitchen).toBe(true);
+      expect(el.querySelector('tbody').textContent).not.toContain('Shutter south');
+      await update([]);
+      expect(el.querySelectorAll('tbody tr').length).toBe(1);
+      expect(el.querySelector('td.empty')).not.toBeNull();
+      el.loading = true;
+      await update([]);
+      expect(el.querySelectorAll('tbody tr.skeleton').length).toBe(3);
+      await update(devices);
+      expect(el.querySelectorAll('tbody tr.skeleton').length).toBe(0);
+      expect(names()).toEqual(['Garage door', 'Shutter south', 'Kitchen light']);
+    });
+
+    it('keeps open details, their content and the selection', async () => {
+      const detail = jest.fn((r: any) => Object.assign(document.createElement('pre'), { textContent: `Log ${r.name}` }));
+      const { page, el, row, update } = await data({ detail, selectable: true, selected: ['b'], expanded: ['b'] });
+      const tr = row('Bathroom fan');
+      const box = tr.querySelector('[data-kern-select] kern-checkbox');
+      const toggle = tr.querySelector('[kern-expand]');
+      const log = el.querySelector('tr[kern-details][data-kern-open] pre');
+      expect(log.textContent).toBe('Log Bathroom fan');
+      await update([...devices].reverse().map((d) => ({ ...d, power: d.power + 1 })));
+      expect(row('Bathroom fan')).toBe(tr);
+      expect(tr.querySelector('[data-kern-select] kern-checkbox')).toBe(box);
+      expect(tr.querySelector('[kern-expand]')).toBe(toggle);
+      expect(tr.getAttribute('aria-selected')).toBe('true');
+      expect((box as any).checked).toBe(true);
+      expect(tr.nextElementSibling!.hasAttribute('data-kern-open')).toBe(true);
+      expect(tr.nextElementSibling!.querySelector('pre')).toBe(log);
+      expect(detail).toHaveBeenCalledTimes(1);
+      // Each row keeps its detail row right after it.
+      const rows = Array.from(el.querySelectorAll('tbody tr')) as Element[];
+      rows.forEach((r, i) => expect(r.hasAttribute('kern-details')).toBe(i % 2 === 1));
+      expect(page.root!.querySelectorAll('tbody [data-kern-select]').length).toBe(4);
+    });
+
+    it('builds the rows anew for new columns', async () => {
+      const { page, el, row } = await data();
+      const tr = row('Kitchen light');
+      el.columns = [{ key: 'name', label: 'Name' }];
+      await page.waitForChanges();
+      expect(row('Kitchen light')).not.toBe(tr);
+      expect(row('Kitchen light').children.length).toBe(1);
+    });
+  });
 });

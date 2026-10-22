@@ -136,13 +136,14 @@ root.querySelector('.ok').addEventListener('click', () => dialog.close('ok'));
 
 ## Properties
 
-| Property      | Attribute     | Description                               | Type                  | Default     |
-| ------------- | ------------- | ----------------------------------------- | --------------------- | ----------- |
-| `closeLabel`  | `close-label` | Accessible label of the close button.     | `string \| undefined` | `undefined` |
-| `dismissible` | `dismissible` | Shows the close button and allows Escape. | `boolean`             | `true`      |
-| `heading`     | `heading`     |                                           | `string \| undefined` | `undefined` |
-| `open`        | `open`        |                                           | `boolean`             | `false`     |
-| `width`       | `width`       | Panel width in px.                        | `number`              | `520`       |
+| Property      | Attribute     | Description                                                     | Type                  | Default     |
+| ------------- | ------------- | --------------------------------------------------------------- | --------------------- | ----------- |
+| `closeLabel`  | `close-label` | Accessible label of the close button.                           | `string \| undefined` | `undefined` |
+| `dismissible` | `dismissible` | Shows the close button and allows Escape.                       | `boolean`             | `true`      |
+| `heading`     | `heading`     |                                                                 | `string \| undefined` | `undefined` |
+| `label`       | `label`       | Accessible name of the dialog when it has no visible `heading`. | `string \| undefined` | `undefined` |
+| `open`        | `open`        |                                                                 | `boolean`             | `false`     |
+| `width`       | `width`       | Panel width in px.                                              | `number`              | `520`       |
 
 
 ## Events
@@ -199,6 +200,10 @@ Type: `Promise<void>`
 
 ## Dependencies
 
+### Used by
+
+ - [kern-command-palette](../kern-command-palette)
+
 ### Depends on
 
 - [kern-button](../kern-button)
@@ -207,6 +212,7 @@ Type: `Promise<void>`
 ```mermaid
 graph TD;
   kern-dialog --> kern-button
+  kern-command-palette --> kern-dialog
   style kern-dialog fill:#f9f,stroke:#333,stroke-width:4px
 ```
 

@@ -7,6 +7,7 @@
 import { HTMLStencilElement, JSXBase } from "@stencil/core/internal";
 import { KernNavigateDetail } from "./utils/navigate";
 import { KernCodeLanguage } from "./utils/highlight";
+import { KernCommandItem } from "./utils/command-search";
 import { KernDateFormat } from "./utils/datetime";
 import { GlyphName } from "./utils/icons";
 import { IconName } from "./utils/icon-names";
@@ -18,6 +19,7 @@ import { KernSortDirection, KernTableColumn } from "./components/kern-table/sort
 import { KernToastReason } from "./components/kern-toast/kern-toast";
 export { KernNavigateDetail } from "./utils/navigate";
 export { KernCodeLanguage } from "./utils/highlight";
+export { KernCommandItem } from "./utils/command-search";
 export { KernDateFormat } from "./utils/datetime";
 export { GlyphName } from "./utils/icons";
 export { IconName } from "./utils/icon-names";
@@ -487,6 +489,97 @@ export namespace Components {
         "value": string | number;
     }
     /**
+     * Search field over pages, devices and actions in a modal (`kern-dialog`), to reach them by keyboard: «Boiler»,
+     * «Updates», «Start scan». Open it with a button calling `show()`, by setting `open`, or with Ctrl+K / Cmd+K when
+     * `shortcut` is set.
+     * Choosing an entry closes the palette and reports its `id` in `kernSelect`; navigating, permissions and running the
+     * action stay with the app (dangerous actions go through its confirmation, e.g. `confirm()`). Disabled entries are
+     * shown but cannot be chosen.
+     * By default the palette searches `items` itself: every word must occur in the label, a keyword or the group (case
+     * and diacritics ignored); label matches rank first and are highlighted. With `filtering="external"` it shows `items`
+     * as given: load results on `kernQueryChange` and set `items`, `loading` and `error`. Ignore answers to older queries
+     * yourself (see the example), so a slow response cannot overwrite newer results.
+     * Keyboard: Arrow Up/Down, Home and End move the active entry, Enter chooses it, Escape (or a click on the backdrop)
+     * closes. The focus is in the search field while open and returns to where it was (the button, a field) on close.
+     * The number of results is announced politely once typing pauses («5 results»).
+     * `shortcut` registers one keydown listener on the document, removed with the last palette that uses it. Enable it
+     * on one palette per page; with several, the open one closes and otherwise the last connected one opens. It does
+     * not open while a Kern dialog or drawer is open, and ignores keys an app handler already took (`preventDefault`).
+     */
+    interface KernCommandPalette {
+        /**
+          * Message of a failed search; shown instead of the results.
+         */
+        "error"?: string;
+        /**
+          * `local`: the palette filters and ranks `items`. `external`: `items` are the results for `query` from your server.
+          * @default 'local'
+         */
+        "filtering": 'local' | 'external';
+        /**
+          * Closes the palette; the focus returns to where it was before opening.
+         */
+        "hide": () => Promise<void>;
+        /**
+          * Entries: `{ id, label, description?, group?, icon?, keywords?, disabled? }`. Groups appear in the order of their first entry.
+          * @default []
+         */
+        "items": KernCommandItem[];
+        /**
+          * Accessible name of the dialog and the search field.
+         */
+        "label"?: string;
+        /**
+          * Shown while loading without results.
+         */
+        "labelLoading"?: string;
+        /**
+          * Heading when nothing matches.
+         */
+        "labelNoResults"?: string;
+        /**
+          * Announced for exactly one result.
+         */
+        "labelOneResult"?: string;
+        /**
+          * Announced number of results; `{n}` is replaced.
+         */
+        "labelResults"?: string;
+        /**
+          * Results are loading: a spinner in the search field, and «Searching …» while there is nothing to show.
+          * @default false
+         */
+        "loading": boolean;
+        /**
+          * Whether the palette is open.
+          * @default false
+         */
+        "open": boolean;
+        /**
+          * Placeholder of the search field.
+         */
+        "placeholder"?: string;
+        /**
+          * The search text; changes while typing and is cleared when the palette closes.
+          * @default ''
+         */
+        "query": string;
+        /**
+          * Ctrl+K / Cmd+K (with `shortcut-key`) opens and closes the palette from anywhere in the page.
+          * @default false
+         */
+        "shortcut": boolean;
+        /**
+          * Key pressed with Ctrl or Cmd for `shortcut`.
+          * @default 'k'
+         */
+        "shortcutKey": string;
+        /**
+          * Opens the palette; the focus moves to the search field.
+         */
+        "show": () => Promise<void>;
+    }
+    /**
      * Technical value in monospace with a copy button (MAC, IP, device ID, commands).
      * The button stops click propagation so a clickable table row does not open.
      */
@@ -760,6 +853,10 @@ export namespace Components {
          */
         "dismissible": boolean;
         "heading"?: string;
+        /**
+          * Accessible name of the dialog when it has no visible `heading`.
+         */
+        "label"?: string;
         /**
           * @default false
          */
@@ -2581,6 +2678,10 @@ export interface KernColorPickerCustomEvent<T> extends CustomEvent<T> {
     detail: T;
     target: HTMLKernColorPickerElement;
 }
+export interface KernCommandPaletteCustomEvent<T> extends CustomEvent<T> {
+    detail: T;
+    target: HTMLKernCommandPaletteElement;
+}
 export interface KernCopyCustomEvent<T> extends CustomEvent<T> {
     detail: T;
     target: HTMLKernCopyElement;
@@ -2930,6 +3031,44 @@ declare global {
     var HTMLKernColorPickerElement: {
         prototype: HTMLKernColorPickerElement;
         new (): HTMLKernColorPickerElement;
+    };
+    interface HTMLKernCommandPaletteElementEventMap {
+        "kernQueryChange": { query: string };
+        "kernSelect": { id: string };
+        "kernOpen": void;
+        "kernClose": void;
+    }
+    /**
+     * Search field over pages, devices and actions in a modal (`kern-dialog`), to reach them by keyboard: «Boiler»,
+     * «Updates», «Start scan». Open it with a button calling `show()`, by setting `open`, or with Ctrl+K / Cmd+K when
+     * `shortcut` is set.
+     * Choosing an entry closes the palette and reports its `id` in `kernSelect`; navigating, permissions and running the
+     * action stay with the app (dangerous actions go through its confirmation, e.g. `confirm()`). Disabled entries are
+     * shown but cannot be chosen.
+     * By default the palette searches `items` itself: every word must occur in the label, a keyword or the group (case
+     * and diacritics ignored); label matches rank first and are highlighted. With `filtering="external"` it shows `items`
+     * as given: load results on `kernQueryChange` and set `items`, `loading` and `error`. Ignore answers to older queries
+     * yourself (see the example), so a slow response cannot overwrite newer results.
+     * Keyboard: Arrow Up/Down, Home and End move the active entry, Enter chooses it, Escape (or a click on the backdrop)
+     * closes. The focus is in the search field while open and returns to where it was (the button, a field) on close.
+     * The number of results is announced politely once typing pauses («5 results»).
+     * `shortcut` registers one keydown listener on the document, removed with the last palette that uses it. Enable it
+     * on one palette per page; with several, the open one closes and otherwise the last connected one opens. It does
+     * not open while a Kern dialog or drawer is open, and ignores keys an app handler already took (`preventDefault`).
+     */
+    interface HTMLKernCommandPaletteElement extends Components.KernCommandPalette, HTMLStencilElement {
+        addEventListener<K extends keyof HTMLKernCommandPaletteElementEventMap>(type: K, listener: (this: HTMLKernCommandPaletteElement, ev: KernCommandPaletteCustomEvent<HTMLKernCommandPaletteElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLKernCommandPaletteElementEventMap>(type: K, listener: (this: HTMLKernCommandPaletteElement, ev: KernCommandPaletteCustomEvent<HTMLKernCommandPaletteElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
+    }
+    var HTMLKernCommandPaletteElement: {
+        prototype: HTMLKernCommandPaletteElement;
+        new (): HTMLKernCommandPaletteElement;
     };
     interface HTMLKernCopyElementEventMap {
         "kernCopy": { value: string };
@@ -3892,6 +4031,7 @@ declare global {
         "kern-chip": HTMLKernChipElement;
         "kern-code": HTMLKernCodeElement;
         "kern-color-picker": HTMLKernColorPickerElement;
+        "kern-command-palette": HTMLKernCommandPaletteElement;
         "kern-copy": HTMLKernCopyElement;
         "kern-date": HTMLKernDateElement;
         "kern-date-picker": HTMLKernDatePickerElement;
@@ -4430,6 +4570,105 @@ declare namespace LocalJSX {
         "value"?: string | number;
     }
     /**
+     * Search field over pages, devices and actions in a modal (`kern-dialog`), to reach them by keyboard: «Boiler»,
+     * «Updates», «Start scan». Open it with a button calling `show()`, by setting `open`, or with Ctrl+K / Cmd+K when
+     * `shortcut` is set.
+     * Choosing an entry closes the palette and reports its `id` in `kernSelect`; navigating, permissions and running the
+     * action stay with the app (dangerous actions go through its confirmation, e.g. `confirm()`). Disabled entries are
+     * shown but cannot be chosen.
+     * By default the palette searches `items` itself: every word must occur in the label, a keyword or the group (case
+     * and diacritics ignored); label matches rank first and are highlighted. With `filtering="external"` it shows `items`
+     * as given: load results on `kernQueryChange` and set `items`, `loading` and `error`. Ignore answers to older queries
+     * yourself (see the example), so a slow response cannot overwrite newer results.
+     * Keyboard: Arrow Up/Down, Home and End move the active entry, Enter chooses it, Escape (or a click on the backdrop)
+     * closes. The focus is in the search field while open and returns to where it was (the button, a field) on close.
+     * The number of results is announced politely once typing pauses («5 results»).
+     * `shortcut` registers one keydown listener on the document, removed with the last palette that uses it. Enable it
+     * on one palette per page; with several, the open one closes and otherwise the last connected one opens. It does
+     * not open while a Kern dialog or drawer is open, and ignores keys an app handler already took (`preventDefault`).
+     */
+    interface KernCommandPalette {
+        /**
+          * Message of a failed search; shown instead of the results.
+         */
+        "error"?: string;
+        /**
+          * `local`: the palette filters and ranks `items`. `external`: `items` are the results for `query` from your server.
+          * @default 'local'
+         */
+        "filtering"?: 'local' | 'external';
+        /**
+          * Entries: `{ id, label, description?, group?, icon?, keywords?, disabled? }`. Groups appear in the order of their first entry.
+          * @default []
+         */
+        "items"?: KernCommandItem[];
+        /**
+          * Accessible name of the dialog and the search field.
+         */
+        "label"?: string;
+        /**
+          * Shown while loading without results.
+         */
+        "labelLoading"?: string;
+        /**
+          * Heading when nothing matches.
+         */
+        "labelNoResults"?: string;
+        /**
+          * Announced for exactly one result.
+         */
+        "labelOneResult"?: string;
+        /**
+          * Announced number of results; `{n}` is replaced.
+         */
+        "labelResults"?: string;
+        /**
+          * Results are loading: a spinner in the search field, and «Searching …» while there is nothing to show.
+          * @default false
+         */
+        "loading"?: boolean;
+        /**
+          * After the palette closed.
+         */
+        "onKernClose"?: (event: KernCommandPaletteCustomEvent<void>) => void;
+        /**
+          * After the palette opened; the focus is in the search field.
+         */
+        "onKernOpen"?: (event: KernCommandPaletteCustomEvent<void>) => void;
+        /**
+          * On every change of the search text by typing, and with `''` when closing clears it. Load results here (`filtering="external"`).
+         */
+        "onKernQueryChange"?: (event: KernCommandPaletteCustomEvent<{ query: string }>) => void;
+        /**
+          * An enabled entry was chosen (Enter or click); the palette is already closed.
+         */
+        "onKernSelect"?: (event: KernCommandPaletteCustomEvent<{ id: string }>) => void;
+        /**
+          * Whether the palette is open.
+          * @default false
+         */
+        "open"?: boolean;
+        /**
+          * Placeholder of the search field.
+         */
+        "placeholder"?: string;
+        /**
+          * The search text; changes while typing and is cleared when the palette closes.
+          * @default ''
+         */
+        "query"?: string;
+        /**
+          * Ctrl+K / Cmd+K (with `shortcut-key`) opens and closes the palette from anywhere in the page.
+          * @default false
+         */
+        "shortcut"?: boolean;
+        /**
+          * Key pressed with Ctrl or Cmd for `shortcut`.
+          * @default 'k'
+         */
+        "shortcutKey"?: string;
+    }
+    /**
      * Technical value in monospace with a copy button (MAC, IP, device ID, commands).
      * The button stops click propagation so a clickable table row does not open.
      */
@@ -4701,6 +4940,10 @@ declare namespace LocalJSX {
          */
         "dismissible"?: boolean;
         "heading"?: string;
+        /**
+          * Accessible name of the dialog when it has no visible `heading`.
+         */
+        "label"?: string;
         /**
           * After the dialog closed (Escape, close button or `close()`); `detail.returnValue` as given to `close()`.
          */
@@ -6702,6 +6945,21 @@ declare namespace LocalJSX {
         "labelTemperature": string;
         "labelInvalid": string;
     }
+    interface KernCommandPaletteAttributes {
+        "query": string;
+        "filtering": 'local' | 'external';
+        "loading": boolean;
+        "error": string;
+        "open": boolean;
+        "shortcut": boolean;
+        "shortcutKey": string;
+        "label": string;
+        "placeholder": string;
+        "labelLoading": string;
+        "labelNoResults": string;
+        "labelResults": string;
+        "labelOneResult": string;
+    }
     interface KernCopyAttributes {
         "value": string;
         "label": string;
@@ -6771,6 +7029,7 @@ declare namespace LocalJSX {
     interface KernDialogAttributes {
         "open": boolean;
         "heading": string;
+        "label": string;
         "dismissible": boolean;
         "closeLabel": string;
         "width": number;
@@ -7257,6 +7516,7 @@ declare namespace LocalJSX {
         "kern-chip": Omit<KernChip, keyof KernChipAttributes> & { [K in keyof KernChip & keyof KernChipAttributes]?: KernChip[K] } & { [K in keyof KernChip & keyof KernChipAttributes as `attr:${K}`]?: KernChipAttributes[K] } & { [K in keyof KernChip & keyof KernChipAttributes as `prop:${K}`]?: KernChip[K] };
         "kern-code": Omit<KernCode, keyof KernCodeAttributes> & { [K in keyof KernCode & keyof KernCodeAttributes]?: KernCode[K] } & { [K in keyof KernCode & keyof KernCodeAttributes as `attr:${K}`]?: KernCodeAttributes[K] } & { [K in keyof KernCode & keyof KernCodeAttributes as `prop:${K}`]?: KernCode[K] };
         "kern-color-picker": Omit<KernColorPicker, keyof KernColorPickerAttributes> & { [K in keyof KernColorPicker & keyof KernColorPickerAttributes]?: KernColorPicker[K] } & { [K in keyof KernColorPicker & keyof KernColorPickerAttributes as `attr:${K}`]?: KernColorPickerAttributes[K] } & { [K in keyof KernColorPicker & keyof KernColorPickerAttributes as `prop:${K}`]?: KernColorPicker[K] };
+        "kern-command-palette": Omit<KernCommandPalette, keyof KernCommandPaletteAttributes> & { [K in keyof KernCommandPalette & keyof KernCommandPaletteAttributes]?: KernCommandPalette[K] } & { [K in keyof KernCommandPalette & keyof KernCommandPaletteAttributes as `attr:${K}`]?: KernCommandPaletteAttributes[K] } & { [K in keyof KernCommandPalette & keyof KernCommandPaletteAttributes as `prop:${K}`]?: KernCommandPalette[K] };
         "kern-copy": Omit<KernCopy, keyof KernCopyAttributes> & { [K in keyof KernCopy & keyof KernCopyAttributes]?: KernCopy[K] } & { [K in keyof KernCopy & keyof KernCopyAttributes as `attr:${K}`]?: KernCopyAttributes[K] } & { [K in keyof KernCopy & keyof KernCopyAttributes as `prop:${K}`]?: KernCopy[K] };
         "kern-date": Omit<KernDate, keyof KernDateAttributes> & { [K in keyof KernDate & keyof KernDateAttributes]?: KernDate[K] } & { [K in keyof KernDate & keyof KernDateAttributes as `attr:${K}`]?: KernDateAttributes[K] } & { [K in keyof KernDate & keyof KernDateAttributes as `prop:${K}`]?: KernDate[K] };
         "kern-date-picker": Omit<KernDatePicker, keyof KernDatePickerAttributes> & { [K in keyof KernDatePicker & keyof KernDatePickerAttributes]?: KernDatePicker[K] } & { [K in keyof KernDatePicker & keyof KernDatePickerAttributes as `attr:${K}`]?: KernDatePickerAttributes[K] } & { [K in keyof KernDatePicker & keyof KernDatePickerAttributes as `prop:${K}`]?: KernDatePicker[K] };
@@ -7394,6 +7654,25 @@ declare module "@stencil/core" {
              * applies it). Area and bars work with pointer and keys (Arrows, Shift = larger steps, Home/End on bars).
              */
             "kern-color-picker": LocalJSX.IntrinsicElements["kern-color-picker"] & JSXBase.HTMLAttributes<HTMLKernColorPickerElement>;
+            /**
+             * Search field over pages, devices and actions in a modal (`kern-dialog`), to reach them by keyboard: «Boiler»,
+             * «Updates», «Start scan». Open it with a button calling `show()`, by setting `open`, or with Ctrl+K / Cmd+K when
+             * `shortcut` is set.
+             * Choosing an entry closes the palette and reports its `id` in `kernSelect`; navigating, permissions and running the
+             * action stay with the app (dangerous actions go through its confirmation, e.g. `confirm()`). Disabled entries are
+             * shown but cannot be chosen.
+             * By default the palette searches `items` itself: every word must occur in the label, a keyword or the group (case
+             * and diacritics ignored); label matches rank first and are highlighted. With `filtering="external"` it shows `items`
+             * as given: load results on `kernQueryChange` and set `items`, `loading` and `error`. Ignore answers to older queries
+             * yourself (see the example), so a slow response cannot overwrite newer results.
+             * Keyboard: Arrow Up/Down, Home and End move the active entry, Enter chooses it, Escape (or a click on the backdrop)
+             * closes. The focus is in the search field while open and returns to where it was (the button, a field) on close.
+             * The number of results is announced politely once typing pauses («5 results»).
+             * `shortcut` registers one keydown listener on the document, removed with the last palette that uses it. Enable it
+             * on one palette per page; with several, the open one closes and otherwise the last connected one opens. It does
+             * not open while a Kern dialog or drawer is open, and ignores keys an app handler already took (`preventDefault`).
+             */
+            "kern-command-palette": LocalJSX.IntrinsicElements["kern-command-palette"] & JSXBase.HTMLAttributes<HTMLKernCommandPaletteElement>;
             /**
              * Technical value in monospace with a copy button (MAC, IP, device ID, commands).
              * The button stops click propagation so a clickable table row does not open.

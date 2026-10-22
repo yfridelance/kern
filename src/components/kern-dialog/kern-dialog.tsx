@@ -22,6 +22,8 @@ export class KernDialog {
 
   @Prop({ mutable: true, reflect: true }) open = false;
   @Prop() heading?: string;
+  /** Accessible name of the dialog when it has no visible `heading`. */
+  @Prop() label?: string;
   /** Shows the close button and allows Escape. */
   @Prop() dismissible = true;
   /** Accessible label of the close button. */
@@ -92,7 +94,7 @@ export class KernDialog {
         <dialog
           ref={(el) => (this.dialog = el)}
           part="panel"
-          aria-label={this.heading}
+          aria-label={this.heading ?? this.label}
           style={{ width: `min(${this.width}px, calc(100vw - 32px))` }}
           onCancel={this.onCancel}
           onClose={this.onNativeClose}

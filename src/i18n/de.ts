@@ -13,6 +13,7 @@ export const de: KernStrings = {
   'kern-chip.labelRemove': '{label} entfernen',
   'kern-code.labelCopy': 'Kopieren',
   'kern-code.labelCopied': 'Kopiert',
+  'kern-code.labelLatest': 'Zum Neuesten',
   'kern-color-picker.labelOpen': 'Farbe wählen',
   'kern-color-picker.labelArea': 'Sättigung und Helligkeit',
   'kern-color-picker.labelHue': 'Farbton',

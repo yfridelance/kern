@@ -357,12 +357,19 @@ export namespace Components {
      * Code and commands: a block with copy button, optional heading (file name), line numbers, wrapping and a maximum
      * height, highlighted for shell, yaml, json, js/ts, ini and html; or `inline` in running text. The code comes from `code`
      * or the text content; common indentation is removed, so it can be written indented in HTML.
+     * With `follow` and `max-height` it suits live logs: appended lines scroll into view while the block is scrolled to the
+     * end; scroll up and the position stays, with a button to jump back to the latest line.
      */
     interface KernCode {
         /**
           * The code; defaults to the text content.
          */
         "code"?: string;
+        /**
+          * Follow new lines, for live logs with `max-height`: when the code changes while the block is scrolled to the end, it scrolls to the new end. Scrolled up, the position stays and a button jumps to the latest line.
+          * @default false
+         */
+        "follow": boolean;
         /**
           * Title above the block, e.g. a file name.
          */
@@ -374,6 +381,7 @@ export namespace Components {
         "inline": boolean;
         "labelCopied"?: string;
         "labelCopy"?: string;
+        "labelLatest"?: string;
         /**
           * @default 'text'
          */
@@ -391,6 +399,10 @@ export namespace Components {
           * @default false
          */
         "noCopy": boolean;
+        /**
+          * Scroll the block to its last line.
+         */
+        "scrollToEnd": () => Promise<void>;
         /**
           * Wrap long lines instead of scrolling sideways.
           * @default false
@@ -2835,6 +2847,8 @@ declare global {
      * Code and commands: a block with copy button, optional heading (file name), line numbers, wrapping and a maximum
      * height, highlighted for shell, yaml, json, js/ts, ini and html; or `inline` in running text. The code comes from `code`
      * or the text content; common indentation is removed, so it can be written indented in HTML.
+     * With `follow` and `max-height` it suits live logs: appended lines scroll into view while the block is scrolled to the
+     * end; scroll up and the position stays, with a button to jump back to the latest line.
      */
     interface HTMLKernCodeElement extends Components.KernCode, HTMLStencilElement {
         addEventListener<K extends keyof HTMLKernCodeElementEventMap>(type: K, listener: (this: HTMLKernCodeElement, ev: KernCodeCustomEvent<HTMLKernCodeElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
@@ -4235,12 +4249,19 @@ declare namespace LocalJSX {
      * Code and commands: a block with copy button, optional heading (file name), line numbers, wrapping and a maximum
      * height, highlighted for shell, yaml, json, js/ts, ini and html; or `inline` in running text. The code comes from `code`
      * or the text content; common indentation is removed, so it can be written indented in HTML.
+     * With `follow` and `max-height` it suits live logs: appended lines scroll into view while the block is scrolled to the
+     * end; scroll up and the position stays, with a button to jump back to the latest line.
      */
     interface KernCode {
         /**
           * The code; defaults to the text content.
          */
         "code"?: string;
+        /**
+          * Follow new lines, for live logs with `max-height`: when the code changes while the block is scrolled to the end, it scrolls to the new end. Scrolled up, the position stays and a button jumps to the latest line.
+          * @default false
+         */
+        "follow"?: boolean;
         /**
           * Title above the block, e.g. a file name.
          */
@@ -4252,6 +4273,7 @@ declare namespace LocalJSX {
         "inline"?: boolean;
         "labelCopied"?: string;
         "labelCopy"?: string;
+        "labelLatest"?: string;
         /**
           * @default 'text'
          */
@@ -6554,8 +6576,10 @@ declare namespace LocalJSX {
         "maxHeight": string;
         "inline": boolean;
         "noCopy": boolean;
+        "follow": boolean;
         "labelCopy": string;
         "labelCopied": string;
+        "labelLatest": string;
     }
     interface KernColorPickerAttributes {
         "label": string;
@@ -7253,6 +7277,8 @@ declare module "@stencil/core" {
              * Code and commands: a block with copy button, optional heading (file name), line numbers, wrapping and a maximum
              * height, highlighted for shell, yaml, json, js/ts, ini and html; or `inline` in running text. The code comes from `code`
              * or the text content; common indentation is removed, so it can be written indented in HTML.
+             * With `follow` and `max-height` it suits live logs: appended lines scroll into view while the block is scrolled to the
+             * end; scroll up and the position stays, with a button to jump back to the latest line.
              */
             "kern-code": LocalJSX.IntrinsicElements["kern-code"] & JSXBase.HTMLAttributes<HTMLKernCodeElement>;
             /**

@@ -42,4 +42,16 @@ describe('kern-code', () => {
     expect(el.shadowRoot!.querySelector('.copy')).toBeNull();
     expect(el.shadowRoot!.querySelector('code')!.textContent).toBe('/etc/shelly.yaml');
   });
+
+  it('shows no jump button until a following block is scrolled away from the end', async () => {
+    const page = await newSpecPage({ components: [KernCode], html: `<kern-code follow max-height="60px">a</kern-code>` });
+    const root = page.root!.shadowRoot!;
+    expect(root.querySelector('.latest')).toBeNull();
+    const pre = root.querySelector('pre')!;
+    Object.defineProperties(pre, { scrollHeight: { value: 400 }, clientHeight: { value: 60 } });
+    pre.scrollTop = 0;
+    pre.dispatchEvent(new Event('scroll'));
+    await page.waitForChanges();
+    expect(root.querySelector('.latest')!.textContent).toBe('Jump to latest');
+  });
 });

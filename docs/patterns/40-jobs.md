@@ -361,7 +361,7 @@ setPhase('idle');
 
 A deployment runs its steps one after another, so a `kern-list` with one item per step fits better than a table. The deployment API of this app offers no cancel, so there is no Cancel button. Don't draw a disabled one either: it promises an action that never comes.
 
-When a step fails, the following steps are skipped and say why. The state of the whole deployment is «Failed», and the failed step keeps its error after the end. While the deployment runs, the start button itself shows the pending action: it stays `busy`, so it can't be pressed twice. The log follows new lines while it is scrolled to the bottom; scroll up and it stays where you are. The second attempt succeeds.
+When a step fails, the following steps are skipped and say why. The state of the whole deployment is «Failed», and the failed step keeps its error after the end. While the deployment runs, the start button itself shows the pending action: it stays `busy`, so it can't be pressed twice. With `follow`, the log keeps up with new lines while it is scrolled to the bottom; scroll up and it stays where you are, with «Jump to latest» to get back. The second attempt succeeds.
 
 ```html
 <style>
@@ -373,7 +373,7 @@ When a step fails, the following steps are skipped and say why. The state of the
   <kern-button slot="actions" size="sm" variant="primary" class="deploy-start">Deploy</kern-button>
   <p class="deploy-sr" role="status"></p>
   <kern-list class="deploy-steps" label="Steps" size="sm"></kern-list>
-  <kern-code class="deploy-log" heading="Log" max-height="140px" wrap></kern-code>
+  <kern-code class="deploy-log" heading="Log" max-height="140px" wrap follow></kern-code>
 </kern-card>
 ```
 
@@ -406,14 +406,9 @@ const items = new Map(
   }),
 );
 
-// Workaround until kern-code can follow new lines (#150): scroll its <pre> to the end if it was at the end.
-async function appendLog(text) {
-  const pre = ui.log.shadowRoot?.querySelector('pre');
-  const atEnd = !pre || pre.scrollTop + pre.clientHeight >= pre.scrollHeight - 4;
+// `follow` keeps the log at its latest line while it is scrolled to the end.
+function appendLog(text) {
   ui.log.code = `${ui.log.code ? `${ui.log.code}\n` : ''}${clock.format(Date.now())}  ${text}`;
-  await ui.log.componentOnReady();
-  const after = ui.log.shadowRoot?.querySelector('pre');
-  if (atEnd && after) requestAnimationFrame(() => (after.scrollTop = after.scrollHeight));
 }
 
 let failedStep;

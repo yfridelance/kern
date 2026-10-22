@@ -14,6 +14,7 @@ export const en = {
   'kern-chip.labelRemove': 'Remove {label}',
   'kern-code.labelCopy': 'Copy',
   'kern-code.labelCopied': 'Copied',
+  'kern-code.labelLatest': 'Jump to latest',
   'kern-color-picker.labelOpen': 'Choose color',
   'kern-color-picker.labelArea': 'Saturation and brightness',
   'kern-color-picker.labelHue': 'Hue',

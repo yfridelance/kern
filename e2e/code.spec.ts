@@ -42,3 +42,18 @@ test('follow: folgt neuen Zeilen am Ende, bleibt beim Hochscrollen stehen, «Zum
   await append(log, 5);
   await expect.poll(() => fromEnd(log)).toBeLessThanOrEqual(4);
 });
+
+test('follow: «Zum Neuesten» mit der Tastatur gibt den Fokus an das Log', async ({ page }) => {
+  const log = page.locator('#log');
+  await append(log, 30);
+  await log.evaluate((el) => {
+    el.shadowRoot!.querySelector('pre')!.scrollTop = 0;
+  });
+  const latest = log.locator('.latest');
+  await latest.focus();
+  await expect(latest).toBeFocused();
+  await page.keyboard.press('Enter');
+  await expect.poll(() => fromEnd(log)).toBeLessThanOrEqual(4);
+  await expect(latest).toHaveCount(0);
+  await expect(log.locator('pre')).toBeFocused();
+});

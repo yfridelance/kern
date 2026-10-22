@@ -99,6 +99,12 @@ export class KernCode {
     return !(pre.scrollHeight > pre.clientHeight) || pre.scrollTop + pre.clientHeight >= pre.scrollHeight - 4;
   }
 
+  /** The button removes itself; focus moves to the log first, so keyboard use continues there. */
+  private jumpToLatest = () => {
+    this.pre?.focus({ preventScroll: true });
+    this.scrollToEnd();
+  };
+
   private onScroll = () => {
     if (!this.follow) return;
     const away = !this.atEnd();
@@ -173,7 +179,7 @@ export class KernCode {
           <code>{this.renderLines()}</code>
         </pre>
         {this.follow && this.away && (
-          <button type="button" class="latest" part="latest" onClick={() => this.scrollToEnd()}>
+          <button type="button" class="latest" part="latest" onClick={this.jumpToLatest}>
             <Icon name="chevron-down" />
             {this.t('labelLatest')}
           </button>

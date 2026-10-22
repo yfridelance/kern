@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="de-CH" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <title>e2e: Spaltenzustand</title>
+  <link rel="stylesheet" href="kern/kern.css">
+  <script type="module" src="kern/kern.esm.js"></script>
+  <style>
+    body { padding: 24px; }
+    #table { width: 480px; }
+  </style>
+</head>
+<body>
+  <kern-table-columns id="picker" min-visible-columns="2"></kern-table-columns>
+  <kern-table id="table" selectable></kern-table>
+  <script type="module">
+    const table = document.getElementById('table');
+    const picker = document.getElementById('picker');
+    const columns = [
+      { key: 'name', label: 'Gerät', sortable: true, hideable: false, pinned: 'start', minWidth: '140px' },
+      { key: 'ip', label: 'IP', minWidth: '160px' },
+      { key: 'model', label: 'Modell', minWidth: '200px' },
+      { key: 'site', label: 'Standort', minWidth: '200px' },
+      {
+        key: 'action',
+        label: 'Aktion',
+        pinned: 'end',
+        cell: (d, _i, current) => {
+          const b = current ?? Object.assign(document.createElement('button'), { type: 'button' });
+          b.textContent = `Neustart ${d.name}`;
+          return b;
+        },
+      },
+    ];
+    table.columns = picker.columns = columns;
+    table.detail = (d) => `Details ${d.name}`;
+    table.rows = [
+      { id: 'k', name: 'Küche Licht', ip: '192.168.1.34', model: 'Shelly 1 Mini Gen3', site: 'Haus Seeblick' },
+      { id: 'b', name: 'Bad Lüftung', ip: '192.168.1.21', model: 'Shelly Plus 1PM', site: 'Haus Seeblick' },
+      { id: 's', name: 'Rollladen Süd', ip: '192.168.1.52', model: 'Shelly Plus 2PM', site: 'Ferienwohnung' },
+    ];
+    picker.addEventListener('kernColumnsChange', (e) => {
+      table.columnState = e.detail.state;
+    });
+    window.setState = (state) => (table.columnState = picker.columnState = state);
+  </script>
+</body>
+</html>

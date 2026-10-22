@@ -1,6 +1,7 @@
 import { Component, Element, Event, EventEmitter, Listen, Method, Prop, Watch } from '@stencil/core';
 import { resolveLocale } from '../../utils/datetime';
 import { isBlank, sortByValue, type KernSortDirection, type KernTableColumn } from './sort';
+import { resolveColumnState, type KernColumnState } from './columns';
 import { kernTexts } from '../../utils/i18n';
 
 /** Interactive elements inside a row: clicks on them are no row clicks. */
@@ -13,11 +14,11 @@ let detailsCount = 0;
 const objectKeys = new WeakMap<object, string>();
 let objectCount = 0;
 
-/** Data mode: a row kept per key, its cells and what they show (the Node or text from `cell()` or `row[key]`). */
+/** Data mode: a row kept per key, its cells per column key and what they show (the Node or text from `cell()` or `row[key]`). */
 interface DataRow {
   tr: HTMLTableRowElement;
-  cells: HTMLTableCellElement[];
-  content: (Node | string | undefined)[];
+  cells: Map<string, HTMLTableCellElement>;
+  content: Map<string, Node | string | undefined>;
   details?: HTMLTableRowElement;
 }
 
@@ -46,6 +47,11 @@ interface DataRow {
  * moves with its row when sorting and is no row for paging or sorting. A `<button kern-expand>` in the row toggles it
  * (the table sets `aria-expanded` and `aria-controls`). Data mode: `detail` adds a chevron column and the detail rows.
  * `expanded` holds the keys of the open rows.
+ *
+ * Column state (data mode): `columnState` shows, hides, orders and pins columns by `key` (e.g. from
+ * `kern-table-columns` or a saved view); the rows, their keys, selection and details stay. Pinned columns stay at the
+ * start or end while the table scrolls sideways; with columns pinned to the start, the selection and toggle columns
+ * stay too. Own markup: no column state, render the columns you want yourself.
  *
  * @slot - A native `<table>` (not in data mode)
  */
@@ -116,6 +122,13 @@ export class KernTable {
   @Prop() detail?: (row: any, index: number) => Node | string;
   /** Data mode: accessible name of the toggle button of a row. */
   @Prop() labelExpandRow?: string;
+  /**
+   * Data mode: which columns show, in which order, and which are pinned, by `key`; plain data to store. Columns it
+   * doesn't name keep their place in `columns`, unknown keys are ignored. Default: `columns[].hidden` and `.pinned`.
+   */
+  @Prop() columnState?: KernColumnState[];
+  /** Data mode: at least this many columns stay visible; a column state hiding more shows the first hidden ones again. */
+  @Prop() minVisibleColumns = 1;
   private t = kernTexts(this, 'kern-table', 'relabel');
 
   /** A sortable header was activated (or `sortBy()` called), with the requested direction. Cancelable: `preventDefault()` skips the built-in sort. */
@@ -141,6 +154,10 @@ export class KernTable {
   private filled = new WeakSet<Element>();
   /** Data mode: the rows shown, per key, kept through new `rows`, sorting and paging while shown. */
   private cache = new Map<string, DataRow>();
+  /** Data mode: measures the header cells while columns are pinned (their offsets follow the widths). */
+  private resizer?: ResizeObserver;
+  /** Data mode: cells carry pin offsets that must be cleared when nothing is pinned any more. */
+  private pinning = false;
 
   connectedCallback() {
     this.el.addEventListener('click', this.onClick);
@@ -158,6 +175,8 @@ export class KernTable {
 
   disconnectedCallback() {
     this.observer?.disconnect();
+    this.resizer?.disconnect();
+    this.resizer = undefined;
     this.el.removeEventListener('click', this.onClick);
   }
 
@@ -179,6 +198,14 @@ export class KernTable {
     this.sortKey = sorted?.key;
     this.sortDir = sorted?.sorted;
     this.cache.clear(); // other cells or toggle column: rows are built anew
+    this.buildHead();
+    this.buildBody();
+  }
+
+  /** Other columns shown or pinned: cells move within their rows, nothing is rebuilt. */
+  @Watch('columnState')
+  @Watch('minVisibleColumns')
+  onColumnState() {
     this.buildHead();
     this.buildBody();
   }
@@ -448,10 +475,11 @@ export class KernTable {
       .filter((r) => !this.isDetails(r) && !this.isFiller(r) && !r.classList.contains('skeleton'));
   }
 
-  /** Generated cells follow the app's state: selection column, detail rows. */
+  /** Generated cells follow the app's state: selection column, detail rows, pinned cells. */
   private syncRows() {
     this.syncSelection();
     this.syncDetails();
+    this.pin();
   }
 
   /** Data rows the user sees now: not hidden by the app, on the current page. */
@@ -645,6 +673,15 @@ export class KernTable {
     return parts.filter(Boolean).join(' ');
   }
 
+  /** Data mode: the visible columns in the order of the column state, with their pin side. */
+  private shown(): KernTableColumn[] {
+    const columns = this.columns ?? [];
+    const byKey = new Map(columns.map((c) => [c.key, c]));
+    return resolveColumnState(columns, this.columnState, Math.max(0, Number(this.minVisibleColumns) || 0))
+      .filter((s) => !s.hidden)
+      .map((s) => ({ ...byKey.get(s.key)!, pinned: s.pinned }));
+  }
+
   private buildHead() {
     if (!this.columns) return;
     const { thead } = this.generated();
@@ -652,12 +689,14 @@ export class KernTable {
     const active = document.activeElement;
     const focusKey = active && thead.contains(active) ? active.closest('th')?.getAttribute('data-key') : undefined;
     const tr = document.createElement('tr');
-    for (const col of this.columns) {
+    for (const col of this.shown()) {
       const th = document.createElement('th');
       th.setAttribute('data-key', col.key);
       const cls = this.classes(col.align === 'end' && 'num', this.getHeaderCellClass?.(col));
       if (cls) th.className = cls;
       if (col.width) th.style.width = col.width;
+      if (col.minWidth) th.style.minWidth = col.minWidth;
+      if (col.pinned) th.setAttribute('data-kern-pin', col.pinned);
       th.textContent = col.label;
       if (col.sortable) {
         th.setAttribute('sortable', '');
@@ -668,6 +707,7 @@ export class KernTable {
     if (this.detail) tr.prepend(this.expandCell('th'));
     this.replace(thead, [tr]);
     this.sync();
+    this.measure(tr);
     if (focusKey) (Array.from(tr.children).find((th) => th.getAttribute('data-key') === focusKey)?.querySelector('button') as HTMLElement | null)?.focus();
   }
 
@@ -701,9 +741,11 @@ export class KernTable {
   private buildBody() {
     if (!this.columns) return;
     const { tbody } = this.generated();
-    const columns = this.columns;
+    const columns = this.shown();
+    // Cells moving within a row (other column order) lose focus without moveBefore; `arrange` restores it.
+    const focused = document.activeElement && tbody.contains(document.activeElement) ? this.deepActive() : null;
     const items = this.keyed(this.rows ?? []);
-    const col = columns.find((c) => c.key === this.sortKey);
+    const col = this.columns.find((c) => c.key === this.sortKey); // also a hidden column
     // External: the app delivers rows already in order.
     const ordered =
       col && this.sortDir && this.controlled === 'internal'
@@ -715,7 +757,7 @@ export class KernTable {
     // Rows no longer shown (removed, filtered, other page) are dropped with their nodes.
     const cache = new Map<string, DataRow>();
     const trs = visible.flatMap(({ row, index, key }) => {
-      const entry = (!cache.has(key) && this.cache.get(key)) || this.dataRow(columns);
+      const entry = (!cache.has(key) && this.cache.get(key)) || this.dataRow();
       if (!cache.has(key)) cache.set(key, entry); // a duplicate key gets a row of its own, not kept
       this.updateRow(entry, columns, row, index);
       this.rowData.set(entry.tr, { row, index });
@@ -746,44 +788,59 @@ export class KernTable {
       tr.append(td);
       trs.push(tr);
     }
-    this.arrange(tbody, trs);
+    this.arrange(tbody, trs, focused);
     this.busy();
     this.pager(ordered.length);
     this.syncRows();
   }
 
-  /** Data mode: a new row with its cells (and toggle and detail row with `detail`). */
-  private dataRow(columns: KernTableColumn[]): DataRow {
+  /** Data mode: a new row (with toggle and detail row with `detail`); `updateRow` adds the cells. */
+  private dataRow(): DataRow {
     const tr = document.createElement('tr');
-    const cells = columns.map(() => document.createElement('td'));
-    tr.append(...cells);
-    if (!this.detail) return { tr, cells, content: [] };
-    tr.prepend(this.expandCell('td'));
-    const details = document.createElement('tr');
-    details.setAttribute('kern-details', '');
-    details.append(document.createElement('td'));
-    return { tr, cells, content: [], details };
+    const entry: DataRow = { tr, cells: new Map(), content: new Map() };
+    if (!this.detail) return entry;
+    tr.append(this.expandCell('td'));
+    entry.details = document.createElement('tr');
+    entry.details.setAttribute('kern-details', '');
+    entry.details.append(document.createElement('td'));
+    return entry;
   }
 
-  /** Data mode: classes and cell contents of a kept row; only what changed is touched. */
+  /** Data mode: classes, cells and cell contents of a kept row; only what changed is touched. */
   private updateRow(entry: DataRow, columns: KernTableColumn[], row: any, index: number) {
     this.setClass(entry.tr, this.getRowClass?.(row, index));
-    columns.forEach((c, i) => {
-      const td = entry.cells[i];
+    const keys = new Set(columns.map((c) => c.key));
+    // Cells of columns no longer shown go with their contents.
+    for (const [key, td] of entry.cells) {
+      if (keys.has(key)) continue;
+      entry.cells.delete(key);
+      entry.content.delete(key);
+      if (td.parentNode === entry.tr) entry.tr.removeChild(td);
+    }
+    const tds = columns.map((c) => {
+      let td = entry.cells.get(c.key);
+      if (!td) entry.cells.set(c.key, (td = document.createElement('td')));
       this.setClass(td, this.classes(c.align === 'end' && 'num', c.mono && 'mono', this.getCellClass?.(row, c, index)));
-      const prev = entry.content[i];
+      const prev = entry.content.get(c.key);
       const content = c.cell ? c.cell(row, index, typeof prev === 'object' ? prev : undefined) : row?.[c.key];
       if (content && typeof content === 'object' && 'nodeType' in content) {
         // The same Node stays (a fragment empties when appended, so it only counts once); another one replaces it.
         const fragment = content.nodeType === 11;
         if (content !== prev || (!fragment && content.parentNode !== td)) this.replace(td, [content]);
-        entry.content[i] = fragment ? undefined : content;
+        entry.content.set(c.key, fragment ? undefined : content);
       } else {
         const text = isBlank(content) ? '–' : String(content);
         if (text !== prev) td.textContent = text;
-        entry.content[i] = text;
+        entry.content.set(c.key, text);
       }
+      return td;
     });
+    // In column order after the generated cells; only cells out of place move.
+    let next = Array.from(entry.tr.children).find((c) => !c.hasAttribute(GENERATED)) ?? null;
+    for (const td of tds) {
+      if (td === next) next = next.nextElementSibling;
+      else this.place(entry.tr, td, next);
+    }
     const toggle = entry.tr.querySelector('[kern-expand]');
     const label = this.t('labelExpandRow');
     if (toggle && toggle.getAttribute('aria-label') !== label) toggle.setAttribute('aria-label', label);
@@ -797,22 +854,86 @@ export class KernTable {
 
   /**
    * Puts `trs` into `tbody` in this order, moving only rows out of place and removing the others.
-   * Focus inside a moved row is restored (`moveBefore` keeps it where the browser has it).
+   * `focused` (the element focused before the update, also inside a component's shadow DOM) gets focus back if a move
+   * lost it (`moveBefore` keeps it where the browser has it).
    */
-  private arrange(tbody: Element, trs: Element[]) {
-    const active = document.activeElement;
-    // The element that has focus, also inside a component's shadow DOM (`activeElement` only names its host).
-    const focused = active && tbody.contains(active) ? this.deepActive() : null;
+  private arrange(tbody: Element, trs: Element[], focused: HTMLElement | null) {
     const keep = new Set<Element>(trs);
     for (const child of Array.from(tbody.children)) if (!keep.has(child)) tbody.removeChild(child);
-    const move = (tbody as Element & { moveBefore?: (node: Node, child: Node | null) => void }).moveBefore;
     let next = tbody.firstElementChild;
     for (const tr of trs) {
       if (tr === next) next = next.nextElementSibling;
-      else if (move && tr.parentNode === tbody) move.call(tbody, tr, next);
-      else tbody.insertBefore(tr, next);
+      else this.place(tbody, tr, next);
     }
     if (focused?.isConnected && this.deepActive() !== focused) focused.focus({ preventScroll: true });
+  }
+
+  /** Inserts or moves `node` before `next`; with `moveBefore` a node already in `parent` keeps focus and state. */
+  private place(parent: Element, node: Element, next: Element | null) {
+    const move = (parent as Element & { moveBefore?: (node: Node, child: Node | null) => void }).moveBefore;
+    if (move && node.parentNode === parent) move.call(parent, node, next);
+    else parent.insertBefore(node, next);
+  }
+
+  // ---- pinned columns ----
+
+  /** Header cells are measured while columns are pinned: their widths give the offsets of the pinned cells. */
+  private measure(head: Element) {
+    this.resizer?.disconnect();
+    if (typeof ResizeObserver === 'undefined' || !head.querySelector('[data-kern-pin]')) return;
+    this.resizer ??= new ResizeObserver(() => this.pin());
+    for (const th of Array.from(head.children)) this.resizer.observe(th);
+  }
+
+  /**
+   * Pinned cells: `data-kern-pin` and their offset (the widths of the pinned cells before them). With columns pinned to
+   * the start, the generated selection and toggle cells are pinned, too, so pinned columns never cover them.
+   * Rows with another number of cells (empty state, detail rows) are left alone.
+   */
+  private pin() {
+    const table = this.table();
+    const head = this.columns && this.childrenOf(this.childrenOf(table, 'thead')[0], 'tr')[0];
+    if (!table || !head) return;
+    const cols = Array.from(head.children) as HTMLElement[];
+    const own = cols.map((c) => (c.hasAttribute(GENERATED) ? null : c.getAttribute('data-kern-pin')));
+    const start = own.includes('start');
+    const sides = cols.map((c, i) => (c.hasAttribute(GENERATED) ? (start ? 'start' : null) : own[i]));
+    if (!sides.some(Boolean) && !this.pinning) return;
+    this.pinning = sides.some(Boolean);
+    const widths = cols.map((c, i) => (sides[i] ? c.getBoundingClientRect().width : 0));
+    const offsets: (string | null)[] = cols.map(() => null);
+    let x = 0;
+    sides.forEach((side, i) => {
+      if (side !== 'start') return;
+      offsets[i] = `${x}px`;
+      x += widths[i];
+    });
+    x = 0;
+    for (let i = cols.length - 1; i >= 0; i--) {
+      if (sides[i] !== 'end') continue;
+      offsets[i] = `${x}px`;
+      x += widths[i];
+    }
+    const edge = (i: number) => (sides[i] === 'start' && sides[i + 1] !== 'start' ? 'start' : sides[i] === 'end' && sides[i - 1] !== 'end' ? 'end' : null);
+    const rows = [head, ...this.childrenOf(this.childrenOf(table, 'tbody')[0], 'tr')].filter((tr) => tr.children.length === cols.length);
+    for (const tr of rows) {
+      Array.from(tr.children).forEach((cell, i) => {
+        const el = cell as HTMLElement;
+        this.attr(el, 'data-kern-pin', sides[i]);
+        this.attr(el, 'data-kern-pin-edge', edge(i));
+        const left = sides[i] === 'start' ? offsets[i]! : '';
+        const right = sides[i] === 'end' ? offsets[i]! : '';
+        if (el.style.left !== left) el.style.left = left;
+        if (el.style.right !== right) el.style.right = right;
+      });
+    }
+  }
+
+  /** Sets or removes an attribute, touching it only when it changes. */
+  private attr(el: Element, name: string, value: string | null) {
+    if (el.getAttribute(name) === value) return;
+    if (value === null) el.removeAttribute(name);
+    else el.setAttribute(name, value);
   }
 
   /** The innermost focused element, following open shadow roots. */

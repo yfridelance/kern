@@ -888,4 +888,121 @@ describe('kern-table', () => {
       expect(row('Kitchen light').children.length).toBe(1);
     });
   });
+
+  describe('data mode: column state', () => {
+    const devices = [
+      { id: 'k', name: 'Kitchen light', ip: '192.168.1.34', power: 9 },
+      { id: 'b', name: 'Bathroom fan', ip: '192.168.1.21', power: 42 },
+      { id: 's', name: 'Shutter south', ip: '192.168.1.52', power: 7 },
+    ];
+    async function data(props: Record<string, unknown> = {}) {
+      const page = await newSpecPage({ components: [KernTable], html: `<kern-table></kern-table>` });
+      const el = page.root as any;
+      el.columns = [
+        { key: 'name', label: 'Name', sortable: true, hideable: false, minWidth: '160px' },
+        {
+          key: 'ip',
+          label: 'IP',
+          cell: (d: any, _i: number, current?: Node) => {
+            const b = (current as HTMLButtonElement) ?? page.doc.createElement('button');
+            b.textContent = d.ip;
+            return b;
+          },
+        },
+        { key: 'power', label: 'Power', sortable: true, align: 'end' },
+      ];
+      el.rows = devices;
+      Object.assign(el, props);
+      await page.waitForChanges();
+      const heads = () => Array.from(el.querySelectorAll('thead th:not([data-kern-generated])')).map((t: any) => t.getAttribute('data-key'));
+      const row = (name: string) => Array.from(el.querySelectorAll('tbody tr')).find((r: any) => r.textContent.includes(name)) as HTMLElement;
+      const own = (tr: Element) => Array.from(tr.children).filter((c) => !c.hasAttribute('data-kern-generated')).map((c) => c.textContent);
+      const set = async (state: unknown) => {
+        el.columnState = state;
+        await page.waitForChanges();
+      };
+      return { page, el, heads, row, own, set };
+    }
+
+    it('shows, hides and orders columns by key, keeping rows and cells', async () => {
+      const { el, heads, row, own, set } = await data();
+      expect(heads()).toEqual(['name', 'ip', 'power']);
+      expect(el.querySelector('th[data-key="name"]').style.minWidth).toBe('160px');
+      const tr = row('Kitchen light');
+      const button = tr.querySelector('button');
+      await set([{ key: 'power' }, { key: 'name' }, { key: 'ip', hidden: true }, { key: 'nope' }]);
+      expect(heads()).toEqual(['power', 'name']);
+      expect(own(tr)).toEqual(['9', 'Kitchen light']);
+      expect(row('Kitchen light')).toBe(tr);
+      // Columns the state doesn't name come after their neighbour in `columns`.
+      await set([{ key: 'ip' }, { key: 'name' }]);
+      expect(heads()).toEqual(['ip', 'power', 'name']);
+      expect(own(tr)).toEqual(['192.168.1.34', '9', 'Kitchen light']);
+      expect(tr.querySelector('button')).not.toBe(button); // hidden cells go with their content
+      const shown = tr.querySelector('button');
+      await set([{ key: 'name' }, { key: 'ip' }]);
+      expect(tr.querySelector('button')).toBe(shown); // a moved cell keeps its content
+      expect(row('Kitchen light')).toBe(tr);
+    });
+
+    it('keeps columns that cannot be hidden and the minimum of visible columns', async () => {
+      const { el, page, heads, set } = await data();
+      await set([{ key: 'name', hidden: true }, { key: 'ip', hidden: true }, { key: 'power', hidden: true }]);
+      expect(heads()).toEqual(['name']);
+      el.minVisibleColumns = 2;
+      await page.waitForChanges();
+      expect(heads()).toEqual(['name', 'ip']);
+      expect(el.querySelector('tbody tr').children.length).toBe(2);
+    });
+
+    it('takes the default state from columns[].hidden and .pinned', async () => {
+      const { el, page, heads } = await data();
+      el.columns = [
+        { key: 'power', label: 'Power', pinned: 'end' },
+        { key: 'name', label: 'Name' },
+        { key: 'ip', label: 'IP', hidden: true },
+      ];
+      await page.waitForChanges();
+      expect(heads()).toEqual(['name', 'power']);
+      expect(el.querySelector('th[data-key="power"]').getAttribute('data-kern-pin')).toBe('end');
+    });
+
+    it('sorts, pages, selects and expands across column changes', async () => {
+      const { el, page, heads, row, own, set } = await data({ selectable: true, selected: ['b'], detail: (d: any) => d.name, expanded: ['b'], pageSize: 2 });
+      await el.sortBy('power', 'desc');
+      await page.waitForChanges();
+      await set([{ key: 'power', hidden: true }]);
+      expect(heads()).toEqual(['name', 'ip']);
+      // Still sorted by the hidden column, page 1 of 2.
+      expect(Array.from(el.querySelectorAll('tbody tr:not([kern-details])')).map((r: any) => own(r)[0])).toEqual(['Bathroom fan', 'Kitchen light']);
+      const tr = row('Bathroom fan');
+      expect(tr.getAttribute('aria-selected')).toBe('true');
+      expect(Array.from(tr.children).slice(0, 2).map((c) => c.hasAttribute('data-kern-select') || c.hasAttribute('data-kern-expand'))).toEqual([true, true]);
+      const details = tr.nextElementSibling!;
+      expect(details.hasAttribute('data-kern-open')).toBe(true);
+      expect(details.firstElementChild!.getAttribute('colspan')).toBe('4');
+      expect(el.querySelector('kern-pagination').total).toBe(3);
+    });
+
+    it('pins columns and the generated cells before them', async () => {
+      const { el, set } = await data({ selectable: true, detail: (d: any) => d.name });
+      await set([{ key: 'name', pinned: 'start' }, { key: 'power', pinned: 'end' }]);
+      for (const tr of Array.from(el.querySelectorAll('thead tr, tbody tr:not([kern-details])')) as Element[]) {
+        expect(Array.from(tr.children).map((c) => c.getAttribute('data-kern-pin'))).toEqual(['start', 'start', 'start', null, 'end']);
+        expect(Array.from(tr.children).map((c) => c.getAttribute('data-kern-pin-edge'))).toEqual([null, null, 'start', null, 'end']);
+      }
+      await set([]);
+      expect(el.querySelectorAll('[data-kern-pin], [data-kern-pin-edge]').length).toBe(0);
+    });
+
+    it('is not used for own markup', async () => {
+      const page = await newSpecPage({
+        components: [KernTable],
+        html: `<kern-table><table><thead><tr><th>Name</th><th>IP</th></tr></thead><tbody><tr><td>a</td><td>b</td></tr></tbody></table></kern-table>`,
+      });
+      (page.root as any).columnState = [{ key: 'name', hidden: true }];
+      await page.waitForChanges();
+      expect(page.root!.querySelectorAll('th').length).toBe(2);
+    });
+  });
 });

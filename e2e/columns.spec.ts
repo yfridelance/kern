@@ -51,6 +51,19 @@ test.describe('Spaltenzustand (#165)', () => {
     await expect(box).toBeFocused();
   });
 
+  test('Alt+↓ auf der Checkbox: der Fokus bleibt dort, die Leertaste blendet danach aus', async ({ page }) => {
+    // Moving down moves the row itself in the DOM, which drops the focus (review on #177).
+    const box = item(page, 'ip').getByRole('checkbox', { name: 'IP' });
+    await box.focus();
+    await page.keyboard.press('Alt+ArrowDown');
+    await expect.poll(() => heads(page)).toEqual(['name', 'model', 'ip', 'site', 'action']);
+    await expect(box).toBeFocused();
+    await page.keyboard.press('Space');
+    await expect.poll(() => heads(page)).toEqual(['name', 'model', 'site', 'action']);
+    await expect(box).toBeFocused();
+    await expect(box).not.toBeChecked();
+  });
+
   test('Fokus in einer Zelle bleibt beim Umordnen der Spalten', async ({ page }) => {
     const button = page.getByRole('button', { name: 'Neustart Bad Lüftung' });
     await button.focus();

@@ -33,7 +33,7 @@ jobs:
 
   e2e:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 25
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -50,10 +50,41 @@ jobs:
         with:
           path: ~/.cache/ms-playwright
           key: playwright-${{ runner.os }}-${{ steps.playwright.outputs.version }}
-      - if: steps.browsers.outputs.cache-hit != 'true'
-        run: npx playwright install --with-deps chromium firefox webkit
-      - if: steps.browsers.outputs.cache-hit == 'true'
-        run: npx playwright install-deps chromium firefox webkit
+      # apt soll bei einem hängenden Mirror nicht bis zum Job-Timeout warten: kurze Zeitlimits, Retries und eine
+      # Mirror-Liste. Die GitHub-Runner nutzen schon `mirror+file:/etc/apt/apt-mirrors.txt` (Azure, archive.ubuntu.com);
+      # dort hängen wir kernel.org an. Ältere Images mit direkter Azure-Quelle stellen wir auf dieselbe Liste um.
+      # Security-Quellen bleiben unverändert.
+      - name: APT – Mirror-Fallback und Zeitlimits
+        run: |
+          sudo tee /etc/apt/apt.conf.d/99ci-network >/dev/null <<'EOF'
+          Acquire::Retries "3";
+          Acquire::http::Timeout "20";
+          Acquire::https::Timeout "20";
+          Acquire::ftp::Timeout "20";
+          EOF
+          list=/etc/apt/apt-mirrors.txt
+          if ! grep -rqs "mirror+file:$list" /etc/apt/sources.list /etc/apt/sources.list.d/; then
+            printf '%s\n' http://azure.archive.ubuntu.com/ubuntu/ http://archive.ubuntu.com/ubuntu/ | sudo tee "$list" >/dev/null
+            for f in /etc/apt/sources.list /etc/apt/sources.list.d/ubuntu.sources; do
+              [ -f "$f" ] && sudo sed -i -E "s#https?://(azure\.)?archive\.ubuntu\.com/ubuntu/?#mirror+file:$list#g" "$f"
+            done
+          fi
+          grep -qs 'mirrors.edge.kernel.org' "$list" || printf 'http://mirrors.edge.kernel.org/ubuntu/\tpriority:4\n' | sudo tee -a "$list" >/dev/null
+          echo "Mirror-Liste ($list):"; cat "$list"
+          grep -rhs "mirror+file:$list" /etc/apt/sources.list /etc/apt/sources.list.d/ >/dev/null \
+            || echo "::warning::Ubuntu-Quellen nutzen $list nicht – Mirror-Fallback nicht aktiv"
+      # Jeder Versuch höchstens 5 Minuten, bis zu 3 Versuche; mit Cache nur die Systempakete.
+      - name: Playwright – Browser und Systempakete
+        timeout-minutes: 16
+        env:
+          INSTALL: ${{ steps.browsers.outputs.cache-hit == 'true' && 'install-deps' || 'install --with-deps' }}
+        run: |
+          for attempt in 1 2 3; do
+            if timeout 5m npx playwright $INSTALL chromium firefox webkit; then exit 0; fi
+            echo "::warning::playwright $INSTALL – Versuch $attempt fehlgeschlagen oder abgebrochen"
+            sleep 10
+          done
+          exit 1
       - run: npm run e2e
       - if: failure()
         uses: actions/upload-artifact@v4

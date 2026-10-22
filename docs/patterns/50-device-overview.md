@@ -333,19 +333,22 @@ clear.addEventListener('click', () => {
   renderSelection();
 });
 reboot.addEventListener('click', async () => {
-  if (running) return; // no second run, also not from a click during the confirmation
+  if (running) return; // no second run, also not from a double click or a click during the confirmation
+  running = true; // lock before the first await: confirmation and run are one operation
   const keys = [...selected]; // freeze the scope when the action starts
-  const ok = await confirm({ heading: t().rebootAsk(keys.length), message: t().rebootHint, confirmLabel: t().reboot, cancelLabel: t().cancel });
-  if (!ok) return;
-  running = true;
-  reboot.busy = true;
   renderSelection();
-  const result = await simulateTargets(keys, { stepMs: 150, skip: (k) => known.get(k)?.status === 'offline' });
-  running = false;
-  reboot.busy = false;
-  renderSelection();
-  const n = (s) => result.filter((r) => r.status === s).length;
-  toast({ tone: n('failed') ? 'warn' : 'ok', message: t().rebooted(n('done'), n('failed'), n('skipped')) });
+  try {
+    const ok = await confirm({ heading: t().rebootAsk(keys.length), message: t().rebootHint, confirmLabel: t().reboot, cancelLabel: t().cancel });
+    if (!ok) return;
+    reboot.busy = true;
+    const result = await simulateTargets(keys, { stepMs: 150, skip: (k) => known.get(k)?.status === 'offline' });
+    const n = (s) => result.filter((r) => r.status === s).length;
+    toast({ tone: n('failed') ? 'warn' : 'ok', message: t().rebooted(n('done'), n('failed'), n('skipped')) });
+  } finally {
+    running = false;
+    reboot.busy = false;
+    renderSelection();
+  }
 });
 // A real scan is a job of its own (see Jobs); here it simply finds the example devices.
 $('.ov-scan').addEventListener('click', () => {
@@ -431,7 +434,7 @@ The toolbar, the chips and the request loop are the server-side example of the [
 
 `rowKey` returns the device `id`. Every page brings new row objects, and only the key ties a checked box or an open detail row to the same device, also after a refresh or a filter change. The selection bar says how many devices are selected and how many of them are not on this page.
 
-«Reboot» is the short version of the [Bulk actions](bulk-actions.html) pattern: it asks with `confirm()`, freezes the selected keys, is `busy` while it runs and ignores a second click, skips offline devices and reports the outcome in a toast. For a result list per device, retry of failed devices and «select all matching», use that pattern; for long jobs with progress and cancel, see [Jobs](jobs.html).
+«Reboot» is the short version of the [Bulk actions](bulk-actions.html) pattern: it asks with `confirm()`, freezes the selected keys, is `busy` while it runs and ignores a second click from the first click on, also during the confirmation, skips offline devices and reports the outcome in a toast. For a result list per device, retry of failed devices and «select all matching», use that pattern; for long jobs with progress and cancel, see [Jobs](jobs.html).
 
 Detail rows come from `detail`, which builds a `kern-kv` when a row is opened for the first time. Because they are built once, the example closes them when the language changes.
 

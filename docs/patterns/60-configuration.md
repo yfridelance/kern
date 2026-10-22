@@ -49,6 +49,7 @@ const TEXTS = {
     site: 'Site', cloud: 'Cloud connection', cancel: 'Cancel', save: 'Save',
     ipTaken: (other) => `Already used by ${other}`,
     gatewayOutside: 'Not in the network of the IP address and mask',
+    nameBlank: 'Enter a name',
     saveFailed: (m) => `${m}. Your changes are still here; try again.`,
     saved: (name) => `${name} saved.`,
   },
@@ -58,6 +59,7 @@ const TEXTS = {
     site: 'Standort', cloud: 'Cloud-Verbindung', cancel: 'Abbrechen', save: 'Speichern',
     ipTaken: (other) => `Bereits von ${other} verwendet`,
     gatewayOutside: 'Nicht im Netz von IP-Adresse und Maske',
+    nameBlank: 'Gib einen Namen ein',
     saveFailed: (m) => `${m}. Deine Änderungen sind noch da; versuche es nochmals.`,
     saved: (name) => `${name} gespeichert.`,
   },
@@ -124,6 +126,8 @@ list.addEventListener('click', async (e) => {
 // ---------- validation: native constraints, then the app's rules as field errors ----------
 function appErrors(values) {
   const errors = {};
+  // `required` checks the text as typed; the app saves it trimmed, so it checks that value itself.
+  if (!values.name) errors.name = t().nameBlank;
   const other = inventory.find((d) => d.id !== editing.id && d.ip === values.ip);
   if (other) errors.ip = t().ipTaken(other.name);
   const ip = ipv4ToInt(values.ip ?? '');
@@ -152,9 +156,11 @@ async function submit() {
   const values = { name: data.name?.trim() ?? '', ip: data.ip, mask: data.mask, gateway: data.gateway ?? '', site: data.site, cloud: data.cloud === 'on' };
   const errors = appErrors(values);
   for (const f of fields) f.error = errors[f.getAttribute('name')];
-  if (!form.checkValidity()) {
-    // checkValidity() marks the invalid fields, so they show their message; focus the first one.
-    form.querySelector(':invalid')?.setFocus();
+  // checkValidity() marks the natively invalid fields, so they show their message. A field takes a new `error`
+  // into its validity only after it re-renders, so the app's own errors are checked directly.
+  const valid = form.checkValidity();
+  if (!valid || Object.keys(errors).length) {
+    fields.find((f) => errors[f.getAttribute('name')] || f.matches(':invalid'))?.setFocus();
     return;
   }
   alert.hidden = true;
@@ -223,7 +229,7 @@ renderTexts();
 Two kinds of rules, shown the same way under the field:
 
 - **Native constraints** sit on the fields: `required` and `maxlength` on `kern-input`, `allow="single"` and `allow="mask"` on `kern-ip-input` (a mask must be contiguous, `255.255.252.0` or `/22`), `required` on `kern-select`. The fields are form-associated, so `form.checkValidity()` checks them all and marks the invalid ones, which then show their message.
-- **App rules** need knowledge only your app has: whether another device uses the address, whether the gateway lies in the network of address and mask. The app sets the field's `error`, which is also its validity message, and clears it as soon as the user changes the field. Errors the server returns per field go the same way.
+- **App rules** need knowledge only your app has (whether another device uses the address, whether the gateway lies in the network of address and mask) or check the value the app really saves: a name of only spaces passes `required`, but the app trims it to an empty name. The app sets the field's `error`, which is also its validity message, and clears it as soon as the user changes the field. A field updates its validity when it re-renders, so right after setting `error` the app checks its own result instead of `checkValidity()`. Errors the server returns per field go the same way.
 
 After a failed check the focus moves to the first invalid field. `kern-ip-input` checks the typed text when the user leaves the field or presses Enter, so a wrong address is reported before saving. Kern's own messages («Not a valid subnet mask») follow `setKernLocale`; the messages of native constraints («Please fill out this field») come from the browser in its own language.
 

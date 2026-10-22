@@ -33,7 +33,7 @@ jobs:
 
   e2e:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 25
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -50,10 +50,36 @@ jobs:
         with:
           path: ~/.cache/ms-playwright
           key: playwright-${{ runner.os }}-${{ steps.playwright.outputs.version }}
-      - if: steps.browsers.outputs.cache-hit != 'true'
-        run: npx playwright install --with-deps chromium firefox webkit
-      - if: steps.browsers.outputs.cache-hit == 'true'
-        run: npx playwright install-deps chromium firefox webkit
+      # apt soll bei einem hängenden Mirror nicht bis zum Job-Timeout warten: kurze Zeitlimits, Retries und eine
+      # Mirror-Liste (Azure des Runners zuerst, dann archive.ubuntu.com, dann kernel.org). Security-Quellen bleiben.
+      - name: APT – Mirror-Fallback und Zeitlimits
+        run: |
+          sudo tee /etc/apt/apt.conf.d/99ci-network >/dev/null <<'EOF'
+          Acquire::Retries "3";
+          Acquire::http::Timeout "20";
+          Acquire::https::Timeout "20";
+          Acquire::ftp::Timeout "20";
+          EOF
+          printf '%s\tpriority:1\n%s\tpriority:2\n%s\tpriority:3\n' \
+            http://azure.archive.ubuntu.com/ubuntu/ \
+            http://archive.ubuntu.com/ubuntu/ \
+            http://mirrors.edge.kernel.org/ubuntu/ | sudo tee /etc/apt/ci-mirrors.txt >/dev/null
+          for f in /etc/apt/sources.list /etc/apt/sources.list.d/ubuntu.sources; do
+            [ -f "$f" ] && sudo sed -i -E 's#https?://azure\.archive\.ubuntu\.com/ubuntu/?#mirror+file:/etc/apt/ci-mirrors.txt#g' "$f"
+          done
+          grep -rh "ci-mirrors" /etc/apt/sources.list /etc/apt/sources.list.d/ 2>/dev/null || echo "::warning::Keine Azure-Quelle gefunden – Mirror-Fallback nicht aktiv"
+      # Jeder Versuch höchstens 5 Minuten, bis zu 3 Versuche; mit Cache nur die Systempakete.
+      - name: Playwright – Browser und Systempakete
+        timeout-minutes: 16
+        env:
+          INSTALL: ${{ steps.browsers.outputs.cache-hit == 'true' && 'install-deps' || 'install --with-deps' }}
+        run: |
+          for attempt in 1 2 3; do
+            if timeout 5m npx playwright $INSTALL chromium firefox webkit; then exit 0; fi
+            echo "::warning::playwright $INSTALL – Versuch $attempt fehlgeschlagen oder abgebrochen"
+            sleep 10
+          done
+          exit 1
       - run: npm run e2e
       - if: failure()
         uses: actions/upload-artifact@v4

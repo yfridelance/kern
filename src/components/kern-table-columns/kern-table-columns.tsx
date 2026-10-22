@@ -44,8 +44,8 @@ export class KernTableColumns {
   @State() announcement = '';
 
   private t = kernTexts(this, 'kern-table-columns');
-  /** After a move: the button that keeps focus (by column key and direction). */
-  private refocus?: { key: string; dir: -1 | 1 };
+  /** After a move: the control that gets focus back (moving a row in the DOM drops it), by column key. */
+  private refocus?: { key: string; control: 'show' | 'up' | 'down' };
 
   private state(): KernColumnState[] {
     return resolveColumnState(this.columns ?? [], this.columnState, this.min());
@@ -81,8 +81,12 @@ export class KernTableColumns {
     if (i < 0 || j < 0 || j >= state.length || state[j].pinned !== state[i].pinned) return;
     const next = [...state];
     [next[i], next[j]] = [next[j], next[i]];
+    // The focused control of the row, before the move takes the focus away; a click without focus (WebKit): the button.
+    const active = this.el.shadowRoot?.activeElement;
+    const row = active?.closest('li');
+    const control = row?.getAttribute('data-key') === key ? (active!.localName === 'kern-checkbox' ? 'show' : active === row!.querySelectorAll('button')[1] ? 'down' : 'up') : undefined;
     if (!this.commit(next)) return;
-    this.refocus = { key, dir };
+    this.refocus = { key, control: control ?? (dir < 0 ? 'up' : 'down') };
     this.announcement = this.t('labelMoved')
       .replace('{label}', this.labelOf(key))
       .replace('{position}', String(j + 1))
@@ -100,12 +104,12 @@ export class KernTableColumns {
     if (!target) return;
     this.refocus = undefined;
     const row = Array.from(this.el.shadowRoot?.querySelectorAll('li') ?? []).find((li) => li.getAttribute('data-key') === target.key);
+    if (!row) return;
+    // Alt+↑/↓ on the checkbox: back to the checkbox, so the next Space still shows or hides the column.
+    if (target.control === 'show') return void (row.querySelector('kern-checkbox') as HTMLElement | null)?.focus();
     // The button pressed, or the other one when the column reached the end of its group.
-    const buttons = Array.from(row?.querySelectorAll('button') ?? []) as HTMLButtonElement[];
-    const pressed = buttons[target.dir < 0 ? 0 : 1];
-    const focused = this.el.shadowRoot?.activeElement;
-    // Alt+↑/↓ on the checkbox: focus stays there.
-    if (focused && row?.contains(focused) && focused.localName === 'kern-checkbox') return;
+    const buttons = Array.from(row.querySelectorAll('button')) as HTMLButtonElement[];
+    const pressed = buttons[target.control === 'up' ? 0 : 1];
     (pressed && !pressed.disabled ? pressed : buttons.find((b) => !b.disabled))?.focus();
   }
 

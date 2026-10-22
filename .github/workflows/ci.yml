@@ -51,7 +51,9 @@ jobs:
           path: ~/.cache/ms-playwright
           key: playwright-${{ runner.os }}-${{ steps.playwright.outputs.version }}
       # apt soll bei einem hängenden Mirror nicht bis zum Job-Timeout warten: kurze Zeitlimits, Retries und eine
-      # Mirror-Liste (Azure des Runners zuerst, dann archive.ubuntu.com, dann kernel.org). Security-Quellen bleiben.
+      # Mirror-Liste. Die GitHub-Runner nutzen schon `mirror+file:/etc/apt/apt-mirrors.txt` (Azure, archive.ubuntu.com);
+      # dort hängen wir kernel.org an. Ältere Images mit direkter Azure-Quelle stellen wir auf dieselbe Liste um.
+      # Security-Quellen bleiben unverändert.
       - name: APT – Mirror-Fallback und Zeitlimits
         run: |
           sudo tee /etc/apt/apt.conf.d/99ci-network >/dev/null <<'EOF'
@@ -60,14 +62,17 @@ jobs:
           Acquire::https::Timeout "20";
           Acquire::ftp::Timeout "20";
           EOF
-          printf '%s\tpriority:1\n%s\tpriority:2\n%s\tpriority:3\n' \
-            http://azure.archive.ubuntu.com/ubuntu/ \
-            http://archive.ubuntu.com/ubuntu/ \
-            http://mirrors.edge.kernel.org/ubuntu/ | sudo tee /etc/apt/ci-mirrors.txt >/dev/null
-          for f in /etc/apt/sources.list /etc/apt/sources.list.d/ubuntu.sources; do
-            [ -f "$f" ] && sudo sed -i -E 's#https?://azure\.archive\.ubuntu\.com/ubuntu/?#mirror+file:/etc/apt/ci-mirrors.txt#g' "$f"
-          done
-          grep -rh "ci-mirrors" /etc/apt/sources.list /etc/apt/sources.list.d/ 2>/dev/null || echo "::warning::Keine Azure-Quelle gefunden – Mirror-Fallback nicht aktiv"
+          list=/etc/apt/apt-mirrors.txt
+          if ! grep -rqs "mirror+file:$list" /etc/apt/sources.list /etc/apt/sources.list.d/; then
+            printf '%s\n' http://azure.archive.ubuntu.com/ubuntu/ http://archive.ubuntu.com/ubuntu/ | sudo tee "$list" >/dev/null
+            for f in /etc/apt/sources.list /etc/apt/sources.list.d/ubuntu.sources; do
+              [ -f "$f" ] && sudo sed -i -E "s#https?://(azure\.)?archive\.ubuntu\.com/ubuntu/?#mirror+file:$list#g" "$f"
+            done
+          fi
+          grep -qs 'mirrors.edge.kernel.org' "$list" || echo 'http://mirrors.edge.kernel.org/ubuntu/' | sudo tee -a "$list" >/dev/null
+          echo "Mirror-Liste ($list):"; cat "$list"
+          grep -rhs "mirror+file:$list" /etc/apt/sources.list /etc/apt/sources.list.d/ >/dev/null \
+            || echo "::warning::Ubuntu-Quellen nutzen $list nicht – Mirror-Fallback nicht aktiv"
       # Jeder Versuch höchstens 5 Minuten, bis zu 3 Versuche; mit Cache nur die Systempakete.
       - name: Playwright – Browser und Systempakete
         timeout-minutes: 16

@@ -19,6 +19,9 @@ Native checks (`required`, `type="email"`/`url`, `pattern`, `min`/`max`/`step`, 
 invalid value blocks submitting. Like `:user-invalid`, the browser's message is shown only after the value was
 changed or a submit failed. `error` takes priority.
 
+Enter submits the surrounding form like a native field (with an open suggestion list it only takes the suggestion);
+`no-implicit-submit` turns that off.
+
 ## Usage
 
 ### 01-basic
@@ -115,28 +118,29 @@ In Angular, bind an array: `<kern-input label="Location" [suggestions]="knownLoc
 
 ## Properties
 
-| Property        | Attribute         | Description                                                                        | Type                                                                        | Default     |
-| --------------- | ----------------- | ---------------------------------------------------------------------------------- | --------------------------------------------------------------------------- | ----------- |
-| `ariaLabelText` | `aria-label-text` | Accessible name when there is no visible label.                                    | `string \| undefined`                                                       | `undefined` |
-| `autocomplete`  | `autocomplete`    |                                                                                    | `string \| undefined`                                                       | `undefined` |
-| `disabled`      | `disabled`        |                                                                                    | `boolean`                                                                   | `false`     |
-| `error`         | `error`           | Error text; also marks the field invalid.                                          | `string \| undefined`                                                       | `undefined` |
-| `hint`          | `hint`            |                                                                                    | `string \| undefined`                                                       | `undefined` |
-| `label`         | `label`           |                                                                                    | `string \| undefined`                                                       | `undefined` |
-| `max`           | `max`             |                                                                                    | `number \| string \| undefined`                                             | `undefined` |
-| `maxlength`     | `maxlength`       |                                                                                    | `number \| undefined`                                                       | `undefined` |
-| `min`           | `min`             | For `type="number"`.                                                               | `number \| string \| undefined`                                             | `undefined` |
-| `mono`          | `mono`            |                                                                                    | `boolean`                                                                   | `false`     |
-| `name`          | `name`            |                                                                                    | `string \| undefined`                                                       | `undefined` |
-| `pattern`       | `pattern`         |                                                                                    | `string \| undefined`                                                       | `undefined` |
-| `placeholder`   | `placeholder`     |                                                                                    | `string \| undefined`                                                       | `undefined` |
-| `readonly`      | `readonly`        |                                                                                    | `boolean`                                                                   | `false`     |
-| `required`      | `required`        |                                                                                    | `boolean`                                                                   | `false`     |
-| `size`          | `size`            |                                                                                    | `"md" \| "sm"`                                                              | `'md'`      |
-| `step`          | `step`            |                                                                                    | `number \| string \| undefined`                                             | `undefined` |
-| `suggestions`   | `suggestions`     | Values offered while typing; free text stays allowed. A string is split at commas. | `string \| string[] \| undefined`                                           | `undefined` |
-| `type`          | `type`            |                                                                                    | `"email" \| "number" \| "password" \| "search" \| "tel" \| "text" \| "url"` | `'text'`    |
-| `value`         | `value`           |                                                                                    | `string`                                                                    | `''`        |
+| Property           | Attribute            | Description                                                                        | Type                                                                        | Default     |
+| ------------------ | -------------------- | ---------------------------------------------------------------------------------- | --------------------------------------------------------------------------- | ----------- |
+| `ariaLabelText`    | `aria-label-text`    | Accessible name when there is no visible label.                                    | `string \| undefined`                                                       | `undefined` |
+| `autocomplete`     | `autocomplete`       |                                                                                    | `string \| undefined`                                                       | `undefined` |
+| `disabled`         | `disabled`           |                                                                                    | `boolean`                                                                   | `false`     |
+| `error`            | `error`              | Error text; also marks the field invalid.                                          | `string \| undefined`                                                       | `undefined` |
+| `hint`             | `hint`               |                                                                                    | `string \| undefined`                                                       | `undefined` |
+| `label`            | `label`              |                                                                                    | `string \| undefined`                                                       | `undefined` |
+| `max`              | `max`                |                                                                                    | `number \| string \| undefined`                                             | `undefined` |
+| `maxlength`        | `maxlength`          |                                                                                    | `number \| undefined`                                                       | `undefined` |
+| `min`              | `min`                | For `type="number"`.                                                               | `number \| string \| undefined`                                             | `undefined` |
+| `mono`             | `mono`               |                                                                                    | `boolean`                                                                   | `false`     |
+| `name`             | `name`               |                                                                                    | `string \| undefined`                                                       | `undefined` |
+| `noImplicitSubmit` | `no-implicit-submit` | Enter does not submit the surrounding form.                                        | `boolean`                                                                   | `false`     |
+| `pattern`          | `pattern`            |                                                                                    | `string \| undefined`                                                       | `undefined` |
+| `placeholder`      | `placeholder`        |                                                                                    | `string \| undefined`                                                       | `undefined` |
+| `readonly`         | `readonly`           |                                                                                    | `boolean`                                                                   | `false`     |
+| `required`         | `required`           |                                                                                    | `boolean`                                                                   | `false`     |
+| `size`             | `size`               |                                                                                    | `"md" \| "sm"`                                                              | `'md'`      |
+| `step`             | `step`               |                                                                                    | `number \| string \| undefined`                                             | `undefined` |
+| `suggestions`      | `suggestions`        | Values offered while typing; free text stays allowed. A string is split at commas. | `string \| string[] \| undefined`                                           | `undefined` |
+| `type`             | `type`               |                                                                                    | `"email" \| "number" \| "password" \| "search" \| "tel" \| "text" \| "url"` | `'text'`    |
+| `value`            | `value`              |                                                                                    | `string`                                                                    | `''`        |
 
 
 ## Events

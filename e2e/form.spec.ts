@@ -42,9 +42,11 @@ test('FormData enthält die Werte aller Felder', async ({ page }) => {
   ];
   await expect.poll(() => formEntries(page)).toEqual(expected);
 
-  // A submit sends the same data.
+  // Enter in the date field submitted once (#155); the button sends the same data.
+  const submits = () => page.evaluate(() => (window as unknown as { submits: string[][][] }).submits);
+  await expect.poll(submits).toEqual([expected]);
   await page.getByRole('button', { name: 'Speichern' }).click();
-  await expect.poll(() => page.evaluate(() => (window as unknown as { submits: string[][][] }).submits)).toEqual([expected]);
+  await expect.poll(submits).toEqual([expected, expected]);
 });
 
 test('Reset stellt die Anfangswerte wieder her', async ({ page }) => {

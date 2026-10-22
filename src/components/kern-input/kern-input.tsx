@@ -1,5 +1,6 @@
 import { AttachInternals, Component, Element, Event, EventEmitter, Host, Listen, Method, Prop, State, h } from '@stencil/core';
 import { fieldDisabled } from '../../utils/form-disabled';
+import { implicitSubmit } from '../../utils/implicit-submit';
 import { positionPopup } from '../../utils/popover';
 
 let nextId = 0;
@@ -19,6 +20,9 @@ const SUGGEST_TYPES = ['text', 'search', 'email', 'url', 'tel'];
  * Native checks (`required`, `type="email"`/`url`, `pattern`, `min`/`max`/`step`, `maxlength`) reach the form: an
  * invalid value blocks submitting. Like `:user-invalid`, the browser's message is shown only after the value was
  * changed or a submit failed. `error` takes priority.
+ *
+ * Enter submits the surrounding form like a native field (with an open suggestion list it only takes the suggestion);
+ * `no-implicit-submit` turns that off.
  *
  * @part control - The native input
  * @part listbox - The suggestion list
@@ -58,6 +62,8 @@ export class KernInput {
   @State() formDisabled = false;
   @Prop() readonly = false;
   @Prop() required = false;
+  /** Enter does not submit the surrounding form. */
+  @Prop() noImplicitSubmit = false;
   /** Accessible name when there is no visible label. */
   @Prop() ariaLabelText?: string;
 
@@ -250,6 +256,12 @@ export class KernInput {
   };
 
   private onKeyDown = (ev: KeyboardEvent) => {
+    if (ev.key === 'Enter' && !this.open) {
+      // The form reads value and validity from internals, which otherwise update after the next render.
+      this.sync();
+      implicitSubmit(this, ev);
+      return;
+    }
     if (!this.suggestionList.length) return;
     const n = this.hits.length;
     if (ev.key === 'ArrowDown' || ev.key === 'ArrowUp') {
@@ -263,9 +275,12 @@ export class KernInput {
         this.moveTo(down ? Math.min(this.active + 1, n - 1) : Math.max(this.active - 1, 0));
       }
     } else if (ev.key === 'Enter') {
-      if (this.open && this.active >= 0 && this.active < n) {
+      // The list is open: Enter takes the active suggestion or only closes the list, it does not submit.
+      if (this.active >= 0 && this.active < n) {
         ev.preventDefault();
         this.take(this.active);
+      } else {
+        this.closeList();
       }
     } else if (ev.key === 'Escape') {
       if (this.open) {

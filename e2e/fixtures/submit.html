@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="de-CH" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <title>e2e: Enter sendet ab</title>
+  <link rel="stylesheet" href="kern/kern.css">
+  <script type="module" src="kern/kern.esm.js"></script>
+</head>
+<body>
+  <form id="device">
+    <kern-input label="Hostname" name="host" value="nas-01" required></kern-input>
+    <kern-ip-input label="Netz" name="net" value="192.168.1.0/24"></kern-ip-input>
+    <kern-mac-input label="MAC" name="mac"></kern-mac-input>
+    <kern-step-input label="Anzahl" name="count" value="2"></kern-step-input>
+    <kern-input label="Etage" name="floor" suggestions="Erdgeschoss, Obergeschoss, Keller"></kern-input>
+    <kern-input label="Notiz" name="note" no-implicit-submit></kern-input>
+    <button type="submit" name="action" value="save">Speichern</button>
+  </form>
+  <form id="locked">
+    <kern-input label="Gesperrt" name="other" value="x"></kern-input>
+    <button type="submit" disabled>Senden</button>
+  </form>
+  <form id="kern">
+    <kern-input label="Kern-Button" name="kern" value="x"></kern-input>
+    <kern-button type="submit" variant="primary">Senden</kern-button>
+  </form>
+  <!-- A disabled image button before the form, tied to it with form="…", is its default button. -->
+  <input type="image" form="image" name="img" alt="Bild" disabled>
+  <form id="image">
+    <kern-input label="Bild-Button" name="image" value="x"></kern-input>
+    <button type="submit">Senden</button>
+  </form>
+  <script>
+    // Submits are kept with their data and submitter instead of navigating.
+    window.submits = [];
+    for (const form of document.forms) {
+      form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        window.submits.push({ form: form.id, submitter: e.submitter?.value || e.submitter?.name || null, data: [...new FormData(form)] });
+      });
+    }
+    window.kernClicks = 0;
+    document.querySelector('kern-button').addEventListener('click', () => window.kernClicks++);
+  </script>
+</body>
+</html>

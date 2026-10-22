@@ -1,5 +1,6 @@
 import { AttachInternals, Component, Element, Event, EventEmitter, Host, Method, Prop, State, Watch, h } from '@stencil/core';
 import { fieldDisabled } from '../../utils/form-disabled';
+import { implicitSubmit } from '../../utils/implicit-submit';
 import { Icon } from '../../utils/icons';
 import { resolveLocale } from '../../utils/datetime';
 import { kernTexts } from '../../utils/i18n';
@@ -51,6 +52,8 @@ export class KernStepInput {
   @State() formDisabled = false;
   @Prop() readonly = false;
   @Prop() required = false;
+  /** Enter does not submit the surrounding form. */
+  @Prop() noImplicitSubmit = false;
   /** Accessible name when there is no visible label. */
   @Prop() ariaLabelText?: string;
   @Prop() labelDecrease?: string;
@@ -197,6 +200,7 @@ export class KernStepInput {
     if ((ev.key === 'Home' && this.min === undefined) || (ev.key === 'End' && this.max === undefined)) return;
     if (ev.key !== 'Enter') ev.preventDefault();
     keys[ev.key]();
+    if (ev.key === 'Enter') implicitSubmit(this, ev);
   };
 
   private onInput = (ev: Event) => {

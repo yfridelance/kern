@@ -92,8 +92,9 @@ zusätzlich Standalone-Wrapper mit `ControlValueAccessor` für `ngModel` und Rea
   `kern-switch`, `kern-checkbox`, `kern-segmented`, `kern-date-picker`, `kern-date-range-picker`,
   `kern-time-picker`, `kern-color-picker`, `kern-step-input` und `kern-rating` sind formularfähig
   (ElementInternals): `name`, `FormData`, `form.reset()` und `required` funktionieren wie bei nativen Feldern.
-  `kern-button type="submit"` sendet das umgebende Formular. Ein Feld mit `error` gilt als ungültig und **blockiert
-  das Absenden**, bis der Fehler entfernt ist.
+  `kern-button type="submit"` sendet das umgebende Formular, ebenso Enter in einem einzeiligen Feld (abschaltbar mit
+  `no-implicit-submit`). Ein Feld mit `error` gilt als ungültig und **blockiert das Absenden**, bis der Fehler
+  entfernt ist.
 - **IPv4:** `kern-ip-input` nimmt eine Adresse (`192.168.1.10`), einen Bereich (`192.168.1.10-192.168.1.50`, auch
   `192.168.1.10-50`) oder CIDR (`192.168.1.0/24`) und normalisiert beim Verlassen (Host-Adresse in CIDR → Netz,
   umgekehrter Bereich → getauscht). `allow="single range cidr"` und `max-addresses` begrenzen; Bereiche zeigen ihre

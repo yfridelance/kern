@@ -455,6 +455,11 @@ export namespace Components {
         "mode": 'color' | 'temperature';
         "name"?: string;
         /**
+          * Enter does not submit the surrounding form.
+          * @default false
+         */
+        "noImplicitSubmit": boolean;
+        /**
           * @default false
          */
         "readonly": boolean;
@@ -588,6 +593,11 @@ export namespace Components {
         "min"?: string;
         "name"?: string;
         /**
+          * Enter does not submit the surrounding form.
+          * @default false
+         */
+        "noImplicitSubmit": boolean;
+        /**
           * Defaults to the locale's format, e.g. „TT.MM.JJJJ“.
          */
         "placeholder"?: string;
@@ -692,6 +702,11 @@ export namespace Components {
          */
         "min"?: string;
         "name"?: string;
+        /**
+          * Enter does not submit the surrounding form.
+          * @default false
+         */
+        "noImplicitSubmit": boolean;
         /**
           * @default false
          */
@@ -994,6 +1009,8 @@ export namespace Components {
      * Native checks (`required`, `type="email"`/`url`, `pattern`, `min`/`max`/`step`, `maxlength`) reach the form: an
      * invalid value blocks submitting. Like `:user-invalid`, the browser's message is shown only after the value was
      * changed or a submit failed. `error` takes priority.
+     * Enter submits the surrounding form like a native field (with an open suggestion list it only takes the suggestion);
+     * `no-implicit-submit` turns that off.
      */
     interface KernInput {
         /**
@@ -1022,6 +1039,11 @@ export namespace Components {
          */
         "mono": boolean;
         "name"?: string;
+        /**
+          * Enter does not submit the surrounding form.
+          * @default false
+         */
+        "noImplicitSubmit": boolean;
         "pattern"?: string;
         "placeholder"?: string;
         /**
@@ -1123,6 +1145,11 @@ export namespace Components {
          */
         "maxAddresses"?: number;
         "name"?: string;
+        /**
+          * Enter does not submit the surrounding form.
+          * @default false
+         */
+        "noImplicitSubmit": boolean;
         /**
           * Defaults to an example of the first allowed form.
          */
@@ -1419,6 +1446,11 @@ export namespace Components {
          */
         "letterCase": 'upper' | 'lower';
         "name"?: string;
+        /**
+          * Enter does not submit the surrounding form.
+          * @default false
+         */
+        "noImplicitSubmit": boolean;
         /**
           * Defaults to an example in `format`.
          */
@@ -2015,6 +2047,11 @@ export namespace Components {
         "max"?: number;
         "min"?: number;
         "name"?: string;
+        /**
+          * Enter does not submit the surrounding form.
+          * @default false
+         */
+        "noImplicitSubmit": boolean;
         "placeholder"?: string;
         /**
           * @default false
@@ -2325,7 +2362,7 @@ export namespace Components {
      * Time field with segments (hours, minutes, optional seconds and AM/PM), form-associated. The value is
      * `HH:mm` (or `HH:mm:ss` with `seconds`), empty while a segment is missing.
      * Keyboard per segment: Arrow Up/Down change it (minutes in `step`), digits type it and move on, Arrow Left/Right
-     * switch segments, Backspace clears, A/P set AM/PM. With `list`, a button opens a list of times
+     * switch segments, Backspace clears, A/P set AM/PM, Enter submits the surrounding form. With `list`, a button opens a list of times
      * (every `step`, at least 5 minutes; every 30 minutes when `step` is smaller).
      */
     interface KernTimePicker {
@@ -2375,6 +2412,11 @@ export namespace Components {
          */
         "min"?: string;
         "name"?: string;
+        /**
+          * Enter does not submit the surrounding form.
+          * @default false
+         */
+        "noImplicitSubmit": boolean;
         /**
           * @default false
          */
@@ -3102,6 +3144,8 @@ declare global {
      * Native checks (`required`, `type="email"`/`url`, `pattern`, `min`/`max`/`step`, `maxlength`) reach the form: an
      * invalid value blocks submitting. Like `:user-invalid`, the browser's message is shown only after the value was
      * changed or a submit failed. `error` takes priority.
+     * Enter submits the surrounding form like a native field (with an open suggestion list it only takes the suggestion);
+     * `no-implicit-submit` turns that off.
      */
     interface HTMLKernInputElement extends Components.KernInput, HTMLStencilElement {
         addEventListener<K extends keyof HTMLKernInputElementEventMap>(type: K, listener: (this: HTMLKernInputElement, ev: KernInputCustomEvent<HTMLKernInputElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
@@ -3749,7 +3793,7 @@ declare global {
      * Time field with segments (hours, minutes, optional seconds and AM/PM), form-associated. The value is
      * `HH:mm` (or `HH:mm:ss` with `seconds`), empty while a segment is missing.
      * Keyboard per segment: Arrow Up/Down change it (minutes in `step`), digits type it and move on, Arrow Left/Right
-     * switch segments, Backspace clears, A/P set AM/PM. With `list`, a button opens a list of times
+     * switch segments, Backspace clears, A/P set AM/PM, Enter submits the surrounding form. With `list`, a button opens a list of times
      * (every `step`, at least 5 minutes; every 30 minutes when `step` is smaller).
      */
     interface HTMLKernTimePickerElement extends Components.KernTimePicker, HTMLStencilElement {
@@ -4350,6 +4394,11 @@ declare namespace LocalJSX {
         "mode"?: 'color' | 'temperature';
         "name"?: string;
         /**
+          * Enter does not submit the surrounding form.
+          * @default false
+         */
+        "noImplicitSubmit"?: boolean;
+        /**
           * When a colour is applied (drag end, key, swatch, typed text).
          */
         "onKernChange"?: (event: KernColorPickerCustomEvent<{ value: string | number }>) => void;
@@ -4491,6 +4540,11 @@ declare namespace LocalJSX {
         "min"?: string;
         "name"?: string;
         /**
+          * Enter does not submit the surrounding form.
+          * @default false
+         */
+        "noImplicitSubmit"?: boolean;
+        /**
           * When the date changes (picked, typed and applied, or cleared).
          */
         "onKernChange"?: (event: KernDatePickerCustomEvent<{ value: string }>) => void;
@@ -4594,6 +4648,11 @@ declare namespace LocalJSX {
          */
         "min"?: string;
         "name"?: string;
+        /**
+          * Enter does not submit the surrounding form.
+          * @default false
+         */
+        "noImplicitSubmit"?: boolean;
         /**
           * When the range is complete or cleared.
          */
@@ -4895,6 +4954,8 @@ declare namespace LocalJSX {
      * Native checks (`required`, `type="email"`/`url`, `pattern`, `min`/`max`/`step`, `maxlength`) reach the form: an
      * invalid value blocks submitting. Like `:user-invalid`, the browser's message is shown only after the value was
      * changed or a submit failed. `error` takes priority.
+     * Enter submits the surrounding form like a native field (with an open suggestion list it only takes the suggestion);
+     * `no-implicit-submit` turns that off.
      */
     interface KernInput {
         /**
@@ -4927,6 +4988,11 @@ declare namespace LocalJSX {
          */
         "mono"?: boolean;
         "name"?: string;
+        /**
+          * Enter does not submit the surrounding form.
+          * @default false
+         */
+        "noImplicitSubmit"?: boolean;
         /**
           * On every keystroke and when a suggestion is taken (also used by the Angular value accessor).
          */
@@ -5032,6 +5098,11 @@ declare namespace LocalJSX {
          */
         "maxAddresses"?: number;
         "name"?: string;
+        /**
+          * Enter does not submit the surrounding form.
+          * @default false
+         */
+        "noImplicitSubmit"?: boolean;
         /**
           * When typed text is applied: the normalised value and what it covers (empty value when cleared).
          */
@@ -5350,6 +5421,11 @@ declare namespace LocalJSX {
          */
         "letterCase"?: 'upper' | 'lower';
         "name"?: string;
+        /**
+          * Enter does not submit the surrounding form.
+          * @default false
+         */
+        "noImplicitSubmit"?: boolean;
         /**
           * When typed text is applied, with the normalised value (empty when cleared).
          */
@@ -5983,6 +6059,11 @@ declare namespace LocalJSX {
         "min"?: number;
         "name"?: string;
         /**
+          * Enter does not submit the surrounding form.
+          * @default false
+         */
+        "noImplicitSubmit"?: boolean;
+        /**
           * When the number changes (`null` when emptied).
          */
         "onKernChange"?: (event: KernStepInputCustomEvent<{ value: number | null }>) => void;
@@ -6311,7 +6392,7 @@ declare namespace LocalJSX {
      * Time field with segments (hours, minutes, optional seconds and AM/PM), form-associated. The value is
      * `HH:mm` (or `HH:mm:ss` with `seconds`), empty while a segment is missing.
      * Keyboard per segment: Arrow Up/Down change it (minutes in `step`), digits type it and move on, Arrow Left/Right
-     * switch segments, Backspace clears, A/P set AM/PM. With `list`, a button opens a list of times
+     * switch segments, Backspace clears, A/P set AM/PM, Enter submits the surrounding form. With `list`, a button opens a list of times
      * (every `step`, at least 5 minutes; every 30 minutes when `step` is smaller).
      */
     interface KernTimePicker {
@@ -6361,6 +6442,11 @@ declare namespace LocalJSX {
          */
         "min"?: string;
         "name"?: string;
+        /**
+          * Enter does not submit the surrounding form.
+          * @default false
+         */
+        "noImplicitSubmit"?: boolean;
         /**
           * When the time changes (complete, or cleared).
          */
@@ -6608,6 +6694,7 @@ declare namespace LocalJSX {
         "disabled": boolean;
         "readonly": boolean;
         "required": boolean;
+        "noImplicitSubmit": boolean;
         "ariaLabelText": string;
         "labelOpen": string;
         "labelArea": string;
@@ -6644,6 +6731,7 @@ declare namespace LocalJSX {
         "disabled": boolean;
         "readonly": boolean;
         "required": boolean;
+        "noImplicitSubmit": boolean;
         "ariaLabelText": string;
         "labelOpen": string;
         "labelClear": string;
@@ -6669,6 +6757,7 @@ declare namespace LocalJSX {
         "disabled": boolean;
         "readonly": boolean;
         "required": boolean;
+        "noImplicitSubmit": boolean;
         "ariaLabelText": string;
         "labelStart": string;
         "labelEnd": string;
@@ -6760,6 +6849,7 @@ declare namespace LocalJSX {
         "disabled": boolean;
         "readonly": boolean;
         "required": boolean;
+        "noImplicitSubmit": boolean;
         "ariaLabelText": string;
     }
     interface KernIpInputAttributes {
@@ -6778,6 +6868,7 @@ declare namespace LocalJSX {
         "disabled": boolean;
         "readonly": boolean;
         "required": boolean;
+        "noImplicitSubmit": boolean;
         "ariaLabelText": string;
         "labelInvalid": string;
         "labelNotAllowed": string;
@@ -6859,6 +6950,7 @@ declare namespace LocalJSX {
         "disabled": boolean;
         "readonly": boolean;
         "required": boolean;
+        "noImplicitSubmit": boolean;
         "ariaLabelText": string;
         "labelInvalid": string;
     }
@@ -7034,6 +7126,7 @@ declare namespace LocalJSX {
         "disabled": boolean;
         "readonly": boolean;
         "required": boolean;
+        "noImplicitSubmit": boolean;
         "ariaLabelText": string;
         "labelDecrease": string;
         "labelIncrease": string;
@@ -7117,6 +7210,7 @@ declare namespace LocalJSX {
         "disabled": boolean;
         "readonly": boolean;
         "required": boolean;
+        "noImplicitSubmit": boolean;
         "ariaLabelText": string;
         "labelHour": string;
         "labelMinute": string;
@@ -7386,6 +7480,8 @@ declare module "@stencil/core" {
              * Native checks (`required`, `type="email"`/`url`, `pattern`, `min`/`max`/`step`, `maxlength`) reach the form: an
              * invalid value blocks submitting. Like `:user-invalid`, the browser's message is shown only after the value was
              * changed or a submit failed. `error` takes priority.
+             * Enter submits the surrounding form like a native field (with an open suggestion list it only takes the suggestion);
+             * `no-implicit-submit` turns that off.
              */
             "kern-input": LocalJSX.IntrinsicElements["kern-input"] & JSXBase.HTMLAttributes<HTMLKernInputElement>;
             /**
@@ -7610,7 +7706,7 @@ declare module "@stencil/core" {
              * Time field with segments (hours, minutes, optional seconds and AM/PM), form-associated. The value is
              * `HH:mm` (or `HH:mm:ss` with `seconds`), empty while a segment is missing.
              * Keyboard per segment: Arrow Up/Down change it (minutes in `step`), digits type it and move on, Arrow Left/Right
-             * switch segments, Backspace clears, A/P set AM/PM. With `list`, a button opens a list of times
+             * switch segments, Backspace clears, A/P set AM/PM, Enter submits the surrounding form. With `list`, a button opens a list of times
              * (every `step`, at least 5 minutes; every 30 minutes when `step` is smaller).
              */
             "kern-time-picker": LocalJSX.IntrinsicElements["kern-time-picker"] & JSXBase.HTMLAttributes<HTMLKernTimePickerElement>;

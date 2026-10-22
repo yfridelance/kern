@@ -1,5 +1,6 @@
 import { AttachInternals, Component, Element, Event, EventEmitter, Host, Method, Prop, State, Watch, h } from '@stencil/core';
 import { fieldDisabled } from '../../utils/form-disabled';
+import { implicitSubmit } from '../../utils/implicit-submit';
 import { positionPopup } from '../../utils/popover';
 import { hexToRgb, hsvToRgb, kelvinToRgb, parseHex, rgbToHex, rgbToHsv, type Hsv } from '../../utils/color';
 import { kernTexts } from '../../utils/i18n';
@@ -43,6 +44,8 @@ export class KernColorPicker {
   @State() formDisabled = false;
   @Prop() readonly = false;
   @Prop() required = false;
+  /** Enter does not submit the surrounding form. */
+  @Prop() noImplicitSubmit = false;
   /** Accessible name when there is no visible label. */
   @Prop() ariaLabelText?: string;
   @Prop() labelOpen?: string;
@@ -368,7 +371,10 @@ export class KernColorPicker {
             }}
             onChange={() => this.commit()}
             onKeyDown={(e) => {
-              if (e.key === 'Enter') this.commit();
+              if (e.key === 'Enter') {
+                this.commit();
+                if (!this.open) implicitSubmit(this, e);
+              }
               if (e.key === 'ArrowDown' && e.altKey) this.openPanel();
             }}
           />

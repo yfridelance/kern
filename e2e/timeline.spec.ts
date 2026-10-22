@@ -59,6 +59,46 @@ test('Weitere laden: Ansage, Fokus bleibt am Button, danach auf dem ersten neuen
   await expect(status).toHaveText('3 weitere Ereignisse geladen');
 });
 
+test('Weitere laden mit Live-Ereignis oben: Ansage und Fokus gelten der neuen Seite', async ({ page }) => {
+  const history = page.locator('#history');
+  const more = history.locator('.more kern-button');
+  const status = history.locator('[role="status"]');
+  const live = () => page.evaluate(() => {
+    const el = document.createElement('kern-timeline-item');
+    el.setAttribute('heading', 'Live');
+    document.getElementById('history')!.prepend(el);
+  });
+  await more.locator('button').focus();
+  await page.keyboard.press('Enter');
+  await live();
+  await expect(history.locator('kern-timeline-item')).toHaveCount(6);
+  await expect(status).toHaveText('3 weitere Ereignisse geladen');
+
+  // Last page: focus goes to its first event, not to an older one shifted by the live event.
+  await page.keyboard.press('Enter');
+  await live();
+  await expect(more).toHaveCount(0);
+  await expect(history.locator('kern-timeline-item[heading="Live"]')).toHaveCount(2);
+  await expect(page.locator('#history kern-timeline-item').nth(7)).toBeFocused();
+  expect(await page.locator('#history kern-timeline-item').nth(7).evaluate((el) => (el as HTMLElement & { heading: string }).heading)).toBe('Seite 2 Ereignis 1');
+});
+
+test('Weitere laden: wer während des Ladens weitergeht, behält seinen Fokus', async ({ page }) => {
+  const history = page.locator('#history');
+  const more = history.locator('.more kern-button');
+  await more.locator('button').focus();
+  await page.keyboard.press('Enter');
+  await expect(history.locator('kern-timeline-item')).toHaveCount(5);
+  await expectFocusInside(more);
+
+  await page.keyboard.press('Enter');
+  await page.locator('#log').focus();
+  await expect(more).toHaveCount(0);
+  await expect(history.locator('kern-timeline-item')).toHaveCount(8);
+  await page.waitForTimeout(100);
+  await expect(page.locator('#log')).toBeFocused();
+});
+
 test('Lesepunkt: neue Ereignisse oben verschieben die gelesenen nicht', async ({ page }) => {
   // A handle, not a locator: nth(10) would be another event after the insert.
   const reading = (await page.locator('#feed kern-timeline-item').nth(10).elementHandle())!;

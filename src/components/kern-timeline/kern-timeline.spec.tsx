@@ -121,6 +121,30 @@ describe('kern-timeline', () => {
     expect(root.querySelector('[role="status"]')!.textContent).toBe('2 more events loaded');
   });
 
+  it('counts only the events after the old end, not live events at the top', async () => {
+    const { page, host, root, timeline } = await setup(`<kern-timeline has-more><kern-timeline-item heading="a"></kern-timeline-item><kern-timeline-item heading="b"></kern-timeline-item></kern-timeline>`);
+    const slotchange = () => root.querySelector('[role="list"] slot')!.dispatchEvent(new Event('slotchange'));
+    const item = (h: string) => {
+      const el = page.doc.createElement('kern-timeline-item');
+      el.setAttribute('heading', h);
+      return el;
+    };
+    (root.querySelector('.more kern-button') as HTMLElement).click();
+    timeline.loading = true;
+    await page.waitForChanges();
+    // A live event at the top while loading: no announcement yet.
+    host.prepend(item('live'));
+    slotchange();
+    await page.waitForChanges();
+    expect(root.querySelector('[role="status"]')!.textContent).toBe('');
+
+    host.append(item('c'), item('d'));
+    slotchange();
+    timeline.loading = false;
+    await page.waitForChanges();
+    expect(root.querySelector('[role="status"]')!.textContent).toBe('2 more events loaded');
+  });
+
   it('hides the button without has-more and takes the more slot', async () => {
     const { root } = await setup(`<kern-timeline><kern-timeline-item heading="a"></kern-timeline-item><a slot="more" href="#all">Full history</a></kern-timeline>`);
     expect(root.querySelector('.more')!.hasAttribute('hidden')).toBe(false);

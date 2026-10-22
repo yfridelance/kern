@@ -57,8 +57,11 @@ export class KernTimeline {
   @State() revision = 0;
 
   private items: Item[] = [];
-  /** Pending «Load more»: number of items before, whether its button had the focus and `loading` was set since. */
-  private pending?: { from: number; focused: boolean; loaded?: boolean };
+  /**
+   * Pending «Load more»: the last event before it (the new page follows it, also when live events arrive at the
+   * top meanwhile), whether its button still has the focus and whether `loading` was set since.
+   */
+  private pending?: { end: Item; from: number; focused: boolean; loaded?: boolean };
   private today = todayIso();
   private unsubscribe?: () => void;
   private moreButton?: HTMLElement;
@@ -88,6 +91,7 @@ export class KernTimeline {
     this.unsubscribe = undefined;
     document.removeEventListener('scroll', this.onScroll, { capture: true });
     this.resizeObserver?.disconnect();
+    this.stopFollowingFocus();
     cancelAnimationFrame(this.anchorFrame);
   }
 
@@ -110,7 +114,7 @@ export class KernTimeline {
     // Usually the app appends the events, then clears `loading`; if it does so the other way round, the new
     // events come in the same task.
     this.collect();
-    if (this.count > this.pending.from) this.settle();
+    if (this.loaded(this.pending).length) this.settle();
     else
       setTimeout(() => {
         this.collect();
@@ -138,26 +142,51 @@ export class KernTimeline {
     if (this.loading) return;
     // The button lives in this shadow root, so the root knows whether it has the focus.
     const focused = !!this.moreButton && this.el.shadowRoot?.activeElement === this.moreButton;
-    this.pending = { from: this.count, focused };
+    this.pending = { end: this.items[this.count - 1], from: this.count, focused };
+    if (focused) {
+      document.addEventListener('focusin', this.onFocusElsewhere, true);
+      document.addEventListener('pointerdown', this.onFocusElsewhere, true);
+    }
     this.announcement = '';
     this.kernLoadMore.emit();
   };
+
+  /** While loading, the user moved on (focus or click outside the button): the focus is theirs, not ours. */
+  private onFocusElsewhere = (ev: Event) => {
+    if (this.pending && !(this.moreButton && ev.composedPath().includes(this.moreButton))) this.stopFollowingFocus();
+  };
+
+  private stopFollowingFocus() {
+    if (this.pending) this.pending.focused = false;
+    document.removeEventListener('focusin', this.onFocusElsewhere, true);
+    document.removeEventListener('pointerdown', this.onFocusElsewhere, true);
+  }
+
+  /** The events after the list end noted at «Load more» (by position only if that event was removed). */
+  private loaded(p: { end: Item; from: number }): Item[] {
+    const i = this.items.indexOf(p.end);
+    return this.items.slice(i >= 0 ? i + 1 : p.from);
+  }
 
   /** After «Load more»: once loading is over, announce the new events and keep the focus in the timeline. */
   private settle() {
     const p = this.pending;
     if (!p || this.loading) return;
-    const added = this.count - p.from;
+    const page = this.loaded(p);
     // Without `loading`, wait for the new events.
-    if (added <= 0 && !p.loaded) return;
+    if (!page.length && !p.loaded) return;
+    const focused = p.focused;
+    this.stopFollowingFocus();
     this.pending = undefined;
-    if (added > 0) this.announcement = this.t('labelLoaded').replace('{n}', String(added));
-    if (p.focused && added > 0) {
+    if (page.length) this.announcement = this.t('labelLoaded').replace('{n}', String(page.length));
+    if (focused && page.length) {
       // The button is re-rendered (or gone) after this; check the focus once it is.
       requestAnimationFrame(() => {
         if (this.moreButton?.isConnected && this.hasMore) return;
-        const first = this.items[p.from];
-        if (!first) return;
+        const first = page[0];
+        // Only when the focus went with the button, not when the user has moved it since.
+        const active = document.activeElement;
+        if (!first.isConnected || (active && active !== document.body && active !== this.el)) return;
         first.tabIndex = -1;
         first.addEventListener('blur', () => first.removeAttribute('tabindex'), { once: true });
         first.focus();

@@ -7,6 +7,8 @@ type Submit = { form: string; submitter: string | null; data: [string, string][]
 
 const submits = (page: Page) => page.evaluate(() => (window as unknown as { submits: Submit[] }).submits);
 const field = (page: Page, name: string) => page.locator(`[name=${name}] input`).first();
+// The submit runs in a task after the keydown; wait past it before checking that none came.
+const settle = (page: Page) => page.evaluate(() => new Promise((resolve) => setTimeout(resolve, 100)));
 
 test.beforeEach(async ({ page }) => {
   await openFixture(page, 'submit.html');
@@ -52,6 +54,7 @@ test('ungültiges Pflichtfeld oder ungültige Eingabe: kein submit', async ({ pa
   await field(page, 'net').press('Enter');
   await expect(page.locator('kern-ip-input[name=net]:invalid')).toHaveCount(1);
 
+  await settle(page);
   expect(await submits(page)).toEqual([]);
 });
 
@@ -64,6 +67,7 @@ test('offene Vorschlagsliste: Enter übernimmt nur, geschlossen wird abgesendet'
   await input.press('Enter');
   await expect(input).toHaveValue('Erdgeschoss');
   await expect(input).toHaveAttribute('aria-expanded', 'false');
+  await settle(page);
   expect(await submits(page)).toEqual([]);
 
   // Open without an active suggestion: Enter only closes the list.
@@ -71,6 +75,7 @@ test('offene Vorschlagsliste: Enter übernimmt nur, geschlossen wird abgesendet'
   await expect(input).toHaveAttribute('aria-expanded', 'true');
   await input.press('Enter');
   await expect(input).toHaveAttribute('aria-expanded', 'false');
+  await settle(page);
   expect(await submits(page)).toEqual([]);
 
   await input.press('Enter');
@@ -83,9 +88,55 @@ test('no-implicit-submit und gesperrter Standard-Button: kein submit', async ({ 
   await field(page, 'other').press('Enter');
   // Shift+Enter is not an implicit submission either.
   await field(page, 'host').press('Shift+Enter');
+  await settle(page);
   expect(await submits(page)).toEqual([]);
 
   // The same fields still submit through the button.
   await page.getByRole('button', { name: 'Speichern' }).click();
   await expect.poll(async () => (await submits(page)).length).toBe(1);
+});
+
+test('preventDefault() am Host oder am Formular verhindert das Absenden', async ({ page }) => {
+  await page.locator('kern-input[name=host]').evaluate((el) => el.addEventListener('keydown', (e) => e.preventDefault(), { once: true }));
+  await field(page, 'host').press('Enter');
+  await page.locator('form#device').evaluate((el) => el.addEventListener('keydown', (e) => e.preventDefault(), { once: true }));
+  await field(page, 'host').press('Enter');
+  await settle(page);
+  expect(await submits(page)).toEqual([]);
+
+  // Without a listener, Enter submits again.
+  await field(page, 'host').press('Enter');
+  await expect.poll(async () => (await submits(page)).length).toBe(1);
+});
+
+test('kern-button als Standard-Button wird angeklickt, busy blockiert', async ({ page }) => {
+  const clicks = () => page.evaluate(() => (window as unknown as { kernClicks: number }).kernClicks);
+  await field(page, 'kern').press('Enter');
+  await expect.poll(async () => (await submits(page)).map((s) => s.form)).toEqual(['kern']);
+  expect(await clicks()).toBe(1);
+
+  await page.locator('kern-button').evaluate((el) => el.setAttribute('busy', ''));
+  await field(page, 'kern').press('Enter');
+  await settle(page);
+  expect(await submits(page)).toHaveLength(1);
+
+  await page.locator('kern-button').evaluate((el) => {
+    el.removeAttribute('busy');
+    el.setAttribute('disabled', '');
+  });
+  await field(page, 'kern').press('Enter');
+  await settle(page);
+  expect(await submits(page)).toHaveLength(1);
+  expect(await clicks()).toBe(1);
+});
+
+test('gesperrter Bild-Button mit form="…" ist der Standard-Button', async ({ page }) => {
+  await field(page, 'image').press('Enter');
+  await settle(page);
+  expect(await submits(page)).toEqual([]);
+
+  // Enabled, it submits as the submitter.
+  await page.locator('input[type=image]').evaluate((el: HTMLInputElement) => (el.disabled = false));
+  await field(page, 'image').press('Enter');
+  await expect.poll(async () => (await submits(page)).map((s) => [s.form, s.submitter])).toEqual([['image', 'img']]);
 });

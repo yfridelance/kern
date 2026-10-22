@@ -10,6 +10,9 @@ import { KernTextarea } from '../components/kern-textarea/kern-textarea';
 import { KernTimePicker } from '../components/kern-time-picker/kern-time-picker';
 import { implicitSubmit, isSubmitKey, type ImplicitSubmitter } from './implicit-submit';
 
+/** The submit runs in a task after the keydown. */
+const tick = () => new Promise((resolve) => setTimeout(resolve));
+
 const enter = (init: KeyboardEventInit = {}) => new KeyboardEvent('keydown', { key: 'Enter', cancelable: true, ...init });
 
 /** A stand-in form: the mock DOM has no `requestSubmit()` or `form.elements`. */
@@ -42,37 +45,52 @@ describe('isSubmitKey', () => {
 });
 
 describe('implicitSubmit', () => {
-  it('submits the form when it has no submit button', () => {
+  it('submits the form when it has no submit button, after the event was handled', async () => {
     const form = fakeForm([{ localName: 'kern-input', type: 'text' }]);
-    expect(implicitSubmit(field(form), enter())).toBe(true);
+    implicitSubmit(field(form), enter());
+    expect(form.requestSubmit).not.toHaveBeenCalled();
+    await tick();
     expect(form.requestSubmit).toHaveBeenCalledTimes(1);
   });
 
-  it('clicks a native default button, which skips the submit while disabled', () => {
+  it('does not submit when a later listener calls preventDefault()', async () => {
+    const form = fakeForm();
+    const ev = enter();
+    implicitSubmit(field(form), ev);
+    ev.preventDefault();
+    await tick();
+    expect(form.requestSubmit).not.toHaveBeenCalled();
+  });
+
+  it('clicks a native default button, which skips the submit while disabled', async () => {
     const button = { localName: 'button', type: 'submit', click: jest.fn() };
     const form = fakeForm([{ localName: 'kern-input', type: 'text' }, { localName: 'button', type: 'button' }, button]);
     implicitSubmit(field(form), enter());
+    await tick();
     expect(button.click).toHaveBeenCalledTimes(1);
     expect(form.requestSubmit).not.toHaveBeenCalled();
   });
 
-  it('submits for a kern-button default button unless it is disabled or busy', () => {
-    const kernButton = (disabled: boolean, busy: boolean) => ({ localName: 'kern-button', type: 'submit', matches: () => disabled, hasAttribute: (a: string) => a === 'busy' && busy });
-    for (const [disabled, busy, submits] of [[false, false, 1], [true, false, 0], [false, true, 0]] as const) {
-      const form = fakeForm([kernButton(disabled, busy)]);
-      implicitSubmit(field(form), enter());
-      expect(form.requestSubmit).toHaveBeenCalledTimes(submits);
-    }
+  it('clicks the inner button of a kern-button default button', async () => {
+    const inner = { click: jest.fn() };
+    const button = { localName: 'kern-button', type: 'submit', click: jest.fn(), shadowRoot: { querySelector: () => inner } };
+    const form = fakeForm([button]);
+    implicitSubmit(field(form), enter());
+    await tick();
+    expect(inner.click).toHaveBeenCalledTimes(1);
+    expect(button.click).not.toHaveBeenCalled();
+    expect(form.requestSubmit).not.toHaveBeenCalled();
   });
 
-  it('does nothing without a form, for other keys, or when the field is off', () => {
+  it('does nothing without a form, for other keys, or when the field is off', async () => {
     const form = fakeForm();
-    expect(implicitSubmit(field(null), enter())).toBe(false);
-    expect(implicitSubmit(field(form), new KeyboardEvent('keydown', { key: 'Tab' }))).toBe(false);
-    expect(implicitSubmit(field(form, { disabled: true }), enter())).toBe(false);
-    expect(implicitSubmit(field(form, { formDisabled: true }), enter())).toBe(false);
-    expect(implicitSubmit(field(form, { readonly: true }), enter())).toBe(false);
-    expect(implicitSubmit(field(form, { noImplicitSubmit: true }), enter())).toBe(false);
+    implicitSubmit(field(null), enter());
+    implicitSubmit(field(form), new KeyboardEvent('keydown', { key: 'Tab' }));
+    implicitSubmit(field(form, { disabled: true }), enter());
+    implicitSubmit(field(form, { formDisabled: true }), enter());
+    implicitSubmit(field(form, { readonly: true }), enter());
+    implicitSubmit(field(form, { noImplicitSubmit: true }), enter());
+    await tick();
     expect(form.requestSubmit).not.toHaveBeenCalled();
   });
 });
@@ -108,6 +126,7 @@ describe.each(FIELDS)('%s: Enter submits the form (#155)', (tag, component, type
     input.dispatchEvent(new Event('input'));
     await page.waitForChanges();
     input.dispatchEvent(enter());
+    await tick();
     expect(form.requestSubmit).toHaveBeenCalledTimes(1);
     expect(seen).toEqual([applied]);
   });
@@ -116,10 +135,12 @@ describe.each(FIELDS)('%s: Enter submits the form (#155)', (tag, component, type
     for (const attrs of ['no-implicit-submit', 'readonly', 'disabled']) {
       const { form, sr } = await render(tag, component, attrs);
       sr.querySelector('input')!.dispatchEvent(enter());
+      await tick();
       expect(form.requestSubmit).not.toHaveBeenCalled();
     }
     const { form, sr } = await render(tag, component);
     sr.querySelector('input')!.dispatchEvent(enter({ shiftKey: true }));
+    await tick();
     expect(form.requestSubmit).not.toHaveBeenCalled();
   });
 });
@@ -132,8 +153,10 @@ describe('kern-date-range-picker: Enter submits the form (#155)', () => {
     end.dispatchEvent(new Event('input'));
     await page.waitForChanges();
     end.dispatchEvent(enter());
+    await tick();
     expect(seen).toEqual(['2026-10-01/2026-10-19']);
     sr.querySelector('input')!.dispatchEvent(enter());
+    await tick();
     expect(form.requestSubmit).toHaveBeenCalledTimes(2);
   });
 });
@@ -142,6 +165,7 @@ describe('kern-time-picker: Enter submits the form (#155)', () => {
   it('from a segment', async () => {
     const { form, sr } = await render('kern-time-picker', KernTimePicker, 'value="08:30"');
     sr.querySelector<HTMLElement>('[role="spinbutton"]')!.dispatchEvent(enter());
+    await tick();
     expect(form.requestSubmit).toHaveBeenCalledTimes(1);
   });
 });
@@ -153,6 +177,7 @@ describe('kern-input suggestions: Enter submits only with the list closed', () =
     const key = async (ev: KeyboardEvent) => {
       input.dispatchEvent(ev);
       await page.waitForChanges();
+      await tick();
     };
     input.value = 'floor';
     input.dispatchEvent(new Event('input'));
@@ -178,6 +203,7 @@ describe('kern-textarea', () => {
   it('keeps Enter for a new line', async () => {
     const { form, sr } = await render('kern-textarea', KernTextarea);
     sr.querySelector('textarea')!.dispatchEvent(enter());
+    await tick();
     expect(form.requestSubmit).not.toHaveBeenCalled();
   });
 });

@@ -15,8 +15,8 @@
 <p>The native input of a Kern field sits in the shadow DOM and belongs to no form, so the field submits the form itself on Enter, as the browser does for native fields. This applies to <code>kern-input</code>, <code>kern-ip-input</code>, <code>kern-mac-input</code>, <code>kern-step-input</code>, <code>kern-date-picker</code>, <code>kern-date-range-picker</code>, <code>kern-time-picker</code> and <code>kern-color-picker</code>.</p>
 <ul>
   <li>Typed fields first apply the text (<code>192.168.1.10 - 50</code> → <code>192.168.1.10-192.168.1.50</code>), so the form gets the current value and validity.</li>
-  <li>Like the browser, the field clicks the form's first submit button, or calls <code>requestSubmit()</code> when there is none. Validation runs and <code>submit</code> fires; a disabled or <code>busy</code> submit button blocks it.</li>
-  <li>No submit with a modifier key (Shift, Ctrl, Alt, Meta), when the field is <code>disabled</code> or <code>readonly</code>, outside a form, or when a <code>keydown</code> handler called <code>preventDefault()</code>.</li>
+  <li>Like the browser, the field clicks the form's first submit button in document order (also <code>&lt;input type="image"&gt;</code> and buttons tied to the form with <code>form="…"</code>), or calls <code>requestSubmit()</code> when there is none. Validation runs and <code>submit</code> fires; a disabled or <code>busy</code> submit button blocks it.</li>
+  <li>No submit with a modifier key (Shift, Ctrl, Alt, Meta), when the field is <code>disabled</code> or <code>readonly</code>, outside a form, or when a <code>keydown</code> listener called <code>preventDefault()</code>. The submit is the default action of the key, so a listener on the field, the form or the document can still stop it.</li>
   <li>With an open list (<code>kern-input suggestions</code>, a picker's popover) Enter takes the suggestion or closes the list; the next Enter submits.</li>
   <li><code>no-implicit-submit</code> turns it off for one field, e.g. when the field uses Enter itself. <code>kern-textarea</code> keeps Enter for a new line.</li>
 </ul>

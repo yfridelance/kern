@@ -160,6 +160,7 @@ root.addEventListener('kernNavigate', (e) => {
 
  - [kern-dialog](../kern-dialog)
  - [kern-drawer](../kern-drawer)
+ - [kern-log](../kern-log)
  - [kern-theme-toggle](../kern-theme-toggle)
 
 ### Graph
@@ -167,6 +168,7 @@ root.addEventListener('kernNavigate', (e) => {
 graph TD;
   kern-dialog --> kern-button
   kern-drawer --> kern-button
+  kern-log --> kern-button
   kern-theme-toggle --> kern-button
   style kern-button fill:#f9f,stroke:#333,stroke-width:4px
 ```

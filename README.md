@@ -29,7 +29,7 @@ dort und hier sind dieselben (`tokens/tokens.json`).
 | Formulare | `kern-input`, `kern-ip-input`, `kern-mac-input`, `kern-file-input`, `kern-textarea`, `kern-select`, `kern-switch`, `kern-checkbox`, `kern-radio-group` + `kern-radio`, `kern-segmented`, `kern-date-picker`, `kern-date-range-picker`, `kern-time-picker`, `kern-color-picker`, `kern-step-input`, `kern-range`, `kern-rating` |
 | Status | `kern-badge`, `kern-chip`, `kern-status`, `kern-icon` |
 | Rückmeldung | `kern-alert`, `kern-empty-state`, `kern-skeleton`, `kern-toast` (+ `toast()`), `kern-tooltip`, `kern-drawer`, `kern-progress`, `kern-spinner`, `kern-dialog` (+ `confirm()`) |
-| Daten | `kern-table`, `kern-list` + `kern-list-item`, `kern-kv` + `kern-kv-item`, `kern-stat`, `kern-sparkline`, `kern-meter`, `kern-signal`, `kern-copy`, `kern-json`, `kern-json-diff` (+ `diffJson()`), `kern-code` |
+| Daten | `kern-table`, `kern-list` + `kern-list-item`, `kern-kv` + `kern-kv-item`, `kern-stat`, `kern-sparkline`, `kern-meter`, `kern-signal`, `kern-copy`, `kern-json`, `kern-json-diff` (+ `diffJson()`), `kern-code`, `kern-log` |
 | Datum & Zeit | `kern-date`, `kern-time`, `kern-calendar` |
 
 Props, Events, Slots und Parts jeder Komponente: `src/components/<tag>/readme.md` (aus dem Code erzeugt).
@@ -214,6 +214,9 @@ zusätzlich Standalone-Wrapper mit `ControlValueAccessor` für `ngModel` und Rea
   `code` oder dem Text (Einrückung wird entfernt). `inline` für Pfade und Befehle im Fliesstext. JSON-Daten als Baum:
   `kern-json`. Angular fasst Leerraum in Templates zusammen: dort `[code]="…"` binden oder `ngPreserveWhitespaces`
   setzen.
+- **Logs:** `kern-log` für strukturierte Einträge (`entries`: `{ id, time, level, message, source?, details? }`) mit Suche,
+  Stufen- und Quellenfilter, `follow` (am Ende mitlaufen, beim Zurückscrollen Position halten), `paused`, Kopieren und
+  Download. Die App liefert neue Arrays und begrenzt ihren Puffer selbst (gleiche Grenze wie `max-entries`).
 - **Links:** `kern-link` für Links im Text, in Tabellen und Karten; `external` öffnet einen neuen Tab (mit
   `rel="noopener noreferrer"`, ↗ und Hinweis für Screenreader), `tone="muted"` für Nebensächliches. Aktionen bleiben
   `kern-button` (auch mit `href`).

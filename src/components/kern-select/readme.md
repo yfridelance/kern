@@ -209,6 +209,7 @@ Type: `Promise<void>`
 ### Used by
 
  - [kern-language-select](../kern-language-select)
+ - [kern-log](../kern-log)
  - [kern-pagination](../kern-pagination)
 
 ### Depends on
@@ -220,6 +221,7 @@ Type: `Promise<void>`
 graph TD;
   kern-select --> kern-icon
   kern-language-select --> kern-select
+  kern-log --> kern-select
   kern-pagination --> kern-select
   style kern-select fill:#f9f,stroke:#333,stroke-width:4px
 ```

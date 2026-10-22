@@ -11,6 +11,7 @@ import { KernDateFormat } from "./utils/datetime";
 import { GlyphName } from "./utils/icons";
 import { IconName } from "./utils/icon-names";
 import { KernIpKind } from "./utils/ip";
+import { KernLogEntry, KernLogFilter } from "./components/kern-log/log";
 import { KernMacFormat } from "./utils/mac";
 import { KernOption } from "./components/kern-select/kern-select";
 import { KernOption as KernOption1 } from "./components/kern-select/kern-select";
@@ -22,6 +23,7 @@ export { KernDateFormat } from "./utils/datetime";
 export { GlyphName } from "./utils/icons";
 export { IconName } from "./utils/icon-names";
 export { KernIpKind } from "./utils/ip";
+export { KernLogEntry, KernLogFilter } from "./components/kern-log/log";
 export { KernMacFormat } from "./utils/mac";
 export { KernOption } from "./components/kern-select/kern-select";
 export { KernOption as KernOption1 } from "./components/kern-select/kern-select";
@@ -1419,6 +1421,121 @@ export namespace Components {
         "target"?: string;
     }
     /**
+     * Structured log viewer: time, level, source and message per entry, a search and level/source filters that combine,
+     * a live mode that follows new entries, pause, copy and download. Entries are always shown as text, never as HTML.
+     * **Data and buffer.** The app owns the data and its transport (WebSocket, SSE, polling) and assigns new arrays to
+     * `entries`, oldest first. The log shows at most the newest `max-entries` of them and never changes the app's array:
+     * trim it in the app with the same limit (`entries = [...entries, ...added].slice(-1000)`), so memory stays bounded.
+     * Rows are kept per `id`: an update moves, adds and removes rows instead of rebuilding them, so text selection, open
+     * details and the focused row survive. When old entries drop out at the top while you read further down, the rows
+     * you look at stay in place.
+     * **Live mode.** With `follow` the log stays at its latest entry while it is scrolled to the end. Scroll up and the
+     * position stays; a button counts the new entries below («23 new») and jumps back. `paused` freezes the rows shown
+     * while the app keeps delivering: the button then counts the waiting entries and resumes.
+     * **Keyboard.** One row is in the tab order: Arrow keys, Page Up/Down, Home and End move between rows, Enter opens
+     * the details of a row, Ctrl/Cmd+C copies it (without a text selection); Tab reaches the row's buttons. Screen
+     * readers hear summaries only: «New log entries: 23» (at most every 5 seconds while not following) and the number of
+     * matches after a filter change, never every row.
+     */
+    interface KernLog {
+        /**
+          * The entries, oldest first. Assign a new array for updates; `id` keeps each row.
+          * @default []
+         */
+        "entries": KernLogEntry[];
+        /**
+          * File name of the download.
+          * @default 'log.txt'
+         */
+        "fileName": string;
+        /**
+          * Follow new entries while scrolled to the end; scrolled up, the position stays.
+          * @default false
+         */
+        "follow": boolean;
+        /**
+          * The entries shown (after the filters), as text: one line per entry, details indented.
+         */
+        "getText": () => Promise<string>;
+        /**
+          * Accessible name of the list.
+         */
+        "label"?: string;
+        "labelAllLevels"?: string;
+        "labelAllSources"?: string;
+        /**
+          * Screen reader hint for new entries; `{n}` is replaced.
+         */
+        "labelAnnounce"?: string;
+        "labelCopied"?: string;
+        "labelCopy"?: string;
+        "labelCopyEntry"?: string;
+        /**
+          * Number of matches; `{n}` and `{total}` are replaced.
+         */
+        "labelCount"?: string;
+        "labelDebug"?: string;
+        "labelDetails"?: string;
+        "labelDownload"?: string;
+        "labelError"?: string;
+        "labelInfo"?: string;
+        "labelLatest"?: string;
+        "labelLevel"?: string;
+        /**
+          * Button text for new or waiting entries; `{n}` is replaced.
+         */
+        "labelNew"?: string;
+        "labelPause"?: string;
+        "labelReset"?: string;
+        "labelResume"?: string;
+        "labelSearch"?: string;
+        "labelSource"?: string;
+        "labelWarn"?: string;
+        /**
+          * Levels shown (`debug`, `info`, `warn`, `error`); empty shows all.
+          * @default []
+         */
+        "levels": string[];
+        /**
+          * At most this many entries are shown (the newest). Trim the app's array with the same limit.
+          * @default 1000
+         */
+        "maxEntries": number;
+        /**
+          * Scroll beyond this height, e.g. `320px`. Alternatively give the element a height.
+         */
+        "maxHeight"?: string;
+        /**
+          * Hide the search and the filters (pause, copy and download stay).
+          * @default false
+         */
+        "noFilters": boolean;
+        /**
+          * Freeze the rows shown; new entries wait and are counted. Set by the Pause button too.
+          * @default false
+         */
+        "paused": boolean;
+        /**
+          * Search text: case-insensitive, in message, source and details.
+          * @default ''
+         */
+        "query": string;
+        /**
+          * Scroll to the latest entry.
+         */
+        "scrollToEnd": () => Promise<void>;
+        /**
+          * Sources shown; empty shows all.
+          * @default []
+         */
+        "sources": string[];
+        /**
+          * Wrap long messages instead of scrolling sideways.
+          * @default false
+         */
+        "wrap": boolean;
+    }
+    /**
      * MAC address field, form-associated. Accepts every common notation (`C82B961A3F00`, `c8:2b:…`, `c8-2b-…`,
      * `c82b.961a.3f00`) and normalises on Enter or when leaving the field to `format` and `letter-case`; `value` and the
      * form value are the normalised form.
@@ -2625,6 +2742,10 @@ export interface KernListItemCustomEvent<T> extends CustomEvent<T> {
     detail: T;
     target: HTMLKernListItemElement;
 }
+export interface KernLogCustomEvent<T> extends CustomEvent<T> {
+    detail: T;
+    target: HTMLKernLogElement;
+}
 export interface KernMacInputCustomEvent<T> extends CustomEvent<T> {
     detail: T;
     target: HTMLKernMacInputElement;
@@ -3316,6 +3437,43 @@ declare global {
         prototype: HTMLKernListItemElement;
         new (): HTMLKernListItemElement;
     };
+    interface HTMLKernLogElementEventMap {
+        "kernFilter": KernLogFilter;
+        "kernPause": { paused: boolean };
+        "kernCopy": { value: string; count: number };
+        "kernDownload": { value: string; count: number; fileName: string };
+    }
+    /**
+     * Structured log viewer: time, level, source and message per entry, a search and level/source filters that combine,
+     * a live mode that follows new entries, pause, copy and download. Entries are always shown as text, never as HTML.
+     * **Data and buffer.** The app owns the data and its transport (WebSocket, SSE, polling) and assigns new arrays to
+     * `entries`, oldest first. The log shows at most the newest `max-entries` of them and never changes the app's array:
+     * trim it in the app with the same limit (`entries = [...entries, ...added].slice(-1000)`), so memory stays bounded.
+     * Rows are kept per `id`: an update moves, adds and removes rows instead of rebuilding them, so text selection, open
+     * details and the focused row survive. When old entries drop out at the top while you read further down, the rows
+     * you look at stay in place.
+     * **Live mode.** With `follow` the log stays at its latest entry while it is scrolled to the end. Scroll up and the
+     * position stays; a button counts the new entries below («23 new») and jumps back. `paused` freezes the rows shown
+     * while the app keeps delivering: the button then counts the waiting entries and resumes.
+     * **Keyboard.** One row is in the tab order: Arrow keys, Page Up/Down, Home and End move between rows, Enter opens
+     * the details of a row, Ctrl/Cmd+C copies it (without a text selection); Tab reaches the row's buttons. Screen
+     * readers hear summaries only: «New log entries: 23» (at most every 5 seconds while not following) and the number of
+     * matches after a filter change, never every row.
+     */
+    interface HTMLKernLogElement extends Components.KernLog, HTMLStencilElement {
+        addEventListener<K extends keyof HTMLKernLogElementEventMap>(type: K, listener: (this: HTMLKernLogElement, ev: KernLogCustomEvent<HTMLKernLogElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLKernLogElementEventMap>(type: K, listener: (this: HTMLKernLogElement, ev: KernLogCustomEvent<HTMLKernLogElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
+    }
+    var HTMLKernLogElement: {
+        prototype: HTMLKernLogElement;
+        new (): HTMLKernLogElement;
+    };
     interface HTMLKernMacInputElementEventMap {
         "kernInput": { value: string };
         "kernChange": { value: string };
@@ -3913,6 +4071,7 @@ declare global {
         "kern-link": HTMLKernLinkElement;
         "kern-list": HTMLKernListElement;
         "kern-list-item": HTMLKernListItemElement;
+        "kern-log": HTMLKernLogElement;
         "kern-mac-input": HTMLKernMacInputElement;
         "kern-menu": HTMLKernMenuElement;
         "kern-menu-item": HTMLKernMenuItemElement;
@@ -5388,6 +5547,129 @@ declare namespace LocalJSX {
          */
         "selected"?: boolean;
         "target"?: string;
+    }
+    /**
+     * Structured log viewer: time, level, source and message per entry, a search and level/source filters that combine,
+     * a live mode that follows new entries, pause, copy and download. Entries are always shown as text, never as HTML.
+     * **Data and buffer.** The app owns the data and its transport (WebSocket, SSE, polling) and assigns new arrays to
+     * `entries`, oldest first. The log shows at most the newest `max-entries` of them and never changes the app's array:
+     * trim it in the app with the same limit (`entries = [...entries, ...added].slice(-1000)`), so memory stays bounded.
+     * Rows are kept per `id`: an update moves, adds and removes rows instead of rebuilding them, so text selection, open
+     * details and the focused row survive. When old entries drop out at the top while you read further down, the rows
+     * you look at stay in place.
+     * **Live mode.** With `follow` the log stays at its latest entry while it is scrolled to the end. Scroll up and the
+     * position stays; a button counts the new entries below («23 new») and jumps back. `paused` freezes the rows shown
+     * while the app keeps delivering: the button then counts the waiting entries and resumes.
+     * **Keyboard.** One row is in the tab order: Arrow keys, Page Up/Down, Home and End move between rows, Enter opens
+     * the details of a row, Ctrl/Cmd+C copies it (without a text selection); Tab reaches the row's buttons. Screen
+     * readers hear summaries only: «New log entries: 23» (at most every 5 seconds while not following) and the number of
+     * matches after a filter change, never every row.
+     */
+    interface KernLog {
+        /**
+          * The entries, oldest first. Assign a new array for updates; `id` keeps each row.
+          * @default []
+         */
+        "entries"?: KernLogEntry[];
+        /**
+          * File name of the download.
+          * @default 'log.txt'
+         */
+        "fileName"?: string;
+        /**
+          * Follow new entries while scrolled to the end; scrolled up, the position stays.
+          * @default false
+         */
+        "follow"?: boolean;
+        /**
+          * Accessible name of the list.
+         */
+        "label"?: string;
+        "labelAllLevels"?: string;
+        "labelAllSources"?: string;
+        /**
+          * Screen reader hint for new entries; `{n}` is replaced.
+         */
+        "labelAnnounce"?: string;
+        "labelCopied"?: string;
+        "labelCopy"?: string;
+        "labelCopyEntry"?: string;
+        /**
+          * Number of matches; `{n}` and `{total}` are replaced.
+         */
+        "labelCount"?: string;
+        "labelDebug"?: string;
+        "labelDetails"?: string;
+        "labelDownload"?: string;
+        "labelError"?: string;
+        "labelInfo"?: string;
+        "labelLatest"?: string;
+        "labelLevel"?: string;
+        /**
+          * Button text for new or waiting entries; `{n}` is replaced.
+         */
+        "labelNew"?: string;
+        "labelPause"?: string;
+        "labelReset"?: string;
+        "labelResume"?: string;
+        "labelSearch"?: string;
+        "labelSource"?: string;
+        "labelWarn"?: string;
+        /**
+          * Levels shown (`debug`, `info`, `warn`, `error`); empty shows all.
+          * @default []
+         */
+        "levels"?: string[];
+        /**
+          * At most this many entries are shown (the newest). Trim the app's array with the same limit.
+          * @default 1000
+         */
+        "maxEntries"?: number;
+        /**
+          * Scroll beyond this height, e.g. `320px`. Alternatively give the element a height.
+         */
+        "maxHeight"?: string;
+        /**
+          * Hide the search and the filters (pause, copy and download stay).
+          * @default false
+         */
+        "noFilters"?: boolean;
+        /**
+          * After a successful copy of one entry or of all entries shown.
+         */
+        "onKernCopy"?: (event: KernLogCustomEvent<{ value: string; count: number }>) => void;
+        /**
+          * Before the download of the entries shown; cancel it to export the text yourself.
+         */
+        "onKernDownload"?: (event: KernLogCustomEvent<{ value: string; count: number; fileName: string }>) => void;
+        /**
+          * Search, levels or sources changed by the user.
+         */
+        "onKernFilter"?: (event: KernLogCustomEvent<KernLogFilter>) => void;
+        /**
+          * Paused or resumed by the user.
+         */
+        "onKernPause"?: (event: KernLogCustomEvent<{ paused: boolean }>) => void;
+        /**
+          * Freeze the rows shown; new entries wait and are counted. Set by the Pause button too.
+          * @default false
+         */
+        "paused"?: boolean;
+        /**
+          * Search text: case-insensitive, in message, source and details.
+          * @default ''
+         */
+        "query"?: string;
+        /**
+          * Sources shown; empty shows all.
+          * @default []
+         */
+        "sources"?: string[];
+        /**
+          * Wrap long messages instead of scrolling sideways.
+          * @default false
+         */
+        "wrap"?: boolean;
     }
     /**
      * MAC address field, form-associated. Accepts every common notation (`C82B961A3F00`, `c8:2b:…`, `c8-2b-…`,
@@ -6937,6 +7219,38 @@ declare namespace LocalJSX {
         "current": boolean;
         "disabled": boolean;
     }
+    interface KernLogAttributes {
+        "maxEntries": number;
+        "follow": boolean;
+        "paused": boolean;
+        "query": string;
+        "noFilters": boolean;
+        "wrap": boolean;
+        "maxHeight": string;
+        "fileName": string;
+        "label": string;
+        "labelSearch": string;
+        "labelLevel": string;
+        "labelAllLevels": string;
+        "labelSource": string;
+        "labelAllSources": string;
+        "labelDebug": string;
+        "labelInfo": string;
+        "labelWarn": string;
+        "labelError": string;
+        "labelPause": string;
+        "labelResume": string;
+        "labelCopy": string;
+        "labelCopyEntry": string;
+        "labelCopied": string;
+        "labelDownload": string;
+        "labelDetails": string;
+        "labelLatest": string;
+        "labelNew": string;
+        "labelAnnounce": string;
+        "labelCount": string;
+        "labelReset": string;
+    }
     interface KernMacInputAttributes {
         "label": string;
         "hint": string;
@@ -7278,6 +7592,7 @@ declare namespace LocalJSX {
         "kern-link": Omit<KernLink, keyof KernLinkAttributes> & { [K in keyof KernLink & keyof KernLinkAttributes]?: KernLink[K] } & { [K in keyof KernLink & keyof KernLinkAttributes as `attr:${K}`]?: KernLinkAttributes[K] } & { [K in keyof KernLink & keyof KernLinkAttributes as `prop:${K}`]?: KernLink[K] };
         "kern-list": Omit<KernList, keyof KernListAttributes> & { [K in keyof KernList & keyof KernListAttributes]?: KernList[K] } & { [K in keyof KernList & keyof KernListAttributes as `attr:${K}`]?: KernListAttributes[K] } & { [K in keyof KernList & keyof KernListAttributes as `prop:${K}`]?: KernList[K] };
         "kern-list-item": Omit<KernListItem, keyof KernListItemAttributes> & { [K in keyof KernListItem & keyof KernListItemAttributes]?: KernListItem[K] } & { [K in keyof KernListItem & keyof KernListItemAttributes as `attr:${K}`]?: KernListItemAttributes[K] } & { [K in keyof KernListItem & keyof KernListItemAttributes as `prop:${K}`]?: KernListItem[K] };
+        "kern-log": Omit<KernLog, keyof KernLogAttributes> & { [K in keyof KernLog & keyof KernLogAttributes]?: KernLog[K] } & { [K in keyof KernLog & keyof KernLogAttributes as `attr:${K}`]?: KernLogAttributes[K] } & { [K in keyof KernLog & keyof KernLogAttributes as `prop:${K}`]?: KernLog[K] };
         "kern-mac-input": Omit<KernMacInput, keyof KernMacInputAttributes> & { [K in keyof KernMacInput & keyof KernMacInputAttributes]?: KernMacInput[K] } & { [K in keyof KernMacInput & keyof KernMacInputAttributes as `attr:${K}`]?: KernMacInputAttributes[K] } & { [K in keyof KernMacInput & keyof KernMacInputAttributes as `prop:${K}`]?: KernMacInput[K] };
         "kern-menu": Omit<KernMenu, keyof KernMenuAttributes> & { [K in keyof KernMenu & keyof KernMenuAttributes]?: KernMenu[K] } & { [K in keyof KernMenu & keyof KernMenuAttributes as `attr:${K}`]?: KernMenuAttributes[K] } & { [K in keyof KernMenu & keyof KernMenuAttributes as `prop:${K}`]?: KernMenu[K] };
         "kern-menu-item": Omit<KernMenuItem, keyof KernMenuItemAttributes> & { [K in keyof KernMenuItem & keyof KernMenuItemAttributes]?: KernMenuItem[K] } & { [K in keyof KernMenuItem & keyof KernMenuItemAttributes as `attr:${K}`]?: KernMenuItemAttributes[K] } & { [K in keyof KernMenuItem & keyof KernMenuItemAttributes as `prop:${K}`]?: KernMenuItem[K] };
@@ -7538,6 +7853,24 @@ declare module "@stencil/core" {
              * `end` slot sit beside it, so clicking them never triggers the row.
              */
             "kern-list-item": LocalJSX.IntrinsicElements["kern-list-item"] & JSXBase.HTMLAttributes<HTMLKernListItemElement>;
+            /**
+             * Structured log viewer: time, level, source and message per entry, a search and level/source filters that combine,
+             * a live mode that follows new entries, pause, copy and download. Entries are always shown as text, never as HTML.
+             * **Data and buffer.** The app owns the data and its transport (WebSocket, SSE, polling) and assigns new arrays to
+             * `entries`, oldest first. The log shows at most the newest `max-entries` of them and never changes the app's array:
+             * trim it in the app with the same limit (`entries = [...entries, ...added].slice(-1000)`), so memory stays bounded.
+             * Rows are kept per `id`: an update moves, adds and removes rows instead of rebuilding them, so text selection, open
+             * details and the focused row survive. When old entries drop out at the top while you read further down, the rows
+             * you look at stay in place.
+             * **Live mode.** With `follow` the log stays at its latest entry while it is scrolled to the end. Scroll up and the
+             * position stays; a button counts the new entries below («23 new») and jumps back. `paused` freezes the rows shown
+             * while the app keeps delivering: the button then counts the waiting entries and resumes.
+             * **Keyboard.** One row is in the tab order: Arrow keys, Page Up/Down, Home and End move between rows, Enter opens
+             * the details of a row, Ctrl/Cmd+C copies it (without a text selection); Tab reaches the row's buttons. Screen
+             * readers hear summaries only: «New log entries: 23» (at most every 5 seconds while not following) and the number of
+             * matches after a filter change, never every row.
+             */
+            "kern-log": LocalJSX.IntrinsicElements["kern-log"] & JSXBase.HTMLAttributes<HTMLKernLogElement>;
             /**
              * MAC address field, form-associated. Accepts every common notation (`C82B961A3F00`, `c8:2b:…`, `c8-2b-…`,
              * `c82b.961a.3f00`) and normalises on Enter or when leaving the field to `format` and `letter-case`; `value` and the

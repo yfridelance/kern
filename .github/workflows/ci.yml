@@ -69,7 +69,7 @@ jobs:
               [ -f "$f" ] && sudo sed -i -E "s#https?://(azure\.)?archive\.ubuntu\.com/ubuntu/?#mirror+file:$list#g" "$f"
             done
           fi
-          grep -qs 'mirrors.edge.kernel.org' "$list" || echo 'http://mirrors.edge.kernel.org/ubuntu/' | sudo tee -a "$list" >/dev/null
+          grep -qs 'mirrors.edge.kernel.org' "$list" || printf 'http://mirrors.edge.kernel.org/ubuntu/\tpriority:4\n' | sudo tee -a "$list" >/dev/null
           echo "Mirror-Liste ($list):"; cat "$list"
           grep -rhs "mirror+file:$list" /etc/apt/sources.list /etc/apt/sources.list.d/ >/dev/null \
             || echo "::warning::Ubuntu-Quellen nutzen $list nicht – Mirror-Fallback nicht aktiv"

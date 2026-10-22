@@ -160,6 +160,7 @@ export class KernLog {
   pausedChanged(paused: boolean) {
     if (paused) {
       this.frozen = this.clip(this.entries).slice(); // a copy: the app may still change its old array
+      this.track(); // entries set in the same tick get their arrival order before the boundary
       this.pauseSeq = this.nextSeq;
     } else {
       this.frozen = undefined;
@@ -217,19 +218,28 @@ export class KernLog {
     });
   }
 
-  private compute() {
-    const live = this.clip(this.entries);
-    const liveKeys = this.keysOf(live);
+  /** Arrival order of the current entries: new keys get the next numbers, keys no longer there are dropped. */
+  private track(): string[] {
+    const keys = this.keysOf(this.clip(this.entries));
     if (this.seqFor !== this.entries) {
       const next = new Map<string, number>();
-      for (const key of liveKeys) next.set(key, this.seq.get(key) ?? ++this.nextSeq);
+      for (const key of keys) next.set(key, this.seq.get(key) ?? ++this.nextSeq);
       this.seq = next;
       this.seqFor = this.entries;
-      const names = [...new Set(live.map((e) => e?.source).filter((s): s is string => !!s))].sort((a, b) => a.localeCompare(b));
-      if (names.join('\n') !== this.sourceOptions.map((o) => o.value).join('\n')) this.sourceOptions = names.map((s) => ({ value: s, label: s }));
     }
-    const keep = logFilter(this.filter);
+    return keys;
+  }
+
+  private compute() {
+    const live = this.clip(this.entries);
+    const liveKeys = this.track();
     const shown = this.frozen ? this.clip(this.frozen) : live;
+    // Sources of the rows shown (also while paused), of the waiting ones, and the selected ones, so no chip disappears.
+    const names = new Set(this.filter.sources);
+    for (const list of this.frozen ? [shown, live] : [live]) for (const e of list) if (e?.source) names.add(e.source);
+    const sorted = [...names].sort((a, b) => a.localeCompare(b));
+    if (sorted.join('\n') !== this.sourceOptions.map((o) => o.value).join('\n')) this.sourceOptions = sorted.map((v) => ({ value: v, label: v }));
+    const keep = logFilter(this.filter);
     const shownKeys = this.frozen ? this.keysOf(shown) : liveKeys;
     this.view = [];
     this.keys = [];
@@ -326,6 +336,9 @@ export class KernLog {
     const li = row.li;
     const level = levelOf(entry);
     const details = detailsText(entry);
+    // Rebuilding removes a focused button: remember it and focus its successor (or the row) afterwards.
+    const focused = this.el.shadowRoot?.activeElement as HTMLElement | null | undefined;
+    const refocus = focused && li.contains(focused) ? (['toggle', 'copy'].find((c) => focused.classList?.contains(c)) ?? '') : undefined;
     li.className = `entry ${level}`;
     li.dataset.key = key;
     li.tabIndex = -1;
@@ -367,6 +380,7 @@ export class KernLog {
     copy.setAttribute('aria-label', this.t('labelCopyEntry'));
     copy.title = this.t('labelCopyEntry');
     if (details && open) add('pre', 'details', details);
+    if (refocus !== undefined) ((refocus && li.querySelector<HTMLElement>(`.${refocus}`)) || li).focus({ preventScroll: true });
     row.entry = entry;
     row.query = this.query;
     row.open = open;
@@ -412,11 +426,8 @@ export class KernLog {
     else this.open.add(key);
     const row = this.rows.get(key);
     if (row) {
-      const focused = this.el.shadowRoot?.activeElement;
-      const onToggle = focused?.classList?.contains('toggle') && row.li.contains(focused);
       this.fill(row, key, row.entry, this.open.has(key));
       this.rove();
-      if (onToggle) row.li.querySelector<HTMLElement>('.toggle')?.focus();
     }
   }
 

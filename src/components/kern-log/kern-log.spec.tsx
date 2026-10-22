@@ -1,3 +1,4 @@
+import { h } from '@stencil/core';
 import { newSpecPage } from '@stencil/core/testing';
 import { KernLog } from './kern-log';
 import type { KernLogEntry } from './log';
@@ -147,5 +148,49 @@ describe('kern-log', () => {
     await page.waitForChanges();
     expect(rows()[0].querySelector('.copy')!.getAttribute('aria-label')).toBe('Eintrag kopieren');
     setKernLocale();
+  });
+
+  it('counts nothing as waiting when entries and pause come together', async () => {
+    const page = await newSpecPage({ components: [KernLog], template: () => <kern-log paused follow entries={entries(2)}></kern-log> });
+    const root = page.root!.shadowRoot!;
+    expect(root.querySelectorAll('li.entry').length).toBe(2);
+    expect(root.querySelector('.latest')!.textContent).not.toContain('new');
+
+    const { page: p2, log, rows } = await setup('<kern-log follow></kern-log>');
+    log.entries = entries(2);
+    log.paused = true;
+    await p2.waitForChanges();
+    expect(rows().length).toBe(2);
+    expect(p2.root!.shadowRoot!.querySelector('.latest')!.textContent).not.toContain('new');
+    log.entries = [...entries(2), ...entries(1, 3)];
+    await p2.waitForChanges();
+    expect(p2.root!.shadowRoot!.querySelector('.latest')!.textContent).toContain('1 new');
+  });
+
+  it('keeps the sources of the paused rows and the selected ones as options', async () => {
+    const { page, log } = await setup('<kern-log max-entries="2"></kern-log>');
+    const root = page.root!.shadowRoot!;
+    log.entries = [
+      { id: 1, time: 0, level: 'info', source: 'mqtt', message: 'a' },
+      { id: 2, time: 0, level: 'info', source: 'mqtt', message: 'b' },
+    ];
+    log.sources = ['mqtt'];
+    await page.waitForChanges();
+    log.paused = true;
+    log.entries = [
+      { id: 3, time: 0, level: 'info', message: 'c' },
+      { id: 4, time: 0, level: 'info', message: 'd' },
+    ];
+    await page.waitForChanges();
+    const options = () => ((root.querySelector('kern-select.sources') as unknown as { options: { value: string }[] }).options ?? []).map((o) => o.value);
+    expect(options()).toEqual(['mqtt']);
+    expect(root.querySelector('ol')!.classList.contains('sources')).toBe(true);
+    // Resumed, nothing has a source any more, but the selected one stays choosable (and removable).
+    log.paused = false;
+    await page.waitForChanges();
+    expect(options()).toEqual(['mqtt']);
+    log.sources = [];
+    await page.waitForChanges();
+    expect(root.querySelector('kern-select.sources')).toBeNull();
   });
 });

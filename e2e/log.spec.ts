@@ -142,3 +142,24 @@ test('Tastatur und Text: Pfeile und Enter öffnen Details, HTML bleibt Text', as
   await expect(row.locator('.toggle')).toHaveAttribute('aria-expanded', 'true');
   expect(await page.evaluate(() => (window as unknown as { pwned?: number }).pwned)).toBeUndefined();
 });
+
+test('Fokus bleibt auf dem Knopf einer Zeile, wenn neue Objekte mit gleicher id kommen', async ({ page }) => {
+  const log = page.locator('#log');
+  await add(page, 6);
+  await expect(log.locator('li.entry')).toHaveCount(6);
+  const row = log.locator('li.entry').nth(4); // id 5 has details
+  await row.focus();
+  await page.keyboard.press('Tab');
+  await expect(row.locator('.toggle')).toBeFocused();
+  const replace = () => log.evaluate((el: HTMLElement & { entries: object[] }) => (el.entries = el.entries.map((e) => ({ ...e }))));
+  await replace();
+  await expect(row.locator('.toggle')).toBeFocused();
+  await page.keyboard.press('Tab');
+  await expect(row.locator('.copy')).toBeFocused();
+  await replace();
+  await expect(row.locator('.copy')).toBeFocused();
+  await row.focus();
+  await replace();
+  await expect(row).toBeFocused();
+});
+

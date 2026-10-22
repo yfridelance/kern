@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="de-CH" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>e2e: Kopfzeilen auf schmalen Bildschirmen</title>
+  <link rel="stylesheet" href="kern/kern.css">
+  <script type="module" src="kern/kern.esm.js"></script>
+  <style>body { margin: 0; padding: 16px; display: grid; gap: 16px; }</style>
+</head>
+<body>
+  <kern-page-header heading="Gerätekonfigurationsübersicht" description="Alle Geräte im Netzwerk">
+    <kern-status tone="ok">Online</kern-status>
+    <kern-button slot="actions">Exportieren</kern-button>
+    <kern-button slot="actions" variant="primary">Gerät hinzufügen</kern-button>
+  </kern-page-header>
+
+  <kern-card id="card" heading="Firmware update on 12 devices">
+    <kern-status slot="meta" tone="warn">Finished with errors</kern-status>
+    <kern-button slot="actions" size="sm" variant="ghost">Log</kern-button>
+    <kern-button slot="actions" size="sm">Retry failed</kern-button>
+    <p>10 aktualisiert, 2 fehlgeschlagen.</p>
+  </kern-card>
+
+  <kern-card id="card-long" heading="Netzwerkkonfigurationsaktualisierungsprotokoll">
+    <kern-button slot="actions" size="sm">Öffnen</kern-button>
+    <p>Langes Wort im Titel.</p>
+  </kern-card>
+
+  <kern-dialog id="dialog" heading="Netzwerkkonfigurationsaktualisierungsprotokoll">
+    <p>Inhalt</p>
+    <kern-button slot="footer">Abbrechen</kern-button>
+    <kern-button slot="footer" variant="primary">Speichern und schliessen</kern-button>
+  </kern-dialog>
+
+  <kern-drawer id="drawer" heading="Netzwerkkonfigurationsaktualisierungsprotokoll">
+    <p>Inhalt</p>
+    <kern-button slot="footer">Abbrechen</kern-button>
+    <kern-button slot="footer" variant="primary">Speichern und schliessen</kern-button>
+  </kern-drawer>
+</body>
+</html>

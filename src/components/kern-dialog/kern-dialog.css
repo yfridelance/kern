@@ -10,10 +10,10 @@ dialog {
 dialog::backdrop { background: var(--scrim); }
 
 header { display: flex; align-items: flex-start; gap: var(--space-3); padding: var(--space-4) var(--space-5) 0; }
-h2 { margin: 0; font-size: 16px; line-height: 22px; font-weight: 600; }
+h2 { min-width: 0; overflow-wrap: anywhere; margin: 0; font-size: 16px; line-height: 22px; font-weight: 600; }
 header kern-button { margin: -4px -8px 0 auto; }
 header kern-button svg { width: 16px; height: 16px; }
 .body { display: grid; gap: var(--space-4); padding: var(--space-4) var(--space-5); }
 ::slotted(p) { margin: 0; }
-footer { display: flex; justify-content: flex-end; gap: var(--space-2); padding: var(--space-3) var(--space-5) var(--space-4); }
+footer { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: var(--space-2); padding: var(--space-3) var(--space-5) var(--space-4); }
 footer[hidden] { display: none; }

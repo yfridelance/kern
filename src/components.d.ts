@@ -355,7 +355,7 @@ export namespace Components {
     }
     /**
      * Code and commands: a block with copy button, optional heading (file name), line numbers, wrapping and a maximum
-     * height, highlighted for shell, yaml, json, js/ts, ini and html; or `inline` in running text. The code comes from `code`
+     * height, highlighted for shell, PowerShell, yaml, json, js/ts, ini, html, Ruby and Go; or `inline` in running text. The code comes from `code`
      * or the text content; common indentation is removed, so it can be written indented in HTML.
      * With `follow` and `max-height` it suits live logs: appended lines scroll into view while the block is scrolled to the
      * end; scroll up and the position stays, with a button to jump back to the latest line.
@@ -383,6 +383,7 @@ export namespace Components {
         "labelCopy"?: string;
         "labelLatest"?: string;
         /**
+          * Highlighting: `shell`, `powershell` (`ps1`, `pwsh`), `yaml`, `json`, `js`, `ts`, `ini`, `html`, `ruby` (`rb`), `go` (`golang`) or `text`.
           * @default 'text'
          */
         "language": KernCodeLanguage;
@@ -2845,7 +2846,7 @@ declare global {
     }
     /**
      * Code and commands: a block with copy button, optional heading (file name), line numbers, wrapping and a maximum
-     * height, highlighted for shell, yaml, json, js/ts, ini and html; or `inline` in running text. The code comes from `code`
+     * height, highlighted for shell, PowerShell, yaml, json, js/ts, ini, html, Ruby and Go; or `inline` in running text. The code comes from `code`
      * or the text content; common indentation is removed, so it can be written indented in HTML.
      * With `follow` and `max-height` it suits live logs: appended lines scroll into view while the block is scrolled to the
      * end; scroll up and the position stays, with a button to jump back to the latest line.
@@ -4247,7 +4248,7 @@ declare namespace LocalJSX {
     }
     /**
      * Code and commands: a block with copy button, optional heading (file name), line numbers, wrapping and a maximum
-     * height, highlighted for shell, yaml, json, js/ts, ini and html; or `inline` in running text. The code comes from `code`
+     * height, highlighted for shell, PowerShell, yaml, json, js/ts, ini, html, Ruby and Go; or `inline` in running text. The code comes from `code`
      * or the text content; common indentation is removed, so it can be written indented in HTML.
      * With `follow` and `max-height` it suits live logs: appended lines scroll into view while the block is scrolled to the
      * end; scroll up and the position stays, with a button to jump back to the latest line.
@@ -4275,6 +4276,7 @@ declare namespace LocalJSX {
         "labelCopy"?: string;
         "labelLatest"?: string;
         /**
+          * Highlighting: `shell`, `powershell` (`ps1`, `pwsh`), `yaml`, `json`, `js`, `ts`, `ini`, `html`, `ruby` (`rb`), `go` (`golang`) or `text`.
           * @default 'text'
          */
         "language"?: KernCodeLanguage;
@@ -7275,7 +7277,7 @@ declare module "@stencil/core" {
             "kern-chip": LocalJSX.IntrinsicElements["kern-chip"] & JSXBase.HTMLAttributes<HTMLKernChipElement>;
             /**
              * Code and commands: a block with copy button, optional heading (file name), line numbers, wrapping and a maximum
-             * height, highlighted for shell, yaml, json, js/ts, ini and html; or `inline` in running text. The code comes from `code`
+             * height, highlighted for shell, PowerShell, yaml, json, js/ts, ini, html, Ruby and Go; or `inline` in running text. The code comes from `code`
              * or the text content; common indentation is removed, so it can be written indented in HTML.
              * With `follow` and `max-height` it suits live logs: appended lines scroll into view while the block is scrolled to the
              * end; scroll up and the position stays, with a button to jump back to the latest line.

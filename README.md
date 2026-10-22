@@ -206,8 +206,8 @@ zusätzlich Standalone-Wrapper mit `ControlValueAccessor` für `ngModel` und Rea
 - **Tooltips:** `kern-tooltip text="…"` um den Auslöser oder mit `for="id"`; erscheint nach `delay` (400 ms) bei
   Hover und sofort bei Tastaturfokus, Escape schliesst. Nur Ergänzungen (Touch sieht sie nie); bei Icon-Buttons
   bleibt `label` der Name.
-- **Code:** `kern-code` für Befehle und Konfiguration mit Kopieren-Button, `language="shell|yaml|json|js|ts|ini"`
-  (Hervorhebung ohne Abhängigkeit, Farben aus den Tokens), `heading`, `line-numbers`, `wrap`, `max-height`; Inhalt aus
+- **Code:** `kern-code` für Befehle und Konfiguration mit Kopieren-Button, `language="shell|powershell|yaml|json|js|ts|ini|html|ruby|go"`
+  (Aliase `ps1`, `pwsh`, `rb`, `golang`; Hervorhebung ohne Abhängigkeit, Farben aus den Tokens), `heading`, `line-numbers`, `wrap`, `max-height`; Inhalt aus
   `code` oder dem Text (Einrückung wird entfernt). `inline` für Pfade und Befehle im Fliesstext. JSON-Daten als Baum:
   `kern-json`. Angular fasst Leerraum in Templates zusammen: dort `[code]="…"` binden oder `ngPreserveWhitespaces`
   setzen.

@@ -1,6 +1,7 @@
 import { Component, Element, Event, EventEmitter, Host, Method, Prop, State, Watch, h } from '@stencil/core';
 import { Icon } from '../../utils/icons';
 import { kernTexts } from '../../utils/i18n';
+import { focusAutofocus } from '../../utils/autofocus';
 
 /**
  * Modal dialog for confirmations and short forms, on the native `<dialog>`.
@@ -29,6 +30,11 @@ export class KernDialog {
   /** Panel width in px. */
   @Prop() width = 520;
 
+  /**
+   * After the dialog opened (`show()` or `open`). The focus moves to the first Kern field with `autofocus` once it is
+   * ready, otherwise it stays on the first focusable element (the close button); without `autofocus` the app can set it here.
+   */
+  @Event() kernOpen!: EventEmitter<void>;
   /** After the dialog closed (Escape, close button or `close()`); `detail.returnValue` as given to `close()`. */
   @Event() kernClose!: EventEmitter<{ returnValue: string }>;
 
@@ -52,6 +58,8 @@ export class KernDialog {
     if (this.open && !d.open) {
       this.returnValue = '';
       d.showModal();
+      this.kernOpen.emit();
+      focusAutofocus(this.el, () => !!this.dialog?.open);
     }
     if (!this.open && d.open) d.close(this.returnValue);
   }

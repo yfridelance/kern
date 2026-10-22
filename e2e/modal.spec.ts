@@ -58,6 +58,32 @@ for (const { name, opener, host } of [
   });
 }
 
+test.describe('Anfangsfokus', () => {
+  for (const { name, opener, host, field } of [
+    { name: 'kern-drawer', opener: '#open-drawer-form', host: '#drawer-form', field: 'IP' },
+    { name: 'kern-dialog', opener: '#open-dialog-form', host: '#dialog-form', field: 'Neuer Name' },
+  ]) {
+    test(`${name}: autofocus an einem Kern-Feld fokussiert das innere Input, kernOpen kommt, Fokus kehrt zurück`, async ({ page }) => {
+      const modal = page.locator(host);
+      await openWith(page, opener);
+      await expect(modal.locator('dialog')).toBeVisible();
+      await expect(modal.getByRole('textbox', { name: field })).toBeFocused();
+      expect(await page.evaluate(() => (window as unknown as { opened: string[] }).opened)).toEqual([host.slice(1)]);
+
+      await page.keyboard.press('Escape');
+      await expect(modal.locator('dialog')).toBeHidden();
+      await expect.poll(() => focusInside(page.locator(opener))).toBe(true);
+    });
+  }
+
+  test('ohne autofocus bleibt der Fokus wie bisher auf dem Schliessen-Knopf', async ({ page }) => {
+    const modal = page.locator('#drawer');
+    await openWith(page, '#open-drawer');
+    await expect(modal.locator('dialog')).toBeVisible();
+    await expectFocusInside(modal.getByRole('button', { name: 'Schliessen' }));
+  });
+});
+
 test.describe('Popover im modalen kern-dialog', () => {
   test.beforeEach(async ({ page }) => {
     await openWith(page, '#open-dialog');

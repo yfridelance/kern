@@ -2970,6 +2970,7 @@ declare global {
         new (): HTMLKernDateRangePickerElement;
     };
     interface HTMLKernDialogElementEventMap {
+        "kernOpen": void;
         "kernClose": { returnValue: string };
     }
     /**
@@ -2992,6 +2993,7 @@ declare global {
         new (): HTMLKernDialogElement;
     };
     interface HTMLKernDrawerElementEventMap {
+        "kernOpen": void;
         "kernClose": { returnValue: string };
     }
     /**
@@ -4645,6 +4647,10 @@ declare namespace LocalJSX {
          */
         "onKernClose"?: (event: KernDialogCustomEvent<{ returnValue: string }>) => void;
         /**
+          * After the dialog opened (`show()` or `open`). The focus moves to the first Kern field with `autofocus` once it is ready, otherwise it stays on the first focusable element (the close button); without `autofocus` the app can set it here.
+         */
+        "onKernOpen"?: (event: KernDialogCustomEvent<void>) => void;
+        /**
           * @default false
          */
         "open"?: boolean;
@@ -4674,6 +4680,10 @@ declare namespace LocalJSX {
           * After the panel closed; `detail.returnValue` as given to `close()` (`cancel` for Escape/backdrop/close button).
          */
         "onKernClose"?: (event: KernDrawerCustomEvent<{ returnValue: string }>) => void;
+        /**
+          * After the panel opened (`show()` or `open`). The focus moves to the first Kern field with `autofocus` once it is ready, otherwise it stays on the first focusable element (the close button); without `autofocus` the app can set it here.
+         */
+        "onKernOpen"?: (event: KernDrawerCustomEvent<void>) => void;
         /**
           * @default false
          */

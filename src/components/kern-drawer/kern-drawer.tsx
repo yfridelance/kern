@@ -1,6 +1,7 @@
 import { Component, Element, Event, EventEmitter, Host, Method, Prop, State, Watch, h } from '@stencil/core';
 import { Icon } from '../../utils/icons';
 import { kernTexts } from '../../utils/i18n';
+import { focusAutofocus } from '../../utils/autofocus';
 
 /**
  * Side panel over the page for details, filters and longer forms, on the native modal `<dialog>` (focus stays inside
@@ -31,6 +32,11 @@ export class KernDrawer {
   @Prop() closeLabel?: string;
   private t = kernTexts(this, 'kern-drawer');
 
+  /**
+   * After the panel opened (`show()` or `open`). The focus moves to the first Kern field with `autofocus` once it is
+   * ready, otherwise it stays on the first focusable element (the close button); without `autofocus` the app can set it here.
+   */
+  @Event() kernOpen!: EventEmitter<void>;
   /** After the panel closed; `detail.returnValue` as given to `close()` (`cancel` for Escape/backdrop/close button). */
   @Event() kernClose!: EventEmitter<{ returnValue: string }>;
 
@@ -54,6 +60,8 @@ export class KernDrawer {
     if (this.open && !d.open) {
       this.returnValue = '';
       d.showModal?.();
+      this.kernOpen.emit();
+      focusAutofocus(this.el, () => !!this.dialog?.open);
     }
     if (!this.open && d.open) d.close(this.returnValue);
   }

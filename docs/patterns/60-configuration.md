@@ -25,7 +25,7 @@ Open a device with «Edit». Try an empty name, a mask like `255.0.255.0`, an IP
 <kern-drawer class="cf-drawer" heading="Edit device" width="440">
   <form id="cf-device-form" class="cf-form" novalidate style="display:grid;gap:var(--space-4)">
     <kern-alert tone="danger" class="cf-error" hidden heading="Not saved" data-t="heading:notSaved"><span class="cf-error-text"></span></kern-alert>
-    <kern-input name="name" label="Name" required maxlength="40" autocomplete="off" data-t="label:name"></kern-input>
+    <kern-input name="name" label="Name" required maxlength="40" autocomplete="off" autofocus data-t="label:name"></kern-input>
     <kern-ip-input name="ip" label="IP address" allow="single" required data-t="label:ip"></kern-ip-input>
     <kern-ip-input name="mask" label="Subnet mask" allow="mask" required data-t="label:mask"></kern-ip-input>
     <kern-ip-input name="gateway" label="Gateway" allow="single" hint="Optional, in the same network" data-t="label:gateway hint:gatewayHint"></kern-ip-input>
@@ -102,7 +102,7 @@ function updateItem(item, d) {
   return item;
 }
 
-// ---------- open: fill the form, focus the first field ----------
+// ---------- open: fill the form; `autofocus` puts the focus on the name ----------
 let editing = null;
 list.addEventListener('click', async (e) => {
   const button = e.target.closest('kern-button[data-id]');
@@ -119,8 +119,6 @@ list.addEventListener('click', async (e) => {
   field('cloud').checked = editing.cloud;
   drawer.heading = t().editDevice(editing.name);
   await drawer.show();
-  // The panel focuses its close button first; the form starts at the first field. Workaround until #154.
-  requestAnimationFrame(() => field('name').setFocus());
 });
 
 // ---------- validation: native constraints, then the app's rules as field errors ----------
@@ -251,7 +249,7 @@ On success the app closes the panel with `close('saved')` and shows the toast in
 
 ## Focus and keyboard
 
-- **Opening:** `kern-drawer` is a native modal dialog, so the focus stays inside it. It first lands on the close button in the header; the app moves it to the first field with `setFocus()` once the panel is open. `autofocus` on a Kern field does not work yet (#154).
+- **Opening:** `kern-drawer` is a native modal dialog, so the focus stays inside it. The name field has `autofocus`, so the panel starts there instead of on the close button in the header. Without `autofocus`, the app can set the focus itself in `kernOpen`.
 - **Closing:** Escape, the close button, «Cancel» and «Save» all close the panel, and the dialog returns the focus to the element that had it before, the «Edit» button. So the app updates the saved row in place instead of rebuilding the list: a new button would not get the focus back.
 - **Enter** in a text field saves the form. Kern fields keep their input in the shadow DOM, where the browser's implicit submission does not reach the form, so the example calls `requestSubmit()` itself (until #155).
 - **Buttons in the footer** stand outside the `<form>` (they are in the panel's `footer` slot). Like a native button, `kern-button type="submit"` takes the form's id in `form`, so «Save» still submits it.

@@ -267,6 +267,9 @@ npx playwright show-report           # HTML-Bericht des letzten Laufs
 - WebKit ist der WebKit-Build von Playwright, kein Test auf Safari oder einem Apple-Gerät.
 - Bei Fehlern bleiben Trace und Screenshot in `test-results/` (`npx playwright show-trace <trace.zip>`). Der Job
   `e2e` in `ci.yml` lädt Bericht und Traces dann als Artefakt `playwright-report` hoch.
+- In der CI läuft der Job `e2e` im offiziellen Image `mcr.microsoft.com/playwright:v<Version>-noble` (Version aus
+  `package.json`). Browser und Systempakete sind dort vorinstalliert, es gibt keinen apt-Download pro Lauf. Lokal
+  dasselbe: `docker run --rm -it -v "$PWD":/work -w /work --ipc=host mcr.microsoft.com/playwright:v<Version>-noble`.
 - Keine festen Wartezeiten: Assertions wie `toBeVisible()` oder `toBeFocused()` warten selbst.
 - Findet ein Test einen echten Fehler, wird dieser als Bug-Issue gemeldet und der Test bis zum Fix mit
   `test.fixme` und Verweis aufs Issue markiert.

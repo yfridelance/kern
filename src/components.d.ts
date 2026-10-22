@@ -2093,7 +2093,8 @@ export namespace Components {
      * Rows: `class="clickable"`, `aria-selected="true"`, `class="dim"` (reset/inactive).
      * Empty state: `<td colspan="…" class="empty">`.
      * Data mode: with `columns` (and `rows`) the table builds its own `<table>`; don't combine it with own markup.
-     * Assign new arrays to update it.
+     * Assign new arrays to update it. Rows are kept per key (see `rowKey`): new `rows` move and update the existing `<tr>`,
+     * so focus, text selection and open details stay; only cells whose class or content changed are touched.
      * Pagination: `page-size` adds a `kern-pagination` below the rows. `internal` pages the rows itself (back to page 1
      * after sorting); `external` shows the rows it gets and the app loads a page on `kernPageChange` (bubbles from the
      * embedded pagination) and sets `total`. Labels: set them on `table.querySelector('kern-pagination')`.
@@ -2122,7 +2123,7 @@ export namespace Components {
          */
         "controlled": 'internal' | 'external';
         /**
-          * Data mode: content of a row's detail row; adds a first column with a toggle. Called when the row is first opened.
+          * Data mode: content of a row's detail row; adds a first column with a toggle. Called when the row is first opened; the content stays while the row is shown (new `rows` don't rebuild it), so update it yourself for live data.
          */
         "detail"?: (row: any, index: number) => Node | string;
         /**
@@ -2183,7 +2184,7 @@ export namespace Components {
          */
         "pageSizes": number[] | string;
         /**
-          * Data mode: key of a row for `selected` and `expanded`. Default: `row.id`, else a key per row object (kept through sorting, filtering and reordering, but new for reloaded objects; use `rowKey` or `id` for server data). Rows that are no objects use their index in `rows`.
+          * Data mode: key of a row for `selected`, `expanded` and keeping its `<tr>` through updates. Default: `row.id`, else a key per row object (kept through sorting, filtering and reordering, but new for reloaded objects; use `rowKey` or `id` for server data). Rows that are no objects use their index in `rows`.
          */
         "rowKey"?: (row: any, index: number) => string | number;
         /**
@@ -3648,7 +3649,8 @@ declare global {
      * Rows: `class="clickable"`, `aria-selected="true"`, `class="dim"` (reset/inactive).
      * Empty state: `<td colspan="…" class="empty">`.
      * Data mode: with `columns` (and `rows`) the table builds its own `<table>`; don't combine it with own markup.
-     * Assign new arrays to update it.
+     * Assign new arrays to update it. Rows are kept per key (see `rowKey`): new `rows` move and update the existing `<tr>`,
+     * so focus, text selection and open details stay; only cells whose class or content changed are touched.
      * Pagination: `page-size` adds a `kern-pagination` below the rows. `internal` pages the rows itself (back to page 1
      * after sorting); `external` shows the rows it gets and the app loads a page on `kernPageChange` (bubbles from the
      * embedded pagination) and sets `total`. Labels: set them on `table.querySelector('kern-pagination')`.
@@ -6053,7 +6055,8 @@ declare namespace LocalJSX {
      * Rows: `class="clickable"`, `aria-selected="true"`, `class="dim"` (reset/inactive).
      * Empty state: `<td colspan="…" class="empty">`.
      * Data mode: with `columns` (and `rows`) the table builds its own `<table>`; don't combine it with own markup.
-     * Assign new arrays to update it.
+     * Assign new arrays to update it. Rows are kept per key (see `rowKey`): new `rows` move and update the existing `<tr>`,
+     * so focus, text selection and open details stay; only cells whose class or content changed are touched.
      * Pagination: `page-size` adds a `kern-pagination` below the rows. `internal` pages the rows itself (back to page 1
      * after sorting); `external` shows the rows it gets and the app loads a page on `kernPageChange` (bubbles from the
      * embedded pagination) and sets `total`. Labels: set them on `table.querySelector('kern-pagination')`.
@@ -6082,7 +6085,7 @@ declare namespace LocalJSX {
          */
         "controlled"?: 'internal' | 'external';
         /**
-          * Data mode: content of a row's detail row; adds a first column with a toggle. Called when the row is first opened.
+          * Data mode: content of a row's detail row; adds a first column with a toggle. Called when the row is first opened; the content stays while the row is shown (new `rows` don't rebuild it), so update it yourself for live data.
          */
         "detail"?: (row: any, index: number) => Node | string;
         /**
@@ -6159,7 +6162,7 @@ declare namespace LocalJSX {
          */
         "pageSizes"?: number[] | string;
         /**
-          * Data mode: key of a row for `selected` and `expanded`. Default: `row.id`, else a key per row object (kept through sorting, filtering and reordering, but new for reloaded objects; use `rowKey` or `id` for server data). Rows that are no objects use their index in `rows`.
+          * Data mode: key of a row for `selected`, `expanded` and keeping its `<tr>` through updates. Default: `row.id`, else a key per row object (kept through sorting, filtering and reordering, but new for reloaded objects; use `rowKey` or `id` for server data). Rows that are no objects use their index in `rows`.
          */
         "rowKey"?: (row: any, index: number) => string | number;
         /**
@@ -7558,7 +7561,8 @@ declare module "@stencil/core" {
              * Rows: `class="clickable"`, `aria-selected="true"`, `class="dim"` (reset/inactive).
              * Empty state: `<td colspan="…" class="empty">`.
              * Data mode: with `columns` (and `rows`) the table builds its own `<table>`; don't combine it with own markup.
-             * Assign new arrays to update it.
+             * Assign new arrays to update it. Rows are kept per key (see `rowKey`): new `rows` move and update the existing `<tr>`,
+             * so focus, text selection and open details stay; only cells whose class or content changed are touched.
              * Pagination: `page-size` adds a `kern-pagination` below the rows. `internal` pages the rows itself (back to page 1
              * after sorting); `external` shows the rows it gets and the app loads a page on `kernPageChange` (bubbles from the
              * embedded pagination) and sets `total`. Labels: set them on `table.querySelector('kern-pagination')`.

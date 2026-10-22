@@ -13,8 +13,12 @@ export interface KernTableColumn<T = any> {
   mono?: boolean;
   /** CSS width of the column. */
   width?: string;
-  /** Cell content: a Node (e.g. a `kern-signal`) or text. Default: `row[key]`, `–` when empty. */
-  cell?: (row: T, index: number) => Node | string;
+  /**
+   * Cell content: a Node (e.g. a `kern-signal`) or text. Default: `row[key]`, `–` when empty. Called on every update;
+   * `current` is the Node this cell of the row shows, if any: change it and return it to keep it (focus, state),
+   * a different Node replaces it, the same text changes nothing.
+   */
+  cell?: (row: T, index: number, current?: Node) => Node | string;
   /** Value to sort by. Default: `row[key]`. */
   sortValue?: (row: T) => string | number | null | undefined;
 }

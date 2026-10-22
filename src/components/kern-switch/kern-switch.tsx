@@ -1,4 +1,5 @@
-import { AttachInternals, Component, Event, EventEmitter, Host, Prop, Watch, h } from '@stencil/core';
+import { AttachInternals, Component, Event, EventEmitter, Host, Prop, State, Watch, h } from '@stencil/core';
+import { fieldDisabled } from '../../utils/form-disabled';
 
 /**
  * On/off switch for settings (Cloud, Bluetooth, MQTT), form-associated.
@@ -18,6 +19,8 @@ export class KernSwitch {
 
   @Prop({ mutable: true, reflect: true }) checked = false;
   @Prop({ reflect: true }) disabled = false;
+  /** Set by a disabled fieldset or form; `disabled` stays the author's own. */
+  @State() formDisabled = false;
   @Prop() name?: string;
   /** Form value when checked. */
   @Prop() value = 'on';
@@ -46,7 +49,7 @@ export class KernSwitch {
   }
 
   formDisabledCallback(disabled: boolean) {
-    this.disabled = disabled;
+    this.formDisabled = disabled;
   }
 
   private onChange = (ev: Event) => {
@@ -58,7 +61,7 @@ export class KernSwitch {
     return (
       <Host>
         <label class="root">
-          <input type="checkbox" role="switch" checked={this.checked} disabled={this.disabled} aria-label={this.label} onChange={this.onChange} />
+          <input type="checkbox" role="switch" checked={this.checked} disabled={fieldDisabled(this)} aria-label={this.label} onChange={this.onChange} />
           <span class="track" part="track" aria-hidden="true">
             <span class="thumb" />
           </span>

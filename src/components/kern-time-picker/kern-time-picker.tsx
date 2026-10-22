@@ -1,4 +1,5 @@
 import { AttachInternals, Component, Element, Event, EventEmitter, Host, Method, Prop, State, Watch, h } from '@stencil/core';
+import { fieldDisabled } from '../../utils/form-disabled';
 import { Icon } from '../../utils/icons';
 import { positionPopup } from '../../utils/popover';
 import { dayPeriods, isoTime, parseTime, resolveLocale, timeSteps, uses12h } from '../../utils/datetime';
@@ -51,6 +52,8 @@ export class KernTimePicker {
   @Prop() locale?: string;
   @Prop({ reflect: true }) size: 'md' | 'sm' = 'md';
   @Prop({ reflect: true }) disabled = false;
+  /** Set by a disabled fieldset or form; `disabled` stays the author's own. */
+  @State() formDisabled = false;
   @Prop() readonly = false;
   @Prop() required = false;
   /** Accessible name when there is no visible label. */
@@ -141,7 +144,7 @@ export class KernTimePicker {
   }
 
   formDisabledCallback(disabled: boolean) {
-    this.disabled = disabled;
+    this.formDisabled = disabled;
   }
 
   @Method()
@@ -251,7 +254,7 @@ export class KernTimePicker {
   }
 
   private onSegKey = (seg: Segment) => (ev: KeyboardEvent) => {
-    if (this.disabled || this.readonly) return;
+    if (fieldDisabled(this) || this.readonly) return;
     const k = ev.key;
     if (k === 'ArrowUp' || k === 'ArrowDown') {
       ev.preventDefault();
@@ -292,7 +295,7 @@ export class KernTimePicker {
   }
 
   private openList() {
-    if (!this.list || this.disabled || this.readonly || this.open || !this.popup) return;
+    if (!this.list || fieldDisabled(this) || this.readonly || this.open || !this.popup) return;
     const opts = this.options;
     const s = this.secs;
     // The selected time, else the first one at or after it.
@@ -409,14 +412,14 @@ export class KernTimePicker {
         ref={(el) => (this.segs[seg] = el)}
         class={{ seg: true, empty: text === null, [seg]: true }}
         role="spinbutton"
-        tabindex={this.disabled ? undefined : 0}
+        tabindex={fieldDisabled(this) ? undefined : 0}
         id={seg === 'hour' ? this.uid : undefined}
         aria-label={[this.label ?? this.ariaLabelText, labels[seg]].filter(Boolean).join(', ')}
         aria-valuemin={range?.[0]}
         aria-valuemax={range?.[1]}
         aria-valuenow={seg !== 'period' && text !== null ? Number(text) : undefined}
         aria-valuetext={text ?? '–'}
-        aria-disabled={this.disabled ? 'true' : undefined}
+        aria-disabled={fieldDisabled(this) ? 'true' : undefined}
         aria-readonly={this.readonly ? 'true' : undefined}
         onKeyDown={this.onSegKey(seg)}
         onBlur={() => (this.typed = '')}
@@ -448,7 +451,7 @@ export class KernTimePicker {
         )}
         <div
           ref={(el) => (this.box = el)}
-          class={{ control: true, box: true, disabled: this.disabled }}
+          class={{ control: true, box: true, disabled: fieldDisabled(this) }}
           part="control"
           role="group"
           aria-labelledby={labelId}
@@ -472,7 +475,7 @@ export class KernTimePicker {
               title={this.t('labelList')}
               aria-haspopup="listbox"
               aria-expanded={this.open ? 'true' : 'false'}
-              disabled={this.disabled || this.readonly}
+              disabled={fieldDisabled(this) || this.readonly}
               onPointerDown={this.onButtonPointerDown}
               onClick={this.onButtonClick}
             >

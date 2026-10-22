@@ -19,4 +19,4 @@ input:checked + .box::after {
 }
 input:focus-visible + .box { outline: 2px solid var(--focus); outline-offset: 2px; }
 .text:empty { display: none; }
-:host([disabled]) .root { opacity: .45; cursor: not-allowed; }
+:host(:disabled) .root { opacity: .45; cursor: not-allowed; }

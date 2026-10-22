@@ -1,4 +1,5 @@
 import { AttachInternals, Component, Element, Event, EventEmitter, Host, Method, Prop, State, Watch, h } from '@stencil/core';
+import { fieldDisabled } from '../../utils/form-disabled';
 import { Icon } from '../../utils/icons';
 import { kernTexts } from '../../utils/i18n';
 
@@ -34,6 +35,8 @@ export class KernRating {
   /** Display only, no interaction. */
   @Prop({ reflect: true }) readonly = false;
   @Prop({ reflect: true }) disabled = false;
+  /** Set by a disabled fieldset or form; `disabled` stays the author's own. */
+  @State() formDisabled = false;
   @Prop() required = false;
   @Prop({ reflect: true }) size: 'md' | 'sm' = 'md';
   /** Accessible name when there is no visible label. */
@@ -82,7 +85,7 @@ export class KernRating {
   }
 
   formDisabledCallback(disabled: boolean) {
-    this.disabled = disabled;
+    this.formDisabled = disabled;
   }
 
   /** Focuses the selected star (or the first). */
@@ -96,7 +99,7 @@ export class KernRating {
   }
 
   private set(n: number, focus = false) {
-    if (this.disabled || this.readonly) return;
+    if (fieldDisabled(this) || this.readonly) return;
     const next = Math.max(this.clearable ? 0 : 1, Math.min(this.max, n));
     if (next !== this.current) {
       this.value = next;
@@ -127,7 +130,7 @@ export class KernRating {
     const shown = this.preview || v;
     const describedBy = this.error ? `${this.uid}-error` : this.hint ? `${this.uid}-hint` : undefined;
     const labelId = this.label ? `${this.uid}-label` : undefined;
-    const interactive = !this.readonly && !this.disabled;
+    const interactive = !this.readonly && !fieldDisabled(this);
     const n = Array.from({ length: this.max }, (_, i) => i + 1);
     this.stars = [];
     return (
@@ -155,7 +158,7 @@ export class KernRating {
             aria-describedby={describedBy}
             aria-required={this.required ? 'true' : undefined}
             aria-invalid={this.error ? 'true' : undefined}
-            aria-disabled={this.disabled ? 'true' : undefined}
+            aria-disabled={fieldDisabled(this) ? 'true' : undefined}
             onKeyDown={this.onKey}
             onMouseLeave={() => (this.preview = 0)}
           >

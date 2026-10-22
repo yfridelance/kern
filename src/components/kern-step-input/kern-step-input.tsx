@@ -1,4 +1,5 @@
 import { AttachInternals, Component, Element, Event, EventEmitter, Host, Method, Prop, State, Watch, h } from '@stencil/core';
+import { fieldDisabled } from '../../utils/form-disabled';
 import { Icon } from '../../utils/icons';
 import { resolveLocale } from '../../utils/datetime';
 import { kernTexts } from '../../utils/i18n';
@@ -46,6 +47,8 @@ export class KernStepInput {
   @Prop() locale?: string;
   @Prop({ reflect: true }) size: 'md' | 'sm' = 'md';
   @Prop({ reflect: true }) disabled = false;
+  /** Set by a disabled fieldset or form; `disabled` stays the author's own. */
+  @State() formDisabled = false;
   @Prop() readonly = false;
   @Prop() required = false;
   /** Accessible name when there is no visible label. */
@@ -145,7 +148,7 @@ export class KernStepInput {
   }
 
   formDisabledCallback(disabled: boolean) {
-    this.disabled = disabled;
+    this.formDisabled = disabled;
   }
 
   /** Focuses the field. */
@@ -162,7 +165,7 @@ export class KernStepInput {
   }
 
   private stepBy(times: number) {
-    if (this.disabled || this.readonly) return;
+    if (fieldDisabled(this) || this.readonly) return;
     // Typed but not yet applied text counts; from empty, start at min (or 0) instead of a step past it.
     const typed = this.parse(this.text);
     const base = typeof typed === 'number' ? typed : this.num;
@@ -229,7 +232,7 @@ export class KernStepInput {
     const message = this.error ?? this.problemText();
     const describedBy = message ? `${this.uid}-error` : this.hint ? `${this.uid}-hint` : undefined;
     const n = this.num;
-    const locked = this.disabled || this.readonly;
+    const locked = fieldDisabled(this) || this.readonly;
     const atMin = n !== null && this.min !== undefined && n <= this.min;
     const atMax = n !== null && this.max !== undefined && n >= this.max;
     const button = (dir: 1 | -1) => (
@@ -256,7 +259,7 @@ export class KernStepInput {
             {this.required && <span class="req" aria-hidden="true">*</span>}
           </label>
         )}
-        <div class={{ control: true, box: true, disabled: this.disabled }} part="control">
+        <div class={{ control: true, box: true, disabled: fieldDisabled(this) }} part="control">
           {button(-1)}
           <input
             ref={(el) => (this.input = el)}
@@ -269,7 +272,7 @@ export class KernStepInput {
             role="spinbutton"
             value={this.text}
             placeholder={this.placeholder}
-            disabled={this.disabled}
+            disabled={fieldDisabled(this)}
             readOnly={this.readonly}
             required={this.required}
             aria-valuenow={n ?? undefined}

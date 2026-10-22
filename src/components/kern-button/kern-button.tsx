@@ -1,4 +1,5 @@
-import { AttachInternals, Component, Event, EventEmitter, Host, Prop, h } from '@stencil/core';
+import { AttachInternals, Component, Event, EventEmitter, Host, Prop, State, h } from '@stencil/core';
+import { fieldDisabled } from '../../utils/form-disabled';
 import { KernNavigateDetail, isPlainNavigation } from '../../utils/navigate';
 
 /**
@@ -27,6 +28,8 @@ export class KernButton {
   /** Accessible name (required for icon-only buttons). */
   @Prop() label?: string;
   @Prop({ reflect: true }) disabled = false;
+  /** Set by a disabled fieldset or form; `disabled` stays the author's own. */
+  @State() formDisabled = false;
   /** Shows a spinner and sets aria-busy; clicks are ignored. */
   @Prop({ reflect: true }) busy = false;
   @Prop() type: 'button' | 'submit' | 'reset' = 'button';
@@ -42,8 +45,12 @@ export class KernButton {
    */
   @Event({ cancelable: true }) kernNavigate!: EventEmitter<KernNavigateDetail>;
 
+  formDisabledCallback(disabled: boolean) {
+    this.formDisabled = disabled;
+  }
+
   private onClick = (ev: MouseEvent) => {
-    if (this.disabled || this.busy) {
+    if (fieldDisabled(this) || this.busy) {
       ev.preventDefault();
       ev.stopImmediatePropagation();
       return;
@@ -74,7 +81,7 @@ export class KernButton {
     };
     return (
       <Host>
-        {this.href && !this.disabled ? (
+        {this.href && !fieldDisabled(this) ? (
           <a
             {...common}
             href={this.href}
@@ -85,7 +92,7 @@ export class KernButton {
             {inner}
           </a>
         ) : (
-          <button {...common} type="button" disabled={this.disabled} aria-busy={this.busy ? 'true' : undefined}>
+          <button {...common} type="button" disabled={fieldDisabled(this)} aria-busy={this.busy ? 'true' : undefined}>
             {inner}
           </button>
         )}

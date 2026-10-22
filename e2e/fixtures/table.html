@@ -12,6 +12,7 @@
 </head>
 <body>
   <kern-table id="table" selectable></kern-table>
+  <kern-table id="logs"></kern-table>
   <script type="module">
     const table = document.getElementById('table');
     let devices = [
@@ -41,6 +42,26 @@
     };
     table.rows = devices;
     // Live update: every row a new object with new progress; `reverse` turns the order around.
+    // Second table: each cell keeps its kern-code (focusable <pre> in the shadow DOM).
+    const logs = document.getElementById('logs');
+    let entries = [
+      { id: 'a', name: 'Küche Licht' },
+      { id: 'b', name: 'Bad Lüftung' },
+    ];
+    logs.columns = [
+      { key: 'name', label: 'Gerät' },
+      {
+        key: 'log',
+        label: 'Log',
+        cell: (d, _i, current) => current ?? Object.assign(document.createElement('kern-code'), { heading: `Log ${d.name}`, code: `${d.name}: gestartet` }),
+      },
+    ];
+    logs.rows = entries;
+    window.swapLogs = () => (logs.rows = entries = [...entries].reverse());
+    // The fallback for browsers without moveBefore: rows are detached and inserted again.
+    window.withoutMoveBefore = () => {
+      Element.prototype.moveBefore = undefined;
+    };
     window.tick = (reverse = false) => {
       devices = devices.map((d) => ({ ...d, progress: d.progress + 1 }));
       if (reverse) devices.reverse();

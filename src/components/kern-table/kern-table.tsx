@@ -800,8 +800,9 @@ export class KernTable {
    * Focus inside a moved row is restored (`moveBefore` keeps it where the browser has it).
    */
   private arrange(tbody: Element, trs: Element[]) {
-    const active = document.activeElement as HTMLElement | null;
-    const focused = active && tbody.contains(active) ? active : null;
+    const active = document.activeElement;
+    // The element that has focus, also inside a component's shadow DOM (`activeElement` only names its host).
+    const focused = active && tbody.contains(active) ? this.deepActive() : null;
     const keep = new Set<Element>(trs);
     for (const child of Array.from(tbody.children)) if (!keep.has(child)) tbody.removeChild(child);
     const move = (tbody as Element & { moveBefore?: (node: Node, child: Node | null) => void }).moveBefore;
@@ -811,7 +812,14 @@ export class KernTable {
       else if (move && tr.parentNode === tbody) move.call(tbody, tr, next);
       else tbody.insertBefore(tr, next);
     }
-    if (focused?.isConnected && document.activeElement !== focused) focused.focus({ preventScroll: true });
+    if (focused?.isConnected && this.deepActive() !== focused) focused.focus({ preventScroll: true });
+  }
+
+  /** The innermost focused element, following open shadow roots. */
+  private deepActive(): HTMLElement | null {
+    let el = document.activeElement;
+    while (el?.shadowRoot?.activeElement) el = el.shadowRoot.activeElement;
+    return el as HTMLElement | null;
   }
 
   /** Data mode: the generated toggle cell of a row (empty in the header and skeleton rows). */

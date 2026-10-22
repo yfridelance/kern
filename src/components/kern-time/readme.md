@@ -57,6 +57,19 @@ Invalid values are shown as given.
 | `value`    | `value`     | Time of day `HH:mm[:ss]`, or an ISO 8601 point in time / epoch milliseconds / Date whose time is shown. | `Date \| number \| string \| undefined` | `undefined` |
 
 
+## Dependencies
+
+### Used by
+
+ - [kern-timeline-item](../kern-timeline-item)
+
+### Graph
+```mermaid
+graph TD;
+  kern-timeline-item --> kern-time
+  style kern-time fill:#f9f,stroke:#333,stroke-width:4px
+```
+
 ----------------------------------------------
 
 

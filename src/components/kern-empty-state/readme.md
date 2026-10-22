@@ -120,6 +120,19 @@ The heading is plain text, so a state inside a table or card does not add to the
 | `"icon"`    | The icon    |
 
 
+## Dependencies
+
+### Used by
+
+ - [kern-timeline](../kern-timeline)
+
+### Graph
+```mermaid
+graph TD;
+  kern-timeline --> kern-empty-state
+  style kern-empty-state fill:#f9f,stroke:#333,stroke-width:4px
+```
+
 ----------------------------------------------
 
 

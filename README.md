@@ -29,7 +29,7 @@ dort und hier sind dieselben (`tokens/tokens.json`).
 | Formulare | `kern-input`, `kern-ip-input`, `kern-mac-input`, `kern-file-input`, `kern-textarea`, `kern-select`, `kern-switch`, `kern-checkbox`, `kern-radio-group` + `kern-radio`, `kern-segmented`, `kern-date-picker`, `kern-date-range-picker`, `kern-time-picker`, `kern-color-picker`, `kern-step-input`, `kern-range`, `kern-rating` |
 | Status | `kern-badge`, `kern-chip`, `kern-status`, `kern-icon` |
 | Rückmeldung | `kern-alert`, `kern-empty-state`, `kern-skeleton`, `kern-toast` (+ `toast()`), `kern-tooltip`, `kern-drawer`, `kern-progress`, `kern-spinner`, `kern-dialog` (+ `confirm()`) |
-| Daten | `kern-table`, `kern-list` + `kern-list-item`, `kern-kv` + `kern-kv-item`, `kern-stat`, `kern-sparkline`, `kern-meter`, `kern-signal`, `kern-copy`, `kern-json`, `kern-json-diff` (+ `diffJson()`), `kern-code` |
+| Daten | `kern-table`, `kern-list` + `kern-list-item`, `kern-timeline` + `kern-timeline-item`, `kern-kv` + `kern-kv-item`, `kern-stat`, `kern-sparkline`, `kern-meter`, `kern-signal`, `kern-copy`, `kern-json`, `kern-json-diff` (+ `diffJson()`), `kern-code` |
 | Datum & Zeit | `kern-date`, `kern-time`, `kern-calendar` |
 
 Props, Events, Slots und Parts jeder Komponente: `src/components/<tag>/readme.md` (aus dem Code erzeugt).
@@ -189,6 +189,11 @@ zusätzlich Standalone-Wrapper mit `ControlValueAccessor` für `ngModel` und Rea
   (`slot="meta"`, z.B. `kern-date relative`) und Aktionen (`slot="end"`). Mit `href` wird die Zeile ein Link, mit
   `clickable` ein Button (`kernItemClick`); Aktionen liegen daneben und lösen die Zeile nie aus. `flush` in Karten,
   `empty` für die leere Liste.
+- **Verlauf:** `kern-timeline` mit `kern-timeline-item` (`heading`, `datetime`, `relative`, `tone`, `icon`, `status`)
+  zeigt Ereignisse in der Reihenfolge der App; der Marker hat je Tone eine eigene Form. Slots `details` (mit
+  `collapsible` hinter «Details anzeigen») und `actions`. `group-by="day"` setzt Tagesüberschriften, `loading` zeigt
+  Platzhalter, ohne Einträge erscheint ein Leerzustand (Slot `empty`). `has-more` zeigt «Weitere laden» und meldet
+  `kernLoadMore`; Fokus und Lesepunkt bleiben beim Einfügen und Nachladen erhalten.
 - **Icons:** `<kern-icon name="wifi">` folgt `font-size` und `currentColor`; ohne `label` dekorativ, mit `label` als
   Bild angesagt. Namen (auch als `ICON_NAMES` exportiert): `sun`, `moon`, `copy`, `check`, `close`, `chevron-down`,
   `chevron-up`, `chevron-left`, `chevron-right`, `calendar`, `clock`, `minus`, `plus`, `star`, `more`, `menu`,

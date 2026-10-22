@@ -53,6 +53,7 @@ nav a[hidden], .nav-group[hidden] { display: none; }
 .demo > kern-calendar, .demo > kern-kv, .demo > kern-tabs, .demo > kern-toolbar, .demo > kern-topbar, .demo > kern-page-header, .demo > .stack { flex-basis: 100%; }
 /* In the flex row, wrappers and fields would shrink to their minimum content (fields have almost none). */
 .demo > :is(div, form, section, fieldset) { flex: 1 1 100%; }
+.demo > kern-timeline { flex-basis: 100%; }
 .demo > :is(kern-input, kern-textarea, kern-select, kern-ip-input, kern-mac-input, kern-file-input, kern-step-input, kern-range,
   kern-date-picker, kern-date-range-picker, kern-time-picker, kern-color-picker, kern-radio-group) { flex: 1 1 260px; max-width: 420px; }
 .example .source { border-top: 0; border-radius: 0; }

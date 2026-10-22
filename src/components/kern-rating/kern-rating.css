@@ -11,6 +11,6 @@
 
 [role="radio"] { cursor: pointer; }
 [role="radio"]:focus-visible { outline: 2px solid var(--focus); outline-offset: 1px; }
-:host([disabled]) .stars { opacity: .5; }
-:host([disabled]) [role="radio"] { cursor: not-allowed; }
+:host(:disabled) .stars { opacity: .5; }
+:host(:disabled) [role="radio"] { cursor: not-allowed; }
 :host([invalid]) .star:not(.filled) { color: var(--danger); }

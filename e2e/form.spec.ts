@@ -76,13 +76,28 @@ test('disabled fieldset sperrt die Felder und lässt sie aus FormData weg', asyn
   expect((await formEntries(page)).map(([k]) => k)).not.toContain('mqtt');
 });
 
-// #151: formDisabledCallback reflects `disabled` onto the host, which then stays disabled on its own.
-test.fixme('Freigabe des fieldset gibt die Felder wieder frei (#151)', async ({ page }) => {
-  await page.locator('#advanced').evaluate((f: HTMLFieldSetElement) => (f.disabled = false));
+test('Freigabe des fieldset gibt die Felder wieder frei (#151)', async ({ page }) => {
+  const fieldset = page.locator('#advanced');
+  await fieldset.evaluate((f: HTMLFieldSetElement) => (f.disabled = false));
 
   await expect(page.getByLabel('Gateway')).toBeEnabled();
   await expect(page.getByRole('switch', { name: 'MQTT' })).toBeEnabled();
+  await expect(page.locator('kern-input[name=gateway]')).not.toHaveAttribute('disabled');
   await expect.poll(() => formEntries(page)).toEqual(expect.arrayContaining([['gateway', '192.168.1.1'], ['mqtt', 'on']]));
+
+  // Locking and freeing again works the same way.
+  await fieldset.evaluate((f: HTMLFieldSetElement) => (f.disabled = true));
+  await expect(page.getByLabel('Gateway')).toBeDisabled();
+  await fieldset.evaluate((f: HTMLFieldSetElement) => (f.disabled = false));
+  await expect(page.getByLabel('Gateway')).toBeEnabled();
+});
+
+test('eigenes disabled bleibt nach Freigabe des fieldset bestehen', async ({ page }) => {
+  await page.locator('#advanced').evaluate((f: HTMLFieldSetElement) => (f.disabled = false));
+
+  await expect(page.getByLabel('Gateway')).toBeEnabled();
+  await expect(page.getByLabel('Token')).toBeDisabled();
+  expect((await formEntries(page)).map(([k]) => k)).not.toContain('token');
 });
 
 test.describe('Constraint-Validierung über ElementInternals', () => {

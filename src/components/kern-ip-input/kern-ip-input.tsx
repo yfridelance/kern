@@ -1,4 +1,5 @@
 import { AttachInternals, Component, Element, Event, EventEmitter, Host, Method, Prop, State, Watch, h } from '@stencil/core';
+import { fieldDisabled } from '../../utils/form-disabled';
 import { resolveLocale } from '../../utils/datetime';
 import { parseIpv4, parseMask, type KernIpKind, type KernIpv4, type KernMask } from '../../utils/ip';
 import { kernTexts } from '../../utils/i18n';
@@ -48,6 +49,8 @@ export class KernIpInput {
   @Prop() locale?: string;
   @Prop({ reflect: true }) size: 'md' | 'sm' = 'md';
   @Prop({ reflect: true }) disabled = false;
+  /** Set by a disabled fieldset or form; `disabled` stays the author's own. */
+  @State() formDisabled = false;
   @Prop() readonly = false;
   @Prop() required = false;
   /** Accessible name when there is no visible label. */
@@ -133,7 +136,7 @@ export class KernIpInput {
   }
 
   formDisabledCallback(disabled: boolean) {
-    this.disabled = disabled;
+    this.formDisabled = disabled;
   }
 
   /** Focuses the native input. */
@@ -232,7 +235,7 @@ export class KernIpInput {
             {this.required && <span class="req" aria-hidden="true">*</span>}
           </label>
         )}
-        <div class={{ control: true, box: true, disabled: this.disabled }} part="control">
+        <div class={{ control: true, box: true, disabled: fieldDisabled(this) }} part="control">
           <input
             ref={(el) => (this.input = el)}
             id={this.uid}
@@ -243,7 +246,7 @@ export class KernIpInput {
             spellcheck={false}
             value={this.text}
             placeholder={this.placeholder ?? example}
-            disabled={this.disabled}
+            disabled={fieldDisabled(this)}
             readOnly={this.readonly}
             required={this.required}
             aria-label={this.label ? undefined : this.ariaLabelText}

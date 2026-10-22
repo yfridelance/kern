@@ -1,4 +1,5 @@
 import { AttachInternals, Component, Element, Event, EventEmitter, Host, Method, Prop, State, Watch, h } from '@stencil/core';
+import { fieldDisabled } from '../../utils/form-disabled';
 import { Icon } from '../../utils/icons';
 import { positionPopup } from '../../utils/popover';
 import { datePlaceholder, formatInputDate, fromIsoDate, parseInputDate } from '../../utils/datetime';
@@ -52,6 +53,8 @@ export class KernDatePicker {
   @Prop() locale?: string;
   @Prop({ reflect: true }) size: 'md' | 'sm' = 'md';
   @Prop({ reflect: true }) disabled = false;
+  /** Set by a disabled fieldset or form; `disabled` stays the author's own. */
+  @State() formDisabled = false;
   @Prop() readonly = false;
   @Prop() required = false;
   /** Accessible name when there is no visible label. */
@@ -132,7 +135,7 @@ export class KernDatePicker {
   }
 
   formDisabledCallback(disabled: boolean) {
-    this.disabled = disabled;
+    this.formDisabled = disabled;
   }
 
   @Method()
@@ -183,7 +186,7 @@ export class KernDatePicker {
   // ---------- popover ----------
 
   private openCalendar() {
-    if (this.disabled || this.readonly || this.open || !this.popup) return;
+    if (fieldDisabled(this) || this.readonly || this.open || !this.popup) return;
     this.commit();
     (this.popup as HTMLElement & { showPopover?: () => void }).showPopover?.();
   }
@@ -280,7 +283,7 @@ export class KernDatePicker {
   render() {
     const message = this.error ?? this.problemText();
     const describedBy = message ? `${this.uid}-error` : this.hint ? `${this.uid}-hint` : undefined;
-    const locked = this.disabled || this.readonly;
+    const locked = fieldDisabled(this) || this.readonly;
     return (
       <Host invalid={!!message}>
         {this.label && (
@@ -289,7 +292,7 @@ export class KernDatePicker {
             {this.required && <span class="req" aria-hidden="true">*</span>}
           </label>
         )}
-        <div ref={(el) => (this.box = el)} class={{ control: true, box: true, disabled: this.disabled }} part="control">
+        <div ref={(el) => (this.box = el)} class={{ control: true, box: true, disabled: fieldDisabled(this) }} part="control">
           <input
             ref={(el) => (this.input = el)}
             id={this.uid}
@@ -300,7 +303,7 @@ export class KernDatePicker {
             spellcheck={false}
             value={this.text}
             placeholder={this.placeholder ?? datePlaceholder(this.locale)}
-            disabled={this.disabled}
+            disabled={fieldDisabled(this)}
             readOnly={this.readonly}
             required={this.required}
             aria-label={this.label ? undefined : this.ariaLabelText}

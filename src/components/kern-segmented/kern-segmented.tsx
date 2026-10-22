@@ -1,5 +1,6 @@
 import { optionOf } from '../../utils/options';
 import { AttachInternals, Component, Element, Event, EventEmitter, Host, Prop, State, Watch, h } from '@stencil/core';
+import { fieldDisabled } from '../../utils/form-disabled';
 import type { KernOption } from '../kern-select/kern-select';
 
 /**
@@ -25,6 +26,8 @@ export class KernSegmented {
   /** Accessible name of the group. */
   @Prop() label?: string;
   @Prop({ reflect: true }) disabled = false;
+  /** Set by a disabled fieldset or form; `disabled` stays the author's own. */
+  @State() formDisabled = false;
 
   @Event() kernChange!: EventEmitter<{ value: string }>;
 
@@ -59,13 +62,17 @@ export class KernSegmented {
     return this.options ?? this.childOptions;
   }
 
+  formDisabledCallback(disabled: boolean) {
+    this.formDisabled = disabled;
+  }
+
   @Watch('value')
   sync() {
     this.internals?.setFormValue?.(this.value ?? '');
   }
 
   private pick(opt: KernOption, focus = false) {
-    if (opt.disabled || this.disabled) return;
+    if (opt.disabled || fieldDisabled(this)) return;
     if (opt.value !== this.value) {
       this.value = opt.value;
       this.kernChange.emit({ value: this.value });
@@ -96,7 +103,7 @@ export class KernSegmented {
     this.buttons = [];
     return (
       <Host>
-        <div class="group" role="radiogroup" aria-label={this.label} aria-disabled={this.disabled ? 'true' : undefined} onKeyDown={this.onKey}>
+        <div class="group" role="radiogroup" aria-label={this.label} aria-disabled={fieldDisabled(this) ? 'true' : undefined} onKeyDown={this.onKey}>
           {list.map((o, i) => {
             const selected = o.value === this.value;
             return (
@@ -108,7 +115,7 @@ export class KernSegmented {
                 class="segment"
                 aria-checked={selected ? 'true' : 'false'}
                 tabIndex={selected || (!hasSelection && i === 0) ? 0 : -1}
-                disabled={o.disabled || this.disabled}
+                disabled={o.disabled || fieldDisabled(this)}
                 onClick={() => this.pick(o)}
               >
                 {o.label}

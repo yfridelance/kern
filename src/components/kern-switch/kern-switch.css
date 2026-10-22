@@ -17,4 +17,4 @@ input:checked + .track { background: var(--accent); border-color: var(--accent);
 input:checked + .track .thumb { transform: translateX(14px); background: var(--on-accent); }
 input:focus-visible + .track { outline: 2px solid var(--focus); outline-offset: 2px; }
 .text:empty { display: none; }
-:host([disabled]) .root { opacity: .45; cursor: not-allowed; }
+:host(:disabled) .root { opacity: .45; cursor: not-allowed; }

@@ -1,4 +1,5 @@
 import { AttachInternals, Component, Element, Event, EventEmitter, Host, Method, Prop, State, Watch, h } from '@stencil/core';
+import { fieldDisabled } from '../../utils/form-disabled';
 import { Icon } from '../../utils/icons';
 import type { IconName } from '../../utils/icon-names';
 import { optionOf } from '../../utils/options';
@@ -67,6 +68,8 @@ export class KernSelect {
   @Prop({ reflect: true }) multiple = false;
   @Prop({ reflect: true }) size: 'md' | 'sm' = 'md';
   @Prop({ reflect: true }) disabled = false;
+  /** Set by a disabled fieldset or form; `disabled` stays the author's own. */
+  @State() formDisabled = false;
   @Prop() required = false;
   /** Accessible name when there is no visible label. */
   @Prop() ariaLabelText?: string;
@@ -185,7 +188,7 @@ export class KernSelect {
   }
 
   formDisabledCallback(disabled: boolean) {
-    this.disabled = disabled;
+    this.formDisabled = disabled;
   }
 
   @Method()
@@ -208,7 +211,7 @@ export class KernSelect {
   // ---------- open / close ----------
 
   private openList(query = '') {
-    if (this.disabled || this.open || !this.popup) return;
+    if (fieldDisabled(this) || this.open || !this.popup) return;
     this.query = query;
     const vis = this.visible;
     const i = this.list.findIndex((o, idx) => this.isSelected(o) && vis.has(idx));
@@ -284,7 +287,7 @@ export class KernSelect {
   }
 
   private removeValue(value: string) {
-    if (this.disabled) return;
+    if (fieldDisabled(this)) return;
     this.value = this.values.filter((v) => v !== value);
     this.kernChange.emit({ value: this.value });
   }
@@ -364,7 +367,7 @@ export class KernSelect {
   };
 
   private onTriggerKey = (ev: KeyboardEvent) => {
-    if (this.disabled) return;
+    if (fieldDisabled(this)) return;
     if (['ArrowDown', 'ArrowUp', 'Enter', ' '].includes(ev.key)) {
       ev.preventDefault();
       this.wasOpen = false;
@@ -441,7 +444,7 @@ export class KernSelect {
                     tabindex={-1}
                     aria-label={this.t('labelRemove').replace('{label}', o.label)}
                     title={this.t('labelRemove').replace('{label}', o.label)}
-                    disabled={this.disabled}
+                    disabled={fieldDisabled(this)}
                     onClick={(e) => {
                       e.stopPropagation();
                       this.removeValue(o.value);
@@ -523,11 +526,11 @@ export class KernSelect {
         )}
         {this.multiple ? (
           // A div, not a button: the chips contain their own × buttons.
-          <div {...triggerProps} tabindex={this.disabled ? -1 : 0} aria-disabled={this.disabled ? 'true' : undefined} aria-multiselectable="true">
+          <div {...triggerProps} tabindex={fieldDisabled(this) ? -1 : 0} aria-disabled={fieldDisabled(this) ? 'true' : undefined} aria-multiselectable="true">
             {this.renderTriggerContent()}
           </div>
         ) : (
-          <button {...triggerProps} type="button" disabled={this.disabled}>
+          <button {...triggerProps} type="button" disabled={fieldDisabled(this)}>
             {this.renderTriggerContent()}
           </button>
         )}

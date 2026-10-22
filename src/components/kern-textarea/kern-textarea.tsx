@@ -1,4 +1,5 @@
-import { AttachInternals, Component, Event, EventEmitter, Host, Method, Prop, Watch, h } from '@stencil/core';
+import { AttachInternals, Component, Event, EventEmitter, Host, Method, Prop, State, Watch, h } from '@stencil/core';
+import { fieldDisabled } from '../../utils/form-disabled';
 
 let nextId = 0;
 
@@ -26,6 +27,8 @@ export class KernTextarea {
   @Prop() maxlength?: number;
   @Prop({ reflect: true }) mono = false;
   @Prop({ reflect: true }) disabled = false;
+  /** Set by a disabled fieldset or form; `disabled` stays the author's own. */
+  @State() formDisabled = false;
   @Prop() readonly = false;
   @Prop() required = false;
   @Prop() ariaLabelText?: string;
@@ -60,7 +63,7 @@ export class KernTextarea {
   }
 
   formDisabledCallback(disabled: boolean) {
-    this.disabled = disabled;
+    this.formDisabled = disabled;
   }
 
   @Method()
@@ -93,7 +96,7 @@ export class KernTextarea {
           maxLength={this.maxlength}
           name={this.name}
           placeholder={this.placeholder}
-          disabled={this.disabled}
+          disabled={fieldDisabled(this)}
           readOnly={this.readonly}
           required={this.required}
           spellcheck={!this.mono}

@@ -1,4 +1,5 @@
 import { AttachInternals, Component, Element, Event, EventEmitter, Host, Listen, Method, Prop, State, Watch, h } from '@stencil/core';
+import { fieldDisabled } from '../../utils/form-disabled';
 import { Icon } from '../../utils/icons';
 import { positionPopup } from '../../utils/popover';
 import { clampIso, datePlaceholder, daysBetween, formatInputDate, fromIsoDate, parseInputDate, rangeUntil } from '../../utils/datetime';
@@ -58,6 +59,8 @@ export class KernDateRangePicker {
   @Prop() locale?: string;
   @Prop({ reflect: true }) size: 'md' | 'sm' = 'md';
   @Prop({ reflect: true }) disabled = false;
+  /** Set by a disabled fieldset or form; `disabled` stays the author's own. */
+  @State() formDisabled = false;
   @Prop() readonly = false;
   @Prop() required = false;
   /** Accessible name when there is no visible label. */
@@ -162,7 +165,7 @@ export class KernDateRangePicker {
   }
 
   formDisabledCallback(disabled: boolean) {
-    this.disabled = disabled;
+    this.formDisabled = disabled;
   }
 
   @Method()
@@ -225,7 +228,7 @@ export class KernDateRangePicker {
   // ---------- popover ----------
 
   private openCalendar() {
-    if (this.disabled || this.readonly || this.open || !this.popup) return;
+    if (fieldDisabled(this) || this.readonly || this.open || !this.popup) return;
     this.commit();
     this.opening++;
     this.months = typeof window !== 'undefined' && window.innerWidth < 640 ? 1 : 2;
@@ -338,7 +341,7 @@ export class KernDateRangePicker {
         spellcheck={false}
         value={isStart ? this.textStart : this.textEnd}
         placeholder={datePlaceholder(this.locale)}
-        disabled={this.disabled}
+        disabled={fieldDisabled(this)}
         readOnly={this.readonly}
         aria-label={[this.label ?? this.ariaLabelText, name].filter(Boolean).join(', ')}
         aria-invalid={invalid ? 'true' : undefined}
@@ -365,7 +368,7 @@ export class KernDateRangePicker {
   render() {
     const message = this.error ?? this.problemText();
     const describedBy = message ? `${this.uid}-error` : this.hint ? `${this.uid}-hint` : undefined;
-    const locked = this.disabled || this.readonly;
+    const locked = fieldDisabled(this) || this.readonly;
     return (
       <Host invalid={!!message}>
         {this.label && (
@@ -374,7 +377,7 @@ export class KernDateRangePicker {
             {this.required && <span class="req" aria-hidden="true">*</span>}
           </label>
         )}
-        <div ref={(el) => (this.box = el)} class={{ control: true, box: true, disabled: this.disabled }} part="control">
+        <div ref={(el) => (this.box = el)} class={{ control: true, box: true, disabled: fieldDisabled(this) }} part="control">
           {this.renderInput('start', describedBy, !!message)}
           <span class="dash" aria-hidden="true">
             –

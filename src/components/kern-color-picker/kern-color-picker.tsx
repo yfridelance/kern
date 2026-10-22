@@ -1,4 +1,5 @@
 import { AttachInternals, Component, Element, Event, EventEmitter, Host, Method, Prop, State, Watch, h } from '@stencil/core';
+import { fieldDisabled } from '../../utils/form-disabled';
 import { positionPopup } from '../../utils/popover';
 import { hexToRgb, hsvToRgb, kelvinToRgb, parseHex, rgbToHex, rgbToHsv, type Hsv } from '../../utils/color';
 import { kernTexts } from '../../utils/i18n';
@@ -38,6 +39,8 @@ export class KernColorPicker {
   @Prop() kelvinStep = 100;
   @Prop({ reflect: true }) size: 'md' | 'sm' = 'md';
   @Prop({ reflect: true }) disabled = false;
+  /** Set by a disabled fieldset or form; `disabled` stays the author's own. */
+  @State() formDisabled = false;
   @Prop() readonly = false;
   @Prop() required = false;
   /** Accessible name when there is no visible label. */
@@ -145,7 +148,7 @@ export class KernColorPicker {
   }
 
   formDisabledCallback(disabled: boolean) {
-    this.disabled = disabled;
+    this.formDisabled = disabled;
   }
 
   /** Opens the colour panel. */
@@ -161,7 +164,7 @@ export class KernColorPicker {
   }
 
   private openPanel() {
-    if (this.disabled || this.readonly || this.open || !this.popup) return;
+    if (fieldDisabled(this) || this.readonly || this.open || !this.popup) return;
     (this.popup as HTMLElement & { showPopover?: () => void }).showPopover?.();
   }
 
@@ -207,7 +210,7 @@ export class KernColorPicker {
   }
 
   private onDown = (target: 'area' | 'hue' | 'kelvin') => (ev: PointerEvent) => {
-    if (ev.button !== 0 || this.disabled) return;
+    if (ev.button !== 0 || fieldDisabled(this)) return;
     ev.preventDefault();
     const el = ev.currentTarget as HTMLElement;
     this.drag = target;
@@ -317,7 +320,7 @@ export class KernColorPicker {
     const k = this.kelvin ?? this.minKelvin;
     const kPct = ((k - this.minKelvin) / Math.max(1, this.maxKelvin - this.minKelvin)) * 100;
     const kStops = [0, 0.25, 0.5, 0.75, 1].map((t) => `${rgbToHex(kelvinToRgb(this.minKelvin + t * (this.maxKelvin - this.minKelvin)))} ${t * 100}%`).join(', ');
-    const locked = this.disabled || this.readonly;
+    const locked = fieldDisabled(this) || this.readonly;
     return (
       <Host invalid={!!message}>
         {this.label && (
@@ -326,7 +329,7 @@ export class KernColorPicker {
             {this.required && <span class="req" aria-hidden="true">*</span>}
           </label>
         )}
-        <div ref={(el) => (this.box = el)} class={{ control: true, box: true, disabled: this.disabled }} part="control">
+        <div ref={(el) => (this.box = el)} class={{ control: true, box: true, disabled: fieldDisabled(this) }} part="control">
           <button
             type="button"
             class={{ swatch: true, empty: !hex }}
@@ -354,7 +357,7 @@ export class KernColorPicker {
             spellcheck={false}
             value={this.text}
             placeholder={this.temperature ? String(Math.round((this.minKelvin + this.maxKelvin) / 200) * 100) : '#3cc8cc'}
-            disabled={this.disabled}
+            disabled={fieldDisabled(this)}
             readOnly={this.readonly}
             aria-label={this.label ? undefined : this.ariaLabelText}
             aria-invalid={message ? 'true' : undefined}

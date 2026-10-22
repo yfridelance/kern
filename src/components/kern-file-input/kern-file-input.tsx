@@ -1,4 +1,5 @@
 import { AttachInternals, Component, Element, Event, EventEmitter, Host, Method, Prop, State, Watch, h } from '@stencil/core';
+import { fieldDisabled } from '../../utils/form-disabled';
 import { Icon } from '../../utils/icons';
 import { resolveLocale } from '../../utils/datetime';
 import { accepts, formatSize, parseSize } from '../../utils/files';
@@ -41,6 +42,8 @@ export class KernFileInput {
   /** The chosen files; set `[]` to clear. */
   @Prop({ mutable: true }) files: File[] = [];
   @Prop({ reflect: true }) disabled = false;
+  /** Set by a disabled fieldset or form; `disabled` stays the author's own. */
+  @State() formDisabled = false;
   @Prop() required = false;
   /** BCP 47 locale for sizes; defaults to `<html lang>`, then the browser language. */
   @Prop() locale?: string;
@@ -94,13 +97,13 @@ export class KernFileInput {
   }
 
   formDisabledCallback(disabled: boolean) {
-    this.disabled = disabled;
+    this.formDisabled = disabled;
   }
 
   /** Opens the file dialog. */
   @Method()
   async open() {
-    if (!this.disabled) this.input?.click();
+    if (!fieldDisabled(this)) this.input?.click();
   }
 
   /** Check and add files (also used for drops). */
@@ -141,14 +144,14 @@ export class KernFileInput {
   };
 
   private onDragEnter = (ev: DragEvent) => {
-    if (this.disabled || !ev.dataTransfer?.types?.includes('Files')) return;
+    if (fieldDisabled(this) || !ev.dataTransfer?.types?.includes('Files')) return;
     ev.preventDefault();
     this.depth++;
     this.over = true;
   };
 
   private onDragOver = (ev: DragEvent) => {
-    if (this.disabled || !this.over) return;
+    if (fieldDisabled(this) || !this.over) return;
     ev.preventDefault();
     if (ev.dataTransfer) ev.dataTransfer.dropEffect = 'copy';
   };
@@ -159,7 +162,7 @@ export class KernFileInput {
   };
 
   private onDrop = (ev: DragEvent) => {
-    if (this.disabled) return;
+    if (fieldDisabled(this)) return;
     ev.preventDefault();
     this.depth = 0;
     this.over = false;
@@ -179,7 +182,7 @@ export class KernFileInput {
           </label>
         )}
         <div
-          class={{ dropzone: true, over: this.over, disabled: this.disabled }}
+          class={{ dropzone: true, over: this.over, disabled: fieldDisabled(this) }}
           part="dropzone"
           onDragEnter={this.onDragEnter}
           onDragOver={this.onDragOver}
@@ -193,7 +196,7 @@ export class KernFileInput {
               id={this.uid}
               type="button"
               class="choose"
-              disabled={this.disabled}
+              disabled={fieldDisabled(this)}
               onClick={() => this.open()}
               aria-describedby={describedBy}
             >
@@ -211,7 +214,7 @@ export class KernFileInput {
             tabindex={-1}
             accept={this.accept}
             multiple={this.multiple}
-            disabled={this.disabled}
+            disabled={fieldDisabled(this)}
             aria-hidden="true"
             onChange={this.onPick}
           />
@@ -227,7 +230,7 @@ export class KernFileInput {
                   class="remove"
                   aria-label={this.t('labelRemove').replace('{name}', f.name)}
                   title={this.t('labelRemove').replace('{name}', f.name)}
-                  disabled={this.disabled}
+                  disabled={fieldDisabled(this)}
                   onClick={() => this.removeFile(i)}
                 >
                   <Icon name="close" />

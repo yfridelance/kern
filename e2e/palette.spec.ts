@@ -137,6 +137,68 @@ test('Mehrere Instanzen lösen sich nicht gegenseitig aus', async ({ page }) => 
   await expect(palette(page).locator('dialog')).toBeHidden();
 });
 
+test('Beim Wiederöffnen ist der aktive Eintrag sichtbar', async ({ page }) => {
+  await page.evaluate(() => {
+    const p = document.getElementById('palette') as HTMLElement & { items: unknown };
+    p.items = Array.from({ length: 60 }, (_, i) => ({ id: `dev-${i}`, label: `Gerät ${i}`, group: 'Geräte' }));
+  });
+  await openWithButton(page);
+  await page.keyboard.press('End');
+  await expect.poll(() => activeLabel(page)).toBe('Gerät 59');
+  await page.keyboard.press('Escape');
+  await expect(palette(page).locator('dialog')).toBeHidden();
+
+  await openWithButton(page);
+  await expect.poll(() => activeLabel(page)).toBe('Gerät 0');
+  const visible = () =>
+    palette(page).locator('[role=listbox]').evaluate((list) => {
+      const active = list.querySelector('.option.active')!.getBoundingClientRect();
+      const box = list.getBoundingClientRect();
+      return active.top >= box.top && active.bottom <= box.bottom;
+    });
+  await expect.poll(visible).toBe(true);
+  await page.keyboard.press('Enter');
+  expect(await selected(page)).toEqual(['palette:dev-0']);
+});
+
+test('Ctrl/Cmd+K öffnet nicht über einem Modal in einem Shadow Root', async ({ page }) => {
+  await page.evaluate(async () => {
+    const host = document.createElement('div');
+    host.id = 'shadow-host';
+    document.body.append(host);
+    const dialog = document.createElement('kern-dialog') as HTMLElement & { heading: string; show(): Promise<void>; componentOnReady(): Promise<unknown> };
+    dialog.heading = 'Im Shadow Root';
+    dialog.innerHTML = '<input aria-label="Name">';
+    host.attachShadow({ mode: 'open' }).append(dialog);
+    await customElements.whenDefined('kern-dialog');
+    await dialog.componentOnReady();
+    await dialog.show();
+  });
+  const dialog = page.locator('#shadow-host kern-dialog dialog');
+  await expect(dialog).toBeVisible();
+  await page.keyboard.press('ControlOrMeta+k');
+  await expect(palette(page).locator('dialog')).toBeHidden();
+  await expect(palette(page)).not.toHaveAttribute('open');
+  await page.keyboard.press('Escape');
+  await expect(dialog).toBeHidden();
+  // Afterwards the shortcut works again.
+  await page.keyboard.press('ControlOrMeta+k');
+  await expect(palette(page).locator('dialog')).toBeVisible();
+});
+
+test('Sofort wieder geöffnet bleibt offen (verspätetes close-Event des Dialogs)', async ({ page }) => {
+  await page.evaluate(async () => {
+    const p = document.getElementById('palette') as HTMLElement & { open: boolean; show(): Promise<void> };
+    await p.show();
+    // Closing queues the native close event; reopening in the same task must not be undone by it.
+    p.open = false;
+    p.open = true;
+    await new Promise((r) => setTimeout(r, 100));
+  });
+  await expect(palette(page).locator('dialog')).toBeVisible();
+  await expect(palette(page)).toHaveAttribute('open');
+});
+
 test('Der Shortcut-Listener wird beim Entfernen und Abschalten aufgeräumt', async ({ page }) => {
   const count = () => page.evaluate(() => (window as unknown as Win).keydownListeners.size);
   const before = await count();

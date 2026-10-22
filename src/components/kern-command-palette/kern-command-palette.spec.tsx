@@ -169,6 +169,18 @@ describe('kern-command-palette', () => {
     expect(events).toContain('kernSelect {"id":"act-scan"}');
   });
 
+  it('starts the list at the top when reopened', async () => {
+    const { host, root, key, active, open } = await setup();
+    await open();
+    await key('End');
+    const listbox = root.querySelector('[role=listbox]') as HTMLElement;
+    listbox.scrollTop = 500;
+    await host.hide();
+    await open();
+    expect(active()).toBe('Devices');
+    expect(listbox.scrollTop).toBe(0);
+  });
+
   it('Escape closes without choosing', async () => {
     const { host, events, key, open } = await setup();
     await open();
@@ -331,6 +343,19 @@ describe('kern-command-palette', () => {
       await page.waitForChanges();
       expect(press({ ctrlKey: true }).defaultPrevented).toBe(false);
       expect([a.open, b.open, c.open]).toEqual([false, false, true]);
+    });
+
+    it('does not open over a modal dialog inside a shadow root', async () => {
+      const { page, host } = await setup(`<kern-command-palette shortcut></kern-command-palette><div id="app"></div>`);
+      const dialog = page.doc.createElement('dialog') as HTMLDialogElement;
+      page.body.querySelector('#app')!.attachShadow({ mode: 'open' }).append(page.doc.createElement('section'));
+      page.body.querySelector('#app')!.shadowRoot!.querySelector('section')!.append(dialog);
+      dialog.open = true;
+      expect(press({ ctrlKey: true }).defaultPrevented).toBe(false);
+      expect(host.open).toBe(false);
+      dialog.open = false;
+      press({ ctrlKey: true });
+      expect(host.open).toBe(true);
     });
   });
 });

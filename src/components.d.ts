@@ -504,7 +504,8 @@ export namespace Components {
      * The number of results is announced politely once typing pauses («5 results»).
      * `shortcut` registers one keydown listener on the document, removed with the last palette that uses it. Enable it
      * on one palette per page; with several, the open one closes and otherwise the last connected one opens. It does
-     * not open while a Kern dialog or drawer is open, and ignores keys an app handler already took (`preventDefault`).
+     * not open while a modal dialog is open (kern-dialog, kern-drawer or a native one, also inside shadow roots), and
+     * ignores keys an app handler already took (`preventDefault`).
      */
     interface KernCommandPalette {
         /**
@@ -3054,7 +3055,8 @@ declare global {
      * The number of results is announced politely once typing pauses («5 results»).
      * `shortcut` registers one keydown listener on the document, removed with the last palette that uses it. Enable it
      * on one palette per page; with several, the open one closes and otherwise the last connected one opens. It does
-     * not open while a Kern dialog or drawer is open, and ignores keys an app handler already took (`preventDefault`).
+     * not open while a modal dialog is open (kern-dialog, kern-drawer or a native one, also inside shadow roots), and
+     * ignores keys an app handler already took (`preventDefault`).
      */
     interface HTMLKernCommandPaletteElement extends Components.KernCommandPalette, HTMLStencilElement {
         addEventListener<K extends keyof HTMLKernCommandPaletteElementEventMap>(type: K, listener: (this: HTMLKernCommandPaletteElement, ev: KernCommandPaletteCustomEvent<HTMLKernCommandPaletteElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
@@ -4585,7 +4587,8 @@ declare namespace LocalJSX {
      * The number of results is announced politely once typing pauses («5 results»).
      * `shortcut` registers one keydown listener on the document, removed with the last palette that uses it. Enable it
      * on one palette per page; with several, the open one closes and otherwise the last connected one opens. It does
-     * not open while a Kern dialog or drawer is open, and ignores keys an app handler already took (`preventDefault`).
+     * not open while a modal dialog is open (kern-dialog, kern-drawer or a native one, also inside shadow roots), and
+     * ignores keys an app handler already took (`preventDefault`).
      */
     interface KernCommandPalette {
         /**
@@ -7670,7 +7673,8 @@ declare module "@stencil/core" {
              * The number of results is announced politely once typing pauses («5 results»).
              * `shortcut` registers one keydown listener on the document, removed with the last palette that uses it. Enable it
              * on one palette per page; with several, the open one closes and otherwise the last connected one opens. It does
-             * not open while a Kern dialog or drawer is open, and ignores keys an app handler already took (`preventDefault`).
+             * not open while a modal dialog is open (kern-dialog, kern-drawer or a native one, also inside shadow roots), and
+             * ignores keys an app handler already took (`preventDefault`).
              */
             "kern-command-palette": LocalJSX.IntrinsicElements["kern-command-palette"] & JSXBase.HTMLAttributes<HTMLKernCommandPaletteElement>;
             /**

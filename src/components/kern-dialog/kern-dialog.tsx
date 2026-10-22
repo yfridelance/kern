@@ -84,6 +84,8 @@ export class KernDialog {
   };
 
   private onNativeClose = () => {
+    // The close event comes a task later: when the dialog was reopened in between, it belongs to the old session.
+    if (this.dialog?.open) return;
     this.open = false;
     this.kernClose.emit({ returnValue: this.returnValue });
   };

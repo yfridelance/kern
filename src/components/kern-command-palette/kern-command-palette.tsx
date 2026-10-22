@@ -1,4 +1,4 @@
-import { Component, Element, Event, EventEmitter, Host, Method, Prop, State, Watch, h, type VNode } from '@stencil/core';
+import { Component, Element, Event, EventEmitter, Host, Method, Prop, State, Watch, forceUpdate, h, type VNode } from '@stencil/core';
 import { Icon } from '../../utils/icons';
 import { kernTexts } from '../../utils/i18n';
 import { searchCommands, type CommandGroup, type CommandHit, type KernCommandItem } from '../../utils/command-search';
@@ -23,10 +23,30 @@ function onShortcut(ev: KeyboardEvent) {
     open.open = false;
     return;
   }
-  // The property, not the attribute: a reflected attribute follows only with the next render.
-  if (Array.from(document.querySelectorAll<HTMLElement & { open?: boolean }>('kern-dialog, kern-drawer, kern-command-palette')).some((el) => el.open)) return;
+  if (modalOpen(document)) return;
   ev.preventDefault();
   candidates[candidates.length - 1].open = true;
+}
+
+/**
+ * Whether a modal `<dialog>` is open anywhere, also inside shadow roots: kern-dialog, kern-drawer and other palettes
+ * use one, as do the app's own modals. `:modal` holds from `showModal()` on, unlike a reflected `open` attribute that
+ * follows only with the next render.
+ */
+function modalOpen(root: Document | ShadowRoot): boolean {
+  for (const el of Array.from(root.querySelectorAll('*'))) {
+    if (el.localName === 'dialog' && isModal(el as HTMLDialogElement)) return true;
+    if (el.shadowRoot && modalOpen(el.shadowRoot)) return true;
+  }
+  return false;
+}
+
+function isModal(dialog: HTMLDialogElement): boolean {
+  try {
+    return dialog.matches(':modal');
+  } catch {
+    return dialog.open; // without :modal support
+  }
 }
 
 function addShortcut(p: KernCommandPalette) {
@@ -69,7 +89,8 @@ function deepActiveElement(): HTMLElement | undefined {
  *
  * `shortcut` registers one keydown listener on the document, removed with the last palette that uses it. Enable it
  * on one palette per page; with several, the open one closes and otherwise the last connected one opens. It does
- * not open while a Kern dialog or drawer is open, and ignores keys an app handler already took (`preventDefault`).
+ * not open while a modal dialog is open (kern-dialog, kern-drawer or a native one, also inside shadow roots), and
+ * ignores keys an app handler already took (`preventDefault`).
  *
  * @part option - Each entry
  */
@@ -271,6 +292,10 @@ export class KernCommandPalette {
   private onDialogOpen = (ev: Event) => {
     ev.stopPropagation();
     this.input?.focus();
+    // The list keeps its scroll position while closed; start at the top and show the active entry after the render.
+    if (this.listbox) this.listbox.scrollTop = 0;
+    this.scrollPending = true;
+    forceUpdate(this);
     this.kernOpen.emit();
   };
 

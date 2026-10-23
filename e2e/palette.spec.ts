@@ -161,6 +161,31 @@ test('Beim Wiederöffnen ist der aktive Eintrag sichtbar', async ({ page }) => {
   expect(await selected(page)).toEqual(['palette:dev-0']);
 });
 
+test('Neue externe Resultate: der aktive erste Treffer ist sichtbar', async ({ page }) => {
+  const setItems = (prefix: string) =>
+    page.evaluate((prefix) => {
+      const p = document.getElementById('palette') as HTMLElement & { items: unknown; filtering: string };
+      p.filtering = 'external';
+      p.items = Array.from({ length: 60 }, (_, i) => ({ id: `${prefix}-${i}`, label: `${prefix} ${i}`, group: 'Geräte' }));
+    }, prefix);
+  await setItems('alt');
+  await openWithButton(page);
+  await page.keyboard.press('End');
+  await expect.poll(() => activeLabel(page)).toBe('alt 59');
+
+  await setItems('neu');
+  await expect.poll(() => activeLabel(page)).toBe('neu 0');
+  const visible = () =>
+    palette(page).locator('[role=listbox]').evaluate((list) => {
+      const active = list.querySelector('.option.active')!.getBoundingClientRect();
+      const box = list.getBoundingClientRect();
+      return active.top >= box.top && active.bottom <= box.bottom;
+    });
+  await expect.poll(visible).toBe(true);
+  await page.keyboard.press('Enter');
+  expect(await selected(page)).toEqual(['palette:neu-0']);
+});
+
 test('Ctrl/Cmd+K öffnet nicht über einem Modal in einem Shadow Root', async ({ page }) => {
   await page.evaluate(async () => {
     const host = document.createElement('div');

@@ -181,6 +181,18 @@ describe('kern-command-palette', () => {
     expect(listbox.scrollTop).toBe(0);
   });
 
+  it('scrolls back to the top when new results replace the active entry', async () => {
+    const { page, host, root, key, active, open } = await setup();
+    await open();
+    await key('End');
+    const listbox = root.querySelector('[role=listbox]') as HTMLElement;
+    listbox.scrollTop = 500;
+    host.items = ITEMS.slice(0, 3).map((i) => ({ ...i, id: `new-${i.id}` }));
+    await page.waitForChanges();
+    expect(active()).toBe('Devices');
+    expect(listbox.scrollTop).toBe(0);
+  });
+
   it('Escape closes without choosing', async () => {
     const { host, events, key, open } = await setup();
     await open();

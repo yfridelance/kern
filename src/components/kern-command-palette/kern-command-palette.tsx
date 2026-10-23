@@ -153,7 +153,11 @@ export class KernCommandPalette {
   /** Focused element before opening; gets the focus back. */
   private returnTo?: HTMLElement;
   private announceTimer?: ReturnType<typeof setTimeout>;
-  private scrollPending = false;
+  /**
+   * Scrolling due after the next render: `active` brings the active entry into view, `top` first scrolls the list to
+   * its start (the active entry was reset). Every change of the active entry sets it, except hovering.
+   */
+  private scrollPending: false | 'top' | 'active' = false;
 
   connectedCallback() {
     if (this.shortcut) addShortcut(this);
@@ -169,9 +173,11 @@ export class KernCommandPalette {
   }
 
   componentDidRender() {
-    if (!this.scrollPending) return;
+    const pending = this.scrollPending;
+    if (!pending || !this.listbox) return;
     this.scrollPending = false;
-    this.listbox?.querySelector<HTMLElement>('.option.active')?.scrollIntoView?.({ block: 'nearest' });
+    if (pending === 'top') this.listbox.scrollTop = 0;
+    this.listbox.querySelector<HTMLElement>('.option.active')?.scrollIntoView?.({ block: 'nearest' });
   }
 
   @Watch('shortcut')
@@ -187,7 +193,7 @@ export class KernCommandPalette {
     if (this.open) {
       if (d.open) return;
       this.returnTo = deepActiveElement();
-      this.activeId = this.firstEnabled();
+      this.resetActive();
       this.announcement = '';
       d.open = true; // kern-dialog opens modally and emits kernOpen → onDialogOpen
       return;
@@ -205,8 +211,7 @@ export class KernCommandPalette {
 
   @Watch('query')
   queryChanged() {
-    this.activeId = this.firstEnabled();
-    this.scrollPending = true;
+    this.resetActive();
     this.scheduleAnnounce();
   }
 
@@ -215,7 +220,8 @@ export class KernCommandPalette {
   itemsChanged() {
     // Keep the active entry when it is still there (e.g. a status update), otherwise start at the top.
     const hits = this.hits();
-    if (!hits.some((h) => h.item.id === this.activeId && !h.item.disabled)) this.activeId = this.firstEnabled(hits);
+    if (hits.some((h) => h.item.id === this.activeId && !h.item.disabled)) this.scrollPending ||= 'active';
+    else this.resetActive(hits);
     this.scheduleAnnounce();
   }
 
@@ -247,6 +253,12 @@ export class KernCommandPalette {
     return this.groups().flatMap((g) => g.hits);
   }
 
+  /** The first enabled entry becomes active, with the list scrolled back to the start. */
+  private resetActive(hits = this.hits()) {
+    this.activeId = this.firstEnabled(hits);
+    this.scrollPending = 'top';
+  }
+
   private firstEnabled(hits = this.hits()): string | undefined {
     return hits.find((h) => !h.item.disabled)?.item.id;
   }
@@ -263,7 +275,7 @@ export class KernCommandPalette {
       End: last,
     };
     this.activeId = enabled[next[key]].item.id;
-    this.scrollPending = true;
+    this.scrollPending = 'active';
   }
 
   private choose(hit?: CommandHit) {
@@ -292,9 +304,8 @@ export class KernCommandPalette {
   private onDialogOpen = (ev: Event) => {
     ev.stopPropagation();
     this.input?.focus();
-    // The list keeps its scroll position while closed; start at the top and show the active entry after the render.
-    if (this.listbox) this.listbox.scrollTop = 0;
-    this.scrollPending = true;
+    // The list keeps its scroll position while closed: start at the top (also when nothing else re-renders).
+    this.scrollPending = 'top';
     forceUpdate(this);
     this.kernOpen.emit();
   };

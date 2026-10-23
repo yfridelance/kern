@@ -53,6 +53,8 @@ for (const id of ['#dialog', '#drawer']) {
     await host.evaluate((el: HTMLElement & { show(): Promise<void> }) => el.show());
     await expect(host.locator('dialog')).toBeVisible();
     const panel = host.locator('dialog');
+    // The drawer slides in (0.2 s): measure the final position, not a frame of the animation.
+    await panel.evaluate((d) => Promise.all(d.getAnimations({ subtree: true }).map((a) => a.finished)));
     const [scrollWidth, clientWidth] = await panel.evaluate((d) => [d.scrollWidth, d.clientWidth]);
     expect(scrollWidth, 'Panel scrollt horizontal').toBeLessThanOrEqual(clientWidth);
     expect(await outside(host, 'dialog')).toEqual([]);

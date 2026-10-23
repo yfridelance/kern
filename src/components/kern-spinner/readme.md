@@ -35,6 +35,19 @@ For waits under a few seconds. The spinner takes the current text colour; `size`
 | `size`   | `size`    | Diameter in px.                                        | `number`              | `14`        |
 
 
+## Dependencies
+
+### Used by
+
+ - [kern-command-palette](../kern-command-palette)
+
+### Graph
+```mermaid
+graph TD;
+  kern-command-palette --> kern-spinner
+  style kern-spinner fill:#f9f,stroke:#333,stroke-width:4px
+```
+
 ----------------------------------------------
 
 

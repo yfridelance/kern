@@ -124,12 +124,14 @@ The heading is plain text, so a state inside a table or card does not add to the
 
 ### Used by
 
+ - [kern-command-palette](../kern-command-palette)
  - [kern-log](../kern-log)
  - [kern-timeline](../kern-timeline)
 
 ### Graph
 ```mermaid
 graph TD;
+  kern-command-palette --> kern-empty-state
   kern-log --> kern-empty-state
   kern-timeline --> kern-empty-state
   style kern-empty-state fill:#f9f,stroke:#333,stroke-width:4px

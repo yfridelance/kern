@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="de-CH" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <title>e2e: Befehlspalette</title>
+  <script>
+    // Counts the keydown listeners on the document, so the tests see whether the shortcut listener is removed.
+    window.keydownListeners = new Set();
+    const add = document.addEventListener.bind(document);
+    const remove = document.removeEventListener.bind(document);
+    document.addEventListener = (type, fn, opts) => {
+      if (type === 'keydown') window.keydownListeners.add(fn);
+      return add(type, fn, opts);
+    };
+    document.removeEventListener = (type, fn, opts) => {
+      if (type === 'keydown') window.keydownListeners.delete(fn);
+      return remove(type, fn, opts);
+    };
+  </script>
+  <link rel="stylesheet" href="kern/kern.css">
+  <script type="module" src="kern/kern.esm.js"></script>
+  <style>body { padding: 24px; display: grid; gap: 16px; max-width: 360px; }</style>
+</head>
+<body>
+  <kern-button id="open">Suchen</kern-button>
+  <input id="field" aria-label="Notiz">
+  <kern-button id="open-other">Andere Palette</kern-button>
+
+  <kern-command-palette id="palette" shortcut></kern-command-palette>
+  <kern-command-palette id="other"></kern-command-palette>
+
+  <script type="module">
+    await customElements.whenDefined('kern-command-palette');
+    window.selected = [];
+    window.queries = [];
+    const palette = document.getElementById('palette');
+    palette.items = [
+      { id: 'page-devices', label: 'Geräte', group: 'Seiten', icon: 'home' },
+      { id: 'page-updates', label: 'Updates', group: 'Seiten', keywords: ['firmware'] },
+      { id: 'dev-boiler', label: 'Boiler', description: 'Shelly Pro 3EM · 192.168.1.20', group: 'Geräte', keywords: ['192.168.1.20'] },
+      { id: 'dev-kitchen', label: 'Küche Licht', description: 'Shelly 1 Mini · 192.168.1.21', group: 'Geräte' },
+      { id: 'act-reset', label: 'Werksreset', group: 'Aktionen', disabled: true },
+      { id: 'act-scan', label: 'Scan starten', group: 'Aktionen' },
+    ];
+    document.getElementById('other').items = [{ id: 'x', label: 'Andere' }];
+    for (const p of document.querySelectorAll('kern-command-palette')) {
+      p.addEventListener('kernSelect', (e) => window.selected.push(`${p.id}:${e.detail.id}`));
+      p.addEventListener('kernQueryChange', (e) => window.queries.push(e.detail.query));
+    }
+    document.getElementById('open').addEventListener('click', () => palette.show());
+    document.getElementById('open-other').addEventListener('click', () => document.getElementById('other').show());
+  </script>
+</body>
+</html>

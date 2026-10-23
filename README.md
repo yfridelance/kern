@@ -24,7 +24,7 @@ dort und hier sind dieselben (`tokens/tokens.json`).
 | Bereich | Elemente |
 | --- | --- |
 | Layout | `kern-app-shell`, `kern-topbar`, `kern-page-header`, `kern-grid` + `kern-grid-item`, `kern-card`, `kern-toolbar`, `kern-accordion` + `kern-accordion-item` |
-| Navigation | `kern-tabs` + `kern-tab-panel`, `kern-link`, `kern-breadcrumb`, `kern-pagination`, `kern-language-select`, `kern-theme-toggle` |
+| Navigation | `kern-tabs` + `kern-tab-panel`, `kern-link`, `kern-breadcrumb`, `kern-pagination`, `kern-command-palette`, `kern-language-select`, `kern-theme-toggle` |
 | Aktionen | `kern-button`, `kern-menu` + `kern-menu-item` |
 | Formulare | `kern-input`, `kern-ip-input`, `kern-mac-input`, `kern-file-input`, `kern-textarea`, `kern-select`, `kern-switch`, `kern-checkbox`, `kern-radio-group` + `kern-radio`, `kern-segmented`, `kern-date-picker`, `kern-date-range-picker`, `kern-time-picker`, `kern-color-picker`, `kern-step-input`, `kern-range`, `kern-rating` |
 | Status | `kern-badge`, `kern-chip`, `kern-status`, `kern-icon` |
@@ -213,6 +213,10 @@ zusätzlich Standalone-Wrapper mit `ControlValueAccessor` für `ngModel` und Rea
   `kern-menu-item` (`value`, `icon`, `tone="danger"`, `disabled`) und `<hr>` als Trenner. Tastatur: Enter/Leertaste/Pfeil
   öffnen, Pfeile/Home/End/Buchstaben bewegen, Escape/Tab schliessen; `kernSelect` liefert `{ value }`. `align="end"`
   für Menüs am Zeilenende.
+- **Befehlspalette:** `kern-command-palette` sucht Seiten, Geräte und Aktionen (`items` mit `id`, `label`, `group`,
+  `keywords` …) per Tastatur; `show()` oder mit `shortcut` Ctrl/Cmd+K öffnet. `kernSelect` liefert nur `{ id }`, die
+  App navigiert. Serverseitig mit `filtering="external"`, `kernQueryChange`, `loading` und `error`; veraltete
+  Antworten verwirft die App.
 - **Tooltips:** `kern-tooltip text="…"` um den Auslöser oder mit `for="id"`; erscheint nach `delay` (400 ms) bei
   Hover und sofort bei Tastaturfokus, Escape schliesst. Nur Ergänzungen (Touch sieht sie nie); bei Icon-Buttons
   bleibt `label` der Name.

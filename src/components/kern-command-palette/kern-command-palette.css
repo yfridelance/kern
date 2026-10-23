@@ -1,0 +1,39 @@
+@import '../../utils/listbox.css';
+
+:host { display: contents; }
+* { box-sizing: border-box; }
+
+/* Near the top instead of centred, so the panel does not jump while the results change. */
+kern-dialog::part(panel) { margin-block-start: min(12vh, 96px); }
+
+/* Fills the dialog body edge to edge. */
+.palette {
+  display: flex; flex-direction: column; min-width: 0;
+  margin: calc(-1 * var(--space-4)) calc(-1 * var(--space-5));
+}
+
+.search { flex: none; display: flex; align-items: center; gap: var(--space-3); padding: 0 var(--space-4); }
+.search-icon { flex: none; width: 16px; height: 16px; color: var(--text-muted); }
+.search input { all: unset; flex: 1; min-width: 0; height: 48px; font: 400 15px/20px var(--font-sans); color: var(--text); }
+.search input::placeholder { color: var(--text-faint); }
+.spinner { flex: none; color: var(--text-muted); }
+
+.listbox, .state { border-top: 1px solid var(--line); }
+.listbox { max-height: min(420px, 56vh); padding: var(--space-1) var(--space-2) var(--space-2); }
+.listbox[hidden] { display: none; }
+.group + .group, .option + .group, .group + .option { margin-top: var(--space-1); }
+.group-label { padding: var(--space-2) var(--space-2) var(--space-1); color: var(--text-muted); font-size: 12px; line-height: 16px; font-weight: 600; }
+
+.option { min-height: 36px; white-space: normal; }
+.option .text { display: grid; }
+.option .label, .option .description { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.option .description { color: var(--text-muted); font-size: 12px; line-height: 16px; }
+.option mark { background: none; color: var(--accent-text); font-weight: 600; }
+.option[aria-disabled="true"] { opacity: .45; cursor: not-allowed; }
+.option[aria-disabled="true"].active { background: none; }
+.option-icon { flex: none; font-size: 16px; color: var(--text-muted); }
+
+.loading { padding: var(--space-3) var(--space-4); color: var(--text-muted); font-size: 13px; }
+kern-empty-state.state { padding: var(--space-2) var(--space-4); }
+
+.sr { position: absolute; width: 1px; height: 1px; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }

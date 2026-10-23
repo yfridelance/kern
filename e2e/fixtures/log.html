@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="de-CH" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <title>e2e: kern-log</title>
+  <link rel="stylesheet" href="kern/kern.css">
+  <script type="module" src="kern/kern.esm.js"></script>
+  <style>body { padding: 24px; max-width: 720px; }</style>
+</head>
+<body>
+  <h1>Log</h1>
+  <kern-log id="log" follow max-entries="50" max-height="200px"></kern-log>
+  <script>
+    // Test helpers: the app owns the array and trims it like kern-log's max-entries.
+    const LEVELS = ['info', 'debug', 'info', 'warn', 'info', 'error'];
+    let entries = [];
+    let next = 1;
+    window.logAdd = (n, max = 50) => {
+      const log = document.getElementById('log');
+      for (let i = 0; i < n; i++, next++) {
+        entries.push({
+          id: next, time: Date.UTC(2026, 9, 20, 8, 0, next), level: LEVELS[next % LEVELS.length],
+          source: next % 2 ? 'mqtt' : 'scanner', message: `Eintrag ${next}`,
+          details: next % 6 === 5 ? { code: next } : undefined,
+        });
+      }
+      entries = entries.slice(-max);
+      log.entries = entries;
+    };
+    window.copied = [];
+    navigator.clipboard.writeText = async (text) => { window.copied.push(text); };
+  </script>
+</body>
+</html>

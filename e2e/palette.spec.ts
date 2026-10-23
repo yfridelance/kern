@@ -161,6 +161,34 @@ test('Beim Wiederöffnen ist der aktive Eintrag sichtbar', async ({ page }) => {
   expect(await selected(page)).toEqual(['palette:dev-0']);
 });
 
+test('Home und End holen den aktiven Eintrag zurück, auch wenn er gleich bleibt', async ({ page }) => {
+  await page.evaluate(() => {
+    const p = document.getElementById('palette') as HTMLElement & { items: unknown };
+    p.items = Array.from({ length: 60 }, (_, i) => ({ id: `dev-${i}`, label: `Gerät ${i}`, group: 'Geräte' }));
+  });
+  await openWithButton(page);
+  await expect.poll(() => activeLabel(page)).toBe('Gerät 0');
+  const listbox = palette(page).locator('[role=listbox]');
+  const visible = () =>
+    listbox.evaluate((list) => {
+      const active = list.querySelector('.option.active')!.getBoundingClientRect();
+      const box = list.getBoundingClientRect();
+      return active.top >= box.top && active.bottom <= box.bottom;
+    });
+  // Scrolled away with the wheel, the active entry stays the same: Home brings it back.
+  await listbox.evaluate((list) => (list.scrollTop = list.scrollHeight));
+  await expect.poll(visible).toBe(false);
+  await page.keyboard.press('Home');
+  await expect.poll(visible).toBe(true);
+
+  await page.keyboard.press('End');
+  await expect.poll(() => activeLabel(page)).toBe('Gerät 59');
+  await listbox.evaluate((list) => (list.scrollTop = 0));
+  await expect.poll(visible).toBe(false);
+  await page.keyboard.press('ArrowDown'); // already the last: stays, but scrolls
+  await expect.poll(visible).toBe(true);
+});
+
 test('Neue externe Resultate: der aktive erste Treffer ist sichtbar', async ({ page }) => {
   const setItems = (prefix: string) =>
     page.evaluate((prefix) => {

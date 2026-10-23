@@ -222,7 +222,7 @@ export class KernCommandPalette {
     // Keep the active entry when it is still there (e.g. a status update), otherwise start at the top. An error
     // hides all entries; clearing it shows them again with the first one active.
     const hits = this.hits();
-    if (hits.some((h) => h.item.id === this.activeId && !h.item.disabled)) this.scrollPending ||= 'active';
+    if (hits.some((h) => h.item.id === this.activeId && !h.item.disabled)) this.scrollAfterRender('active');
     else this.resetActive(hits);
     this.scheduleAnnounce();
   }
@@ -257,7 +257,16 @@ export class KernCommandPalette {
   /** The first enabled entry becomes active, with the list scrolled back to the start. */
   private resetActive(hits = this.hits()) {
     this.activeId = this.firstEnabled(hits);
-    this.scrollPending = 'top';
+    this.scrollAfterRender('top');
+  }
+
+  /**
+   * Scrolls in `componentDidRender()` and asks for that render: the active entry may stay the same (Home on the first
+   * entry after scrolling with the wheel), which alone would not render. `top` wins over `active` until it ran.
+   */
+  private scrollAfterRender(mode: 'top' | 'active') {
+    if (this.scrollPending !== 'top') this.scrollPending = mode;
+    forceUpdate(this);
   }
 
   private firstEnabled(hits = this.hits()): string | undefined {
@@ -276,7 +285,7 @@ export class KernCommandPalette {
       End: last,
     };
     this.activeId = enabled[next[key]].item.id;
-    this.scrollPending = 'active';
+    this.scrollAfterRender('active');
   }
 
   private choose(hit?: CommandHit) {
@@ -306,8 +315,7 @@ export class KernCommandPalette {
     ev.stopPropagation();
     this.input?.focus();
     // The list keeps its scroll position while closed: start at the top (also when nothing else re-renders).
-    this.scrollPending = 'top';
-    forceUpdate(this);
+    this.scrollAfterRender('top');
     this.kernOpen.emit();
   };
 

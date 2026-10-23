@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="de-CH" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <title>e2e: kern-timeline</title>
+  <link rel="stylesheet" href="kern/kern.css">
+  <script type="module" src="kern/kern.esm.js"></script>
+  <style>
+    body { padding: 24px; max-width: 520px; }
+    #feed-box { height: 240px; overflow: auto; border: 1px solid var(--line); }
+  </style>
+</head>
+<body>
+  <h1>Verlauf</h1>
+  <kern-timeline id="history" label="Verlauf Bad Lüftung" has-more>
+    <kern-timeline-item heading="Wieder online" tone="ok" datetime="2026-10-21T08:00:00Z"></kern-timeline-item>
+    <kern-timeline-item id="update" heading="Firmware aktualisiert" tone="ok" datetime="2026-10-21T06:30:00Z" collapsible>
+      Version 1.4.2 wurde installiert.
+      <p slot="details">Vorher 1.3.9, Dauer 2 Min.</p>
+      <button slot="actions" id="log">Protokoll öffnen</button>
+    </kern-timeline-item>
+  </kern-timeline>
+
+  <h2>Feed</h2>
+  <div id="feed-box">
+    <kern-timeline id="feed"></kern-timeline>
+  </div>
+
+  <script>
+    const item = (heading) => {
+      const el = document.createElement('kern-timeline-item');
+      el.heading = heading;
+      el.datetime = '2026-10-20T06:30:00Z';
+      return el;
+    };
+    const history = document.getElementById('history');
+    let page = 0;
+    history.addEventListener('kernLoadMore', () => {
+      history.loading = true;
+      setTimeout(() => {
+        page++;
+        for (let i = 1; i <= 3; i++) history.append(item(`Seite ${page} Ereignis ${i}`));
+        history.loading = false;
+        history.hasMore = page < 2;
+      }, 150);
+    });
+    const feed = document.getElementById('feed');
+    for (let i = 1; i <= 30; i++) feed.append(item(`Feed ${i}`));
+    window.prependFeed = (n) => {
+      for (let i = 0; i < n; i++) feed.prepend(item(`Neu ${i}`));
+    };
+  </script>
+</body>
+</html>

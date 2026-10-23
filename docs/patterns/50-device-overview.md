@@ -438,6 +438,8 @@ The toolbar, the chips and the request loop are the server-side example of the [
 
 Detail rows come from `detail`, which builds a `kern-kv` when a row is opened for the first time. Because they are built once, the example closes them when the language changes.
 
+The current state does not say how a device got there. For that, put its events in a [kern-timeline](../components/kern-timeline.html) inside the detail row or a `kern-drawer`: discovered, firmware updated, connection lost, online again, newest first with «Load more» for older ones.
+
 ## States
 
 One rule decides what stands in place of the table, as on the [States](states.html) page:

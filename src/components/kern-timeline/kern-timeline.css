@@ -1,0 +1,11 @@
+:host { display: block; box-sizing: border-box; width: 100%; min-width: 0; color: var(--text); }
+:host([hidden]) { display: none; }
+[hidden] { display: none !important; }
+
+.placeholders { display: grid; gap: var(--space-5); }
+.placeholder { display: grid; grid-template-columns: 24px minmax(0, 1fr); column-gap: var(--space-3); align-items: start; }
+.placeholder kern-skeleton[variant="circle"] { justify-self: center; margin-top: 5px; }
+
+.more { display: flex; padding: var(--space-4) 0 0 calc(24px + var(--space-3)); }
+
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }

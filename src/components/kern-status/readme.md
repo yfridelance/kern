@@ -69,6 +69,19 @@ Typical places are the topbar (server connection), page headers and list rows. A
 | `"dot"` | The indicator |
 
 
+## Dependencies
+
+### Used by
+
+ - [kern-timeline-item](../kern-timeline-item)
+
+### Graph
+```mermaid
+graph TD;
+  kern-timeline-item --> kern-status
+  style kern-status fill:#f9f,stroke:#333,stroke-width:4px
+```
+
 ----------------------------------------------
 
 

@@ -84,6 +84,22 @@ test.describe('Anfangsfokus', () => {
   });
 });
 
+test.describe('Wieder öffnen vor dem nativen close-Event', () => {
+  test('kern-drawer: Schliessen und sofort wieder Öffnen lässt ihn offen', async ({ page }) => {
+    const modal = page.locator('#drawer');
+    await page.evaluate(async () => {
+      const drawer = document.querySelector('#drawer') as HTMLElement & { open: boolean; show(): Promise<void> };
+      await drawer.show();
+      // The native close event of this close arrives a task later, after the drawer is open again.
+      drawer.open = false;
+      drawer.open = true;
+      await new Promise((r) => setTimeout(r, 100));
+    });
+    await expect(modal.locator('dialog')).toBeVisible();
+    await expect(modal).toHaveAttribute('open');
+  });
+});
+
 test.describe('Popover im modalen kern-dialog', () => {
   test.beforeEach(async ({ page }) => {
     await openWith(page, '#open-dialog');

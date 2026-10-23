@@ -1,0 +1,75 @@
+:host {
+  --kern-timeline-marker: 24px;
+  display: block; min-width: 0; color: var(--text); font: 400 14px/20px var(--font-sans);
+}
+:host([hidden]) { display: none; }
+:host(:focus) { outline: none; }
+:host(:focus-visible) { outline: 2px solid var(--focus); outline-offset: 2px; border-radius: var(--radius-sm); }
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+
+/* Day heading above the first event of a day. */
+.day {
+  display: flex; align-items: center; gap: var(--space-3); padding: var(--space-2) 0 var(--space-3);
+  font: 600 11px/16px var(--font-sans); letter-spacing: .06em; text-transform: uppercase; color: var(--text-muted);
+}
+.day::after { content: ''; flex: 1; border-top: 1px solid var(--line); }
+
+.entry {
+  position: relative; display: grid; grid-template-columns: var(--kern-timeline-marker) minmax(0, 1fr); column-gap: var(--space-3);
+  padding-bottom: var(--space-5);
+}
+/* The line down to the next event; the last one has none. */
+.entry::before {
+  content: ''; position: absolute; left: calc(var(--kern-timeline-marker) / 2 - .5px); top: calc(var(--kern-timeline-marker) + var(--space-1));
+  bottom: var(--space-1); border-left: 1px solid var(--line);
+}
+:host(:last-child) .entry { padding-bottom: 0; }
+:host(:last-child) .entry::before, .entry.end::before { display: none; }
+
+/* Marker: shape per tone as in kern-status, so the tone never depends on colour alone. */
+.marker { display: grid; place-items: center; width: var(--kern-timeline-marker); height: var(--kern-timeline-marker); }
+.marker:not(.icon)::before { content: ''; width: 10px; height: 10px; box-sizing: border-box; border-radius: 50%; border: 1.5px solid var(--text-faint); background: var(--surface); }
+:host([tone="ok"]) .marker:not(.icon)::before { border: 0; background: var(--ok); box-shadow: 0 0 0 3px var(--ok-soft); }
+:host([tone="warn"]) .marker:not(.icon)::before { border: 0; background: var(--warn); border-radius: 1px; transform: rotate(45deg) scale(.9); box-shadow: 0 0 0 3px var(--warn-soft); }
+:host([tone="danger"]) .marker:not(.icon)::before { border: 0; background: var(--danger); border-radius: 1px; box-shadow: 0 0 0 3px var(--danger-soft); }
+:host([tone="busy"]) .marker:not(.icon)::before { border: 0; background: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); animation: pulse 1.2s ease-in-out infinite; }
+
+.marker.icon { border-radius: 50%; border: 1px solid var(--line-strong); background: var(--surface); color: var(--text-muted); }
+.marker.icon svg { width: 14px; height: 14px; }
+:host([tone="ok"]) .marker.icon { border-color: transparent; background: var(--ok-soft); color: var(--ok); }
+:host([tone="busy"]) .marker.icon { border-color: transparent; background: var(--accent-soft); color: var(--accent); animation: pulse 1.2s ease-in-out infinite; }
+:host([tone="danger"]) .marker.icon { border-color: transparent; border-radius: var(--radius-sm); background: var(--danger-soft); color: var(--danger); }
+:host([tone="warn"]) .marker.icon {
+  border-color: transparent; border-radius: 3px; background: var(--warn-soft); color: var(--warn);
+  width: 19px; height: 19px; margin: 2.5px; transform: rotate(45deg);
+}
+:host([tone="warn"]) .marker.icon svg { transform: rotate(-45deg); width: 13px; height: 13px; }
+@keyframes pulse { 50% { opacity: .4; } }
+
+.body { min-width: 0; padding-top: 2px; }
+.top { display: flex; flex-wrap: wrap; align-items: baseline; column-gap: var(--space-3); row-gap: 2px; }
+.heading { font-weight: 500; overflow-wrap: anywhere; }
+.time { margin-left: auto; font-size: 13px; color: var(--text-muted); white-space: nowrap; }
+.time:empty { display: none; }
+kern-status { align-self: center; }
+
+.description { margin-top: 2px; color: var(--text-muted); overflow-wrap: anywhere; }
+::slotted(p) { margin: 0; }
+
+.toggle {
+  all: unset; display: inline-flex; align-items: center; gap: var(--space-1); margin-top: var(--space-2);
+  font-size: 13px; line-height: 18px; font-weight: 500; color: var(--accent-text); cursor: pointer; border-radius: var(--radius-sm);
+}
+.toggle:hover { text-decoration: underline; }
+.toggle:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+.chevron { width: 14px; height: 14px; transition: transform .15s; }
+.toggle[aria-expanded="true"] .chevron { transform: rotate(180deg); }
+
+.details { margin-top: var(--space-2); }
+.actions { display: flex; flex-wrap: wrap; gap: var(--space-2); margin-top: var(--space-2); }
+
+@media (prefers-reduced-motion: reduce) {
+  .chevron { transition: none; }
+  :host([tone="busy"]) .marker::before, :host([tone="busy"]) .marker.icon { animation: none; }
+}

@@ -78,6 +78,19 @@ for (const el of root.querySelectorAll('kern-date[data-ago]')) el.value = Date.n
 | `value`    | `value`     | ISO date (`2026-10-19`), ISO 8601 point in time, epoch milliseconds or a Date. | `Date \| number \| string \| undefined`   | `undefined` |
 
 
+## Dependencies
+
+### Used by
+
+ - [kern-timeline-item](../kern-timeline-item)
+
+### Graph
+```mermaid
+graph TD;
+  kern-timeline-item --> kern-date
+  style kern-date fill:#f9f,stroke:#333,stroke-width:4px
+```
+
 ----------------------------------------------
 
 

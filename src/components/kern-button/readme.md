@@ -161,6 +161,7 @@ root.addEventListener('kernNavigate', (e) => {
  - [kern-dialog](../kern-dialog)
  - [kern-drawer](../kern-drawer)
  - [kern-theme-toggle](../kern-theme-toggle)
+ - [kern-timeline](../kern-timeline)
 
 ### Graph
 ```mermaid
@@ -168,6 +169,7 @@ graph TD;
   kern-dialog --> kern-button
   kern-drawer --> kern-button
   kern-theme-toggle --> kern-button
+  kern-timeline --> kern-button
   style kern-button fill:#f9f,stroke:#333,stroke-width:4px
 ```
 

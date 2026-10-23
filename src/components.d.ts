@@ -2512,6 +2512,117 @@ export namespace Components {
         "value": string;
     }
     /**
+     * History of events, e.g. of a device: «Discovered → Firmware updated → Connection lost → Online again». A list
+     * of kern-timeline-item children in the order the app gives them (newest or oldest first); screen readers read
+     * them in the order they are shown. `group-by="day"` puts a day heading («Today», «Yesterday», a date) above the
+     * first event of each day.
+     * `loading` shows placeholders while there are no events yet, `empty` (or the `empty` slot) when there are none.
+     * With `has-more` a «Load more» button after the last event emits `kernLoadMore`; the app appends the next events
+     * and clears `loading`. Focus and reading position stay where they are: new events at the top do not move the
+     * events being read, and after loading more a short status names the number of new events. If the button goes
+     * away, focus moves to the first new event.
+     */
+    interface KernTimeline {
+        /**
+          * Heading of the empty state; empty string shows nothing. Defaults to the Kern text.
+         */
+        "empty"?: string;
+        /**
+          * `day` = a day heading above the first event of each day; times then show without the date.
+          * @default 'none'
+         */
+        "groupBy": 'none' | 'day';
+        /**
+          * More events can be loaded: shows the «Load more» button.
+          * @default false
+         */
+        "hasMore": boolean;
+        /**
+          * Accessible name of the list, e.g. «History of Bathroom fan».
+         */
+        "label"?: string;
+        /**
+          * Status after loading more, `{n}` = number of new events; defaults to the Kern text.
+         */
+        "labelLoaded"?: string;
+        /**
+          * Text of the «Load more» button; defaults to the Kern text.
+         */
+        "labelMore"?: string;
+        /**
+          * Events are being loaded: placeholders without events, a busy «Load more» button with them.
+          * @default false
+         */
+        "loading": boolean;
+    }
+    /**
+     * One event of kern-timeline: a marker on the line, heading, point in time, description and optional details and
+     * actions. The marker has a shape per tone like kern-status (ok = circle, warn = diamond, danger = square,
+     * busy = pulsing circle, neutral = hollow circle), with `icon` inside. Colour and shape are decoration: the heading
+     * or the `status` word says what happened.
+     * `collapsible` hides the `details` slot behind a «Show details» button (`aria-expanded`, Enter/Space).
+     */
+    interface KernTimelineItem {
+        /**
+          * Hides the `details` slot behind a button.
+          * @default false
+         */
+        "collapsible": boolean;
+        /**
+          * When: ISO 8601 point in time, epoch milliseconds or a Date. Shown with kern-date or, in day groups, kern-time.
+         */
+        "datetime"?: string | number | Date;
+        /**
+          * Last event of its day: no line down to the next day heading.
+          * @default false
+         */
+        "dayEnd": boolean;
+        /**
+          * Day heading, set by kern-timeline with `group-by="day"`.
+         */
+        "dayLabel"?: string;
+        /**
+          * Inside a day group: shows the time only.
+          * @default false
+         */
+        "grouped": boolean;
+        /**
+          * What happened, e.g. «Firmware updated».
+         */
+        "heading"?: string;
+        /**
+          * Glyph in the marker (see kern-icon).
+         */
+        "icon"?: GlyphName;
+        /**
+          * Text of the button that hides the details; defaults to the Kern text.
+         */
+        "labelHide"?: string;
+        /**
+          * Text of the button that shows the details; defaults to the Kern text.
+         */
+        "labelShow"?: string;
+        /**
+          * Whether collapsible details are shown.
+          * @default false
+         */
+        "open": boolean;
+        /**
+          * Shows the point in time relative to now («3 hours ago»); the absolute value is the tooltip.
+          * @default false
+         */
+        "relative": boolean;
+        /**
+          * State as a word beside the heading (a kern-status with `tone`), e.g. «Offline».
+         */
+        "status"?: string;
+        /**
+          * Shape and colour of the marker, as in kern-status.
+          * @default 'neutral'
+         */
+        "tone": 'neutral' | 'ok' | 'warn' | 'danger' | 'busy';
+    }
+    /**
      * Short, non-blocking feedback after an action („Snapshot gespeichert“). Usually created with `toast()`, which stacks
      * them at the bottom right. Closes itself after `duration` (paused while hovered or focused), with the × or the
      * optional action. `toast()` announces it through a polite live region; `danger` interrupts as an alert.
@@ -2753,6 +2864,14 @@ export interface KernTextareaCustomEvent<T> extends CustomEvent<T> {
 export interface KernTimePickerCustomEvent<T> extends CustomEvent<T> {
     detail: T;
     target: HTMLKernTimePickerElement;
+}
+export interface KernTimelineCustomEvent<T> extends CustomEvent<T> {
+    detail: T;
+    target: HTMLKernTimelineElement;
+}
+export interface KernTimelineItemCustomEvent<T> extends CustomEvent<T> {
+    detail: T;
+    target: HTMLKernTimelineItemElement;
 }
 export interface KernToastCustomEvent<T> extends CustomEvent<T> {
     detail: T;
@@ -3902,6 +4021,58 @@ declare global {
         prototype: HTMLKernTimePickerElement;
         new (): HTMLKernTimePickerElement;
     };
+    interface HTMLKernTimelineElementEventMap {
+        "kernLoadMore": void;
+    }
+    /**
+     * History of events, e.g. of a device: «Discovered → Firmware updated → Connection lost → Online again». A list
+     * of kern-timeline-item children in the order the app gives them (newest or oldest first); screen readers read
+     * them in the order they are shown. `group-by="day"` puts a day heading («Today», «Yesterday», a date) above the
+     * first event of each day.
+     * `loading` shows placeholders while there are no events yet, `empty` (or the `empty` slot) when there are none.
+     * With `has-more` a «Load more» button after the last event emits `kernLoadMore`; the app appends the next events
+     * and clears `loading`. Focus and reading position stay where they are: new events at the top do not move the
+     * events being read, and after loading more a short status names the number of new events. If the button goes
+     * away, focus moves to the first new event.
+     */
+    interface HTMLKernTimelineElement extends Components.KernTimeline, HTMLStencilElement {
+        addEventListener<K extends keyof HTMLKernTimelineElementEventMap>(type: K, listener: (this: HTMLKernTimelineElement, ev: KernTimelineCustomEvent<HTMLKernTimelineElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLKernTimelineElementEventMap>(type: K, listener: (this: HTMLKernTimelineElement, ev: KernTimelineCustomEvent<HTMLKernTimelineElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
+    }
+    var HTMLKernTimelineElement: {
+        prototype: HTMLKernTimelineElement;
+        new (): HTMLKernTimelineElement;
+    };
+    interface HTMLKernTimelineItemElementEventMap {
+        "kernToggle": { open: boolean };
+    }
+    /**
+     * One event of kern-timeline: a marker on the line, heading, point in time, description and optional details and
+     * actions. The marker has a shape per tone like kern-status (ok = circle, warn = diamond, danger = square,
+     * busy = pulsing circle, neutral = hollow circle), with `icon` inside. Colour and shape are decoration: the heading
+     * or the `status` word says what happened.
+     * `collapsible` hides the `details` slot behind a «Show details» button (`aria-expanded`, Enter/Space).
+     */
+    interface HTMLKernTimelineItemElement extends Components.KernTimelineItem, HTMLStencilElement {
+        addEventListener<K extends keyof HTMLKernTimelineItemElementEventMap>(type: K, listener: (this: HTMLKernTimelineItemElement, ev: KernTimelineItemCustomEvent<HTMLKernTimelineItemElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLKernTimelineItemElementEventMap>(type: K, listener: (this: HTMLKernTimelineItemElement, ev: KernTimelineItemCustomEvent<HTMLKernTimelineItemElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
+    }
+    var HTMLKernTimelineItemElement: {
+        prototype: HTMLKernTimelineItemElement;
+        new (): HTMLKernTimelineItemElement;
+    };
     interface HTMLKernToastElementEventMap {
         "kernAction": void;
         "kernClose": { reason: KernToastReason };
@@ -4034,6 +4205,8 @@ declare global {
         "kern-theme-toggle": HTMLKernThemeToggleElement;
         "kern-time": HTMLKernTimeElement;
         "kern-time-picker": HTMLKernTimePickerElement;
+        "kern-timeline": HTMLKernTimelineElement;
+        "kern-timeline-item": HTMLKernTimelineItemElement;
         "kern-toast": HTMLKernToastElement;
         "kern-toolbar": HTMLKernToolbarElement;
         "kern-tooltip": HTMLKernTooltipElement;
@@ -6636,6 +6809,125 @@ declare namespace LocalJSX {
         "value"?: string;
     }
     /**
+     * History of events, e.g. of a device: «Discovered → Firmware updated → Connection lost → Online again». A list
+     * of kern-timeline-item children in the order the app gives them (newest or oldest first); screen readers read
+     * them in the order they are shown. `group-by="day"` puts a day heading («Today», «Yesterday», a date) above the
+     * first event of each day.
+     * `loading` shows placeholders while there are no events yet, `empty` (or the `empty` slot) when there are none.
+     * With `has-more` a «Load more» button after the last event emits `kernLoadMore`; the app appends the next events
+     * and clears `loading`. Focus and reading position stay where they are: new events at the top do not move the
+     * events being read, and after loading more a short status names the number of new events. If the button goes
+     * away, focus moves to the first new event.
+     */
+    interface KernTimeline {
+        /**
+          * Heading of the empty state; empty string shows nothing. Defaults to the Kern text.
+         */
+        "empty"?: string;
+        /**
+          * `day` = a day heading above the first event of each day; times then show without the date.
+          * @default 'none'
+         */
+        "groupBy"?: 'none' | 'day';
+        /**
+          * More events can be loaded: shows the «Load more» button.
+          * @default false
+         */
+        "hasMore"?: boolean;
+        /**
+          * Accessible name of the list, e.g. «History of Bathroom fan».
+         */
+        "label"?: string;
+        /**
+          * Status after loading more, `{n}` = number of new events; defaults to the Kern text.
+         */
+        "labelLoaded"?: string;
+        /**
+          * Text of the «Load more» button; defaults to the Kern text.
+         */
+        "labelMore"?: string;
+        /**
+          * Events are being loaded: placeholders without events, a busy «Load more» button with them.
+          * @default false
+         */
+        "loading"?: boolean;
+        /**
+          * «Load more» was pressed. Append the next events and set `loading` while fetching.
+         */
+        "onKernLoadMore"?: (event: KernTimelineCustomEvent<void>) => void;
+    }
+    /**
+     * One event of kern-timeline: a marker on the line, heading, point in time, description and optional details and
+     * actions. The marker has a shape per tone like kern-status (ok = circle, warn = diamond, danger = square,
+     * busy = pulsing circle, neutral = hollow circle), with `icon` inside. Colour and shape are decoration: the heading
+     * or the `status` word says what happened.
+     * `collapsible` hides the `details` slot behind a «Show details» button (`aria-expanded`, Enter/Space).
+     */
+    interface KernTimelineItem {
+        /**
+          * Hides the `details` slot behind a button.
+          * @default false
+         */
+        "collapsible"?: boolean;
+        /**
+          * When: ISO 8601 point in time, epoch milliseconds or a Date. Shown with kern-date or, in day groups, kern-time.
+         */
+        "datetime"?: string | number | Date;
+        /**
+          * Last event of its day: no line down to the next day heading.
+          * @default false
+         */
+        "dayEnd"?: boolean;
+        /**
+          * Day heading, set by kern-timeline with `group-by="day"`.
+         */
+        "dayLabel"?: string;
+        /**
+          * Inside a day group: shows the time only.
+          * @default false
+         */
+        "grouped"?: boolean;
+        /**
+          * What happened, e.g. «Firmware updated».
+         */
+        "heading"?: string;
+        /**
+          * Glyph in the marker (see kern-icon).
+         */
+        "icon"?: GlyphName;
+        /**
+          * Text of the button that hides the details; defaults to the Kern text.
+         */
+        "labelHide"?: string;
+        /**
+          * Text of the button that shows the details; defaults to the Kern text.
+         */
+        "labelShow"?: string;
+        /**
+          * After the user opened or closed the details.
+         */
+        "onKernToggle"?: (event: KernTimelineItemCustomEvent<{ open: boolean }>) => void;
+        /**
+          * Whether collapsible details are shown.
+          * @default false
+         */
+        "open"?: boolean;
+        /**
+          * Shows the point in time relative to now («3 hours ago»); the absolute value is the tooltip.
+          * @default false
+         */
+        "relative"?: boolean;
+        /**
+          * State as a word beside the heading (a kern-status with `tone`), e.g. «Offline».
+         */
+        "status"?: string;
+        /**
+          * Shape and colour of the marker, as in kern-status.
+          * @default 'neutral'
+         */
+        "tone"?: 'neutral' | 'ok' | 'warn' | 'danger' | 'busy';
+    }
+    /**
      * Short, non-blocking feedback after an action („Snapshot gespeichert“). Usually created with `toast()`, which stacks
      * them at the bottom right. Closes itself after `duration` (paused while hovered or focused), with the × or the
      * optional action. `toast()` announces it through a polite live region; `danger` interrupts as an alert.
@@ -7385,6 +7677,30 @@ declare namespace LocalJSX {
         "labelList": string;
         "labelOutOfRange": string;
     }
+    interface KernTimelineAttributes {
+        "label": string;
+        "groupBy": 'none' | 'day';
+        "loading": boolean;
+        "hasMore": boolean;
+        "empty": string;
+        "labelMore": string;
+        "labelLoaded": string;
+    }
+    interface KernTimelineItemAttributes {
+        "heading": string;
+        "datetime": string;
+        "relative": boolean;
+        "tone": 'neutral' | 'ok' | 'warn' | 'danger' | 'busy';
+        "icon": GlyphName;
+        "status": string;
+        "collapsible": boolean;
+        "open": boolean;
+        "labelShow": string;
+        "labelHide": string;
+        "dayLabel": string;
+        "grouped": boolean;
+        "dayEnd": boolean;
+    }
     interface KernToastAttributes {
         "tone": 'neutral' | 'info' | 'ok' | 'warn' | 'danger';
         "heading": string;
@@ -7473,6 +7789,8 @@ declare namespace LocalJSX {
         "kern-theme-toggle": Omit<KernThemeToggle, keyof KernThemeToggleAttributes> & { [K in keyof KernThemeToggle & keyof KernThemeToggleAttributes]?: KernThemeToggle[K] } & { [K in keyof KernThemeToggle & keyof KernThemeToggleAttributes as `attr:${K}`]?: KernThemeToggleAttributes[K] } & { [K in keyof KernThemeToggle & keyof KernThemeToggleAttributes as `prop:${K}`]?: KernThemeToggle[K] };
         "kern-time": Omit<KernTime, keyof KernTimeAttributes> & { [K in keyof KernTime & keyof KernTimeAttributes]?: KernTime[K] } & { [K in keyof KernTime & keyof KernTimeAttributes as `attr:${K}`]?: KernTimeAttributes[K] } & { [K in keyof KernTime & keyof KernTimeAttributes as `prop:${K}`]?: KernTime[K] };
         "kern-time-picker": Omit<KernTimePicker, keyof KernTimePickerAttributes> & { [K in keyof KernTimePicker & keyof KernTimePickerAttributes]?: KernTimePicker[K] } & { [K in keyof KernTimePicker & keyof KernTimePickerAttributes as `attr:${K}`]?: KernTimePickerAttributes[K] } & { [K in keyof KernTimePicker & keyof KernTimePickerAttributes as `prop:${K}`]?: KernTimePicker[K] };
+        "kern-timeline": Omit<KernTimeline, keyof KernTimelineAttributes> & { [K in keyof KernTimeline & keyof KernTimelineAttributes]?: KernTimeline[K] } & { [K in keyof KernTimeline & keyof KernTimelineAttributes as `attr:${K}`]?: KernTimelineAttributes[K] } & { [K in keyof KernTimeline & keyof KernTimelineAttributes as `prop:${K}`]?: KernTimeline[K] };
+        "kern-timeline-item": Omit<KernTimelineItem, keyof KernTimelineItemAttributes> & { [K in keyof KernTimelineItem & keyof KernTimelineItemAttributes]?: KernTimelineItem[K] } & { [K in keyof KernTimelineItem & keyof KernTimelineItemAttributes as `attr:${K}`]?: KernTimelineItemAttributes[K] } & { [K in keyof KernTimelineItem & keyof KernTimelineItemAttributes as `prop:${K}`]?: KernTimelineItem[K] };
         "kern-toast": Omit<KernToast, keyof KernToastAttributes> & { [K in keyof KernToast & keyof KernToastAttributes]?: KernToast[K] } & { [K in keyof KernToast & keyof KernToastAttributes as `attr:${K}`]?: KernToastAttributes[K] } & { [K in keyof KernToast & keyof KernToastAttributes as `prop:${K}`]?: KernToast[K] };
         "kern-toolbar": KernToolbar;
         "kern-tooltip": Omit<KernTooltip, keyof KernTooltipAttributes> & { [K in keyof KernTooltip & keyof KernTooltipAttributes]?: KernTooltip[K] } & { [K in keyof KernTooltip & keyof KernTooltipAttributes as `attr:${K}`]?: KernTooltipAttributes[K] } & { [K in keyof KernTooltip & keyof KernTooltipAttributes as `prop:${K}`]?: KernTooltip[K] };
@@ -7888,6 +8206,26 @@ declare module "@stencil/core" {
              * (every `step`, at least 5 minutes; every 30 minutes when `step` is smaller).
              */
             "kern-time-picker": LocalJSX.IntrinsicElements["kern-time-picker"] & JSXBase.HTMLAttributes<HTMLKernTimePickerElement>;
+            /**
+             * History of events, e.g. of a device: «Discovered → Firmware updated → Connection lost → Online again». A list
+             * of kern-timeline-item children in the order the app gives them (newest or oldest first); screen readers read
+             * them in the order they are shown. `group-by="day"` puts a day heading («Today», «Yesterday», a date) above the
+             * first event of each day.
+             * `loading` shows placeholders while there are no events yet, `empty` (or the `empty` slot) when there are none.
+             * With `has-more` a «Load more» button after the last event emits `kernLoadMore`; the app appends the next events
+             * and clears `loading`. Focus and reading position stay where they are: new events at the top do not move the
+             * events being read, and after loading more a short status names the number of new events. If the button goes
+             * away, focus moves to the first new event.
+             */
+            "kern-timeline": LocalJSX.IntrinsicElements["kern-timeline"] & JSXBase.HTMLAttributes<HTMLKernTimelineElement>;
+            /**
+             * One event of kern-timeline: a marker on the line, heading, point in time, description and optional details and
+             * actions. The marker has a shape per tone like kern-status (ok = circle, warn = diamond, danger = square,
+             * busy = pulsing circle, neutral = hollow circle), with `icon` inside. Colour and shape are decoration: the heading
+             * or the `status` word says what happened.
+             * `collapsible` hides the `details` slot behind a «Show details» button (`aria-expanded`, Enter/Space).
+             */
+            "kern-timeline-item": LocalJSX.IntrinsicElements["kern-timeline-item"] & JSXBase.HTMLAttributes<HTMLKernTimelineItemElement>;
             /**
              * Short, non-blocking feedback after an action („Snapshot gespeichert“). Usually created with `toast()`, which stacks
              * them at the bottom right. Closes itself after `duration` (paused while hovered or focused), with the × or the

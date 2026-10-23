@@ -77,11 +77,13 @@ load();
 ### Used by
 
  - [kern-table](../kern-table)
+ - [kern-timeline](../kern-timeline)
 
 ### Graph
 ```mermaid
 graph TD;
   kern-table --> kern-skeleton
+  kern-timeline --> kern-skeleton
   style kern-skeleton fill:#f9f,stroke:#333,stroke-width:4px
 ```
 

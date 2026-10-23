@@ -1,6 +1,6 @@
 # Overview
 
-Patterns show how several Kern components work together in typical admin screens: filtering a device list, empty and error states, bulk actions, long-running jobs, and complete reference flows. They are recipes, not components. You copy the markup and adapt the script to your app.
+Patterns show how several Kern components work together in typical admin screens: filtering a device list, empty and error states, bulk actions, long-running jobs, saved table views, and complete reference flows. They are recipes, not components. You copy the markup and adapt the script to your app.
 
 Kern draws the interface; your app owns the rest:
 

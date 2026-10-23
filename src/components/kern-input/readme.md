@@ -183,6 +183,19 @@ Type: `Promise<void>`
 | `"option"`  | Each suggestion     |
 
 
+## Dependencies
+
+### Used by
+
+ - [kern-log](../kern-log)
+
+### Graph
+```mermaid
+graph TD;
+  kern-log --> kern-input
+  style kern-input fill:#f9f,stroke:#333,stroke-width:4px
+```
+
 ----------------------------------------------
 
 

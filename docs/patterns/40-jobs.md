@@ -361,7 +361,7 @@ setPhase('idle');
 
 A deployment runs its steps one after another, so a `kern-list` with one item per step fits better than a table. The deployment API of this app offers no cancel, so there is no Cancel button. Don't draw a disabled one either: it promises an action that never comes.
 
-When a step fails, the following steps are skipped and say why. The state of the whole deployment is «Failed», and the failed step keeps its error after the end. While the deployment runs, the start button itself shows the pending action: it stays `busy`, so it can't be pressed twice. With `follow`, the log keeps up with new lines while it is scrolled to the bottom; scroll up and it stays where you are, with «Jump to latest» to get back. The second attempt succeeds.
+When a step fails, the following steps are skipped and say why. The state of the whole deployment is «Failed», and the failed step keeps its error after the end. While the deployment runs, the start button itself shows the pending action: it stays `busy`, so it can't be pressed twice. With `follow`, the log keeps up with new lines while it is scrolled to the bottom; scroll up and it stays where you are, with «Jump to latest» to get back. The second attempt succeeds. A plain `kern-code` suits a short log like this one; for a long or structured log (levels, sources, search, pause) use [kern-log](../components/kern-log.html) instead.
 
 ```html
 <style>

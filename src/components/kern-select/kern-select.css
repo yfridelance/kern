@@ -27,7 +27,7 @@
 
 /* Multiple: chips in a growing field */
 .trigger.multi { height: auto; min-height: var(--control-md); padding-block: 3px; cursor: pointer; }
-:host([size="sm"]) .trigger.multi { min-height: var(--control-sm); padding-block: 2px; }
+:host([size="sm"]) .trigger.multi { height: auto; min-height: var(--control-sm); padding-block: 2px; }
 .trigger.multi:focus-visible { outline: 2px solid var(--focus); outline-offset: -1px; border-color: var(--focus); }
 .trigger.multi[aria-disabled="true"] { opacity: .5; cursor: not-allowed; }
 .chips { flex: 1; min-width: 0; display: flex; flex-wrap: wrap; gap: 4px; }

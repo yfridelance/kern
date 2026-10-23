@@ -15,6 +15,7 @@ import { KernMacFormat } from "./utils/mac";
 import { KernOption } from "./components/kern-select/kern-select";
 import { KernOption as KernOption1 } from "./components/kern-select/kern-select";
 import { KernSortDirection, KernTableColumn } from "./components/kern-table/sort";
+import { KernColumnState } from "./components/kern-table/columns";
 import { KernToastReason } from "./components/kern-toast/kern-toast";
 export { KernNavigateDetail } from "./utils/navigate";
 export { KernCodeLanguage } from "./utils/highlight";
@@ -26,6 +27,7 @@ export { KernMacFormat } from "./utils/mac";
 export { KernOption } from "./components/kern-select/kern-select";
 export { KernOption as KernOption1 } from "./components/kern-select/kern-select";
 export { KernSortDirection, KernTableColumn } from "./components/kern-table/sort";
+export { KernColumnState } from "./components/kern-table/columns";
 export { KernToastReason } from "./components/kern-toast/kern-toast";
 export namespace Components {
     /**
@@ -2143,8 +2145,16 @@ export namespace Components {
      * moves with its row when sorting and is no row for paging or sorting. A `<button kern-expand>` in the row toggles it
      * (the table sets `aria-expanded` and `aria-controls`). Data mode: `detail` adds a chevron column and the detail rows.
      * `expanded` holds the keys of the open rows.
+     * Column state (data mode): `columnState` shows, hides, orders and pins columns by `key` (e.g. from
+     * `kern-table-columns` or a saved view); the rows, their keys, selection and details stay. Pinned columns stay at the
+     * start or end while the table scrolls sideways; with columns pinned to the start, the selection and toggle columns
+     * stay too. Own markup: no column state, render the columns you want yourself.
      */
     interface KernTable {
+        /**
+          * Data mode: which columns show, in which order, and which are pinned, by `key`; plain data to store. Columns it doesn't name keep their place in `columns`, unknown keys are ignored. Default: `columns[].hidden` and `.pinned`.
+         */
+        "columnState"?: KernColumnState[];
         /**
           * Data mode: column definitions. The table builds its own `<table>` from them and `rows`.
          */
@@ -2207,6 +2217,11 @@ export namespace Components {
          */
         "loadingRows": number;
         /**
+          * Data mode: at least this many columns stay visible; a column state hiding more shows the first hidden ones again.
+          * @default 1
+         */
+        "minVisibleColumns": number;
+        /**
           * Current page, from 1.
           * @default 1
          */
@@ -2250,6 +2265,52 @@ export namespace Components {
           * `controlled="external"`: number of all rows (the table only gets the current page).
          */
         "total"?: number;
+    }
+    /**
+     * Column chooser for a `kern-table` in data mode: a checkbox per column to show or hide it and buttons to move it up
+     * or down (also Alt+↑/↓ in its row). Pinned columns are marked and move within their group. It edits a column state
+     * and reports it with `kernColumnsChange`; the app sets it on the table (`table.columnState = e.detail.state`) and
+     * stores it if it wants. Put it in a `kern-drawer`, a dialog or a panel next to the table.
+     */
+    interface KernTableColumns {
+        /**
+          * The column state shown; changed by the user unless `kernColumnsChange` is cancelled. Default: from `columns`.
+         */
+        "columnState"?: KernColumnState[];
+        /**
+          * The table's columns (`key`, `label`, `hideable`, default `hidden` and `pinned`).
+          * @default []
+         */
+        "columns": KernTableColumn[];
+        /**
+          * Accessible name of the list.
+         */
+        "label"?: string;
+        /**
+          * Accessible name of a move-down button; `{label}` is the column.
+         */
+        "labelMoveDown"?: string;
+        /**
+          * Accessible name of a move-up button; `{label}` is the column.
+         */
+        "labelMoveUp"?: string;
+        /**
+          * Announced after a move; `{label}`, `{position}` and `{count}` are replaced.
+         */
+        "labelMoved"?: string;
+        /**
+          * Mark of a column pinned to the end.
+         */
+        "labelPinnedEnd"?: string;
+        /**
+          * Mark of a column pinned to the start.
+         */
+        "labelPinnedStart"?: string;
+        /**
+          * At least this many columns stay visible: their checkboxes can't be cleared.
+          * @default 1
+         */
+        "minVisibleColumns": number;
     }
     /**
      * Switches between views of the same object (Config / Status / Snapshots). Tabs are built from the
@@ -2787,6 +2848,10 @@ export interface KernSwitchCustomEvent<T> extends CustomEvent<T> {
 export interface KernTableCustomEvent<T> extends CustomEvent<T> {
     detail: T;
     target: HTMLKernTableElement;
+}
+export interface KernTableColumnsCustomEvent<T> extends CustomEvent<T> {
+    detail: T;
+    target: HTMLKernTableColumnsElement;
 }
 export interface KernTabsCustomEvent<T> extends CustomEvent<T> {
     detail: T;
@@ -3827,6 +3892,10 @@ declare global {
      * moves with its row when sorting and is no row for paging or sorting. A `<button kern-expand>` in the row toggles it
      * (the table sets `aria-expanded` and `aria-controls`). Data mode: `detail` adds a chevron column and the detail rows.
      * `expanded` holds the keys of the open rows.
+     * Column state (data mode): `columnState` shows, hides, orders and pins columns by `key` (e.g. from
+     * `kern-table-columns` or a saved view); the rows, their keys, selection and details stay. Pinned columns stay at the
+     * start or end while the table scrolls sideways; with columns pinned to the start, the selection and toggle columns
+     * stay too. Own markup: no column state, render the columns you want yourself.
      */
     interface HTMLKernTableElement extends Components.KernTable, HTMLStencilElement {
         addEventListener<K extends keyof HTMLKernTableElementEventMap>(type: K, listener: (this: HTMLKernTableElement, ev: KernTableCustomEvent<HTMLKernTableElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
@@ -3841,6 +3910,29 @@ declare global {
     var HTMLKernTableElement: {
         prototype: HTMLKernTableElement;
         new (): HTMLKernTableElement;
+    };
+    interface HTMLKernTableColumnsElementEventMap {
+        "kernColumnsChange": { state: KernColumnState[] };
+    }
+    /**
+     * Column chooser for a `kern-table` in data mode: a checkbox per column to show or hide it and buttons to move it up
+     * or down (also Alt+↑/↓ in its row). Pinned columns are marked and move within their group. It edits a column state
+     * and reports it with `kernColumnsChange`; the app sets it on the table (`table.columnState = e.detail.state`) and
+     * stores it if it wants. Put it in a `kern-drawer`, a dialog or a panel next to the table.
+     */
+    interface HTMLKernTableColumnsElement extends Components.KernTableColumns, HTMLStencilElement {
+        addEventListener<K extends keyof HTMLKernTableColumnsElementEventMap>(type: K, listener: (this: HTMLKernTableColumnsElement, ev: KernTableColumnsCustomEvent<HTMLKernTableColumnsElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLKernTableColumnsElementEventMap>(type: K, listener: (this: HTMLKernTableColumnsElement, ev: KernTableColumnsCustomEvent<HTMLKernTableColumnsElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
+    }
+    var HTMLKernTableColumnsElement: {
+        prototype: HTMLKernTableColumnsElement;
+        new (): HTMLKernTableColumnsElement;
     };
     interface HTMLKernTabsElementEventMap {
         "kernTabChange": { value: string };
@@ -4107,6 +4199,7 @@ declare global {
         "kern-switch": HTMLKernSwitchElement;
         "kern-tab-panel": HTMLKernTabPanelElement;
         "kern-table": HTMLKernTableElement;
+        "kern-table-columns": HTMLKernTableColumnsElement;
         "kern-tabs": HTMLKernTabsElement;
         "kern-textarea": HTMLKernTextareaElement;
         "kern-theme-toggle": HTMLKernThemeToggleElement;
@@ -6332,8 +6425,16 @@ declare namespace LocalJSX {
      * moves with its row when sorting and is no row for paging or sorting. A `<button kern-expand>` in the row toggles it
      * (the table sets `aria-expanded` and `aria-controls`). Data mode: `detail` adds a chevron column and the detail rows.
      * `expanded` holds the keys of the open rows.
+     * Column state (data mode): `columnState` shows, hides, orders and pins columns by `key` (e.g. from
+     * `kern-table-columns` or a saved view); the rows, their keys, selection and details stay. Pinned columns stay at the
+     * start or end while the table scrolls sideways; with columns pinned to the start, the selection and toggle columns
+     * stay too. Own markup: no column state, render the columns you want yourself.
      */
     interface KernTable {
+        /**
+          * Data mode: which columns show, in which order, and which are pinned, by `key`; plain data to store. Columns it doesn't name keep their place in `columns`, unknown keys are ignored. Default: `columns[].hidden` and `.pinned`.
+         */
+        "columnState"?: KernColumnState[];
         /**
           * Data mode: column definitions. The table builds its own `<table>` from them and `rows`.
          */
@@ -6396,6 +6497,11 @@ declare namespace LocalJSX {
          */
         "loadingRows"?: number;
         /**
+          * Data mode: at least this many columns stay visible; a column state hiding more shows the first hidden ones again.
+          * @default 1
+         */
+        "minVisibleColumns"?: number;
+        /**
           * Data mode: a row was clicked (not on a button, link or field in it). `index` is the position in `rows`.
          */
         "onKernRowClick"?: (event: KernTableCustomEvent<{ row: any; index: number }>) => void;
@@ -6447,6 +6553,56 @@ declare namespace LocalJSX {
           * `controlled="external"`: number of all rows (the table only gets the current page).
          */
         "total"?: number;
+    }
+    /**
+     * Column chooser for a `kern-table` in data mode: a checkbox per column to show or hide it and buttons to move it up
+     * or down (also Alt+↑/↓ in its row). Pinned columns are marked and move within their group. It edits a column state
+     * and reports it with `kernColumnsChange`; the app sets it on the table (`table.columnState = e.detail.state`) and
+     * stores it if it wants. Put it in a `kern-drawer`, a dialog or a panel next to the table.
+     */
+    interface KernTableColumns {
+        /**
+          * The column state shown; changed by the user unless `kernColumnsChange` is cancelled. Default: from `columns`.
+         */
+        "columnState"?: KernColumnState[];
+        /**
+          * The table's columns (`key`, `label`, `hideable`, default `hidden` and `pinned`).
+          * @default []
+         */
+        "columns"?: KernTableColumn[];
+        /**
+          * Accessible name of the list.
+         */
+        "label"?: string;
+        /**
+          * Accessible name of a move-down button; `{label}` is the column.
+         */
+        "labelMoveDown"?: string;
+        /**
+          * Accessible name of a move-up button; `{label}` is the column.
+         */
+        "labelMoveUp"?: string;
+        /**
+          * Announced after a move; `{label}`, `{position}` and `{count}` are replaced.
+         */
+        "labelMoved"?: string;
+        /**
+          * Mark of a column pinned to the end.
+         */
+        "labelPinnedEnd"?: string;
+        /**
+          * Mark of a column pinned to the start.
+         */
+        "labelPinnedStart"?: string;
+        /**
+          * At least this many columns stay visible: their checkboxes can't be cleared.
+          * @default 1
+         */
+        "minVisibleColumns"?: number;
+        /**
+          * A column was shown, hidden or moved. `state` is the complete new column state. Cancelable: `preventDefault()` keeps it as it is.
+         */
+        "onKernColumnsChange"?: (event: KernTableColumnsCustomEvent<{ state: KernColumnState[] }>) => void;
     }
     /**
      * Switches between views of the same object (Config / Status / Snapshots). Tabs are built from the
@@ -7451,6 +7607,16 @@ declare namespace LocalJSX {
         "labelSelectAll": string;
         "labelSelectRow": string;
         "labelExpandRow": string;
+        "minVisibleColumns": number;
+    }
+    interface KernTableColumnsAttributes {
+        "minVisibleColumns": number;
+        "label": string;
+        "labelMoveUp": string;
+        "labelMoveDown": string;
+        "labelPinnedStart": string;
+        "labelPinnedEnd": string;
+        "labelMoved": string;
     }
     interface KernTabsAttributes {
         "value": string;
@@ -7617,6 +7783,7 @@ declare namespace LocalJSX {
         "kern-switch": Omit<KernSwitch, keyof KernSwitchAttributes> & { [K in keyof KernSwitch & keyof KernSwitchAttributes]?: KernSwitch[K] } & { [K in keyof KernSwitch & keyof KernSwitchAttributes as `attr:${K}`]?: KernSwitchAttributes[K] } & { [K in keyof KernSwitch & keyof KernSwitchAttributes as `prop:${K}`]?: KernSwitch[K] };
         "kern-tab-panel": Omit<KernTabPanel, keyof KernTabPanelAttributes> & { [K in keyof KernTabPanel & keyof KernTabPanelAttributes]?: KernTabPanel[K] } & { [K in keyof KernTabPanel & keyof KernTabPanelAttributes as `attr:${K}`]?: KernTabPanelAttributes[K] } & { [K in keyof KernTabPanel & keyof KernTabPanelAttributes as `prop:${K}`]?: KernTabPanel[K] } & OneOf<"label", KernTabPanel["label"], KernTabPanelAttributes["label"]>;
         "kern-table": Omit<KernTable, keyof KernTableAttributes> & { [K in keyof KernTable & keyof KernTableAttributes]?: KernTable[K] } & { [K in keyof KernTable & keyof KernTableAttributes as `attr:${K}`]?: KernTableAttributes[K] } & { [K in keyof KernTable & keyof KernTableAttributes as `prop:${K}`]?: KernTable[K] };
+        "kern-table-columns": Omit<KernTableColumns, keyof KernTableColumnsAttributes> & { [K in keyof KernTableColumns & keyof KernTableColumnsAttributes]?: KernTableColumns[K] } & { [K in keyof KernTableColumns & keyof KernTableColumnsAttributes as `attr:${K}`]?: KernTableColumnsAttributes[K] } & { [K in keyof KernTableColumns & keyof KernTableColumnsAttributes as `prop:${K}`]?: KernTableColumns[K] };
         "kern-tabs": Omit<KernTabs, keyof KernTabsAttributes> & { [K in keyof KernTabs & keyof KernTabsAttributes]?: KernTabs[K] } & { [K in keyof KernTabs & keyof KernTabsAttributes as `attr:${K}`]?: KernTabsAttributes[K] } & { [K in keyof KernTabs & keyof KernTabsAttributes as `prop:${K}`]?: KernTabs[K] };
         "kern-textarea": Omit<KernTextarea, keyof KernTextareaAttributes> & { [K in keyof KernTextarea & keyof KernTextareaAttributes]?: KernTextarea[K] } & { [K in keyof KernTextarea & keyof KernTextareaAttributes as `attr:${K}`]?: KernTextareaAttributes[K] } & { [K in keyof KernTextarea & keyof KernTextareaAttributes as `prop:${K}`]?: KernTextarea[K] };
         "kern-theme-toggle": Omit<KernThemeToggle, keyof KernThemeToggleAttributes> & { [K in keyof KernThemeToggle & keyof KernThemeToggleAttributes]?: KernThemeToggle[K] } & { [K in keyof KernThemeToggle & keyof KernThemeToggleAttributes as `attr:${K}`]?: KernThemeToggleAttributes[K] } & { [K in keyof KernThemeToggle & keyof KernThemeToggleAttributes as `prop:${K}`]?: KernThemeToggle[K] };
@@ -7998,8 +8165,19 @@ declare module "@stencil/core" {
              * moves with its row when sorting and is no row for paging or sorting. A `<button kern-expand>` in the row toggles it
              * (the table sets `aria-expanded` and `aria-controls`). Data mode: `detail` adds a chevron column and the detail rows.
              * `expanded` holds the keys of the open rows.
+             * Column state (data mode): `columnState` shows, hides, orders and pins columns by `key` (e.g. from
+             * `kern-table-columns` or a saved view); the rows, their keys, selection and details stay. Pinned columns stay at the
+             * start or end while the table scrolls sideways; with columns pinned to the start, the selection and toggle columns
+             * stay too. Own markup: no column state, render the columns you want yourself.
              */
             "kern-table": LocalJSX.IntrinsicElements["kern-table"] & JSXBase.HTMLAttributes<HTMLKernTableElement>;
+            /**
+             * Column chooser for a `kern-table` in data mode: a checkbox per column to show or hide it and buttons to move it up
+             * or down (also Alt+↑/↓ in its row). Pinned columns are marked and move within their group. It edits a column state
+             * and reports it with `kernColumnsChange`; the app sets it on the table (`table.columnState = e.detail.state`) and
+             * stores it if it wants. Put it in a `kern-drawer`, a dialog or a panel next to the table.
+             */
+            "kern-table-columns": LocalJSX.IntrinsicElements["kern-table-columns"] & JSXBase.HTMLAttributes<HTMLKernTableColumnsElement>;
             /**
              * Switches between views of the same object (Config / Status / Snapshots). Tabs are built from the
              * kern-tab-panel children; arrow keys, Home and End move between them.

@@ -1,0 +1,22 @@
+:host { display: block; min-width: 0; color: var(--text); font: 400 13px/18px var(--font-sans); }
+:host([hidden]) { display: none; }
+ul { list-style: none; margin: 0; padding: 0; display: grid; }
+li {
+  display: flex; align-items: center; gap: var(--space-2); min-height: 36px; padding: 0 var(--space-1) 0 var(--space-2);
+  border-bottom: 1px solid var(--line);
+}
+li:last-child { border-bottom: 0; }
+li:hover { background: var(--hover); }
+.show { flex: 0 1 auto; min-width: 0; }
+.pin { flex: none; margin-left: auto; font-size: 11px; line-height: 16px; color: var(--text-muted); white-space: nowrap; }
+.move { flex: none; margin-left: auto; display: inline-flex; gap: 2px; }
+.pin + .move { margin-left: 0; }
+button {
+  all: unset; box-sizing: border-box; display: inline-grid; place-items: center;
+  width: 28px; height: 28px; border-radius: var(--radius-sm); cursor: pointer; color: var(--text-muted);
+}
+button:hover:not(:disabled) { background: var(--surface-raised); color: var(--text); }
+button:focus-visible { outline: 2px solid var(--focus); outline-offset: -1px; }
+button:disabled { color: var(--text-faint); cursor: default; }
+button svg { width: 14px; height: 14px; }
+.live { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }

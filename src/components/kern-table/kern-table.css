@@ -2,7 +2,7 @@ kern-table { display: block; overflow: auto; background: var(--surface); border:
 kern-table[hidden] { display: none; }
 kern-table > table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 13px; line-height: 18px; color: var(--text); }
 kern-table th {
-  position: sticky; top: 0; z-index: 1; height: 32px; padding: 0 var(--space-3);
+  position: sticky; top: 0; z-index: 2; height: 32px; padding: 0 var(--space-3);
   background: var(--surface-sunken); border-bottom: 1px solid var(--line);
   text-align: left; white-space: nowrap;
   font-size: 11px; line-height: 16px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--text-muted);
@@ -44,6 +44,14 @@ kern-table tr.skeleton td kern-skeleton { display: block; max-width: 120px; }
 kern-table tr.skeleton td.num kern-skeleton { margin-left: auto; max-width: 48px; }
 kern-table tbody tr.skeleton:hover td { background: none; }
 kern-table tbody tr[data-kern-paged-out] { display: none; }
+/* Pinned columns (data mode): stay at the start or end while the table scrolls sideways, above the scrolling cells. */
+kern-table :is(td, th)[data-kern-pin] { position: sticky; z-index: 1; }
+kern-table thead th[data-kern-pin] { z-index: 3; }
+kern-table td[data-kern-pin] { background-color: var(--surface); }
+kern-table tbody tr:hover td[data-kern-pin] { background-color: var(--hover); }
+kern-table tbody tr[aria-selected="true"] td[data-kern-pin] { background-color: var(--accent-soft); }
+kern-table [data-kern-pin-edge="start"] { box-shadow: inset -1px 0 var(--line); }
+kern-table [data-kern-pin-edge="end"] { box-shadow: inset 1px 0 var(--line); }
 /* Detail rows: hidden until their row is expanded; sunken, padded, no hover colour. */
 kern-table tbody tr[kern-details]:not([data-kern-open]) { display: none; }
 kern-table tbody tr:has(+ tr[kern-details]:not([data-kern-open]):last-child) td { border-bottom: 0; }
@@ -63,6 +71,6 @@ kern-table td[data-kern-expand] button[kern-expand] { color: var(--text-muted); 
 @media (prefers-reduced-motion: reduce) { kern-table button[kern-expand] kern-icon { transition: none; } }
 /* Pagination footer: stays in view while the table scrolls sideways or down; covers the last row's border. */
 kern-table > kern-pagination[data-kern-generated] {
-  position: sticky; left: 0; bottom: 0; z-index: 2; margin-top: -1px;
+  position: sticky; left: 0; bottom: 0; z-index: 4; margin-top: -1px;
   padding: var(--space-2) var(--space-3); background: var(--surface); border-top: 1px solid var(--line);
 }

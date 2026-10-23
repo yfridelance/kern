@@ -1,4 +1,5 @@
 export type KernSortDirection = 'asc' | 'desc';
+export type KernColumnPin = 'start' | 'end';
 
 /** A column of a `kern-table` built from data (`columns` + `rows`). */
 export interface KernTableColumn<T = any> {
@@ -13,6 +14,14 @@ export interface KernTableColumn<T = any> {
   mono?: boolean;
   /** CSS width of the column. */
   width?: string;
+  /** CSS minimum width, e.g. `120px`: the column doesn't shrink below it (the table scrolls sideways instead). */
+  minWidth?: string;
+  /** Hidden in the default column state (see `columnState`). */
+  hidden?: boolean;
+  /** Pinned in the default column state: stays at the start or end while the table scrolls sideways. */
+  pinned?: KernColumnPin;
+  /** `false`: always shown, a column state can't hide it (e.g. the name). */
+  hideable?: boolean;
   /**
    * Cell content: a Node (e.g. a `kern-signal`) or text. Default: `row[key]`, `–` when empty. Called on every update;
    * `current` is the Node this cell of the row shows, if any: change it and return it to keep it (focus, state),

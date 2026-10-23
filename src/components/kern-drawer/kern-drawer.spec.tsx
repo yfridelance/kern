@@ -37,6 +37,18 @@ describe('kern-drawer', () => {
     expect([page.root!.hasAttribute('open'), values]).toEqual([false, ['saved']]);
   });
 
+  it('ignores a late close event when it was reopened in between', async () => {
+    const page = await newSpecPage({ components: [KernDrawer], html: `<kern-drawer heading="X" open></kern-drawer>` });
+    const values: string[] = [];
+    page.root!.addEventListener('kernClose', (e) => values.push((e as CustomEvent).detail.returnValue));
+    const dialog = page.root!.shadowRoot!.querySelector('dialog')! as HTMLDialogElement;
+    // The native close of the earlier session arrives while the dialog is already shown again.
+    Object.defineProperty(dialog, 'open', { configurable: true, value: true });
+    dialog.dispatchEvent(new Event('close'));
+    await page.waitForChanges();
+    expect([page.root!.hasAttribute('open'), values]).toEqual([true, []]);
+  });
+
   it('emits kernOpen and focuses the first field with autofocus', async () => {
     const page = await newSpecPage({ components: [KernDrawer], html: `<kern-drawer heading="X"><kern-input name="a"></kern-input><kern-input name="b" autofocus></kern-input></kern-drawer>` });
     const dialog = page.root!.shadowRoot!.querySelector('dialog')! as HTMLDialogElement;

@@ -17,6 +17,12 @@ describe('command search', () => {
     expect(queryTokens('  Küche   licht ')).toEqual(['kuche', 'licht']);
   });
 
+  it('folds label and query the same way, also the Greek final sigma', () => {
+    const items: KernCommandItem[] = [{ id: 'n', label: 'ΝΙΚΟΣ' }];
+    for (const q of ['ΝΙΚΟΣ', 'νικος', 'νικοσ', 'Νίκος']) expect(searchCommands(items, q)[0]?.hits[0].ranges).toEqual([[0, 5]]);
+    expect(foldText('ΝΙΚΟΣ')).toBe(foldText('νικος'));
+  });
+
   it('groups in the order of the first entry of each group, all items without a query', () => {
     expect(ids(searchCommands(ITEMS, ''))).toEqual([
       ['Actions', ['scan']],

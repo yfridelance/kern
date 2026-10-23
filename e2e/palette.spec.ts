@@ -186,6 +186,24 @@ test('Neue externe Resultate: der aktive erste Treffer ist sichtbar', async ({ p
   expect(await selected(page)).toEqual(['palette:neu-0']);
 });
 
+test('Nach einem aufgehobenen Fehler wählt Enter den ersten Treffer', async ({ page }) => {
+  await openWithButton(page);
+  await page.evaluate(() => {
+    const p = document.getElementById('palette') as HTMLElement & { filtering: string; error?: string };
+    p.filtering = 'external';
+    p.error = 'Request failed (500)';
+  });
+  await expect(palette(page).locator('kern-empty-state')).toContainText('Request failed (500)');
+  await page.evaluate(() => {
+    const p = document.getElementById('palette') as HTMLElement & { items: unknown; error?: string };
+    p.items = [{ id: 'dev-boiler', label: 'Boiler', group: 'Geräte' }];
+    p.error = undefined;
+  });
+  await expect.poll(() => activeLabel(page)).toBe('Boiler');
+  await page.keyboard.press('Enter');
+  expect(await selected(page)).toEqual(['palette:dev-boiler']);
+});
+
 test('Ctrl/Cmd+K öffnet nicht über einem Modal in einem Shadow Root', async ({ page }) => {
   await page.evaluate(async () => {
     const host = document.createElement('div');

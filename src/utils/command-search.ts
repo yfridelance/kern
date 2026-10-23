@@ -33,11 +33,14 @@ export interface CommandGroup {
   hits: CommandHit[];
 }
 
-const MARKS = /[̀-ͯ]/g;
+const MARKS = /[\u0300-\u036f]/g;
 
-/** Lower case without diacritics, so «kuche» finds «Küche». */
-export function foldText(text: string): string {
-  return text.normalize('NFD').replace(MARKS, '').toLowerCase();
+/**
+ * One character in lower case without diacritics. Per character, so label and query fold the same way and positions
+ * map back to the label; the final sigma «ς» (which a whole-text lower-casing would produce) becomes «σ».
+ */
+function foldChar(c: string): string {
+  return c.normalize('NFD').replace(MARKS, '').toLowerCase().replace(/ς/g, 'σ');
 }
 
 /** The folded text and, per folded character, the index of the character in `text` it came from. */
@@ -45,11 +48,16 @@ function foldWithMap(text: string): { folded: string; map: number[] } {
   let folded = '';
   const map: number[] = [];
   for (let i = 0; i < text.length; i++) {
-    const part = foldText(text[i]);
+    const part = foldChar(text[i]);
     folded += part;
     for (let n = 0; n < part.length; n++) map.push(i);
   }
   return { folded, map };
+}
+
+/** Lower case without diacritics, so «kuche» finds «Küche». */
+export function foldText(text: string): string {
+  return foldWithMap(text).folded;
 }
 
 /** Search words of a query: folded, split at whitespace. */

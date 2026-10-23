@@ -217,8 +217,10 @@ export class KernCommandPalette {
 
   @Watch('items')
   @Watch('filtering')
+  @Watch('error')
   itemsChanged() {
-    // Keep the active entry when it is still there (e.g. a status update), otherwise start at the top.
+    // Keep the active entry when it is still there (e.g. a status update), otherwise start at the top. An error
+    // hides all entries; clearing it shows them again with the first one active.
     const hits = this.hits();
     if (hits.some((h) => h.item.id === this.activeId && !h.item.disabled)) this.scrollPending ||= 'active';
     else this.resetActive(hits);
@@ -226,8 +228,7 @@ export class KernCommandPalette {
   }
 
   @Watch('loading')
-  @Watch('error')
-  stateChanged() {
+  loadingChanged() {
     this.scheduleAnnounce();
   }
 

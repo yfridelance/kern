@@ -251,6 +251,21 @@ describe('kern-command-palette', () => {
     expect([state.getAttribute('variant'), state.textContent]).toEqual(['error', 'Server not reachable']);
   });
 
+  it('makes the first result active again when an error is cleared', async () => {
+    const { page, host, events, active, key, open } = await setup(`<kern-command-palette filtering="external"></kern-command-palette>`, []);
+    await open();
+    host.error = 'Request failed (500)';
+    await page.waitForChanges();
+    expect(active()).toBeUndefined();
+    // As a search handler does it: new rows first, then the error cleared.
+    host.items = ITEMS;
+    host.error = undefined;
+    await page.waitForChanges();
+    expect(active()).toBe('Devices');
+    await key('Enter');
+    expect(events).toContain('kernSelect {"id":"page-devices"}');
+  });
+
   it('keeps the active entry when the items change, else starts at the top', async () => {
     const { page, host, active, key, open } = await setup();
     await open();

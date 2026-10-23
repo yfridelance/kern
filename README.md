@@ -29,7 +29,7 @@ dort und hier sind dieselben (`tokens/tokens.json`).
 | Formulare | `kern-input`, `kern-ip-input`, `kern-mac-input`, `kern-file-input`, `kern-textarea`, `kern-select`, `kern-switch`, `kern-checkbox`, `kern-radio-group` + `kern-radio`, `kern-segmented`, `kern-date-picker`, `kern-date-range-picker`, `kern-time-picker`, `kern-color-picker`, `kern-step-input`, `kern-range`, `kern-rating` |
 | Status | `kern-badge`, `kern-chip`, `kern-status`, `kern-icon` |
 | Rückmeldung | `kern-alert`, `kern-empty-state`, `kern-skeleton`, `kern-toast` (+ `toast()`), `kern-tooltip`, `kern-drawer`, `kern-progress`, `kern-spinner`, `kern-dialog` (+ `confirm()`) |
-| Daten | `kern-table`, `kern-list` + `kern-list-item`, `kern-kv` + `kern-kv-item`, `kern-stat`, `kern-sparkline`, `kern-meter`, `kern-signal`, `kern-copy`, `kern-json`, `kern-json-diff` (+ `diffJson()`), `kern-code`, `kern-log` |
+| Daten | `kern-table`, `kern-table-columns`, `kern-list` + `kern-list-item`, `kern-kv` + `kern-kv-item`, `kern-stat`, `kern-sparkline`, `kern-meter`, `kern-signal`, `kern-copy`, `kern-json`, `kern-json-diff` (+ `diffJson()`), `kern-code`, `kern-log` |
 | Datum & Zeit | `kern-date`, `kern-time`, `kern-calendar` |
 
 Props, Events, Slots und Parts jeder Komponente: `src/components/<tag>/readme.md` (aus dem Code erzeugt).
@@ -136,6 +136,8 @@ zusätzlich Standalone-Wrapper mit `ControlValueAccessor` für `ngModel` und Rea
   Kopf-Checkbox (sichtbare Zeilen der Seite); Schlüssel aus `data-key` bzw. `rowKey`, Zustand in `selected`, Event
   `kernSelectionChange` mit `{ selected }`. Detail-Zeilen: `<tr kern-details>` direkt nach ihrer Zeile, aufgeklappt
   mit `<button kern-expand>` (im Datenmodus `detail`); Zustand in `expanded`, Event `kernRowToggle`, `toggleRow()`.
+  Spalten im Datenmodus: `columnState` blendet Spalten per `key` ein/aus, ordnet und fixiert sie; `kern-table-columns`
+  bearbeitet den Zustand und meldet `kernColumnsChange`.
 - **Laden:** `kern-skeleton` als Platzhalter in Form des Inhalts (`variant="text"` mit `lines`, `"block"` mit
   `width`/`height`, `"circle"` mit `size`); statisch bei reduzierter Bewegung, für Screenreader verborgen. Den Container
   dabei mit `aria-busy="true"` markieren. `kern-spinner`/`kern-progress` für Vorgänge ohne Inhaltsform.

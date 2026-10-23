@@ -24,5 +24,7 @@ export type { BrandName } from './utils/brand-names';
 export type { FlagName } from './utils/flag-names';
 export type { KernIpv4, KernIpKind, KernMask } from './utils/ip';
 export type { KernOption } from './components/kern-select/kern-select';
-export type { KernTableColumn, KernSortDirection } from './components/kern-table/sort';
+export type { KernTableColumn, KernSortDirection, KernColumnPin } from './components/kern-table/sort';
+export { resolveColumnState } from './components/kern-table/columns';
+export type { KernColumnState } from './components/kern-table/columns';
 export type { KernLogEntry, KernLogFilter, KernLogLevel } from './components/kern-log/log';

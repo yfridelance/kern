@@ -96,11 +96,13 @@ sync();
 ### Used by
 
  - [kern-table](../kern-table)
+ - [kern-table-columns](../kern-table-columns)
 
 ### Graph
 ```mermaid
 graph TD;
   kern-table --> kern-checkbox
+  kern-table-columns --> kern-checkbox
   style kern-checkbox fill:#f9f,stroke:#333,stroke-width:4px
 ```
 
